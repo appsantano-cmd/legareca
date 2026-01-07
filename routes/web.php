@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\PengajuanIzinController;   
 use App\Http\Controllers\WelcomeVipController;
 
 Route::get('/', function () {
@@ -36,3 +37,14 @@ Route::post('/screening/pets/submit', [WelcomeVipController::class, 'submitPets'
 Route::post('/screening/submit-pets', [WelcomeVipController::class, 'submitPets'])->name('screening.submitPets');
 Route::get('/screening/result', [WelcomeVipController::class, 'screeningResult'])->name('screening.result');
 
+
+Route::prefix('izin')->name('izin.')->group(function () {
+    Route::get('/', [PengajuanIzinController::class, 'index'])
+        ->name('index');
+
+    Route::get('/create', [PengajuanIzinController::class, 'create'])
+        ->name('create');
+
+    Route::post('/', [PengajuanIzinController::class, 'store'])
+        ->name('store');
+});
