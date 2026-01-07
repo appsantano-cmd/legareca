@@ -5,7 +5,7 @@
 @section('content')
 <h1 class="text-2xl font-bold mb-4">Form Pengajuan Izin</h1>
 
-<form method="POST" action="{{ route('izin.store') }}">
+<form method="POST" action="{{ route('izin.store') }}" enctype="multipart/form-data">
     @csrf
 
     {{-- Nama --}}
@@ -31,60 +31,42 @@
     </div>
 
     {{-- Jenis Izin --}}
-    <div class="mb-4"
-     x-data="{
-        selected: '{{ old('jenis_izin') }}',
-        custom: '{{ old('jenis_izin_custom') }}'
-     }"
-     x-init="
-        if (selected && selected !== 'Yang Lainnya') {
-            $refs.final.value = selected;
-        }
-     "
->
-    <label class="block font-semibold mb-2">Jenis Izin</label>
+    <div class="mb-4" x-data="{ selected: '' }">
+        <label class="block font-semibold mb-2">Jenis Izin</label>
 
-    @foreach ([
-        'Izin Sakit',
-        'Izin Datang Terlambat',
-        'Izin Pulang Lebih Awal',
-        'Izin Kematian Keluarga',
-        'Yang Lainnya'
-    ] as $option)
-        <label class="flex items-center gap-2 cursor-pointer">
-            <input
-                type="radio"
-                name="jenis_izin_option"
-                value="{{ $option }}"
-                x-model="selected"
-                required
-                class="text-blue-600"
-            >
-            <span>{{ $option }}</span>
-        </label>
-    @endforeach
+        {{-- RADIO --}}
+        @foreach ([
+            'Izin Sakit',
+            'Izin Datang Terlambat',
+            'Izin Pulang Lebih Awal',
+            'Izin Kematian Keluarga',
+            'Lainnya'
+        ] as $option)
+            <label class="flex items-center gap-2 cursor-pointer">
+                <input
+                    type="radio"
+                    name="jenis_izin_pilihan"
+                    value="{{ $option }}"
+                    x-model="selected"
+                >
+                <span>{{ $option }}</span>
+            </label>
+        @endforeach
 
-    <input
-        x-show="selected === 'Yang Lainnya'"
-        x-transition
-        type="text"
-        placeholder="Tulis jenis izin lainnya..."
-        x-model="custom"
-        class="w-full border px-3 py-2 rounded mt-2"
-    >
+        {{-- INPUT TAMBAHAN --}}
+        <input
+            x-show="selected === 'Lainnya'"
+            x-transition
+            type="text"
+            name="jenis_izin_lainnya"
+            placeholder="Tulis jenis izin lainnya..."
+            class="w-full border px-3 py-2 rounded mt-2"
+        >
 
-    <input
-        type="hidden"
-        name="jenis_izin"
-        x-ref="final"
-        :value="selected === 'Yang Lainnya' ? custom : selected"
-    >
-
-    @error('jenis_izin')
-        <small class="text-red-500">{{ $message }}</small>
-    @enderror
-</div>
-
+        @error('jenis_izin')
+            <small class="text-red-500">{{ $message }}</small>
+        @enderror
+    </div>
 
     {{-- Tanggal Mulai --}}
     <div class="mb-4">
@@ -133,9 +115,7 @@
     {{-- File Pendukung --}}
     <div class="mb-4">
         <label class="block font-semibold mb-1">File Pendukung</label>
-        <input type="file" name="documen_pendukung"
-            class="w-full border px-3 py-2 rounded"
-            value="{{ old('documen_pendukung  ') }}">
+        <input type="file" name="documen_pendukung" class="w-full border px-3 py-2 rounded">
         @error('documen_pendukung')
             <small class="text-red-500">{{ $message }}</small>
         @enderror
@@ -155,12 +135,17 @@
     {{-- Alamat --}}
     <div class="mb-4">
         <label class="block font-semibold mb-1">Alamat Selama Izin</label>
-        <input type="text" name="alamat_selama_izin"
+        <input type="text" name="alamat"
             class="w-full border px-3 py-2 rounded"
-            value="{{ old('alamat_selama_izin') }}">
-        @error('alamat_selama_izin')
+            value="{{ old('alamat') }}">
+        @error('alamat')
             <small class="text-red-500">{{ $message }}</small>
         @enderror
+    </div>
+
+    <div class="mb-4">
+        <input type="checkbox" name="konfirmasi" value="1">
+        <label>Saya menyatakan data benar</label>
     </div>
 
     <button class="bg-green-600 text-white px-6 py-2 rounded">

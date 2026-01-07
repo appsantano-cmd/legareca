@@ -30,24 +30,46 @@ class PengajuanIzinController extends Controller
      */
     public function store(Request $request)
     {
-        // fallback kalau frontend gagal set hidden input
-        if (!$request->filled('jenis_izin') && $request->filled('jenis_izin_option')) {
-            $request->merge([
-                'jenis_izin' => $request->jenis_izin_option,
-            ]);
-        }
-
         $validated = $request->validate([
             'nama'   => 'required|string|max:100',
             'divisi' => 'required|string',
-            'jenis_izin' => 'required|string|max:100',
+
+            // helper dari form
+            'jenis_izin_pilihan' => 'required|string',
+            'jenis_izin_lainnya' => 'nullable|string|max:100',
+
             'tanggal_mulai' => 'required|date',
             'tanggal_selesai' => 'required|date|after_or_equal:tanggal_mulai',
             'jumlah_hari' => 'required|integer|min:1',
             'keterangan_tambahan' => 'nullable|string',
             'nomor_telepon' => 'required|string|max:20',
-            'alamat_selama_izin' => 'required|string|max:255',
+            'alamat' => 'required|string|max:255',
+            'konfirmasi' => 'required|accepted',
+            'documen_pendukung' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
         ]);
+
+        // 🔥 LOGIKA FINAL JENIS IZIN
+        if ($validated['jenis_izin_pilihan'] === 'Lainnya') {
+            if (!$request->filled('jenis_izin_lainnya')) {
+                return back()
+                    ->withErrors(['jenis_izin_lainnya' => 'Jenis izin lainnya wajib diisi'])
+                    ->withInput();
+            }
+
+            $validated['jenis_izin'] = $validated['jenis_izin_lainnya'];
+        } else {
+            $validated['jenis_izin'] = $validated['jenis_izin_pilihan'];
+        }
+
+        // hapus helper agar tidak ikut disimpan
+        unset($validated['jenis_izin_pilihan'], $validated['jenis_izin_lainnya']);
+
+        // simpan file
+        if ($request->hasFile('documen_pendukung')) {
+            $validated['documen_pendukung'] =
+                $request->file('documen_pendukung')
+                    ->store('izin_pendukung', 'public');
+        }
 
         PengajuanIzin::create($validated);
 
@@ -55,4 +77,5 @@ class PengajuanIzinController extends Controller
             ->route('izin.index')
             ->with('success', 'Pengajuan izin berhasil dikirim');
     }
+
 }

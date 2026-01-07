@@ -18,6 +18,8 @@
             <th class="p-2">Nama</th>
             <th class="p-2">Tanggal Mulai</th>
             <th class="p-2">Tanggal Selesai</th>
+            <th class="p-2">Jenis Izin</th>
+            <th class="p-2">Bukti</th> </th>
             <th class="p-2">Status</th>
         </tr>
     </thead>
@@ -27,6 +29,14 @@
                 <td class="p-2">{{ $item->nama }}</td>
                 <td class="p-2">{{ $item->tanggal_mulai }}</td>
                 <td class="p-2">{{ $item->tanggal_selesai }}</td>
+                <td class="p-2">{{ $item->jenis_izin }}</td>
+                <td class="p-2">
+                    @if ($item->documen_pendukung)
+                        <a href="{{ Storage::url($item->documen_pendukung) }}" target="_blank" class="text-blue-600">Lihat</a>
+                    @else
+                        Tidak ada
+                    @endif
+                </td>
                 <td class="p-2">{{ $item->status }}</td>
             </tr>
         @empty
