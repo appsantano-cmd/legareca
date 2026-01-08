@@ -6,108 +6,276 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Data Anabul — Le Gareca Space</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Nunito:wght@400;600;700;800&display=swap');
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #fef2f2 0%, #fff7ed 50%, #fef2f2 100%);
+        }
+
+        .title-font {
+            font-family: 'Nunito', sans-serif;
+        }
+
+        .form-card {
+            background: white;
+            border-radius: 24px;
+            box-shadow: 0 10px 40px rgba(239, 68, 68, 0.08), 0 4px 12px rgba(239, 68, 68, 0.05);
+        }
+
+        .input-field {
+            background: white;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 10px;
+            font-size: 16px;
+            width: 100%;
+        }
+
+        .input-field:focus {
+            border-color: #ef4444;
+            box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.1);
+        }
+
+        .submit-btn {
+            background: linear-gradient(to right, #ef4444, #f97316);
+            color: white;
+            font-weight: 700;
+            padding: 14px 32px;
+            border-radius: 999px;
+            font-size: 18px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
+        }
+
+        .submit-btn:hover {
+            background: linear-gradient(to right, #dc2626, #ea580c);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(239, 68, 68, 0.4);
+        }
+
+        .submit-btn:active {
+            transform: translateY(-1px);
+        }
+
+        .loading-spinner {
+            width: 18px;
+            height: 18px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        @keyframes shake {
+
+            0%,
+            100% {
+                transform: translateX(0);
+            }
+
+            25% {
+                transform: translateX(-6px);
+            }
+
+            50% {
+                transform: translateX(6px);
+            }
+
+            75% {
+                transform: translateX(-6px);
+            }
+        }
+
+        .animate-shake {
+            animation: shake 0.4s ease;
+        }
+    </style>
 </head>
 
-<body class="bg-[#fbeaec] min-h-screen flex items-center justify-center px-5 py-10">
+<body class="px-4 py-6">
+    <div class="w-full max-w-3xl mx-auto">
+        <!-- Paw decoration (optional) -->
+        <div class="absolute top-4 right-4 opacity-100 text-2xl">
+            <img src="/paw.png" alt="logo" class="w-12 h-12 object-contain">
+        </div>
+        
+        <!-- Header dengan ikon dan gradient -->
+        <div class="text-center mb-10">
+            <div
+                class="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-r from-red-100 to-orange-100 mb-4">
+                <i class="fas fa-paw text-3xl text-red-500"></i>
+            </div>
+            <h1 class="text-3xl md:text-4xl font-extrabold text-gray-800 mb-2">Data Anabul</h1>
+            <div class="flex items-center justify-center space-x-2">
+                <div class="h-1 w-12 bg-red-400 rounded-full"></div>
+                <h2 class="text-2xl md:text-3xl font-bold text-red-500">Le Gareca Space</h2>
+                <div class="h-1 w-12 bg-orange-400 rounded-full"></div>
+            </div>
+        </div>
 
-    <div class="w-full max-w-4xl text-center">
-        <h1 class="text-3xl md:text-4xl font-bold text-[#4a2c2a] mb-8">
-            Nama Pet <span class="text-red-500">*</span>
-        </h1>
+        <!-- Progress Bar -->
+        <div class="mb-6">
+            <div class="flex justify-between text-sm mb-2">
+                <span class="text-red-500 font-medium">Step 3 of 5</span>
+                <span class="text-gray-500">Data Anabul</span>
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-2">
+                <div class="bg-gradient-to-r from-red-500 to-orange-500 h-2 rounded-full w-3/5"></div>
+            </div>
+        </div>
 
-        @php
-            $count = request()->query('count');
-            $count = is_numeric($count) && $count > 0 ? (int) $count : 1;
-            $count = $count > 10 ? 10 : $count; // optional limit
-        @endphp
-
+        <!-- Form Vertikal per Pet -->
         <form id="petForm" action="{{ route('screening.submitPets') }}" method="POST">
             @csrf
 
-            <div class="overflow-x-auto bg-red-200/40 p-4 rounded-2xl shadow-md">
-                <table class="w-full text-gray-800 border-collapse rounded-xl overflow-hidden">
-                    <thead class="bg-red-300/50">
-                        <tr class="text-lg font-bold">
-                            <th class="border p-3">Nama Pet</th>
-                            <th class="border p-3">Breed</th>
-                            <th class="border p-3">Sex</th>
-                            <th class="border p-3">Usia Pet</th>
-                        </tr>
-                    </thead>
-                    <tbody class="bg-white">
-                        @for ($i = 0; $i < $count; $i++)
-                            <tr>
-                                <td class="border p-2">
-                                    <input type="text" name="pets[{{ $i }}][name]" required
-                                        class="w-full px-4 py-2 rounded-full border border-gray-300 focus:ring-2 focus:ring-red-300 focus:outline-none">
-                                    <p class="text-red-500 text-xs mt-1 hidden error-msg">Wajib diisi</p>
-                                </td>
-                                <td class="border p-2">
-                                    <input type="text" name="pets[{{ $i }}][breed]"
-                                        class="w-full px-4 py-2 rounded-full border border-gray-300 focus:ring-2 focus:ring-red-300 focus:outline-none">
-                                </td>
-                                <td class="border p-2">
-                                    <select name="pets[{{ $i }}][sex]" required
-                                        class="w-full px-4 py-2 rounded-full border border-gray-300 focus:ring-2 focus:ring-red-300 focus:outline-none">
-                                        <option disabled selected>Pilih</option>
-                                        <option>Jantan</option>
-                                        <option>Betina</option>
-                                    </select>
-                                </td>
-                                <td class="border p-2">
-                                    <input type="number" name="pets[{{ $i }}][age]" min="0" required
-                                        class="w-full px-4 py-2 rounded-full border border-gray-300 focus:ring-2 focus:ring-red-300 focus:outline-none">
-                                </td>
-                            </tr>
-                        @endfor
-                    </tbody>
-                </table>
+            <div class="space-y-6">
+                @for ($i = 0; $i < $count; $i++)
+                    <div class="form-card p-5 border border-gray-100">
+                        <div class="flex items-center gap-2 mb-4">
+                            <span
+                                class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-red-500 text-white text-sm font-bold">
+                                {{ $i + 1 }}
+                            </span>
+                            <span class="font-bold text-gray-800">Anabul</span>
+                        </div>
+
+                        <div class="space-y-4">
+                            <!-- Nama -->
+                            <div>
+                                <label class="block font-bold text-gray-700 mb-1 text-sm">Nama Pet *</label>
+                                <input type="text" name="pets[{{ $i }}][name]" required class="input-field pet-name-input"
+                                    value="{{ old("pets.$i.name") }}">
+                                <p class="text-red-500 text-xs hidden mt-1" id="name-error-{{ $i }}">Nama wajib diisi</p>
+                            </div>
+
+                            <!-- Breed -->
+                            <div>
+                                <label class="block font-bold text-gray-700 mb-1 text-sm">Breed *</label>
+                                <input type="text" name="pets[{{ $i }}][breed]" required class="input-field pet-breed-input"
+                                    value="{{ old("pets.$i.breed") }}">
+                                <p class="text-red-500 text-xs hidden mt-1" id="breed-error-{{ $i }}">Breed wajib diisi</p>
+                            </div>
+
+                            <!-- Sex -->
+                            <div>
+                                <label class="block font-bold text-gray-700 mb-1 text-sm">Jenis Kelamin *</label>
+                                <select name="pets[{{ $i }}][sex]" required class="input-field pet-sex-select">
+                                    <option value="" disabled selected>Pilih jenis kelamin</option>
+                                    <option value="Jantan" {{ old("pets.$i.sex") == 'Jantan' ? 'selected' : '' }}>Jantan
+                                    </option>
+                                    <option value="Betina" {{ old("pets.$i.sex") == 'Betina' ? 'selected' : '' }}>Betina
+                                    </option>
+                                </select>
+                                <p class="text-red-500 text-xs hidden mt-1" id="sex-error-{{ $i }}">Pilih jenis kelamin</p>
+                            </div>
+
+                            <!-- Usia -->
+                            <div>
+                                <label class="block font-bold text-gray-700 mb-1 text-sm">Usia *</label>
+                                <input type="text" name="pets[{{ $i }}][age]" required class="input-field pet-age-input"
+                                    value="{{ old("pets.$i.age") }}">
+                                <p class="text-red-500 text-xs hidden mt-1" id="age-error-{{ $i }}">Usia wajib diisi</p>
+                            </div>
+                        </div>
+                    </div>
+                @endfor
             </div>
 
-            <div class="text-center mt-10">
-                <button type="button" id="submitBtn"
-                    class="bg-[#ff6b6b] hover:bg-[#ff5252] text-white font-bold text-xl px-10 py-3 rounded-full shadow-lg transition transform hover:scale-105">
-                    Next →
-                </button>
+            <!-- Action Buttons -->
+            <div class="pt-8 border-t border-gray-200 mt-10">
+                <div class="flex flex-col sm:flex-row justify-between items-center space-y-4 sm:space-y-0">
+                    <button type="button" onclick="window.location.href='/screening/owner'"
+                        class="submit-btn text-white font-bold text-lg px-12 py-4 rounded-full shadow-md flex items-center w-full sm:w-auto">
+                        <i class="fas fa-arrow-left mr-2"></i>
+                        Back
+                    </button>
+
+                    <button type="submit" id="nextBtn"
+                        class="submit-btn text-white font-bold text-lg px-12 py-4 rounded-full shadow-md flex items-center w-full sm:w-auto">
+                        Next
+                        <i class="fas fa-arrow-right ml-2"></i>
+                    </button>
+                </div>
             </div>
         </form>
+
+        <!-- Footer note -->
+        <div class="text-center mt-8 text-gray-500 text-sm">
+            <p>Le Gareca Space — Tempat berkumpulnya para pecinta hewan peliharaan</p>
+            <div class="flex justify-center space-x-6 mt-4 text-gray-400">
+                <i class="fas fa-dog"></i>
+                <i class="fas fa-cat"></i>
+                <i class="fas fa-heart"></i>
+                <i class="fas fa-coffee"></i>
+                <i class="fas fa-utensils"></i>
+            </div>
+        </div>
     </div>
 
     <script>
-        const submitBtn = document.getElementById('submitBtn');
-        const petForm = document.getElementById('petForm');
-        submitBtn.addEventListener('click', () => petForm.submit());
-        submitBtn.addEventListener('click', function () {
+        document.getElementById('petForm').addEventListener('submit', function (e) {
+            const rows = document.querySelectorAll('.form-card');
             let valid = true;
+            const errors = [];
+            const submitBtn = document.getElementById('nextBtn');
 
-            // hanya validasi Nama Pet di kolom pertama setiap baris
-            document.querySelectorAll('input[name*="[name]"]').forEach((input) => {
-                const errorMsg = input.parentElement.querySelector('.error-msg');
-                if (input.value.trim() === "") {
-                    errorMsg.classList.remove('hidden');
-                    input.classList.add('border-red-500');
+            // Reset error messages
+            rows.forEach((card, i) => {
+                document.getElementById(`name-error-${i}`).classList.add('hidden');
+                document.getElementById(`breed-error-${i}`).classList.add('hidden');
+                document.getElementById(`sex-error-${i}`).classList.add('hidden');
+                document.getElementById(`age-error-${i}`).classList.add('hidden');
+            });
+
+            rows.forEach((card, i) => {
+                const name = card.querySelector('.pet-name-input');
+                const breed = card.querySelector('.pet-breed-input');
+                const sex = card.querySelector('.pet-sex-select');
+                const age = card.querySelector('.pet-age-input');
+
+                if (!name.value.trim()) {
+                    document.getElementById(`name-error-${i}`).classList.remove('hidden');
                     valid = false;
-                } else {
-                    errorMsg.classList.add('hidden');
-                    input.classList.remove('border-red-500');
+                    errors.push(i + 1);
+                }
+                if (!breed.value.trim()) {
+                    document.getElementById(`breed-error-${i}`).classList.remove('hidden');
+                    valid = false;
+                    if (!errors.includes(i + 1)) errors.push(i + 1);
+                }
+                if (!sex.value) {
+                    document.getElementById(`sex-error-${i}`).classList.remove('hidden');
+                    valid = false;
+                    if (!errors.includes(i + 1)) errors.push(i + 1);
+                }
+                if (!age.value.trim()) {
+                    document.getElementById(`age-error-${i}`).classList.remove('hidden');
+                    valid = false;
+                    if (!errors.includes(i + 1)) errors.push(i + 1);
                 }
             });
 
-            if (valid) {
-                petForm.submit();
+            if (!valid) {
+                e.preventDefault();
+                document.getElementById('globalError').classList.remove('hidden');
+                submitBtn.classList.add('animate-shake');
+                setTimeout(() => submitBtn.classList.remove('animate-shake'), 400);
             }
         });
-
-        // hide error saat mulai mengetik
-        document.querySelectorAll('input[name*="[name]"]').forEach((input) => {
-            input.addEventListener('input', function () {
-                const errorMsg = input.parentElement.querySelector('.error-msg');
-                errorMsg.classList.add('hidden');
-                input.classList.remove('border-red-500');
-            });
-        });
     </script>
-
 </body>
 
 </html>
