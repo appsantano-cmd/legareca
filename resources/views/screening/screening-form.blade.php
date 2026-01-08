@@ -3,117 +3,489 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hasil Screening</title>
+    <title>Hasil Screening - Le Gareca Space</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #fef2f2 0%, #fff7ed 50%, #fef2f2 100%);
+        }
+        
+        .category-card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(239, 68, 68, 0.08), 0 2px 6px rgba(239, 68, 68, 0.05);
+            border: 1px solid rgba(254, 202, 202, 0.2);
+        }
+        
+        .pet-card {
+            background: #fafafa;
+            border-radius: 12px;
+            border: 1px solid rgba(229, 231, 235, 0.5);
+        }
+        
+        .select-field {
+            background: white;
+            border: 2px solid #e5e7eb;
+            transition: all 0.2s ease;
+            border-radius: 10px;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+            background-position: right 1rem center;
+            background-repeat: no-repeat;
+            background-size: 1.5em 1.5em;
+            padding-right: 3rem;
+        }
+        
+        .select-field:focus {
+            border-color: #ef4444;
+            box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+        }
+        
+        .select-field.error {
+            border-color: #ef4444;
+            background-color: #fef2f2;
+        }
+        
+        .submit-btn {
+            background: linear-gradient(to right, #ef4444, #f97316);
+            color: white;
+            font-weight: 700;
+            padding: 14px 32px;
+            border-radius: 999px;
+            font-size: 18px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
+        }
+        
+        .submit-btn:hover {
+            background: linear-gradient(to right, #dc2626, #ea580c);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(239, 68, 68, 0.4);
+        }
+        
+        .submit-btn:active {
+            transform: translateY(-1px);
+        }
+        
+        .progress-bar {
+            height: 6px;
+            background: linear-gradient(to right, #ef4444, #f97316);
+            border-radius: 3px;
+            transition: width 0.5s ease;
+        }
+        
+        .progress-bar-bg {
+            background: #fed7d7 !important;
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-3px); }
+            20%, 40%, 60%, 80% { transform: translateX(3px); }
+        }
+        
+        .animate-shake {
+            animation: shake 0.4s ease-in-out;
+        }
+        
+        .loading-spinner {
+            display: inline-block;
+            width: 18px;
+            height: 18px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 0.8s ease-in-out infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .error-container {
+            animation: fadeIn 0.3s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
 </head>
-<body class="bg-[#fbeaec] min-h-screen flex items-center justify-center px-5 py-10">
+<body class="min-h-screen px-4 py-8">
 
-<div class="w-full max-w-3xl bg-white p-8 rounded-2xl shadow-md">
-    <h1 class="text-3xl font-bold text-center text-[#4a2c2a] mb-2">Hasil Screening</h1>
-    <p class="text-center text-gray-600 mb-6">Diisi oleh <b>pawrent</b> berdasarkan hasil screening dari staff</p>
+<div class="w-full max-w-5xl mx-auto">
+    <!-- Paw decoration (optional) -->
+    <div class="absolute top-4 right-4 opacity-100 text-2xl">
+        <img src="/paw.png" alt="logo" class="w-12 h-12 object-contain">
+    </div>
+
+    <!-- Header dengan Progress Bar LANGKAH -->
+    <div class="mb-8">
+        <!-- Header dengan ikon dan gradient -->
+        <div class="text-center mb-10">
+            <div class="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-r from-red-100 to-orange-100 mb-4">
+                <i class="fas fa-paw text-3xl text-red-500"></i>
+            </div>
+            <h1 class="text-3xl md:text-4xl font-extrabold text-gray-800 mb-2">Screening Result</h1>
+            <div class="flex items-center justify-center space-x-2">
+                <div class="h-1 w-12 bg-red-400 rounded-full"></div>
+                <h2 class="text-2xl md:text-3xl font-bold text-red-500">Le Gareca Space</h2>
+                <div class="h-1 w-12 bg-orange-400 rounded-full"></div>
+            </div>
+            <p class="text-gray-500 max-w-2xl mx-auto text-sm">
+                Diisi oleh <span class="text-red-500 font-semibold">pawrents</span> berdasarkan hasil screening dari staff
+            </p>
+        </div>
+    </div>
+
+    <!-- Global Error Message -->
+    <div id="globalError" class="hidden mb-6">
+        <div class="flex items-start space-x-3 text-red-600 bg-red-50 border border-red-200 rounded-lg p-4 error-container">
+            <i class="fas fa-exclamation-circle text-lg mt-0.5 flex-shrink-0"></i>
+            <div class="flex-1">
+                <p class="font-semibold">Ada pertanyaan yang belum dijawab!</p>
+                <p class="text-gray-700 text-sm mt-1">Silakan lengkapi semua pertanyaan untuk setiap anabul sebelum melanjutkan.</p>
+            </div>
+        </div>
+    </div>
 
     @php
         $count = session('count', 1);
         $pets  = session('pets', []);
+        $count = is_numeric($count) ? (int)$count : 1;
+        
+        $categories = [
+            'vaksin'  => ['label' => 'Status Vaksin'],
+            'kutu'    => ['label' => 'Kutu'],
+            'jamur'   => ['label' => 'Jamur'],
+            'birahi'  => ['label' => 'Birahi'],
+            'kulit'   => ['label' => 'Kulit'],
+            'telinga' => ['label' => 'Telinga'],
+            'riwayat' => ['label' => 'Riwayat Kesehatan']
+        ];
     @endphp
 
-    <form id="screeningForm" action="{{ route('screening.submitResult') }}" method="POST">
+    <form id="screeningForm" action="{{ route('screening.submitResult') }}" method="POST" class="space-y-6">
         @csrf
 
-        @foreach([
-            'vaksin'  => 'Status Vaksin',
-            'kutu'    => 'Kutu',
-            'jamur'   => 'Jamur',
-            'birahi'  => 'Birahi',
-            'kulit'   => 'Kulit',
-            'telinga' => 'Telinga',
-            'riwayat' => 'Riwayat Kesehatan'
-        ] as $key => $label)
-
-            <h2 class="text-xl font-bold text-[#4a2c2a] mt-6 mb-3 text-center">{{ $label }}</h2>
-
-            @for ($i = 0; $i < $count; $i++)
-                @php $petName = $pets[$i]['name'] ?? 'Pet ' . ($i+1); @endphp
-
-                <div class="mb-4">
-                    <label class="block font-semibold text-gray-800 mb-1">
-                        {{ $label }} — {{ $petName }} <span class="text-red-500">*</span>
-                    </label>
-
-                    @if($key === 'riwayat')
-                        <select name="pets[{{ $i }}][{{ $key }}]"
-                            class="w-full px-4 py-2 rounded-full border border-gray-300">
-                            <option disabled selected>Pilih</option>
-                            <option value="Sehat">Sehat</option>
-                            <option value="Pasca terapi">Pasca terapi</option>
-                            <option value="Sedang terapi">Sedang terapi</option>
-                        </select>
-                    @elseif($key === 'vaksin')
-                        <select name="pets[{{ $i }}][{{ $key }}]"
-                            class="w-full px-4 py-2 rounded-full border border-gray-300">
-                            <option disabled selected>Pilih</option>
-                            <option value="Belum">Belum</option>
-                            <option value="Belum lengkap">Belum lengkap</option>
-                            <option value="Sudah lengkap">Sudah lengkap</option>
-                        </select>
-                    @elseif(in_array($key, ['kutu', 'jamur', 'kulit', 'telinga']))
-                        <select name="pets[{{ $i }}][{{ $key }}]"
-                            class="w-full px-4 py-2 rounded-full border border-gray-300">
-                            <option disabled selected>Pilih</option>
-                            <option value="Negatif">Negatif</option>
-                            <option value="Positif">Positif</option>
-                            <option value="Negatif 2">Negatif 2</option>
-                            <option value="Positif 3">Positif 3</option>
-                        </select>
-                    @elseif($key === 'birahi')
-                        <select name="pets[{{ $i }}][{{ $key }}]"
-                            class="w-full px-4 py-2 rounded-full border border-gray-300">
-                            <option disabled selected>Pilih</option>
-                            <option value="Negatif">Negatif</option>
-                            <option value="Positif">Positif</option>
-                        </select>
-                    @endif
-
-                    <p class="text-red-500 text-xs mt-1 hidden error-msg">Wajib diisi</p>
+        <div class="mb-6">
+            <div class="flex items-center justify-between mb-2">
+                <span class="text-sm font-medium text-red-500">Step 4 of 5</span>
+                <span class="text-sm font-medium text-gray-500">Screening Result</span>
+            </div>
+            <div class="w-full progress-bar-bg rounded-full h-2">
+                <div class="bg-gradient-to-r from-red-500 to-orange-500 h-2 rounded-full w-4/5"></div>
+            </div>
+        </div>
+        
+        @foreach($categories as $key => $category)
+            <div class="category-card p-5">
+                <!-- Category Header -->
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-lg font-semibold text-gray-800">{{ $category['label'] }} <span class="text-red-500">*</span></h2>
                 </div>
-            @endfor
 
+                <!-- Pet Questions -->
+                <div class="space-y-3">
+                    @for ($i = 0; $i < $count; $i++)
+                        @php 
+                            $petName = $pets[$i]['name'] ?? 'Anabul ' . ($i+1);
+                            $petBreed = $pets[$i]['breed'] ?? '';
+                        @endphp
+
+                        <div class="pet-card p-3">
+                            <!-- Pet Info -->
+                            <div class="flex items-center justify-between mb-3">
+                                <div>
+                                    <div class="flex items-center">
+                                        <span class="font-semibold text-gray-800">{{ $petName }}</span>
+                                        @if($petBreed)
+                                            <span class="text-sm text-gray-600 ml-2">({{ $petBreed }})</span>
+                                        @endif
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Select Input -->
+                            <div class="relative">
+                                @if($key === 'riwayat')
+                                    <select name="pets[{{ $i }}][{{ $key }}]" required
+                                        class="select-field w-full px-3 py-2.5 pet-select"
+                                        data-pet="{{ $i }}"
+                                        data-key="{{ $key }}">
+                                        <option value="" disabled selected>Pilih riwayat kesehatan</option>
+                                        <option value="Sehat">Sehat</option>
+                                        <option value="Pasca terapi">Pasca terapi</option>
+                                        <option value="Sedang terapi">Sedang terapi</option>
+                                    </select>
+                                @elseif($key === 'vaksin')
+                                    <select name="pets[{{ $i }}][{{ $key }}]" required
+                                        class="select-field w-full px-3 py-2.5 pet-select"
+                                        data-pet="{{ $i }}"
+                                        data-key="{{ $key }}">
+                                        <option value="" disabled selected>Pilih status vaksin</option>
+                                        <option value="Belum">Belum</option>
+                                        <option value="Belum lengkap">Belum lengkap</option>
+                                        <option value="Sudah lengkap">Sudah lengkap</option>
+                                    </select>
+                                @elseif(in_array($key, ['kutu', 'jamur', 'kulit', 'telinga']))
+                                    <select name="pets[{{ $i }}][{{ $key }}]" required
+                                        class="select-field w-full px-3 py-2.5 pet-select"
+                                        data-pet="{{ $i }}"
+                                        data-key="{{ $key }}">
+                                        <option value="" disabled selected>Pilih hasil pemeriksaan</option>
+                                        <option value="Negatif">(-) Negatif</option>
+                                        <option value="Positif">(+) Positif</option>
+                                        <option value="Positif 2">(++) Positif 2</option>
+                                        <option value="Positif 3">(+++) Positif 3</option>
+                                    </select>
+                                @elseif($key === 'birahi')
+                                    <select name="pets[{{ $i }}][{{ $key }}]" required
+                                        class="select-field w-full px-3 py-2.5 pet-select"
+                                        data-pet="{{ $i }}"
+                                        data-key="{{ $key }}">
+                                        <option value="" disabled selected>Pilih status birahi</option>
+                                        <option value="Negatif">(-) Negatif</option>
+                                        <option value="Positif">(+) Positif</option>
+                                    </select>
+                                @endif
+                            </div>
+
+                            <!-- Error Message -->
+                            <div class="error-container hidden mt-2" id="error-{{ $key }}-{{ $i }}">
+                                <div class="flex items-center space-x-2 text-red-600 text-sm">
+                                    <i class="fas fa-exclamation-circle"></i>
+                                    <span>Field is required</span>
+                                </div>
+                            </div>
+                        </div>
+                    @endfor
+                </div>
+            </div>
         @endforeach
 
-        <div class="text-center mt-8">
-            <button type="button" id="nextBtn"
-                class="bg-[#ff6b6b] hover:bg-[#ff5252] text-white font-bold text-xl px-10 py-3 rounded-full shadow-lg transition transform hover:scale-105">
-                Next →
-            </button>
+        <!-- Action Buttons -->
+        <div class="pt-6 border-t border-gray-200">
+            <div class="flex flex-col sm:flex-row justify-between items-center space-y-4 sm:space-y-0">
+                <button type="button" onclick="window.location.href='/screening/pets'"
+                    class="submit-btn text-white font-bold text-lg px-12 py-4 rounded-full shadow-md transition flex items-center w-full sm:w-auto">
+                    <i class="fas fa-arrow-left mr-2"></i>
+                    Back
+                </button>
+
+                <button type="button" id="submitBtn"
+                    class="submit-btn text-white font-bold text-lg px-12 py-4 rounded-full shadow-md transition flex items-center w-full sm:w-auto">
+                    Next
+                    <i class="fas fa-arrow-right ml-2"></i>
+                </button>
+            </div>
         </div>
     </form>
+    
+    <!-- Footer note -->
+    <div class="text-center mt-8 text-gray-500 text-sm">
+        <p>Le Gareca Space — Tempat berkumpulnya para pecinta hewan peliharaan</p>
+        <div class="flex justify-center space-x-6 mt-4 text-gray-400">
+            <i class="fas fa-dog"></i>
+            <i class="fas fa-cat"></i>
+            <i class="fas fa-heart"></i>
+            <i class="fas fa-coffee"></i>
+            <i class="fas fa-utensils"></i>
+        </div>
+    </div>
 </div>
 
 <script>
-document.getElementById('nextBtn').addEventListener('click', () => {
-    let valid = true;
-
-    document.querySelectorAll('#screeningForm select, #screeningForm textarea').forEach(input => {
-        const error = input.parentElement.querySelector('.error-msg');
-        if (!input.value || input.value.trim() === "") {
-            error.classList.remove('hidden');
-            input.classList.add('border-red-500');
-            valid = false;
-        } else {
-            error.classList.add('hidden');
-            input.classList.remove('border-red-500');
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('screeningForm');
+        const submitBtn = document.getElementById('submitBtn');
+        const globalError = document.getElementById('globalError');
+        
+        // Setup select change listeners
+        document.querySelectorAll('.pet-select').forEach(select => {
+            select.addEventListener('change', function() {
+                const petIndex = this.getAttribute('data-pet');
+                const key = this.getAttribute('data-key');
+                const errorId = `error-${key}-${petIndex}`;
+                const errorElement = document.getElementById(errorId);
+                
+                if (this.value && this.value.trim() !== '') {
+                    if (errorElement) {
+                        errorElement.classList.add('hidden');
+                    }
+                    this.classList.remove('error');
+                    this.classList.add('border-green-500');
+                }
+                
+                if (isFormValid()) {
+                    globalError.classList.add('hidden');
+                }
+            });
+        });
+        
+        // Check if form is valid
+        function isFormValid() {
+            const selects = document.querySelectorAll('.pet-select');
+            for (let select of selects) {
+                if (!select.value || select.value.trim() === '') {
+                    return false;
+                }
+            }
+            return true;
         }
+        
+        // Hide all errors
+        function hideAllErrors() {
+            document.querySelectorAll('.error-container').forEach(el => {
+                el.classList.add('hidden');
+            });
+            
+            document.querySelectorAll('.pet-select').forEach(el => {
+                el.classList.remove('error');
+            });
+        }
+        
+        // Show errors for empty fields
+        function showAllErrors() {
+            let hasError = false;
+            
+            document.querySelectorAll('.pet-select').forEach(select => {
+                const petIndex = select.getAttribute('data-pet');
+                const key = select.getAttribute('data-key');
+                const errorId = `error-${key}-${petIndex}`;
+                const errorElement = document.getElementById(errorId);
+                
+                if (!select.value || select.value.trim() === '') {
+                    hasError = true;
+                    if (errorElement) {
+                        errorElement.classList.remove('hidden');
+                    }
+                    select.classList.add('error');
+                }
+            });
+            
+            return hasError;
+        }
+        
+        // Highlight first empty field
+        function highlightFirstEmpty() {
+            const selects = document.querySelectorAll('.pet-select');
+            for (let select of selects) {
+                if (!select.value || select.value.trim() === '') {
+                    const petIndex = select.getAttribute('data-pet');
+                    const key = select.getAttribute('data-key');
+                    const errorId = `error-${key}-${petIndex}`;
+                    const errorElement = document.getElementById(errorId);
+                    
+                    if (errorElement) {
+                        errorElement.classList.remove('hidden');
+                        select.classList.add('error');
+                    }
+                    
+                    // Scroll ke elemen yang error
+                    select.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'center'
+                    });
+                    
+                    // Animasi shake
+                    select.closest('.pet-card').classList.add('animate-shake');
+                    setTimeout(() => {
+                        select.closest('.pet-card').classList.remove('animate-shake');
+                    }, 400);
+                    
+                    return select;
+                }
+            }
+            return null;
+        }
+        
+        // Submit button click handler
+        submitBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            // Reset semua error
+            hideAllErrors();
+            globalError.classList.add('hidden');
+            
+            // Cek apakah semua field sudah terisi
+            if (!isFormValid()) {
+                // Tampilkan error global
+                globalError.classList.remove('hidden');
+                
+                // Tampilkan semua error field
+                showAllErrors();
+                
+                // Highlight field pertama yang kosong
+                const firstEmpty = highlightFirstEmpty();
+                if (firstEmpty) {
+                    firstEmpty.focus();
+                }
+                
+                // Animasi shake pada tombol
+                submitBtn.classList.add('animate-shake');
+                setTimeout(() => {
+                    submitBtn.classList.remove('animate-shake');
+                }, 400);
+                
+                return false;
+            }
+            
+            // Jika semua valid, lanjutkan ke halaman noHp
+            // Tampilkan loading state
+            const originalHTML = submitBtn.innerHTML;
+            submitBtn.innerHTML = '<div class="loading-spinner mr-2"></div> Memproses...';
+            submitBtn.disabled = true;
+            
+            // Kirim form terlebih dahulu ke server
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                // Form akan disubmit ke route 'screening.submitResult'
+                this.submit();
+            });
+            
+            // Submit form
+            form.submit();
+            
+            // Jika form berhasil dikirim, akan redirect ke route 'screening.submitResult'
+            // Kemudian dari controller akan redirect ke screening.noHp
+        });
+        
+        // Form submission (backup jika ada yang langsung submit form)
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            hideAllErrors();
+            globalError.classList.add('hidden');
+            
+            if (!isFormValid()) {
+                globalError.classList.remove('hidden');
+                const firstEmpty = highlightFirstEmpty();
+                if (firstEmpty) {
+                    firstEmpty.focus();
+                }
+                
+                submitBtn.classList.add('animate-shake');
+                setTimeout(() => {
+                    submitBtn.classList.remove('animate-shake');
+                }, 400);
+                
+                return false;
+            }
+            
+            // Jika valid, lanjutkan submit
+            return true;
+        });
     });
-
-    if (valid) document.getElementById('screeningForm').submit();
-});
-
-document.querySelectorAll('#screeningForm select, #screeningForm textarea').forEach(input => {
-    input.addEventListener('input', () => {
-        input.parentElement.querySelector('.error-msg').classList.add('hidden');
-        input.classList.remove('border-red-500');
-    });
-});
 </script>
 
 </body>
