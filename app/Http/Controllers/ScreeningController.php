@@ -5,8 +5,9 @@ namespace App\Http\Controllers;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use App\Models\Screening;
 
-class WelcomeVipController extends Controller
+class ScreeningController extends Controller
 {
     public function welcome()
     {
@@ -104,7 +105,48 @@ class WelcomeVipController extends Controller
         ]);
 
         session()->put('no_hp', $request->no_hp);
-        return redirect()->route('screening.thankyou');
+        session()->put('country_code', $request->country_code ?? '+62');
+
+        // Validasi format nomor telepon sebelum simpan
+        $fullPhoneNumber = Screening::formatPhoneNumber(
+            session('country_code', '+62'),
+            session('no_hp')
+        );
+
+        if (!Screening::validatePhoneNumber($fullPhoneNumber)) {
+            Log::error('Invalid phone number format', [
+                'country_code' => session('country_code'),
+                'phone' => session('no_hp'),
+                'formatted' => $fullPhoneNumber
+            ]);
+
+            return back()->withErrors([
+                'no_hp' => 'Format nomor telepon tidak valid. Pastikan nomor benar.'
+            ]);
+        }
+
+        // Simpan ke database
+        try {
+            $screening = Screening::saveFromSession();
+
+            if (!$screening) {
+                Log::error('Failed to save screening to database');
+                return back()->withErrors(['error' => 'Gagal menyimpan data screening. Silakan coba lagi.']);
+            }
+
+            Log::info('Screening saved successfully', [
+                'id' => $screening->id,
+                'owner' => $screening->owner_name,
+                'phone' => $screening->phone_number,
+                'formatted' => $screening->formatted_phone
+            ]);
+
+            return redirect()->route('screening.thankyou');
+
+        } catch (\Exception $e) {
+            Log::error('Error saving screening: ' . $e->getMessage());
+            return back()->withErrors(['error' => 'Terjadi kesalahan saat menyimpan data: ' . $e->getMessage()]);
+        }
     }
 
     public function thankyou()
