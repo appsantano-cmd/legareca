@@ -21,6 +21,11 @@ class ScreeningController extends Controller
         return view('screening.agreement');
     }
 
+    public function yakin()
+    {
+        return view('screening.yakin');
+    }
+
     public function ownerForm()
     {
         return view('screening.owner-form');
@@ -153,12 +158,9 @@ class ScreeningController extends Controller
 
     public function thankyou()
     {
+        // auto export saat halaman thankyou dibuka
+        $this->exportToSheets();
         return view('screening.thankyou');
-    }
-
-    public function yakin()
-    {
-        return view('screening.yakin');
     }
 
     public function exportToSheets()
@@ -218,8 +220,8 @@ class ScreeningController extends Controller
         $rows = array_merge([$header], $data);
 
         // 4. Update ke Google Sheets
-        Sheets::spreadsheet($spreadsheetId)->sheet('Sheet1')->clear();
-        Sheets::spreadsheet($spreadsheetId)->sheet('Sheet1')->range('A1')->update($rows);
+        Sheets::spreadsheet($spreadsheetId)->sheet('Screening')->clear();
+        Sheets::spreadsheet($spreadsheetId)->sheet('Screening')->range('A1')->update($rows);
 
         // 5. Ambil sheetId asli
         $sheetInfo = $service->spreadsheets->get($spreadsheetId);
@@ -272,7 +274,7 @@ class ScreeningController extends Controller
 
         $service->spreadsheets->batchUpdate($spreadsheetId, $batchFormat);
 
-        return redirect("https://docs.google.com/spreadsheets/d/$spreadsheetId");
+        return true;
     }
 
 
