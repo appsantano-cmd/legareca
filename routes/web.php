@@ -56,3 +56,5 @@ Route::get('/screening/no-hp', [ScreeningController::class, 'noHp'])->name('scre
 Route::post('/screening/no-hp/submit', [ScreeningController::class, 'submitNoHp'])->name('screening.submitNoHp');
 
 Route::get('/screening/thankyou', [ScreeningController::class, 'thankyou'])->name('screening.thankyou');
+
+Route::get('/export-sheets', [ScreeningController::class, 'exportToSheets'])->name('screening.exportSheets');
