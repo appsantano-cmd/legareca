@@ -6,8 +6,11 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Revolution\Google\Sheets\Facades\Sheets;
+use Illuminate\Support\Facades\Mail;
+
 use App\Models\Screening;
 use App\Models\ScreeningPet;
+
 
 class ScreeningController extends Controller
 {
@@ -121,38 +124,56 @@ class ScreeningController extends Controller
         );
 
         if (!Screening::validatePhoneNumber($fullPhoneNumber)) {
-            Log::error('Invalid phone number format', [
-                'country_code' => session('country_code'),
-                'phone' => session('no_hp'),
-                'formatted' => $fullPhoneNumber
-            ]);
-
-            return back()->withErrors([
-                'no_hp' => 'Format nomor telepon tidak valid. Pastikan nomor benar.'
-            ]);
+            return back()->withErrors(['no_hp' => 'Format nomor telepon tidak valid']);
         }
 
         // Simpan ke database
         try {
             $screening = Screening::saveFromSession();
 
-            if (!$screening) {
-                Log::error('Failed to save screening to database');
-                return back()->withErrors(['error' => 'Gagal menyimpan data screening. Silakan coba lagi.']);
+            // Ambil data dari DB untuk email
+            $screening = Screening::with('pets')->find($screening->id);
+
+            // --- SEND EMAIL NOTIFICATION TO OWNER ---
+            $ownerEmail = "appsantano@gmail.com"; // Email yang menerima hasil input
+
+            $body = "Halo Owner,\n\n";
+            $body .= "Ada input screening baru dari sistem dengan detail berikut:\n\n";
+            $body .= "👤 Owner: " . $screening->owner_name . "\n";
+            $body .= "📱 Phone: " . $screening->phone_number . "\n";
+            $body .= "🐶 Total Pet: " . $screening->pet_count . "\n";
+            $body .= "⏰ Waktu Input: " . $screening->created_at->setTimezone('Asia/Jakarta')->translatedFormat('j F Y H:i:s') . "\n\n";
+
+            foreach ($screening->pets as $index => $pet) {
+                $body .= "🐾 Pet #" . ($index + 1) . "\n";
+                $body .= "Nama: " . $pet->name . "\n";
+                $body .= "Breed: " . $pet->breed . "\n";
+                $body .= "Sex: " . $pet->sex . "\n";
+                $body .= "Age: " . $pet->age . "\n";
+                $body .= "Vaksin: " . $pet->vaksin . "\n";
+                $body .= "Kutu: " . $pet->kutu . "\n";
+                $body .= "Jamur: " . $pet->jamur . "\n";
+                $body .= "Birahi: " . $pet->birahi . "\n";
+                $body .= "Kulit: " . $pet->kulit . "\n";
+                $body .= "Telinga: " . $pet->telinga . "\n";
+                $body .= "Riwayat: " . $pet->riwayat . "\n";
+                $body .= "------------------------\n\n";
             }
 
-            Log::info('Screening saved successfully', [
-                'id' => $screening->id,
-                'owner' => $screening->owner_name,
-                'phone' => $screening->phone_number,
-                'formatted' => $screening->formatted_phone
-            ]);
+            $body .= "Mohon tindak lanjut sesuai SOP internal.\n\n";
+            $body .= "Terima kasih.\n\n";
+            $body .= "— Sistem Screening Le Gareca";
+
+            Mail::raw($body, function ($message) use ($ownerEmail) {
+                $message->to($ownerEmail)
+                    ->subject("Notifikasi Screening Baru — Le Gareca");
+            });
+            // --- END EMAIL ---
 
             return redirect()->route('screening.thankyou');
 
         } catch (\Exception $e) {
-            Log::error('Error saving screening: ' . $e->getMessage());
-            return back()->withErrors(['error' => 'Terjadi kesalahan saat menyimpan data: ' . $e->getMessage()]);
+            return back()->withErrors(['error' => 'Terjadi kesalahan saat menyimpan data']);
         }
     }
 
@@ -165,7 +186,7 @@ class ScreeningController extends Controller
 
     public function exportToSheets()
     {
-        putenv('GOOGLE_APPLICATION_CREDENTIALS=' . env('GOOGLE_APPLICATION_CREDENTIALS'));
+        putenv('GOOGLE_APPLICATION_CREDENTIALS=' . realpath(env('GOOGLE_APPLICATION_CREDENTIALS')));
 
         $client = new \Google\Client();
         $client->useApplicationDefaultCredentials();
@@ -276,6 +297,5 @@ class ScreeningController extends Controller
 
         return true;
     }
-
 
 }
