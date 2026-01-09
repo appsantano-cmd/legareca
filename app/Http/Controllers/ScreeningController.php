@@ -173,23 +173,22 @@ class ScreeningController extends Controller
         Sheets::setService($service);
 
         $spreadsheetId = env('GOOGLE_SHEETS_SPREADSHEET_ID');
-        $sheetId = 0; // sheet pertama
 
         // 1. Ambil data dari DB
         $screenings = Screening::with('pets')->get();
 
         // 2. Susun array rows
         $rows = [];
-        $rows[] = ['Created At', 'Owner', 'Pet Count', 'Phone', 'Status', 'Pet Name', 'Breed', 'Sex', 'Age', 'Vaksin', 'Kutu', 'Jamur', 'Birahi', 'Kulit', 'Telinga', 'Riwayat'];
+        $rows[] = ['Created At', 'Owner', 'Pet Count', 'Phone', 'Pet Name', 'Breed', 'Sex', 'Age', 'Vaksin', 'Kutu', 'Jamur', 'Birahi', 'Kulit', 'Telinga', 'Riwayat'];
 
         foreach ($screenings as $s) {
             foreach ($s->pets as $p) {
                 $rows[] = [
+                    $s->created_at->timestamp, // simpan timestamp untuk sorting
                     $s->created_at->setTimezone('Asia/Jakarta')->translatedFormat('j F Y H:i:s'),
                     $s->owner_name,
                     $s->pet_count,
                     $s->phone_number,
-                    $s->status,
                     $p->name,
                     $p->breed,
                     $p->sex,
@@ -205,17 +204,20 @@ class ScreeningController extends Controller
             }
         }
 
-        // 3. Sort dulu sebelum dikirim ke Google Sheets
+        // 3. Sorting data (skip header)
         $header = $rows[0];
         $data = array_slice($rows, 1);
 
         usort($data, function ($a, $b) {
-            return strtotime($a[0]) <=> strtotime($b[0]) ?: strcmp($a[1], $b[1]);
+            return $a[0] <=> $b[0] ?: strcmp($a[2], $b[2]); // sort by timestamp, lalu owner name
         });
+
+        // Hapus kolom timestamp setelah sorting
+        $data = array_map(fn($row) => array_slice($row, 1), $data);
 
         $rows = array_merge([$header], $data);
 
-        // 4. Baru update ke Google Sheets
+        // 4. Update ke Google Sheets
         Sheets::spreadsheet($spreadsheetId)->sheet('Sheet1')->clear();
         Sheets::spreadsheet($spreadsheetId)->sheet('Sheet1')->range('A1')->update($rows);
 
@@ -223,59 +225,7 @@ class ScreeningController extends Controller
         $sheetInfo = $service->spreadsheets->get($spreadsheetId);
         $sheetId = $sheetInfo->sheets[0]->properties->sheetId;
 
-        // 6. Merge cell jika Created At & Owner sama berurutan
-        $mergeRequests = [];
-        $start = 1;
-
-        while ($start < count($rows)) {
-            $currentDate = $rows[$start][0];
-            $currentOwner = $rows[$start][1];
-
-            $end = $start + 1;
-            while ($end < count($rows) && $rows[$end][0] === $currentDate && $rows[$end][1] === $currentOwner) {
-                $end++;
-            }
-
-            if ($end - $start > 1) {
-                $mergeRequests[] = [
-                    'mergeCells' => [
-                        'range' => [
-                            'sheetId' => $sheetId,
-                            'startRowIndex' => $start,
-                            'endRowIndex' => $end,
-                            'startColumnIndex' => 0,
-                            'endColumnIndex' => 1,
-                        ],
-                        'mergeType' => 'MERGE_ROWS'
-                    ]
-                ];
-
-                $mergeRequests[] = [
-                    'mergeCells' => [
-                        'range' => [
-                            'sheetId' => $sheetId,
-                            'startRowIndex' => $start,
-                            'endRowIndex' => $end,
-                            'startColumnIndex' => 1,
-                            'endColumnIndex' => 2,
-                        ],
-                        'mergeType' => 'MERGE_ROWS'
-                    ]
-                ];
-            }
-
-            $start = $end;
-        }
-
-        // 7. Kirim request merge ke API
-        if (!empty($mergeRequests)) {
-            $batchMerge = new \Google\Service\Sheets\BatchUpdateSpreadsheetRequest([
-                'requests' => $mergeRequests
-            ]);
-            $service->spreadsheets->batchUpdate($spreadsheetId, $batchMerge);
-        }
-
-        // 8. Set header bold, freeze, autosize kolom
+        // 6. Format header: bold, freeze, autosize
         $formatRequests = [
             [
                 'repeatCell' => [
@@ -316,13 +266,14 @@ class ScreeningController extends Controller
             ]
         ];
 
-        // 9. Kirim format header ke API
         $batchFormat = new \Google\Service\Sheets\BatchUpdateSpreadsheetRequest([
             'requests' => $formatRequests
         ]);
+
         $service->spreadsheets->batchUpdate($spreadsheetId, $batchFormat);
 
         return redirect("https://docs.google.com/spreadsheets/d/$spreadsheetId");
     }
+
 
 }

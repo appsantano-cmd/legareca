@@ -14,7 +14,6 @@ class Screening extends Model
         'owner_name',
         'pet_count',
         'phone_number', // sudah termasuk country code
-        'status'
     ];
 
     protected $casts = [
@@ -90,22 +89,6 @@ class Screening extends Model
     }
 
     /**
-     * Scope untuk screening yang pending
-     */
-    public function scopePending($query)
-    {
-        return $query->where('status', 'pending');
-    }
-
-    /**
-     * Scope untuk screening yang completed
-     */
-    public function scopeCompleted($query)
-    {
-        return $query->where('status', 'completed');
-    }
-
-    /**
      * Scope untuk mencari berdasarkan nomor telepon
      */
     public function scopeSearchByPhone($query, $phone)
@@ -176,7 +159,6 @@ class Screening extends Model
                 'owner_name' => session('owner'),
                 'pet_count' => session('count'),
                 'phone_number' => $fullPhoneNumber,
-                'status' => 'completed'
             ]);
 
             // Simpan data pets dari session

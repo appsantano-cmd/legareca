@@ -18,14 +18,12 @@ return new class extends Migration
             // Kontak - digabung menjadi satu field
             $table->string('phone_number'); // format: +6281234567890
             
-            // Status dan timestamps
-            $table->enum('status', ['pending', 'completed', 'canceled'])->default('pending');
+            // timestamps
             $table->timestamps();
             
             // Index untuk pencarian
             $table->index('owner_name');
             $table->index('phone_number');
-            $table->index('status');
         });
 
         Schema::create('screening_pets', function (Blueprint $table) {
