@@ -7,11 +7,11 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\PengajuanIzinController;   
 use App\Http\Controllers\ScreeningController;
+use App\Http\Controllers\DailyCleaningReportController;
 
 Route::get('/', function () {
     return view('welcome');
 });
-
 
 Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [LoginController::class, 'login']);
@@ -56,3 +56,20 @@ Route::get('/screening/no-hp', [ScreeningController::class, 'noHp'])->name('scre
 Route::post('/screening/no-hp/submit', [ScreeningController::class, 'submitNoHp'])->name('screening.submitNoHp');
 
 Route::get('/screening/thankyou', [ScreeningController::class, 'thankyou'])->name('screening.thankyou');
+
+Route::prefix('cleaning-report')->group(function () {
+    // LANGSUNG KE FORM STEP 1 - TANPA REDIRECT
+    Route::get('/', [DailyCleaningReportController::class, 'create'])->name('cleaning-report.index');
+    
+    // Bisa juga tambah alias untuk /create (optional)
+    Route::get('/create', [DailyCleaningReportController::class, 'create'])->name('cleaning-report.create');
+    
+    Route::post('/store-step1', [DailyCleaningReportController::class, 'storeStep1'])->name('cleaning-report.storeStep1');
+    
+    // Step 2
+    Route::get('/step2/{id}', [DailyCleaningReportController::class, 'showStep2'])->name('cleaning-report.step2');
+    Route::put('/store-step2/{id}', [DailyCleaningReportController::class, 'storeStep2'])->name('cleaning-report.storeStep2');
+    
+    // Complete
+    Route::get('/complete/{id}', [DailyCleaningReportController::class, 'complete'])->name('cleaning-report.complete');
+});
