@@ -42,6 +42,13 @@
             flex: 1;
             min-width: 120px;
         }
+        .logo-container {
+            animation: fadeIn 1s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
     </style>
 </head>
 <body class="bg-gray-50 min-h-screen py-8">
@@ -67,6 +74,20 @@
 
         <!-- Form Container -->
         <div class="bg-white rounded-xl shadow-lg p-8">
+            <!-- Logo di Tengah -->
+            <div class="logo-container flex justify-center items-center mb-8">
+                <img 
+                    src="/logo.png" 
+                    alt="Company Logo" 
+                    class="h-32 w-auto max-w-xs"
+                    onerror="this.style.display='none'; document.getElementById('logoFallback').style.display='flex';"
+                >
+                <div id="logoFallback" class="hidden items-center justify-center h-32 w-32 bg-blue-100 rounded-full">
+                    <i class="fas fa-building text-blue-600 text-4xl"></i>
+                </div>
+            </div>
+
+            <!-- Judul Form -->
             <div class="text-center mb-8">
                 <h1 class="text-3xl font-bold text-gray-800 mb-2">
                     <i class="fas fa-broom mr-2"></i>Daily Cleaning Report
@@ -279,6 +300,15 @@
                     });
                 });
             });
+            
+            // Handle logo error - show fallback if logo doesn't exist
+            const logo = document.querySelector('img[src="/logo.png"]');
+            if (logo) {
+                logo.onerror = function() {
+                    this.style.display = 'none';
+                    document.getElementById('logoFallback').style.display = 'flex';
+                };
+            }
         });
     </script>
 </body>
