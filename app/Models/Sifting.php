@@ -9,14 +9,8 @@ class Sifting extends Model
 {
     use HasFactory;
 
-    /**
-     * Nama tabel di database
-     */
     protected $table = 'shift_requests';
 
-    /**
-     * Kolom yang boleh diisi mass assignment
-     */
     protected $fillable = [
         // STEP 1
         'nama_karyawan',
@@ -24,11 +18,9 @@ class Sifting extends Model
         // STEP 2
         'divisi_jabatan',
 
-        // STEP 3 – SHIFT ASLI
+        // STEP 3
         'tanggal_shift_asli',
         'jam_shift_asli',
-
-        // STEP 3 – SHIFT TUJUAN
         'tanggal_shift_tujuan',
         'jam_shift_tujuan',
 
@@ -37,6 +29,7 @@ class Sifting extends Model
 
         // STEP 5
         'sudah_pengganti',
+        'nama_karyawan_pengganti',
         'tanggal_shift_pengganti',
         'jam_shift_pengganti',
 
@@ -45,16 +38,10 @@ class Sifting extends Model
         'catatan_admin',
     ];
 
-    /**
-     * Default attribute values
-     */
     protected $attributes = [
         'status' => 'pending',
     ];
 
-    /**
-     * Casting tipe data
-     */
     protected $casts = [
         'tanggal_shift_asli' => 'date',
         'tanggal_shift_tujuan' => 'date',
