@@ -1,78 +1,53 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Services;
 
-use Illuminate\Http\Request;
-use App\Models\Sifting;
-use Illuminate\Support\Facades\Validator;
-use App\Services\GoogleSheetsService;
+use Google\Client;
+use Google\Service\Sheets;
+use Google\Service\Sheets\ValueRange;
 
-class SiftingController extends Controller
+class GoogleSheetsService
 {
-    public function index()
+    protected Sheets $service;
+    protected string $spreadsheetId;
+
+    public function __construct()
     {
-        return view('sifting.index');
-    }
+        $credentials = config('services.google.credentials');
 
-    public function submit(Request $request, GoogleSheetsService $sheets)
-    {
-        $validator = Validator::make($request->all(), [
-            'nama_karyawan' => 'required|string|max:255',
-            'divisi_jabatan' => 'required|string|max:255',
-
-            'tanggal_shift_asli' => 'required|date',
-            'jam_shift_asli' => 'required',
-
-            'tanggal_shift_tujuan' => 'required|date|after_or_equal:tanggal_shift_asli',
-            'jam_shift_tujuan' => 'required',
-
-            'alasan' => 'required|string|min:10',
-
-            'sudah_pengganti' => 'required|in:ya,belum',
-            'nama_karyawan_pengganti' => 'nullable|required_if:sudah_pengganti,ya|string|max:255',
-            'tanggal_shift_pengganti' => 'nullable|required_if:sudah_pengganti,ya|date',
-            'jam_shift_pengganti' => 'nullable|required_if:sudah_pengganti,ya',
-        ]);
-
-        if ($validator->fails()) {
-            return back()->withErrors($validator)->withInput();
+        if (! file_exists($credentials)) {
+            throw new \RuntimeException(
+                "Google credentials file not found: {$credentials}"
+            );
         }
 
-        // SIMPAN DATABASE
-        $sifting = Sifting::create([
-            'nama_karyawan' => $request->nama_karyawan,
-            'divisi_jabatan' => $request->divisi_jabatan,
-            'tanggal_shift_asli' => $request->tanggal_shift_asli,
-            'jam_shift_asli' => $request->jam_shift_asli,
-            'tanggal_shift_tujuan' => $request->tanggal_shift_tujuan,
-            'jam_shift_tujuan' => $request->jam_shift_tujuan,
-            'alasan' => $request->alasan,
-            'sudah_pengganti' => $request->sudah_pengganti,
-            'nama_karyawan_pengganti' => $request->nama_karyawan_pengganti,
-            'tanggal_shift_pengganti' => $request->tanggal_shift_pengganti,
-            'jam_shift_pengganti' => $request->jam_shift_pengganti,
-            'status' => 'pending',
+        $client = new Client();
+        $client->setApplicationName('Laravel Tukar Shift');
+        $client->setScopes([Sheets::SPREADSHEETS]);
+        $client->setAuthConfig($credentials);
+        $client->setAccessType('offline');
+
+        $this->service = new Sheets($client);
+        $this->spreadsheetId = config('services.google.spreadsheet_id');
+    }
+
+    public function append(array $values): void
+    {
+        $range = 'Tukar Shift!A:M';
+
+        $body = new ValueRange([
+            'values' => [$values],
         ]);
 
-        // SIMPAN KE GOOGLE SHEETS
-        $sheets->append([
-            now()->format('Y-m-d H:i:s'),
-            $sifting->nama_karyawan,
-            $sifting->divisi_jabatan,
-            $sifting->tanggal_shift_asli,
-            $sifting->jam_shift_asli,
-            $sifting->tanggal_shift_tujuan,
-            $sifting->jam_shift_tujuan,
-            $sifting->alasan,
-            $sifting->sudah_pengganti,
-            $sifting->nama_karyawan_pengganti ?? '-',
-            $sifting->tanggal_shift_pengganti ?? '-',
-            $sifting->jam_shift_pengganti ?? '-',
-            $sifting->status,
-        ]);
+        $params = [
+            'valueInputOption' => 'RAW',
+        ];
 
-        return redirect()
-            ->route('sifting.index')
-            ->with('success', 'Pengajuan tukar shift berhasil dikirim & tersimpan di Spreadsheet.');
+        $this->service->spreadsheets_values->append(
+            $this->spreadsheetId,
+            $range,
+            $body,
+            $params
+        );
     }
 }
