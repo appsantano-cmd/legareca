@@ -95,3 +95,6 @@ Route::prefix('cleaning-report')->group(function () {
     //Route::get('/cleaning-report/simple-test', [DailyCleaningReportController::class, 'simpleTest']);
     //Route::get('/cleaning-report/test-connection', [DailyCleaningReportController::class, 'testConnection']);
 });
+
+
+Route::get('/screening/cancelled', [ScreeningController::class, 'cancelled'])->name('screening.cancelled');
