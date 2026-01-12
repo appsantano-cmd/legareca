@@ -89,10 +89,33 @@ class ScreeningController extends Controller
                 'pets.*.name' => 'required|string|max:100',
                 'pets.*.breed' => 'required|string|max:100',
                 'pets.*.sex' => 'required|string|max:20',
-                'pets.*.age' => 'required|string|max:20',
+                'pets.*.age_year' => 'required|integer|min:0',
+                'pets.*.age_month' => 'required|integer|min:0|max:11',
             ]);
 
-            session()->put('pets', $request->pets);
+            $pets = [];
+
+            foreach ($request->pets as $pet) {
+                $year = (int) $pet['age_year'];
+                $month = (int) $pet['age_month'];
+
+                if ($year > 0 && $month > 0) {
+                    $ageText = "{$year} Tahun {$month} Bulan";
+                } elseif ($year > 0) {
+                    $ageText = "{$year} Tahun";
+                } else {
+                    $ageText = "{$month} Bulan";
+                }
+
+                $pets[] = [
+                    'name' => $pet['name'],
+                    'breed' => $pet['breed'],
+                    'sex' => $pet['sex'],
+                    'age' => $ageText,
+                ];
+            }
+
+            session()->put('pets',$pets);
 
             Log::info('Saved to session:', session('pets'));
             return redirect()->route('screening.result');
