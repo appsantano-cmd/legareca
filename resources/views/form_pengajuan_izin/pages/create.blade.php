@@ -19,7 +19,7 @@
         {{-- Nama --}}
         <div class="mb-4">
             <label class="block text-sm font-semibold mb-1">
-                Nama <span class="text-red-500">*</span>
+                Nama Karyawan<span class="text-red-500">*</span>
             </label>
             <input type="text" name="nama"
                 class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-200 focus:outline-none"
@@ -91,7 +91,7 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
             <div>
                 <label class="block text-sm font-semibold mb-1">
-                    Tanggal Mulai <span class="text-red-500">*</span>
+                    Tanggal Mulai Izin<span class="text-red-500">*</span>
                 </label>
                 <input type="date" name="tanggal_mulai"
                     class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-200 focus:outline-none"
@@ -103,7 +103,7 @@
 
             <div>
                 <label class="block text-sm font-semibold mb-1">
-                    Tanggal Selesai <span class="text-red-500">*</span>
+                    Tanggal Selesai Izin<span class="text-red-500">*</span>
                 </label>
                 <input type="date" name="tanggal_selesai"
                     class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-200 focus:outline-none"
@@ -144,7 +144,7 @@
         {{-- File --}}
         <div class="mb-4">
             <label class="block text-sm font-semibold mb-1">
-                Dokumen Pendukung
+                Jika Memilih Izin Sakit lebih dari 1 hari, lampirkan surat dokter
             </label>
             <input type="file" name="documen_pendukung"
                 class="w-full border rounded-lg px-3 py-2 text-sm">
@@ -159,7 +159,7 @@
         {{-- Kontak --}}
         <div class="mb-4">
             <label class="block text-sm font-semibold mb-1">
-                Nomor Telepon <span class="text-red-500">*</span>
+                Nomor yang bisa dihubungi <span class="text-red-500">*</span>
             </label>
             <input type="text" name="nomor_telepon"
                 class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-200 focus:outline-none"
@@ -188,7 +188,7 @@
             <input type="checkbox" name="konfirmasi" value="1"
                 class="mt-1 text-blue-600 focus:ring-blue-500">
             <label class="text-sm text-gray-700">
-                Saya menyatakan bahwa data yang diisi sudah benar
+                Saya menyatakan bahwa data yang saya isi adalah benar dan dapat dipertanggungjawabkan.
             </label>
         </div>
 
