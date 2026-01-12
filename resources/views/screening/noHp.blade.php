@@ -56,7 +56,7 @@
         <div class="absolute top-4 right-4 opacity-100 text-2xl">
             <img src="/paw.png" alt="logo" class="w-12 h-12 object-contain">
         </div>
-        
+
         <div class="text-center mb-8">
             <div
                 class="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-r from-red-100 to-orange-100 mb-4">
@@ -145,13 +145,17 @@
             </form>
         </div>
 
-        <div class="pt-6 flex flex-col sm:flex-row justify-between items-center gap-4">
-            <button type="button" onclick="window.history.back()" class="submit-btn w-full sm:w-auto"><i
-                    class="fas fa-arrow-left"></i>Kembali</button>
-            <button type="button" id="submitBtn" class="submit-btn w-full sm:w-auto"><i
-                    class="fas fa-check"></i>Submit</button>
-        </div>
+        <div class="pt-6 flex flex-row justify-between items-center gap-4">
+            <button type="button" onclick="window.history.back()" class="submit-btn flex-1 sm:flex-none">
+                <i class="fas fa-arrow-left"></i>
+                Kembali
+            </button>
 
+            <button type="button" id="submitBtn" class="submit-btn flex-1 sm:flex-none">
+                <i class="fas fa-check"></i>
+                Submit
+            </button>
+        </div>
     </div>
 
     <script>

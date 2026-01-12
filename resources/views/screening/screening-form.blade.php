@@ -275,18 +275,24 @@
 
         <!-- Action Buttons -->
         <div class="pt-6 border-t border-gray-200">
-            <div class="flex flex-col sm:flex-row justify-between items-center space-y-4 sm:space-y-0">
-                <button type="button" onclick="window.location.href='/screening/pets'"
-                    class="submit-btn text-white font-bold text-lg px-12 py-4 rounded-full shadow-md transition flex items-center w-full sm:w-auto">
-                    <i class="fas fa-arrow-left mr-2"></i>
-                    Back
-                </button>
+           <div class="flex justify-between items-center gap-3">
+    <button
+    type="button"
+    id="backBtn"
+    onclick="window.location.href='/screening/pets'"
+    class="submit-btn text-white font-bold text-lg px-12 py-4 rounded-full shadow-md transition flex items-center w-full sm:w-auto disabled:opacity-50 disabled:cursor-not-allowed">
+    <i class="fas fa-arrow-left mr-2"></i>
+    Back
+</button>
 
-                <button type="button" id="submitBtn"
-                    class="submit-btn text-white font-bold text-lg px-12 py-4 rounded-full shadow-md transition flex items-center w-full sm:w-auto">
-                    Next
-                    <i class="fas fa-arrow-right ml-2"></i>
-                </button>
+<button
+    type="button"
+    id="submitBtn"
+    class="submit-btn text-white font-bold text-lg px-12 py-4 rounded-full shadow-md transition flex items-center w-full sm:w-auto disabled:opacity-50 disabled:cursor-not-allowed">
+    Next
+    <i class="fas fa-arrow-right ml-2"></i>
+</button>
+
             </div>
         </div>
     </form>
@@ -304,188 +310,80 @@
     </div>
 </div>
 
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const form = document.getElementById('screeningForm');
-        const submitBtn = document.getElementById('submitBtn');
-        const globalError = document.getElementById('globalError');
-        
-        // Setup select change listeners
-        document.querySelectorAll('.pet-select').forEach(select => {
-            select.addEventListener('change', function() {
-                const petIndex = this.getAttribute('data-pet');
-                const key = this.getAttribute('data-key');
-                const errorId = `error-${key}-${petIndex}`;
-                const errorElement = document.getElementById(errorId);
-                
-                if (this.value && this.value.trim() !== '') {
-                    if (errorElement) {
-                        errorElement.classList.add('hidden');
-                    }
-                    this.classList.remove('error');
-                    this.classList.add('border-green-500');
-                }
-                
-                if (isFormValid()) {
-                    globalError.classList.add('hidden');
-                }
-            });
+ <script>
+document.addEventListener('DOMContentLoaded', () => {
+    const form = document.getElementById('screeningForm');
+    const submitBtn = document.getElementById('submitBtn');
+    const globalError = document.getElementById('globalError');
+    const selects = document.querySelectorAll('.pet-select');
+
+    function resetErrors() {
+        globalError.classList.add('hidden');
+        document.querySelectorAll('.error-container').forEach(el => el.classList.add('hidden'));
+        selects.forEach(sel => {
+            sel.classList.remove('error', 'border-green-500');
         });
-        
-        // Check if form is valid
-        function isFormValid() {
-            const selects = document.querySelectorAll('.pet-select');
-            for (let select of selects) {
-                if (!select.value || select.value.trim() === '') {
-                    return false;
-                }
+    }
+
+    function validateForm() {
+        let firstInvalid = null;
+
+        selects.forEach(select => {
+            const pet = select.dataset.pet;
+            const key = select.dataset.key;
+            const errorEl = document.getElementById(`error-${key}-${pet}`);
+
+            if (!select.value) {
+                if (!firstInvalid) firstInvalid = select;
+                select.classList.add('error');
+                errorEl?.classList.remove('hidden');
+            } else {
+                select.classList.remove('error');
+                select.classList.add('border-green-500');
+                errorEl?.classList.add('hidden');
             }
-            return true;
-        }
-        
-        // Hide all errors
-        function hideAllErrors() {
-            document.querySelectorAll('.error-container').forEach(el => {
-                el.classList.add('hidden');
-            });
-            
-            document.querySelectorAll('.pet-select').forEach(el => {
-                el.classList.remove('error');
-            });
-        }
-        
-        // Show errors for empty fields
-        function showAllErrors() {
-            let hasError = false;
-            
-            document.querySelectorAll('.pet-select').forEach(select => {
-                const petIndex = select.getAttribute('data-pet');
-                const key = select.getAttribute('data-key');
-                const errorId = `error-${key}-${petIndex}`;
-                const errorElement = document.getElementById(errorId);
-                
-                if (!select.value || select.value.trim() === '') {
-                    hasError = true;
-                    if (errorElement) {
-                        errorElement.classList.remove('hidden');
-                    }
-                    select.classList.add('error');
-                }
-            });
-            
-            return hasError;
-        }
-        
-        // Highlight first empty field
-        function highlightFirstEmpty() {
-            const selects = document.querySelectorAll('.pet-select');
-            for (let select of selects) {
-                if (!select.value || select.value.trim() === '') {
-                    const petIndex = select.getAttribute('data-pet');
-                    const key = select.getAttribute('data-key');
-                    const errorId = `error-${key}-${petIndex}`;
-                    const errorElement = document.getElementById(errorId);
-                    
-                    if (errorElement) {
-                        errorElement.classList.remove('hidden');
-                        select.classList.add('error');
-                    }
-                    
-                    // Scroll ke elemen yang error
-                    select.scrollIntoView({
-                        behavior: 'smooth',
-                        block: 'center'
-                    });
-                    
-                    // Animasi shake
-                    select.closest('.pet-card').classList.add('animate-shake');
-                    setTimeout(() => {
-                        select.closest('.pet-card').classList.remove('animate-shake');
-                    }, 400);
-                    
-                    return select;
-                }
-            }
-            return null;
-        }
-        
-        // Submit button click handler
-        submitBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            
-            // Reset semua error
-            hideAllErrors();
-            globalError.classList.add('hidden');
-            
-            // Cek apakah semua field sudah terisi
-            if (!isFormValid()) {
-                // Tampilkan error global
-                globalError.classList.remove('hidden');
-                
-                // Tampilkan semua error field
-                showAllErrors();
-                
-                // Highlight field pertama yang kosong
-                const firstEmpty = highlightFirstEmpty();
-                if (firstEmpty) {
-                    firstEmpty.focus();
-                }
-                
-                // Animasi shake pada tombol
-                submitBtn.classList.add('animate-shake');
-                setTimeout(() => {
-                    submitBtn.classList.remove('animate-shake');
-                }, 400);
-                
-                return false;
-            }
-            
-            // Jika semua valid, lanjutkan ke halaman noHp
-            // Tampilkan loading state
-            const originalHTML = submitBtn.innerHTML;
-            submitBtn.innerHTML = '<div class="loading-spinner mr-2"></div> Memproses...';
-            submitBtn.disabled = true;
-            
-            // Kirim form terlebih dahulu ke server
-            form.addEventListener('submit', function(e) {
-                e.preventDefault();
-                // Form akan disubmit ke route 'screening.submitResult'
-                this.submit();
-            });
-            
-            // Submit form
-            form.submit();
-            
-            // Jika form berhasil dikirim, akan redirect ke route 'screening.submitResult'
-            // Kemudian dari controller akan redirect ke screening.noHp
         });
-        
-        // Form submission (backup jika ada yang langsung submit form)
-        form.addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            hideAllErrors();
-            globalError.classList.add('hidden');
-            
-            if (!isFormValid()) {
-                globalError.classList.remove('hidden');
-                const firstEmpty = highlightFirstEmpty();
-                if (firstEmpty) {
-                    firstEmpty.focus();
-                }
-                
-                submitBtn.classList.add('animate-shake');
-                setTimeout(() => {
-                    submitBtn.classList.remove('animate-shake');
-                }, 400);
-                
-                return false;
-            }
-            
-            // Jika valid, lanjutkan submit
-            return true;
+
+        if (firstInvalid) {
+            globalError.classList.remove('hidden');
+            firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            firstInvalid.closest('.pet-card')?.classList.add('animate-shake');
+            setTimeout(() => {
+                firstInvalid.closest('.pet-card')?.classList.remove('animate-shake');
+            }, 400);
+            return false;
+        }
+
+        return true;
+    }
+
+    // realtime validation
+    selects.forEach(select => {
+        select.addEventListener('change', () => {
+            validateForm();
         });
     });
+
+    // tombol NEXT
+    submitBtn.addEventListener('click', () => {
+        resetErrors();
+
+        if (!validateForm()) {
+            submitBtn.classList.add('animate-shake');
+            setTimeout(() => submitBtn.classList.remove('animate-shake'), 400);
+            return;
+        }
+
+        // loading state
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = `
+            <span class="loading-spinner mr-2"></span>
+            Memproses...
+        `;
+
+        form.submit();
+    });
+});
 </script>
 
 </body>

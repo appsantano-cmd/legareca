@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Support\Facades\DB;
+use App\Repositories\PengajuanIzinSheetRepository;
 use Illuminate\Http\Request;
 use App\Models\PengajuanIzin;
 
@@ -10,12 +12,22 @@ class PengajuanIzinController extends Controller
     /**
      * Tampilkan daftar pengajuan izin
      */
-    public function index()
+    public function index(Request $request)
     {
-        $izin = PengajuanIzin::latest()->get();
+        $query = PengajuanIzin::query();
+
+        // 🔎 FILTER STATUS
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        $izin = $query
+            ->orderBy('created_at', 'desc')
+            ->get();
 
         return view('form_pengajuan_izin.pages.index', compact('izin'));
     }
+
 
     /**
      * Tampilkan form pengajuan izin
@@ -31,10 +43,9 @@ class PengajuanIzinController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'nama'   => 'required|string|max:100',
+            'nama' => 'required|string|max:100',
             'divisi' => 'required|string',
 
-            // helper dari form
             'jenis_izin_pilihan' => 'required|string',
             'jenis_izin_lainnya' => 'nullable|string|max:100',
 
@@ -61,7 +72,6 @@ class PengajuanIzinController extends Controller
             $validated['jenis_izin'] = $validated['jenis_izin_pilihan'];
         }
 
-        // hapus helper agar tidak ikut disimpan
         unset($validated['jenis_izin_pilihan'], $validated['jenis_izin_lainnya']);
 
         // simpan file
@@ -71,11 +81,22 @@ class PengajuanIzinController extends Controller
                     ->store('izin_pendukung', 'public');
         }
 
-        PengajuanIzin::create($validated);
+        DB::transaction(function () use ($validated) {
+            // 1️⃣ Simpan ke database
+            $izin = PengajuanIzin::create([
+                ...$validated,
+                'status' => 'Pending',
+            ]);
+
+            // 2️⃣ Langsung sync ke Google Sheet
+            $repo = new PengajuanIzinSheetRepository();
+            $repo->appendSingle($izin);
+        });
 
         return redirect()
             ->route('izin.index')
             ->with('success', 'Pengajuan izin berhasil dikirim');
     }
+
 
 }

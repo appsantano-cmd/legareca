@@ -309,19 +309,25 @@
             </div>
 
             <!-- Action Buttons -->
-            <div class="flex flex-col sm:flex-row justify-between items-center mt-10 pt-6 space-y-4 sm:space-y-0">
-                <button onclick="window.location.href='/screening'"
-                    class="btn-primary text-white font-bold text-lg px-10 py-3 rounded-full shadow-md transition flex items-center">
+            <div class="flex justify-between items-center mt-8 pt-6 gap-3">
+                <button onclick="window.location.href='/screening'" class="btn-primary text-white font-semibold
+                        text-sm md:text-lg
+                        px-5 py-2 md:px-10 md:py-3
+                        rounded-full shadow-md transition flex items-center">
                     <i class="fas fa-arrow-left mr-2"></i>
                     Home
                 </button>
 
                 <div class="flex items-center space-x-4">
-                    <button id="nextBtn" onclick="window.location.href='/screening/yakin'"
-                        class="btn-primary text-white font-bold text-lg px-10 py-3 rounded-full shadow-md transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
-                        disabled>
+                    <button id="nextBtn" onclick="window.location.href='/screening/yakin'" class="btn-primary text-white font-semibold
+                            text-sm md:text-lg
+                            px-5 py-2 md:px-10 md:py-3
+                            rounded-full shadow-md transition
+                            disabled:opacity-50 disabled:cursor-not-allowed
+                            flex items-center" disabled>
                         Next <i class="fas fa-arrow-right ml-2"></i>
                     </button>
+
                 </div>
             </div>
         </div>

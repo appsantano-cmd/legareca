@@ -167,7 +167,7 @@
         <div class="absolute top-4 right-4 opacity-100 text-2xl">
             <img src="/paw.png" alt="logo" class="w-12 h-12 object-contain">
         </div>
-        
+
         <!-- Header dengan Progress Bar -->
         <div class="text-center mb-10">
             <h1 class="text-3xl md:text-4xl font-extrabold text-gray-800 mb-2">Pawrents Data</h1>
@@ -283,18 +283,25 @@
 
                 <!-- Action Buttons -->
                 <div class="pt-8 border-t border-gray-200">
-                    <div class="flex flex-col sm:flex-row justify-between items-center space-y-4 sm:space-y-0">
-                        <button type="button" onclick="window.location.href='/screening/yakin'"
-                            class="submit-btn text-white font-bold text-lg px-12 py-4 rounded-full shadow-md transition flex items-center">
+                    <div class="flex justify-between items-center gap-3">
+                        <button type="button" onclick="window.location.href='/screening/yakin'" class="submit-btn text-white font-semibold
+                                text-sm md:text-lg
+                                px-5 py-2 md:px-12 md:py-4
+                                rounded-full shadow-md transition
+                                flex items-center justify-center w-full md:w-auto">
                             <i class="fas fa-arrow-left mr-2"></i>
                             Back
                         </button>
 
                         <div class="text-center sm:text-right">
-                            <button type="submit" id="nextBtn"
-                                class="submit-btn text-white font-bold text-lg px-12 py-4 rounded-full shadow-md transition flex items-center">
+                            <button type="submit" id="nextBtn" class="submit-btn text-white font-semibold
+                                    text-sm md:text-lg
+                                    px-5 py-2 md:px-12 md:py-4
+                                    rounded-full shadow-md transition
+                                    flex items-center justify-center w-full md:w-auto">
                                 Next <i class="fas fa-arrow-right ml-2"></i>
                             </button>
+
                         </div>
                     </div>
                 </div>

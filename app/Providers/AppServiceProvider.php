@@ -19,6 +19,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        putenv(
+            'GOOGLE_APPLICATION_CREDENTIALS=' .
+            storage_path('app/credentials.json')
+        );
     }
 }
