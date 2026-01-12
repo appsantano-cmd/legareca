@@ -5,7 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\PengajuanIzinController;   
+use App\Http\Controllers\PengajuanIzinController;
 use App\Http\Controllers\ScreeningController;
 use App\Http\Controllers\DailyCleaningReportController;
 
@@ -57,19 +57,41 @@ Route::post('/screening/no-hp/submit', [ScreeningController::class, 'submitNoHp'
 
 Route::get('/screening/thankyou', [ScreeningController::class, 'thankyou'])->name('screening.thankyou');
 
+// Routes untuk Daily Cleaning Report
 Route::prefix('cleaning-report')->group(function () {
-    // LANGSUNG KE FORM STEP 1 - TANPA REDIRECT
-    Route::get('/', [DailyCleaningReportController::class, 'create'])->name('cleaning-report.index');
-    
-    // Bisa juga tambah alias untuk /create (optional)
-    Route::get('/create', [DailyCleaningReportController::class, 'create'])->name('cleaning-report.create');
-    
-    Route::post('/store-step1', [DailyCleaningReportController::class, 'storeStep1'])->name('cleaning-report.storeStep1');
-    
+    // Step 1
+    Route::get('/create', [DailyCleaningReportController::class, 'create'])
+        ->name('cleaning-report.create');
+
+    Route::post('/store-step1', [DailyCleaningReportController::class, 'storeStep1'])
+        ->name('cleaning-report.storeStep1');
+
     // Step 2
-    Route::get('/step2/{id}', [DailyCleaningReportController::class, 'showStep2'])->name('cleaning-report.step2');
-    Route::put('/store-step2/{id}', [DailyCleaningReportController::class, 'storeStep2'])->name('cleaning-report.storeStep2');
-    
+    Route::get('/step2', [DailyCleaningReportController::class, 'showStep2'])
+        ->name('cleaning-report.step2');
+
+    Route::post('/store-step2', [DailyCleaningReportController::class, 'storeStep2'])
+        ->name('cleaning-report.storeStep2');
+
     // Complete
-    Route::get('/complete/{id}', [DailyCleaningReportController::class, 'complete'])->name('cleaning-report.complete');
+    Route::get('/complete/{id}', [DailyCleaningReportController::class, 'complete'])
+        ->name('cleaning-report.complete');
+
+    // Index - redirect ke create (hanya untuk menghindari error)
+    Route::get('/', [DailyCleaningReportController::class, 'index'])
+        ->name('cleaning-report.index');
+
+    // Google Sheets Routes - Redirect ke complete page
+    Route::get('/export/google-sheets', [DailyCleaningReportController::class, 'exportAllToGoogleSheets'])
+        ->name('cleaning-report.export.google-sheets');
+
+    Route::get('/test-google-sheets', [DailyCleaningReportController::class, 'testGoogleSheetsConnection'])
+        ->name('cleaning-report.test-google-sheets');
+    Route::get('/cleaning-report/check-config', [DailyCleaningReportController::class, 'checkGoogleSheetsConfig']);
+    Route::get('/cleaning-report/test-google-sheets', [DailyCleaningReportController::class, 'testGoogleSheetsConnection']);
+    Route::get('/cleaning-report/export/google-sheets', [DailyCleaningReportController::class, 'exportAllToGoogleSheets'])
+        ->name('cleaning-report.export.google-sheets');
+
+    //Route::get('/cleaning-report/simple-test', [DailyCleaningReportController::class, 'simpleTest']);
+    //Route::get('/cleaning-report/test-connection', [DailyCleaningReportController::class, 'testConnection']);
 });

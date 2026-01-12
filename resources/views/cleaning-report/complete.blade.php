@@ -1,91 +1,358 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Report Complete</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <title>Data Berhasil Disimpan - Le Gareca</title>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            animation: slideUp 0.5s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .card-header {
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .card-header h1 {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .card-header p {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+
+        .card-body {
+            padding: 40px;
+        }
+
+        .success-icon {
+            width: 80px;
+            height: 80px;
+            background: #10b981;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 30px;
+            animation: pulse 2s infinite;
+        }
+
+        .success-icon svg {
+            width: 40px;
+            height: 40px;
+            color: white;
+        }
+
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+            }
+            70% {
+                box-shadow: 0 0 0 20px rgba(16, 185, 129, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+            }
+        }
+
+        .success-message {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .success-message h2 {
+            color: #1e293b;
+            font-size: 22px;
+            margin-bottom: 10px;
+        }
+
+        .success-message p {
+            color: #64748b;
+            font-size: 16px;
+            line-height: 1.5;
+        }
+
+        .report-info {
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 30px;
+            border: 2px solid #e2e8f0;
+        }
+
+        .report-info h3 {
+            color: #1e293b;
+            font-size: 18px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .info-item {
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .info-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .info-label {
+            font-weight: 600;
+            color: #475569;
+            font-size: 14px;
+        }
+
+        .info-value {
+            color: #1e293b;
+            font-size: 15px;
+            font-weight: 500;
+            text-align: right;
+        }
+
+        .photo-section {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .photo-section img {
+            max-width: 100%;
+            max-height: 200px;
+            border-radius: 10px;
+            border: 2px solid #e2e8f0;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .action-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        .btn {
+            padding: 16px 24px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: #4f46e5;
+            border: 2px solid #4f46e5;
+        }
+
+        @media (max-width: 640px) {
+            .card-body {
+                padding: 25px;
+            }
+            
+            .btn {
+                padding: 14px 20px;
+            }
+            
+            .info-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 5px;
+            }
+            
+            .info-value {
+                text-align: left;
+                width: 100%;
+            }
+        }
+    </style>
 </head>
-<body class="bg-gray-50 min-h-screen flex items-center justify-center py-8">
-    <div class="max-w-md mx-auto bg-white rounded-xl shadow-lg p-8 text-center">
-        @if(session('success'))
-            <div class="mb-6">
-                <div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <i class="fas fa-check text-green-500 text-3xl"></i>
-                </div>
-                <h2 class="text-2xl font-bold text-gray-800 mb-2">Report Submitted Successfully!</h2>
-                <p class="text-gray-600">Your daily cleaning report has been saved.</p>
+<body>
+    <div class="container">
+        <div class="card">
+            <div class="card-header">
+                <h1>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                    </svg>
+                    Data Berhasil Disimpan
+                </h1>
+                <p>Laporan cleaning harian telah berhasil diproses</p>
             </div>
-        @endif
+            
+            <div class="card-body">
+                <!-- Success Icon -->
+                <div class="success-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                    </svg>
+                </div>
 
-        <!-- Report Summary -->
-        <div class="bg-gray-50 rounded-lg p-6 mb-6 text-left">
-            <h3 class="font-semibold text-gray-700 mb-3">Report Summary:</h3>
-            <ul class="space-y-2">
-                <li class="flex items-center">
-                    <i class="fas fa-user text-blue-500 mr-2"></i>
-                    <span><strong>Name:</strong> {{ $report->nama }}</span>
-                </li>
-                <li class="flex items-center">
-                    <i class="fas fa-calendar text-blue-500 mr-2"></i>
-                    <span><strong>Date:</strong> {{ $report->membership_datetime->format('m/d/Y H:i') }}</span>
-                </li>
-                <li class="flex items-center">
-                    <i class="fas fa-building text-blue-500 mr-2"></i>
-                    <span><strong>Departments:</strong> 
-                        @foreach(json_decode($report->departments) as $dept)
-                            <span class="inline-block bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded mr-1">{{ $dept }}</span>
-                        @endforeach
-                    </span>
-                </li>
-                <li class="flex items-center">
-                    <i class="fas fa-camera text-blue-500 mr-2"></i>
-                    <span><strong>Photo Uploaded:</strong> Yes</span>
-                </li>
-                <li class="flex items-center">
-                    <i class="fas fa-clock text-blue-500 mr-2"></i>
-                    <span><strong>Submitted:</strong> {{ $report->created_at->format('H:i') }}</span>
-                </li>
-            </ul>
-        </div>
+                <!-- Success Message -->
+                <div class="success-message">
+                    <h2>Terima Kasih!</h2>
+                    <p>Data laporan cleaning Anda telah berhasil disimpan dengan sempurna.</p>
+                </div>
 
-        <!-- Photo Preview (if available) -->
-        @if($report->toilet_photo_path)
-            <div class="mb-6">
-                <h4 class="font-semibold text-gray-700 mb-3">Uploaded Photo:</h4>
-                <div class="border-2 border-gray-300 rounded-lg overflow-hidden">
-                    <img src="{{ asset('storage/' . $report->toilet_photo_path) }}" 
-                         alt="Toilet Photo" 
-                         class="w-full h-64 object-cover">
+                <!-- Report Information -->
+                <div class="report-info">
+                    <h3>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V7.414A2 2 0 0015.414 6L12 2.586A2 2 0 0010.586 2H6zm2 10a1 1 0 10-2 0 1 1 0 002 0zm2-3a1 1 0 00-2 0v3a1 1 0 102 0V9zm4-1a1 1 0 10-2 0v4a1 1 0 102 0V8z" clip-rule="evenodd" />
+                        </svg>
+                        Detail Laporan
+                    </h3>
+                    
+                    <div class="info-item">
+                        <span class="info-label">ID Laporan</span>
+                        <div class="info-value">{{ $report->id }}</div>
+                    </div>
+                    
+                    <div class="info-item">
+                        <span class="info-label">Nama</span>
+                        <div class="info-value">{{ $report->nama }}</div>
+                    </div>
+                    
+                    <div class="info-item">
+                        <span class="info-label">Departemen</span>
+                        <div class="info-value">{{ $report->departemen }}</div>
+                    </div>
+                    
+                    <!--<div class="info-item">
+                        <span class="info-label">Tanggal</span>
+                        <div class="info-value">{{ $report->tanggal }}</div>
+                    </div>-->
+                    
+                    <div class="info-item">
+                        <span class="info-label">Waktu Submit</span>
+                        <div class="info-value">{{ $report->membership_datetime }}</div>
+                    </div>
+                    
+                    <div class="info-item">
+                        <span class="info-label">Status</span>
+                        <div class="info-value" style="color: #10b981; font-weight: 600;">
+                            {{ ucfirst($report->status) }}
+                        </div>
+                    </div>
+                    
+                    <!-- Photo Preview -->
+                    @if($report->foto_path)
+                    <div class="photo-section">
+                        <img src="{{ asset($report->foto_path) }}" alt="Foto Cleaning">
+                        <div style="margin-top: 10px;">
+                            <a href="{{ asset($report->foto_path) }}" target="_blank" 
+                               style="color: #4f46e5; text-decoration: none; font-size: 14px; font-weight: 500;">
+                                📷 Lihat foto
+                            </a>
+                        </div>
+                    </div>
+                    @endif
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="action-buttons">
+                    <a href="{{ route('cleaning-report.create') }}" class="btn btn-primary">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
+                        </svg>
+                        Buat Laporan Baru
+                    </a>
+                </div>
+
+                <!-- Simple Note -->
+                <div style="margin-top: 25px; text-align: center;">
+                    <p style="color: #64748b; font-size: 14px;">
+                        Data Anda telah tersimpan dengan aman. Terima kasih telah melapor.
+                    </p>
                 </div>
             </div>
-        @endif
-
-        <!-- Action Buttons -->
-        <div class="space-y-3">
-            <a href="{{ route('cleaning-report.create') }}" 
-               class="block bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition duration-200 flex items-center justify-center">
-                <i class="fas fa-plus-circle mr-2"></i>Create New Report
-            </a>
-            
-            <a href="{{ route('cleaning-report.index') }}" 
-               class="block bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-3 px-6 rounded-lg transition duration-200 flex items-center justify-center">
-                <i class="fas fa-list mr-2"></i>View All Reports
-            </a>
-            
-            <button onclick="window.print()" 
-                    class="w-full bg-white border-2 border-gray-300 hover:bg-gray-50 text-gray-800 font-semibold py-3 px-6 rounded-lg transition duration-200 flex items-center justify-center">
-                <i class="fas fa-print mr-2"></i>Print Report
-            </button>
-        </div>
-
-        <div class="mt-6 pt-6 border-t border-gray-200">
-            <p class="text-sm text-gray-500">
-                <i class="fas fa-info-circle mr-1"></i>
-                Report ID: #{{ str_pad($report->id, 6, '0', STR_PAD_LEFT) }}
-            </p>
         </div>
     </div>
+
+    <script>
+        // Simple animation for success icon
+        document.addEventListener('DOMContentLoaded', function() {
+            const icon = document.querySelector('.success-icon');
+            if (icon) {
+                setTimeout(() => {
+                    icon.style.transform = 'scale(1.1)';
+                    setTimeout(() => {
+                        icon.style.transform = 'scale(1)';
+                    }, 300);
+                }, 500);
+            }
+        });
+    </script>
 </body>
 </html>

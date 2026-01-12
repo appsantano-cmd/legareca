@@ -6,22 +6,21 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    public function up()
+    public function up(): void
     {
         Schema::create('daily_cleaning_reports', function (Blueprint $table) {
             $table->id();
             $table->string('nama');
-            $table->json('departments');
-            $table->text('work_completed')->nullable();
-            $table->dateTime('membership_datetime')->nullable();
-            $table->string('toilet_photo_path')->nullable();
-            $table->string('status')->default('step1');
-            $table->date('report_date')->useCurrent();
+            $table->date('tanggal');
+            $table->string('departemen');
+            $table->string('foto_path')->nullable();
+            $table->timestamp('membership_datetime')->nullable();
+            $table->string('status')->default('pending');
             $table->timestamps();
         });
     }
 
-    public function down()
+    public function down(): void
     {
         Schema::dropIfExists('daily_cleaning_reports');
     }

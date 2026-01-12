@@ -2,26 +2,21 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class DailyCleaningReport extends Model
 {
-    use HasFactory;
-
     protected $fillable = [
         'nama',
-        'departments',
-        'work_completed',
+        'tanggal',
+        'departemen',
+        'foto_path',
         'membership_datetime',
-        'toilet_photo_path',
-        'status',
-        'report_date'
+        'status'
     ];
 
     protected $casts = [
-        'departments' => 'array',
-        'report_date' => 'date',
+        'tanggal' => 'date',
         'membership_datetime' => 'datetime'
     ];
 }
