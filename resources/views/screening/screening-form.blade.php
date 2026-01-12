@@ -45,9 +45,60 @@
             box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
         }
         
-        .select-field.error {
+        .radio-group {
+            display: flex;
+            gap: 12px;
+            margin-top: 12px;
+        }
+        
+        .radio-option {
+            flex: 1;
+            position: relative;
+        }
+        
+        .radio-input {
+            position: absolute;
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .radio-label {
+            display: block;
+            padding: 10px 16px;
+            background: white;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+        
+        .radio-input:checked + .radio-label {
+            background: #fef2f2;
             border-color: #ef4444;
-            background-color: #fef2f2;
+            color: #ef4444;
+            font-weight: 600;
+        }
+        
+        .conditional-section {
+            animation: slideDown 0.3s ease-out;
+            overflow: hidden;
+        }
+        
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+                max-height: 0;
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+                max-height: 200px;
+            }
         }
         
         .submit-btn {
@@ -71,10 +122,6 @@
             box-shadow: 0 6px 20px rgba(239, 68, 68, 0.4);
         }
         
-        .submit-btn:active {
-            transform: translateY(-1px);
-        }
-        
         .progress-bar {
             height: 6px;
             background: linear-gradient(to right, #ef4444, #f97316);
@@ -86,44 +133,50 @@
             background: #fed7d7 !important;
         }
         
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            10%, 30%, 50%, 70%, 90% { transform: translateX(-3px); }
-            20%, 40%, 60%, 80% { transform: translateX(3px); }
+        .hidden {
+            display: none;
         }
         
-        .animate-shake {
-            animation: shake 0.4s ease-in-out;
+        .cancelled-redirect-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.95);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
         }
         
-        .loading-spinner {
-            display: inline-block;
-            width: 18px;
-            height: 18px;
-            border: 2px solid rgba(255, 255, 255, 0.3);
+        .redirect-message {
+            text-align: center;
+            padding: 40px;
+            max-width: 500px;
+            width: 90%;
+        }
+        
+        .redirect-spinner {
+            width: 60px;
+            height: 60px;
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #ef4444;
             border-radius: 50%;
-            border-top-color: white;
-            animation: spin 0.8s ease-in-out infinite;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
         }
         
         @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-        
-        .error-container {
-            animation: fadeIn 0.3s ease;
-        }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(-10px); }
-            to { opacity: 1; transform: translateY(0); }
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
     </style>
 </head>
 <body class="min-h-screen px-4 py-8">
 
 <div class="w-full max-w-5xl mx-auto">
-    <!-- Paw decoration (optional) -->
+    <!-- Paw decoration -->
     <div class="absolute top-4 right-4 opacity-100 text-2xl">
         <img src="/paw.png" alt="logo" class="w-12 h-12 object-contain">
     </div>
@@ -221,7 +274,8 @@
                                     <select name="pets[{{ $i }}][{{ $key }}]" required
                                         class="select-field w-full px-3 py-2.5 pet-select"
                                         data-pet="{{ $i }}"
-                                        data-key="{{ $key }}">
+                                        data-key="{{ $key }}"
+                                        data-required="true">
                                         <option value="" disabled selected>Pilih riwayat kesehatan</option>
                                         <option value="Sehat">Sehat</option>
                                         <option value="Pasca terapi">Pasca terapi</option>
@@ -231,7 +285,8 @@
                                     <select name="pets[{{ $i }}][{{ $key }}]" required
                                         class="select-field w-full px-3 py-2.5 pet-select"
                                         data-pet="{{ $i }}"
-                                        data-key="{{ $key }}">
+                                        data-key="{{ $key }}"
+                                        data-required="true">
                                         <option value="" disabled selected>Pilih status vaksin</option>
                                         <option value="Belum">Belum</option>
                                         <option value="Belum lengkap">Belum lengkap</option>
@@ -239,9 +294,11 @@
                                     </select>
                                 @elseif(in_array($key, ['kutu', 'jamur', 'kulit', 'telinga']))
                                     <select name="pets[{{ $i }}][{{ $key }}]" required
-                                        class="select-field w-full px-3 py-2.5 pet-select"
+                                        class="select-field w-full px-3 py-2.5 pet-select conditional-select"
                                         data-pet="{{ $i }}"
-                                        data-key="{{ $key }}">
+                                        data-key="{{ $key }}"
+                                        data-category="{{ $key }}"
+                                        data-required="true">
                                         <option value="" disabled selected>Pilih hasil pemeriksaan</option>
                                         <option value="Negatif">(-) Negatif</option>
                                         <option value="Positif">(+) Positif</option>
@@ -250,15 +307,63 @@
                                     </select>
                                 @elseif($key === 'birahi')
                                     <select name="pets[{{ $i }}][{{ $key }}]" required
-                                        class="select-field w-full px-3 py-2.5 pet-select"
+                                        class="select-field w-full px-3 py-2.5 pet-select conditional-select"
                                         data-pet="{{ $i }}"
-                                        data-key="{{ $key }}">
+                                        data-key="{{ $key }}"
+                                        data-category="{{ $key }}"
+                                        data-required="true">
                                         <option value="" disabled selected>Pilih status birahi</option>
                                         <option value="Negatif">(-) Negatif</option>
                                         <option value="Positif">(+) Positif</option>
                                     </select>
                                 @endif
                             </div>
+
+                            <!-- Conditional Section for Kutu and Birahi -->
+                            @if(in_array($key, ['kutu', 'birahi']))
+                                <div id="conditional-section-{{ $key }}-{{ $i }}" class="conditional-section hidden mt-3">
+                                    <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
+                                        <p class="text-sm font-medium text-yellow-800 mb-2">
+                                            <i class="fas fa-exclamation-triangle mr-1"></i>
+                                            Hasil pemeriksaan menunjukkan positif. Apa yang ingin dilakukan?
+                                        </p>
+                                        
+                                        <div class="radio-group">
+                                            <div class="radio-option">
+                                                <input type="radio" 
+                                                       id="action-{{ $key }}-{{ $i }}-cancel" 
+                                                       name="pets[{{ $i }}][{{ $key }}_action]"
+                                                       value="tidak_periksa"
+                                                       class="radio-input conditional-action"
+                                                       data-pet="{{ $i }}"
+                                                       data-key="{{ $key }}"
+                                                       data-cancelled-url="{{ route('screening.cancelled') }}">
+                                                <label for="action-{{ $key }}-{{ $i }}-cancel" class="radio-label">
+                                                    Tidak Jadi Periksa
+                                                </label>
+                                            </div>
+                                            <div class="radio-option">
+                                                <input type="radio" 
+                                                       id="action-{{ $key }}-{{ $i }}-continue" 
+                                                       name="pets[{{ $i }}][{{ $key }}_action]"
+                                                       value="lanjut_obat"
+                                                       class="radio-input conditional-action"
+                                                       data-pet="{{ $i }}"
+                                                       data-key="{{ $key }}">
+                                                <label for="action-{{ $key }}-{{ $i }}-continue" class="radio-label">
+                                                    Lanjut Periksa (Pakai Obat)
+                                                </label>
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- Hidden input to track if condition is active -->
+                                        <input type="hidden" 
+                                               id="conditional-active-{{ $key }}-{{ $i }}"
+                                               name="pets[{{ $i }}][{{ $key }}_conditional]" 
+                                               value="0">
+                                    </div>
+                                </div>
+                            @endif
 
                             <!-- Error Message -->
                             <div class="error-container hidden mt-2" id="error-{{ $key }}-{{ $i }}">
@@ -273,26 +378,28 @@
             </div>
         @endforeach
 
+        <!-- Hidden input untuk tracking -->
+        <input type="hidden" name="submission_type" id="submissionType" value="normal">
+
         <!-- Action Buttons -->
         <div class="pt-6 border-t border-gray-200">
            <div class="flex justify-between items-center gap-3">
-    <button
-    type="button"
-    id="backBtn"
-    onclick="window.location.href='/screening/pets'"
-    class="submit-btn text-white font-bold text-lg px-12 py-4 rounded-full shadow-md transition flex items-center w-full sm:w-auto disabled:opacity-50 disabled:cursor-not-allowed">
-    <i class="fas fa-arrow-left mr-2"></i>
-    Back
-</button>
+                <button
+                    type="button"
+                    id="backBtn"
+                    onclick="window.location.href='/screening/pets'"
+                    class="submit-btn text-white font-bold text-lg px-12 py-4 rounded-full shadow-md transition flex items-center w-full sm:w-auto disabled:opacity-50 disabled:cursor-not-allowed">
+                    <i class="fas fa-arrow-left mr-2"></i>
+                    Back
+                </button>
 
-<button
-    type="button"
-    id="submitBtn"
-    class="submit-btn text-white font-bold text-lg px-12 py-4 rounded-full shadow-md transition flex items-center w-full sm:w-auto disabled:opacity-50 disabled:cursor-not-allowed">
-    Next
-    <i class="fas fa-arrow-right ml-2"></i>
-</button>
-
+                <button
+                    type="button"
+                    id="submitBtn"
+                    class="submit-btn text-white font-bold text-lg px-12 py-4 rounded-full shadow-md transition flex items-center w-full sm:w-auto disabled:opacity-50 disabled:cursor-not-allowed">
+                    Next
+                    <i class="fas fa-arrow-right ml-2"></i>
+                </button>
             </div>
         </div>
     </form>
@@ -310,79 +417,277 @@
     </div>
 </div>
 
- <script>
+<!-- Redirect Overlay -->
+<div id="redirectOverlay" class="cancelled-redirect-overlay hidden">
+    <div class="redirect-message">
+        <div class="redirect-spinner"></div>
+        <h3 class="text-xl font-bold text-gray-800 mb-3">Mengarahkan ke halaman pembatalan...</h3>
+        <p class="text-gray-600 mb-4">Anda memilih "Tidak Jadi Periksa". Data sedang disimpan...</p>
+        <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-3 mb-4">
+            <p class="text-sm text-yellow-800">
+                <i class="fas fa-info-circle mr-2"></i>
+                Anda akan dialihkan dalam <span id="countdown">3</span> detik
+            </p>
+        </div>
+        <button 
+            id="manualRedirectBtn" 
+            class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-6 rounded-full transition duration-300">
+            <i class="fas fa-external-link-alt mr-2"></i> Klik di sini jika tidak otomatis redirect
+        </button>
+    </div>
+</div>
+
+<script>
 document.addEventListener('DOMContentLoaded', () => {
     const form = document.getElementById('screeningForm');
     const submitBtn = document.getElementById('submitBtn');
-    const globalError = document.getElementById('globalError');
-    const selects = document.querySelectorAll('.pet-select');
+    const redirectOverlay = document.getElementById('redirectOverlay');
+    const countdownElement = document.getElementById('countdown');
+    const manualRedirectBtn = document.getElementById('manualRedirectBtn');
+    const conditionalSelects = document.querySelectorAll('.conditional-select');
+    const conditionalActions = document.querySelectorAll('.conditional-action');
+    
+    let countdownTimer = null;
+    let cancelledUrl = '';
+    let isCancelled = false;
 
-    function resetErrors() {
-        globalError.classList.add('hidden');
-        document.querySelectorAll('.error-container').forEach(el => el.classList.add('hidden'));
-        selects.forEach(sel => {
-            sel.classList.remove('error', 'border-green-500');
-        });
-    }
-
-    function validateForm() {
-        let firstInvalid = null;
-
-        selects.forEach(select => {
-            const pet = select.dataset.pet;
-            const key = select.dataset.key;
-            const errorEl = document.getElementById(`error-${key}-${pet}`);
-
-            if (!select.value) {
-                if (!firstInvalid) firstInvalid = select;
-                select.classList.add('error');
-                errorEl?.classList.remove('hidden');
+    // Handle conditional selects
+    conditionalSelects.forEach(select => {
+        select.addEventListener('change', (e) => {
+            const pet = e.target.dataset.pet;
+            const key = e.target.dataset.key;
+            const value = e.target.value;
+            const conditionalSection = document.getElementById(`conditional-section-${key}-${pet}`);
+            const conditionalActive = document.getElementById(`conditional-active-${key}-${pet}`);
+            
+            const isPositive = key === 'kutu' 
+                ? ['Positif', 'Positif 2', 'Positif 3'].includes(value)
+                : value === 'Positif';
+            
+            if (isPositive) {
+                conditionalSection.classList.remove('hidden');
+                conditionalActive.value = '1';
+                
+                const actionInputs = conditionalSection.querySelectorAll('.conditional-action');
+                actionInputs.forEach(input => {
+                    input.checked = false;
+                });
             } else {
-                select.classList.remove('error');
-                select.classList.add('border-green-500');
-                errorEl?.classList.add('hidden');
+                conditionalSection.classList.add('hidden');
+                conditionalActive.value = '0';
+                
+                const actionInputs = conditionalSection.querySelectorAll('.conditional-action');
+                actionInputs.forEach(input => {
+                    input.checked = false;
+                    if (input.value === 'tidak_periksa') {
+                        isCancelled = false;
+                    }
+                });
             }
         });
+    });
 
-        if (firstInvalid) {
-            globalError.classList.remove('hidden');
-            firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            firstInvalid.closest('.pet-card')?.classList.add('animate-shake');
-            setTimeout(() => {
-                firstInvalid.closest('.pet-card')?.classList.remove('animate-shake');
-            }, 400);
-            return false;
-        }
-
-        return true;
-    }
-
-    // realtime validation
-    selects.forEach(select => {
-        select.addEventListener('change', () => {
-            validateForm();
+    // Handle conditional action
+    conditionalActions.forEach(action => {
+        action.addEventListener('change', (e) => {
+            const value = e.target.value;
+            const url = e.target.dataset.cancelledUrl;
+            
+            if (value === 'tidak_periksa') {
+                isCancelled = true;
+                cancelledUrl = url;
+                
+                // ========== PERUBAHAN PENTING ==========
+                // Isi semua field yang belum terisi dengan "-" sebelum submit
+                prepareFormForCancelledSubmission();
+                
+                showRedirectOverlay();
+                startCountdown();
+            } else {
+                isCancelled = false;
+            }
         });
     });
 
-    // tombol NEXT
-    submitBtn.addEventListener('click', () => {
-        resetErrors();
-
-        if (!validateForm()) {
-            submitBtn.classList.add('animate-shake');
-            setTimeout(() => submitBtn.classList.remove('animate-shake'), 400);
-            return;
+    // Fungsi untuk mengisi field yang kosong dengan "-" saat cancelled
+    function prepareFormForCancelledSubmission() {
+        console.log('Preparing form for cancelled submission...');
+        
+        const categories = ['vaksin', 'kutu', 'jamur', 'birahi', 'kulit', 'telinga', 'riwayat'];
+        const count = {{ $count }};
+        
+        for (let i = 0; i < count; i++) {
+            categories.forEach(category => {
+                const selectName = `pets[${i}][${category}]`;
+                const selectElement = document.querySelector(`select[name="${selectName}"]`);
+                
+                if (selectElement) {
+                    // Jika belum ada value, tambahkan opsi "-" dan set value
+                    if (!selectElement.value) {
+                        // Cek apakah opsi "-" sudah ada
+                        let hasDashOption = false;
+                        for (let opt of selectElement.options) {
+                            if (opt.value === '-') {
+                                hasDashOption = true;
+                                break;
+                            }
+                        }
+                        
+                        // Jika belum ada, tambahkan
+                        if (!hasDashOption) {
+                            const option = document.createElement('option');
+                            option.value = '-';
+                            option.textContent = '-';
+                            selectElement.appendChild(option);
+                        }
+                        
+                        // Set value ke "-"
+                        selectElement.value = '-';
+                        console.log(`Set ${selectName} to "-"`);
+                    }
+                }
+            });
         }
+    }
 
-        // loading state
-        submitBtn.disabled = true;
-        submitBtn.innerHTML = `
-            <span class="loading-spinner mr-2"></span>
-            Memproses...
-        `;
+    // Fungsi untuk menampilkan overlay redirect
+    function showRedirectOverlay() {
+        redirectOverlay.classList.remove('hidden');
+    }
 
+    // Fungsi untuk memulai countdown
+    function startCountdown() {
+        let seconds = 3;
+        countdownElement.textContent = seconds;
+        
+        countdownTimer = setInterval(() => {
+            seconds--;
+            countdownElement.textContent = seconds;
+            
+            if (seconds <= 0) {
+                clearInterval(countdownTimer);
+                submitFormForCancellation();
+            }
+        }, 1000);
+    }
+
+    // Fungsi untuk submit form untuk pembatalan
+    function submitFormForCancellation() {
+        console.log('Submitting form for cancellation...');
+        
+        // Pastikan semua field sudah diisi dengan "-"
+        prepareFormForCancelledSubmission();
+        
+        // Debug: Lihat data form sebelum submit
+        const formData = new FormData(form);
+        console.log('Form data before submission:');
+        for (let [key, value] of formData.entries()) {
+            console.log(`${key}: ${value}`);
+        }
+        
+        // Create and add force_cancelled hidden input
+        let forceCancelledInput = document.querySelector('input[name="force_cancelled"]');
+        if (!forceCancelledInput) {
+            forceCancelledInput = document.createElement('input');
+            forceCancelledInput.type = 'hidden';
+            forceCancelledInput.name = 'force_cancelled';
+            forceCancelledInput.value = 'true';
+            form.appendChild(forceCancelledInput);
+        } else {
+            forceCancelledInput.value = 'true';
+        }
+        
+        // Submit the form immediately
+        console.log('Form submitted with cancelled flag');
         form.submit();
+    }
+
+    // Tombol redirect manual
+    manualRedirectBtn.addEventListener('click', () => {
+        clearInterval(countdownTimer);
+        prepareFormForCancelledSubmission();
+        submitFormForCancellation();
     });
+
+    // Tombol NEXT untuk normal flow
+    submitBtn.addEventListener('click', () => {
+        console.log('Next button clicked, isCancelled:', isCancelled);
+        
+        // Cek apakah ada yang memilih "Tidak Jadi Periksa"
+        const cancelledInputs = document.querySelectorAll('.conditional-action[value="tidak_periksa"]:checked');
+        
+        if (cancelledInputs.length > 0) {
+            console.log('Cancelled inputs found:', cancelledInputs.length);
+            // Jika ada yang dibatalkan, tampilkan overlay
+            const url = cancelledInputs[0].dataset.cancelledUrl;
+            cancelledUrl = url;
+            isCancelled = true;
+            
+            // Isi field kosong dengan "-"
+            prepareFormForCancelledSubmission();
+            
+            showRedirectOverlay();
+            startCountdown();
+        } else {
+            console.log('No cancelled inputs, validating normal form...');
+            // Validasi form normal
+            if (validateForm()) {
+                console.log('Form validated, submitting...');
+                
+                // Remove any cancelled flags
+                const forceCancelledInput = document.querySelector('input[name="force_cancelled"]');
+                if (forceCancelledInput) {
+                    forceCancelledInput.remove();
+                }
+                
+                form.submit();
+            } else {
+                console.log('Form validation failed');
+            }
+        }
+    });
+
+    // Fungsi untuk validasi form NORMAL
+    function validateForm() {
+        const selects = document.querySelectorAll('.pet-select[data-required="true"]');
+        let allFieldsFilled = true;
+        
+        // Reset errors
+        document.getElementById('globalError').classList.add('hidden');
+        selects.forEach(select => {
+            select.style.borderColor = '';
+            select.style.boxShadow = '';
+            const pet = select.dataset.pet;
+            const key = select.dataset.key;
+            const errorDiv = document.getElementById(`error-${key}-${pet}`);
+            if (errorDiv) {
+                errorDiv.classList.add('hidden');
+            }
+        });
+        
+        // Check if all required fields are filled
+        selects.forEach(select => {
+            if (!select.value || select.value === '-') {
+                allFieldsFilled = false;
+                select.style.borderColor = '#ef4444';
+                select.style.boxShadow = '0 0 0 3px rgba(239, 68, 68, 0.1)';
+                
+                const pet = select.dataset.pet;
+                const key = select.dataset.key;
+                const errorDiv = document.getElementById(`error-${key}-${pet}`);
+                if (errorDiv) {
+                    errorDiv.classList.remove('hidden');
+                }
+            }
+        });
+        
+        if (!allFieldsFilled) {
+            document.getElementById('globalError').classList.remove('hidden');
+            return false;
+        }
+        
+        return true;
+    }
 });
 </script>
 

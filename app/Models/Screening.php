@@ -5,6 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\Log;
 
 class Screening extends Model
 {
@@ -13,7 +15,8 @@ class Screening extends Model
     protected $fillable = [
         'owner_name',
         'pet_count',
-        'phone_number', // sudah termasuk country code
+        'phone_number',
+        'status'
     ];
 
     protected $casts = [
@@ -35,7 +38,7 @@ class Screening extends Model
     {
         // Hapus country code (+62, +1, dll)
         $phone = $this->phone_number;
-        
+
         // Jika dimulai dengan +, hapus country code
         if (str_starts_with($phone, '+')) {
             // Untuk Indonesia (+62) hapus 3 karakter pertama
@@ -47,7 +50,7 @@ class Screening extends Model
                 return substr($phone, strlen($matches[0]));
             }
         }
-        
+
         return $phone;
     }
 
@@ -57,16 +60,15 @@ class Screening extends Model
     public function getCountryCodeAttribute(): string
     {
         $phone = $this->phone_number;
-        
+
         if (str_starts_with($phone, '+')) {
             if (str_starts_with($phone, '+62')) {
                 return '+62';
-            }
-            elseif (preg_match('/^(\+\d{1,3})/', $phone, $matches)) {
+            } elseif (preg_match('/^(\+\d{1,3})/', $phone, $matches)) {
                 return $matches[1];
             }
         }
-        
+
         return '+62'; // default
     }
 
@@ -76,7 +78,7 @@ class Screening extends Model
     public function getFormattedPhoneAttribute(): string
     {
         $phone = $this->phone_number;
-        
+
         // Format: +62 812-3456-7890
         if (str_starts_with($phone, '+62')) {
             $number = substr($phone, 3);
@@ -84,7 +86,7 @@ class Screening extends Model
                 return '+62 ' . substr($number, 0, 3) . '-' . substr($number, 3, 4) . '-' . substr($number, 7);
             }
         }
-        
+
         return $phone;
     }
 
@@ -107,18 +109,34 @@ class Screening extends Model
     }
 
     /**
+     * Scope untuk screening yang cancelled
+     */
+    public function scopeCancelled($query)
+    {
+        return $query->where('status', 'cancelled');
+    }
+
+    /**
+     * Scope untuk screening yang completed
+     */
+    public function scopeCompleted($query)
+    {
+        return $query->where('status', 'completed');
+    }
+
+    /**
      * Validasi dan format nomor telepon
      */
     public static function formatPhoneNumber($countryCode, $phoneNumber): string
     {
         // Hilangkan spasi dan karakter khusus dari phone number
         $cleanPhone = preg_replace('/[^0-9]/', '', $phoneNumber);
-        
+
         // Jika phone number sudah dimulai dengan 0, hapus 0 pertama
         if (str_starts_with($cleanPhone, '0')) {
             $cleanPhone = substr($cleanPhone, 1);
         }
-        
+
         // Gabungkan dengan country code
         return $countryCode . $cleanPhone;
     }
@@ -142,13 +160,13 @@ class Screening extends Model
             // Format nomor telepon
             $countryCode = session('country_code', '+62');
             $phoneNumber = session('no_hp');
-            
+
             if (!$countryCode || !$phoneNumber) {
                 throw new \Exception('Country code or phone number is missing');
             }
-            
+
             $fullPhoneNumber = self::formatPhoneNumber($countryCode, $phoneNumber);
-            
+
             // Validasi nomor telepon
             if (!self::validatePhoneNumber($fullPhoneNumber)) {
                 throw new \Exception('Invalid phone number format');
@@ -159,6 +177,7 @@ class Screening extends Model
                 'owner_name' => session('owner'),
                 'pet_count' => session('count'),
                 'phone_number' => $fullPhoneNumber,
+                'status' => 'completed'
             ]);
 
             // Simpan data pets dari session
@@ -171,13 +190,16 @@ class Screening extends Model
                     'breed' => $pet['breed'],
                     'sex' => $pet['sex'],
                     'age' => $pet['age'],
-                    'vaksin' => $screeningResults[$index]['vaksin'] ?? null,
-                    'kutu' => $screeningResults[$index]['kutu'] ?? null,
-                    'jamur' => $screeningResults[$index]['jamur'] ?? null,
-                    'birahi' => $screeningResults[$index]['birahi'] ?? null,
-                    'kulit' => $screeningResults[$index]['kulit'] ?? null,
-                    'telinga' => $screeningResults[$index]['telinga'] ?? null,
-                    'riwayat' => $screeningResults[$index]['riwayat'] ?? null,
+                    'vaksin' => $screeningResults['pets'][$index]['vaksin'] ?? null,
+                    'kutu' => $screeningResults['pets'][$index]['kutu'] ?? null,
+                    'kutu_action' => $screeningResults['pets'][$index]['kutu_action'] ?? null,
+                    'jamur' => $screeningResults['pets'][$index]['jamur'] ?? null,
+                    'birahi' => $screeningResults['pets'][$index]['birahi'] ?? null,
+                    'birahi_action' => $screeningResults['pets'][$index]['birahi_action'] ?? null,
+                    'kulit' => $screeningResults['pets'][$index]['kulit'] ?? null,
+                    'telinga' => $screeningResults['pets'][$index]['telinga'] ?? null,
+                    'riwayat' => $screeningResults['pets'][$index]['riwayat'] ?? null,
+                    'status' => 'completed'
                 ]);
             }
 
@@ -187,13 +209,158 @@ class Screening extends Model
             \Log::info('Screening saved successfully', [
                 'id' => $screening->id,
                 'owner' => $screening->owner_name,
-                'phone' => $screening->phone_number
+                'phone' => $screening->phone_number,
+                'status' => $screening->status
             ]);
 
             return $screening;
 
         } catch (\Exception $e) {
             \Log::error('Failed to save screening from session: ' . $e->getMessage());
+            return null;
+        }
+    }
+
+    /**
+     * Helper function untuk mendapatkan nilai yang valid untuk database
+     */
+    private static function getValidValueForDatabase($field, $value)
+    {
+        // Mapping nilai yang valid untuk setiap field
+        $validValues = [
+            'vaksin' => ['Belum', 'Belum lengkap', 'Sudah lengkap'],
+            'kutu' => ['Negatif', 'Positif', 'Positif 2', 'Positif 3'],
+            'jamur' => ['Negatif', 'Positif', 'Positif 2', 'Positif 3'],
+            'birahi' => ['Negatif', 'Positif'],
+            'kulit' => ['Negatif', 'Positif', 'Positif 2', 'Positif 3'],
+            'telinga' => ['Negatif', 'Positif', 'Positif 2', 'Positif 3'],
+            'riwayat' => ['Sehat', 'Pasca terapi', 'Sedang terapi'],
+            'kutu_action' => ['lanjut_obat', 'tidak_periksa'],
+            'birahi_action' => ['lanjut_obat', 'tidak_periksa']
+        ];
+
+        // Jika field tidak ada di mapping, return nilai asli
+        if (!isset($validValues[$field])) {
+            return $value ?? 'tidak_ada';
+        }
+
+        // Jika nilai kosong atau tidak ada, return nilai pertama dari array
+        if (empty($value)) {
+            return $validValues[$field][0];
+        }
+
+        // Jika nilai ada di array valid values, gunakan
+        if (in_array($value, $validValues[$field])) {
+            return $value;
+        }
+
+        // Jika tidak, gunakan nilai pertama
+        return $validValues[$field][0];
+    }
+
+    /**
+     * Simpan data screening yang dibatalkan
+     */
+    public static function saveCancelledData()
+    {
+        try {
+            \Log::info('=== SAVE CANCELLED DATA START ===');
+
+            \DB::beginTransaction();
+
+            // Format nomor telepon jika ada
+            $phoneNumber = '-';
+            if (session('no_hp')) {
+                $countryCode = session('country_code', '+62');
+                $phoneNumber = self::formatPhoneNumber($countryCode, session('no_hp'));
+            }
+
+            // Buat screening record
+            $screening = self::create([
+                'owner_name' => session('owner', 'Tidak diketahui'),
+                'pet_count' => count(session('pets', [])),
+                'phone_number' => $phoneNumber,
+                'status' => 'cancelled'
+            ]);
+
+            \Log::info('Screening record created! ID: ' . $screening->id);
+
+            // Simpan data pets (jika ada)
+            $screeningResult = session('screening_result', []);
+            $petsData = session('pets', []);
+
+            \Log::info('Session data for saving pets:', [
+                'pets_data' => $petsData,
+                'screening_result' => $screeningResult,
+                'pets_count' => count($petsData)
+            ]);
+
+            if (!empty($petsData)) {
+                \Log::info('Saving pets data...');
+
+                foreach ($petsData as $index => $pet) {
+                    $petData = $screeningResult['pets'][$index] ?? [];
+
+                    \Log::info("Processing pet {$index}:", [
+                        'pet_info' => $pet,
+                        'screening_data' => $petData
+                    ]);
+
+                    // ========== PERUBAHAN UTAMA ==========
+                    // Gunakan nilai "-" sebagai placeholder untuk field yang tidak diisi
+                    // JANGAN diubah menjadi null karena ENUM sudah mendukung "-"
+                    $vaksin = $petData['vaksin'] ?? '-';
+                    $kutu = $petData['kutu'] ?? '-';
+                    $kutu_action = $petData['kutu_action'] ?? null;
+                    $jamur = $petData['jamur'] ?? '-';
+                    $birahi = $petData['birahi'] ?? '-';
+                    $birahi_action = $petData['birahi_action'] ?? null;
+                    $kulit = $petData['kulit'] ?? '-';
+                    $telinga = $petData['telinga'] ?? '-';
+                    $riwayat = $petData['riwayat'] ?? '-';
+
+                    $petRecord = [
+                        'screening_id' => $screening->id,
+                        'name' => $pet['name'] ?? 'Anabul ' . ($index + 1),
+                        'breed' => $pet['breed'] ?? 'Tidak diketahui',
+                        'sex' => $pet['sex'] ?? 'Tidak diketahui',
+                        'age' => $pet['age'] ?? 'Tidak diketahui',
+                        'vaksin' => $vaksin,
+                        'kutu' => $kutu,
+                        'kutu_action' => $kutu_action,
+                        'jamur' => $jamur,
+                        'birahi' => $birahi,
+                        'birahi_action' => $birahi_action,
+                        'kulit' => $kulit,
+                        'telinga' => $telinga,
+                        'riwayat' => $riwayat,
+                        'status' => 'cancelled'
+                    ];
+
+                    \Log::info("Pet record to save #{$index}:", $petRecord);
+
+                    try {
+                        ScreeningPet::create($petRecord);
+                        \Log::info("Pet #{$index} saved successfully");
+                    } catch (\Exception $e) {
+                        \Log::error("Failed to save pet #{$index}: " . $e->getMessage());
+                        \Log::error("Pet data that caused error:", $petRecord);
+                        throw $e; // Re-throw agar rollback bekerja
+                    }
+                }
+            }
+
+            \DB::commit();
+
+            \Log::info('Cancelled screening data saved successfully!');
+
+            return $screening;
+
+        } catch (\Exception $e) {
+            \DB::rollBack();
+            \Log::error('saveCancelledData error: ' . $e->getMessage());
+            \Log::error('Error trace: ' . $e->getTraceAsString());
+
             return null;
         }
     }
@@ -210,5 +377,17 @@ class Screening extends Model
             'formatted' => $this->formatted_phone,
             'whatsapp_link' => 'https://wa.me/' . preg_replace('/[^0-9]/', '', $this->phone_number)
         ];
+    }
+
+    /**
+     * Format status untuk tampilan
+     */
+    public function getStatusTextAttribute(): string
+    {
+        return match ($this->status) {
+            'completed' => 'Selesai',
+            'cancelled' => 'Dibatalkan',
+            default => $this->status
+        };
     }
 }

@@ -18,11 +18,14 @@ class ScreeningPet extends Model
         'age',
         'vaksin',
         'kutu',
+        'kutu_action',
         'jamur',
         'birahi',
+        'birahi_action',
         'kulit',
         'telinga',
-        'riwayat'
+        'riwayat',
+        'status'
     ];
 
     /**
@@ -64,13 +67,73 @@ class ScreeningPet extends Model
     {
         return [
             'vaksin' => $this->vaksin,
-            'kutu' => $this->kutu,
+            'kutu' => $this->kutu . ($this->kutu_action ? " [" . $this->getActionText($this->kutu_action) . "]" : ""),
             'jamur' => $this->jamur,
-            'birahi' => $this->birahi,
+            'birahi' => $this->birahi . ($this->birahi_action ? " [" . $this->getActionText($this->birahi_action) . "]" : ""),
             'kulit' => $this->kulit,
             'telinga' => $this->telinga,
             'riwayat' => $this->riwayat,
             'is_healthy' => $this->isHealthy()
         ];
+    }
+
+    /**
+     * Format teks untuk action
+     */
+    private function getActionText($action): string
+    {
+        return match($action) {
+            'tidak_periksa' => 'Tidak Periksa',
+            'lanjut_obat' => 'Lanjut Obat',
+            default => $action
+        };
+    }
+
+    /**
+     * Cek apakah pet dibatalkan
+     */
+    public function isCancelled(): bool
+    {
+        return $this->status === 'cancelled' || 
+               $this->kutu_action === 'tidak_periksa' || 
+               $this->birahi_action === 'tidak_periksa';
+    }
+
+    /**
+     * Format status untuk tampilan
+     */
+    public function getStatusTextAttribute(): string
+    {
+        if ($this->isCancelled()) {
+            return 'Dibatalkan';
+        }
+        
+        return match($this->status) {
+            'completed' => 'Selesai',
+            'cancelled' => 'Dibatalkan',
+            default => $this->status
+        };
+    }
+
+    /**
+     * Dapatkan alasan pembatalan
+     */
+    public function getCancellationReasonAttribute(): ?string
+    {
+        $reasons = [];
+        
+        if ($this->kutu_action === 'tidak_periksa') {
+            $reasons[] = "Kutu positif ({$this->kutu})";
+        }
+        
+        if ($this->birahi_action === 'tidak_periksa') {
+            $reasons[] = "Birahi positif";
+        }
+        
+        if (!empty($reasons)) {
+            return implode(', ', $reasons);
+        }
+        
+        return null;
     }
 }
