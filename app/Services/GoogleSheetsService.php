@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Sifting;
-use App\Services\GoogleSheetsService;
 use Illuminate\Http\Request;
+use App\Models\Sifting;
 use Illuminate\Support\Facades\Validator;
+use App\Services\GoogleSheetsService;
 
 class SiftingController extends Controller
 {
@@ -39,33 +39,35 @@ class SiftingController extends Controller
         }
 
         // SIMPAN DATABASE
-        $sifting = Sifting::create($request->only([
-            'nama_karyawan',
-            'divisi_jabatan',
-            'tanggal_shift_asli',
-            'jam_shift_asli',
-            'tanggal_shift_tujuan',
-            'jam_shift_tujuan',
-            'alasan',
-            'sudah_pengganti',
-            'nama_karyawan_pengganti',
-            'tanggal_shift_pengganti',
-            'jam_shift_pengganti',
-        ]));
+        $sifting = Sifting::create([
+            'nama_karyawan' => $request->nama_karyawan,
+            'divisi_jabatan' => $request->divisi_jabatan,
+            'tanggal_shift_asli' => $request->tanggal_shift_asli,
+            'jam_shift_asli' => $request->jam_shift_asli,
+            'tanggal_shift_tujuan' => $request->tanggal_shift_tujuan,
+            'jam_shift_tujuan' => $request->jam_shift_tujuan,
+            'alasan' => $request->alasan,
+            'sudah_pengganti' => $request->sudah_pengganti,
+            'nama_karyawan_pengganti' => $request->nama_karyawan_pengganti,
+            'tanggal_shift_pengganti' => $request->tanggal_shift_pengganti,
+            'jam_shift_pengganti' => $request->jam_shift_pengganti,
+            'status' => 'pending',
+        ]);
 
-        // SIMPAN GOOGLE SHEETS
+        // SIMPAN KE GOOGLE SHEETS
         $sheets->append([
             now()->format('Y-m-d H:i:s'),
             $sifting->nama_karyawan,
             $sifting->divisi_jabatan,
-            $sifting->tanggal_shift_asli . ' ' . $sifting->jam_shift_asli,
-            $sifting->tanggal_shift_tujuan . ' ' . $sifting->jam_shift_tujuan,
+            $sifting->tanggal_shift_asli,
+            $sifting->jam_shift_asli,
+            $sifting->tanggal_shift_tujuan,
+            $sifting->jam_shift_tujuan,
             $sifting->alasan,
-            strtoupper($sifting->sudah_pengganti),
+            $sifting->sudah_pengganti,
             $sifting->nama_karyawan_pengganti ?? '-',
-            $sifting->tanggal_shift_pengganti
-                ? $sifting->tanggal_shift_pengganti . ' ' . $sifting->jam_shift_pengganti
-                : '-',
+            $sifting->tanggal_shift_pengganti ?? '-',
+            $sifting->jam_shift_pengganti ?? '-',
             $sifting->status,
         ]);
 
