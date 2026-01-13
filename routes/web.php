@@ -57,6 +57,8 @@ Route::post('/screening/no-hp/submit', [ScreeningController::class, 'submitNoHp'
 
 Route::get('/screening/thankyou', [ScreeningController::class, 'thankyou'])->name('screening.thankyou');
 
+Route::get('/screening/cancelled', [ScreeningController::class, 'cancelled'])->name('screening.cancelled');
+
 // Routes untuk Daily Cleaning Report
 Route::prefix('cleaning-report')->group(function () {
     // Step 1
@@ -95,6 +97,3 @@ Route::prefix('cleaning-report')->group(function () {
     //Route::get('/cleaning-report/simple-test', [DailyCleaningReportController::class, 'simpleTest']);
     //Route::get('/cleaning-report/test-connection', [DailyCleaningReportController::class, 'testConnection']);
 });
-
-
-Route::get('/screening/cancelled', [ScreeningController::class, 'cancelled'])->name('screening.cancelled');
