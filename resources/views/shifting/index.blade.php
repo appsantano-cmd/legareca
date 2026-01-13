@@ -410,23 +410,23 @@
                 <div class="step" data-step="5">5</div>
             </div>
 
-            <form method="POST" action="{{ route('sifting.submit') }}" id="siftingForm">
+            <form method="POST" action="{{ route('shifting.submit') }}" id="shiftingForm">
                 @csrf
 
                 {{-- STEP 1 --}}
-                @include('sifting.partials.step_1_nama')
+                @include('shifting.partials.step_1_nama')
 
                 {{-- STEP 2 --}}
-                @include('sifting.partials.step_2_divisi')
+                @include('shifting.partials.step_2_divisi')
 
                 {{-- STEP 3 --}}
-                @include('sifting.partials.step_3_tanggal')
+                @include('shifting.partials.step_3_tanggal')
 
                 {{-- STEP 4 --}}
-                @include('sifting.partials.step_4_alasan')
+                @include('shifting.partials.step_4_alasan')
 
                 {{-- STEP 5 --}}
-                @include('sifting.partials.step_5_konfirmasi')
+                @include('shifting.partials.step_5_konfirmasi')
     
             </form>
 
@@ -683,7 +683,7 @@
     });
 
     // Validasi form sebelum submit
-    document.getElementById('siftingForm')?.addEventListener('submit', function(e) {
+    document.getElementById('shiftingForm')?.addEventListener('submit', function(e) {
         if (!validateStep(5)) {
             e.preventDefault();
             return false;

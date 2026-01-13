@@ -27,12 +27,56 @@ class GoogleSheetsService
     }
 
     /**
-     * Append 1 row ke Google Sheets
+     * 🔹 Set / overwrite header Google Sheets
+     * Controller = single source of truth
+     */
+    public function setHeader(array $headers, string $range = 'Tukar Shift!A1'): void
+    {
+        $this->service->spreadsheets_values->update(
+            $this->spreadsheetId,
+            $range,
+            new ValueRange([
+                'values' => [$headers],
+            ]),
+            [
+                'valueInputOption' => 'RAW',
+            ]
+        );
+    }
+
+    /**
+     * 🔹 Append satu baris data
      */
     public function append(array $values, string $range = 'Tukar Shift!A2'): void
     {
         $body = new ValueRange([
             'values' => [$values],
+        ]);
+
+        $params = [
+            'valueInputOption' => 'USER_ENTERED',
+        ];
+
+        $this->service->spreadsheets_values->append(
+            $this->spreadsheetId,
+            $range,
+            $body,
+            $params
+        );
+    }
+
+    /**
+     * 🔹 Append banyak baris sekaligus (batch)
+     * Sangat disarankan untuk export / sync ulang
+     */
+    public function appendMany(array $rows, string $range = 'Tukar Shift!A2'): void
+    {
+        if (empty($rows)) {
+            return;
+        }
+
+        $body = new ValueRange([
+            'values' => $rows,
         ]);
 
         $params = [

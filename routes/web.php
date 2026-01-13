@@ -7,7 +7,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\PengajuanIzinController;
 use App\Http\Controllers\ScreeningController;
-use App\Http\Controllers\SiftingController;
+use App\Http\Controllers\ShiftingController;
 use App\Http\Controllers\DailyCleaningReportController;
 
 Route::get('/', function () {
@@ -63,12 +63,12 @@ Route::get('/export-sheets', [ScreeningController::class, 'exportToSheets'])->na
 
 Route::get('/screening/cancelled', [ScreeningController::class, 'cancelled'])->name('screening.cancelled');
 
-Route::prefix('sifting')->name('sifting.')->group(function () {
+Route::prefix('shifting')->name('shifting.')->group(function () {
 
-    Route::get('/', [SiftingController::class, 'index'])
+    Route::get('/', [ShiftingController::class, 'index'])
         ->name('index');
-    
-    Route::post('/submit', [SiftingController::class, 'submit'])
+
+    Route::post('/submit', [ShiftingController::class, 'submit'])
         ->name('submit');
 
 });
