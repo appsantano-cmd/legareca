@@ -38,6 +38,7 @@ Route::prefix('izin')->name('izin.')->group(function () {
         ->name('store');
 });
 
+// Screening
 Route::get('/screening', [ScreeningController::class, 'welcome'])->name('screening.welcome');
 Route::get('/screening/agreement', [ScreeningController::class, 'agreement'])->name('screening.agreement');
 
@@ -56,6 +57,8 @@ Route::get('/screening/no-hp', [ScreeningController::class, 'noHp'])->name('scre
 Route::post('/screening/no-hp/submit', [ScreeningController::class, 'submitNoHp'])->name('screening.submitNoHp');
 
 Route::get('/screening/thankyou', [ScreeningController::class, 'thankyou'])->name('screening.thankyou');
+
+Route::get('/export-sheets', [ScreeningController::class, 'exportToSheets'])->name('screening.exportSheets');
 
 Route::get('/screening/cancelled', [ScreeningController::class, 'cancelled'])->name('screening.cancelled');
 
