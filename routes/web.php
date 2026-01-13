@@ -7,6 +7,9 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\PengajuanIzinController;   
 use App\Http\Controllers\ScreeningController;
+use App\Http\Controllers\SiftingController;
+
+
 
 Route::get('/', function () {
     return view('welcome');
@@ -60,3 +63,13 @@ Route::get('/screening/thankyou', [ScreeningController::class, 'thankyou'])->nam
 Route::get('/export-sheets', [ScreeningController::class, 'exportToSheets'])->name('screening.exportSheets');
 
 Route::get('/screening/cancelled', [ScreeningController::class, 'cancelled'])->name('screening.cancelled');
+
+Route::prefix('sifting')->name('sifting.')->group(function () {
+
+    Route::get('/', [SiftingController::class, 'index'])
+        ->name('index');
+    
+    Route::post('/submit', [SiftingController::class, 'submit'])
+        ->name('submit');
+
+});

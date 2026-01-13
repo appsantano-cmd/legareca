@@ -35,7 +35,7 @@ return [
     |--------------------------------------------------------------------------
     */
     'google' => [
-        'credentials' => storage_path('app/google/credentials.json'),
+        'credentials' => storage_path('app/credentials.json'),
         'spreadsheet_id' => env('GOOGLE_SHEETS_SPREADSHEET_ID'),
     ],
 

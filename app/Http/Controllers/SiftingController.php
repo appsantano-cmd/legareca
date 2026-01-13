@@ -34,6 +34,7 @@ class SiftingController extends Controller
             return back()->withErrors($validator)->withInput();
         }
 
+        // ✅ WAJIB: simpan ke database dulu
         $sifting = Sifting::create(array_merge(
             $request->only([
                 'nama_karyawan',
@@ -51,25 +52,26 @@ class SiftingController extends Controller
             ['status' => 'pending']
         ));
 
+        // ✅ Append ke Google Sheets (sesuai header)
         $sheets->append([
-        now()->format('Y-m-d H:i:s'),
-        $sifting->nama_karyawan,
-        $sifting->divisi_jabatan,
-        $sifting->tanggal_shift_asli->format('Y-m-d'),
-        $sifting->jam_shift_asli,
-        $sifting->tanggal_shift_tujuan->format('Y-m-d'),
-        $sifting->jam_shift_tujuan,
-        $sifting->alasan,
-        $sifting->sudah_pengganti,
-        $sifting->nama_karyawan_pengganti ?? '-',
-        optional($sifting->tanggal_shift_pengganti)->format('Y-m-d') ?? '-',
-        $sifting->jam_shift_pengganti ?? '-',
-        $sifting->status,
-    ]);
-
+            $sifting->id,                                              // A ID
+            now()->format('Y-m-d H:i:s'),                              // B Dibuat
+            $sifting->nama_karyawan,                                  // C
+            $sifting->divisi_jabatan,                                 // D
+            $sifting->tanggal_shift_asli->format('Y-m-d'),            // E
+            $sifting->jam_shift_asli,                                 // F
+            $sifting->tanggal_shift_tujuan->format('Y-m-d'),          // G
+            $sifting->jam_shift_tujuan,                               // H
+            $sifting->alasan,                                         // I
+            $sifting->sudah_pengganti,                                // J
+            $sifting->nama_karyawan_pengganti ?? '-',                 // K
+            optional($sifting->tanggal_shift_pengganti)->format('Y-m-d') ?? '-', // L
+            $sifting->jam_shift_pengganti ?? '-',                     // M
+            $sifting->status,                                         // N
+        ], 'Tukar Shift!A2');
 
         return redirect()
             ->route('sifting.index')
-            ->with('success', 'Pengajuan tukar shift berhasil dikirim & Tunggu komfirmasi ya.');
+            ->with('success', 'Pengajuan tukar shift berhasil dikirim & tunggu konfirmasi.');
     }
 }
