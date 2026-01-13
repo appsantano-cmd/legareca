@@ -10,6 +10,18 @@
 <body class="bg-gray-50 min-h-screen py-8">
     <div class="max-w-md mx-auto">
         <div class="bg-white rounded-xl shadow-lg p-8">
+            <!-- Logo Section - Diperbesar -->
+            <div class="flex justify-center mb-8">
+                <div class="w-48 h-48 flex items-center justify-center">
+                    <img 
+                        src="{{ asset('logo.png') }}" 
+                        alt="Company Logo" 
+                        class="max-w-full max-h-full object-contain"
+                        onerror="this.src='https://via.placeholder.com/192x192?text=Logo+Not+Found'; this.onerror=null;"
+                    >
+                </div>
+            </div>
+            
             <div class="text-center mb-8">
                 <h1 class="text-2xl font-bold text-gray-800 mb-2">
                     <i class="fas fa-broom mr-2"></i>Daily Cleaning Report

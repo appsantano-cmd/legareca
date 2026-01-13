@@ -102,7 +102,6 @@ class DailyCleaningReportController extends Controller
             $fullStoragePath = $storagePath . '/' . $filename;
             
             // Simpan file ke storage dengan streaming
-            // Gunakan putFileAs untuk handle large files
             $path = Storage::disk('public')->putFileAs(
                 $storagePath,
                 $file,
@@ -112,11 +111,6 @@ class DailyCleaningReportController extends Controller
             // Path untuk akses publik
             $publicFotoPath = 'storage/' . $path;
             
-            // Kompresi gambar jika diperlukan (gunakan queue untuk file besar)
-            if ($file->getSize() > 5 * 1024 * 1024) { // Jika > 5MB
-                $this->compressImageInBackground($path);
-            }
-
             // Simpan ke MySQL
             $report = DailyCleaningReport::create([
                 'nama' => $step1Data['nama'],
@@ -131,28 +125,17 @@ class DailyCleaningReportController extends Controller
 
             Log::info('✅ Data saved to MySQL: ID ' . $report->id);
             
-            // Coba simpan ke Google Sheets (non-blocking)
-            $googleSheetsResult = [
-                'success' => false,
-                'message' => 'Google Sheets sync skipped for large file upload'
-            ];
+            // Coba simpan ke Google Sheets
+            $googleSheetsResult = $this->saveToGoogleSheets($report);
             
-            // Only try Google Sheets for smaller files to prevent timeout
-            if ($file->getSize() < 2 * 1024 * 1024) { // < 2MB
-                $googleSheetsResult = $this->simpleSaveToGoogleSheets($report);
-            }
-
-            $googleSheetsStatus = $googleSheetsResult['success'] ? 'success' : 'error';
-            $googleSheetsMessage = $googleSheetsResult['message'];
-
             // Hapus session
             $request->session()->forget('step1_data');
 
             // Redirect dengan success
             return redirect()->route('cleaning-report.complete', $report->id)
                 ->with('success', 'Data berhasil disimpan ke Database!')
-                ->with('google_sheets_status', $googleSheetsStatus)
-                ->with('google_sheets_message', $googleSheetsMessage);
+                ->with('google_sheets_status', $googleSheetsResult['success'] ? 'success' : 'error')
+                ->with('google_sheets_message', $googleSheetsResult['message']);
 
         } catch (\Illuminate\Http\Exceptions\PostTooLargeException $e) {
             Log::error('PostTooLargeException: ' . $e->getMessage());
@@ -172,60 +155,19 @@ class DailyCleaningReportController extends Controller
     }
 
     /**
-     * Compress image in background to avoid memory issues
+     * Method untuk save ke Google Sheets dengan path credentials yang benar
      */
-    private function compressImageInBackground($filePath)
+    private function saveToGoogleSheets($report)
     {
         try {
-            $fullPath = storage_path('app/public/' . $filePath);
-            
-            // Check if file exists
-            if (!file_exists($fullPath)) {
-                Log::warning('File not found for compression: ' . $fullPath);
-                return;
-            }
-            
-            // Skip if not an image
-            $mime = mime_content_type($fullPath);
-            if (!str_starts_with($mime, 'image/')) {
-                return;
-            }
-            
-            // Use Intervention Image with memory optimization
-            $manager = new ImageManager(new Driver());
-            
-            // Open image with memory limit
-            $image = $manager->read($fullPath);
-            
-            // Resize if too large
-            $maxWidth = 1920;
-            if ($image->width() > $maxWidth) {
-                $image->scale(width: $maxWidth);
-            }
-            
-            // Save with compression
-            $image->save($fullPath, quality: 80);
-            
-            Log::info('Image compressed: ' . $filePath);
-            
-        } catch (\Exception $e) {
-            Log::warning('Image compression failed: ' . $e->getMessage());
-            // Don't throw error, just log
-        }
-    }
-
-    /**
-     * Simple method untuk save ke Google Sheets
-     */
-    private function simpleSaveToGoogleSheets($report)
-    {
-        try {
-            $credentialsPath = '/Users/vincentiusadhiel/Library/CloudStorage/OneDrive-UniversitasSanataDharma/Folder Abel/PROJECT/legareca/storage/app/credentials/google-sheets.json';
+            // PATH YANG DIPERBAIKI - gunakan path dari method testConnection
+            $credentialsPath = storage_path('app/credentials/google-sheets.json');
             
             if (!file_exists($credentialsPath)) {
+                Log::error('Credentials file not found at: ' . $credentialsPath);
                 return [
                     'success' => false,
-                    'message' => 'Credentials file not found'
+                    'message' => 'Credentials file not found at specified path'
                 ];
             }
             
@@ -236,21 +178,41 @@ class DailyCleaningReportController extends Controller
             $client->addScope(Sheets::SPREADSHEETS);
             $client->setAccessType('offline');
             
+            // Add retry configuration
+            $client->setHttpClient(new \GuzzleHttp\Client([
+                'timeout' => 30, // 30 seconds timeout
+                'connect_timeout' => 10,
+            ]));
+            
             $service = new Sheets($client);
+            
+            // Check if spreadsheet exists and is accessible
+            try {
+                $spreadsheet = $service->spreadsheets->get($spreadsheetId);
+                Log::info('Google Sheets accessible. Title: ' . $spreadsheet->properties->title);
+            } catch (\Exception $e) {
+                Log::error('Cannot access Google Sheets: ' . $e->getMessage());
+                return [
+                    'success' => false,
+                    'message' => 'Cannot access Google Sheets. Please check permissions.'
+                ];
+            }
             
             $sheetName = 'Cleaning';
             
+            // Prepare row data
             $rowData = [
                 $report->id,
                 $report->nama,
                 $report->tanggal,
                 $report->departemen,
-                $report->foto_path,
-                $report->membership_datetime,
+                url($report->foto_path), // Convert to full URL
+                $report->membership_datetime->format('Y-m-d H:i:s'),
                 $report->status
             ];
             
-            // Get next row
+            // Try to get existing data to find next row
+            $nextRow = 1;
             try {
                 $response = $service->spreadsheets_values->get(
                     $spreadsheetId,
@@ -260,11 +222,14 @@ class DailyCleaningReportController extends Controller
                 $values = $response->getValues();
                 $nextRow = empty($values) ? 1 : count($values) + 1;
                 
+                // If first row, add headers
                 if ($nextRow === 1) {
                     $headers = ['ID', 'Nama', 'Tanggal', 'Departemen', 'Foto Path', 'Waktu Submit', 'Status'];
                     
                     $headerRange = $sheetName . '!A1:G1';
-                    $headerBody = new ValueRange(['values' => [$headers]]);
+                    $headerBody = new ValueRange([
+                        'values' => [$headers]
+                    ]);
                     
                     $service->spreadsheets_values->update(
                         $spreadsheetId,
@@ -276,24 +241,39 @@ class DailyCleaningReportController extends Controller
                     $nextRow = 2;
                 }
             } catch (\Exception $e) {
+                // If sheet doesn't exist or is empty, create headers
+                Log::warning('Sheet might be empty or not exist, creating headers: ' . $e->getMessage());
                 $nextRow = 1;
-                $headers = ['ID', 'Nama', 'Tanggal', 'Departemen', 'Foto Path', 'Waktu Submit', 'Status'];
-                $headerRange = $sheetName . '!A1:G1';
-                $headerBody = new ValueRange(['values' => [$headers]]);
                 
-                $service->spreadsheets_values->update(
-                    $spreadsheetId,
-                    $headerRange,
-                    $headerBody,
-                    ['valueInputOption' => 'RAW']
-                );
-                
-                $nextRow = 2;
+                try {
+                    $headers = ['ID', 'Nama', 'Tanggal', 'Departemen', 'Foto Path', 'Waktu Submit', 'Status'];
+                    $headerRange = $sheetName . '!A1:G1';
+                    $headerBody = new ValueRange([
+                        'values' => [$headers]
+                    ]);
+                    
+                    $service->spreadsheets_values->update(
+                        $spreadsheetId,
+                        $headerRange,
+                        $headerBody,
+                        ['valueInputOption' => 'RAW']
+                    );
+                    
+                    $nextRow = 2;
+                } catch (\Exception $headerError) {
+                    Log::error('Failed to create headers: ' . $headerError->getMessage());
+                    return [
+                        'success' => false,
+                        'message' => 'Failed to create sheet headers: ' . $headerError->getMessage()
+                    ];
+                }
             }
             
             // Append new row
             $range = $sheetName . '!A' . $nextRow . ':G' . $nextRow;
-            $body = new ValueRange(['values' => [$rowData]]);
+            $body = new ValueRange([
+                'values' => [$rowData]
+            ]);
             
             $result = $service->spreadsheets_values->update(
                 $spreadsheetId,
@@ -302,7 +282,7 @@ class DailyCleaningReportController extends Controller
                 ['valueInputOption' => 'USER_ENTERED']
             );
             
-            Log::info('✅ Google Sheets saved. Row: ' . $nextRow);
+            Log::info('✅ Google Sheets saved successfully. Row: ' . $nextRow);
             
             return [
                 'success' => true,
@@ -311,6 +291,7 @@ class DailyCleaningReportController extends Controller
             
         } catch (\Exception $e) {
             Log::error('❌ Google Sheets Error: ' . $e->getMessage());
+            Log::error('Error Trace: ' . $e->getTraceAsString());
             
             return [
                 'success' => false,
@@ -341,12 +322,13 @@ class DailyCleaningReportController extends Controller
      */
     public function simpleTest()
     {
-        $credentialsPath = '/Users/vincentiusadhiel/Library/CloudStorage/OneDrive-UniversitasSanataDharma/Folder Abel/PROJECT/legareca/storage/app/credentials/google-sheets.json';
+        $credentialsPath = storage_path('app/credentials/google-sheets.json');
         
         $result = [
             'credentials_path' => $credentialsPath,
             'file_exists' => file_exists($credentialsPath) ? 'YES' : 'NO',
             'is_readable' => is_readable($credentialsPath) ? 'YES' : 'NO',
+            'file_size' => file_exists($credentialsPath) ? filesize($credentialsPath) : 0,
         ];
         
         if (file_exists($credentialsPath)) {
@@ -356,6 +338,13 @@ class DailyCleaningReportController extends Controller
             $result['json_valid'] = $json ? 'YES' : 'NO';
             $result['client_email'] = $json['client_email'] ?? 'NOT FOUND';
             $result['project_id'] = $json['project_id'] ?? 'NOT FOUND';
+            
+            if ($json && isset($json['private_key'])) {
+                $result['private_key_exists'] = 'YES';
+                $result['private_key_length'] = strlen($json['private_key']);
+            } else {
+                $result['private_key_exists'] = 'NO';
+            }
         }
         
         return response()->json($result);
@@ -367,14 +356,16 @@ class DailyCleaningReportController extends Controller
     public function testConnection()
     {
         try {
-            $credentialsPath = '/Users/vincentiusadhiel/Library/CloudStorage/OneDrive-UniversitasSanataDharma/Folder Abel/PROJECT/legareca/storage/app/credentials/google-sheets.json';
+            $credentialsPath = storage_path('app/credentials/google-sheets.json');
             $spreadsheetId = '1ENclJ4VKSh4zsz5WAD5dAsQZg654FtUDJLyQnH3p9NI';
             
             if (!file_exists($credentialsPath)) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Credentials file not found',
-                    'path' => $credentialsPath
+                    'path' => $credentialsPath,
+                    'storage_path' => storage_path(),
+                    'base_path' => base_path()
                 ]);
             }
             
@@ -403,8 +394,47 @@ class DailyCleaningReportController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Error: ' . $e->getMessage()
+                'message' => 'Error: ' . $e->getMessage(),
+                'trace' => $e->getTraceAsString()
             ]);
+        }
+    }
+
+    /**
+     * Helper untuk compress image (optional)
+     */
+    private function compressImageInBackground($filePath)
+    {
+        try {
+            $fullPath = storage_path('app/public/' . $filePath);
+            
+            if (!file_exists($fullPath)) {
+                Log::warning('File not found for compression: ' . $fullPath);
+                return;
+            }
+            
+            // Skip if not an image
+            $mime = mime_content_type($fullPath);
+            if (!str_starts_with($mime, 'image/')) {
+                return;
+            }
+            
+            $manager = new ImageManager(new Driver());
+            $image = $manager->read($fullPath);
+            
+            // Resize if too large
+            $maxWidth = 1920;
+            if ($image->width() > $maxWidth) {
+                $image->scale(width: $maxWidth);
+            }
+            
+            // Save with compression
+            $image->save($fullPath, quality: 80);
+            
+            Log::info('Image compressed: ' . $filePath);
+            
+        } catch (\Exception $e) {
+            Log::warning('Image compression failed: ' . $e->getMessage());
         }
     }
 }
