@@ -32,10 +32,10 @@ class UserController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'name'     => 'required|string|max:100',
-            'email'    => 'required|email|unique:users,email',
+            'name' => 'required|string|max:100',
+            'email' => 'required|email|unique:users,email',
             'password' => 'required|min:6|confirmed',
-            'role'     => 'required|in:developer,admin,staff',
+            'role' => 'required|in:developer,admin,marcom,staff,guest',
         ]);
 
         // Admin TIDAK boleh membuat developer
@@ -47,10 +47,10 @@ class UserController extends Controller
         }
 
         User::create([
-            'name'     => $request->name,
-            'email'    => $request->email,
+            'name' => $request->name,
+            'email' => $request->email,
             'password' => Hash::make($request->password),
-            'role'     => $request->role,
+            'role' => $request->role,
         ]);
 
         return redirect()
