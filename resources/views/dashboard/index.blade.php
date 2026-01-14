@@ -617,7 +617,7 @@
                         $adminCount = App\Models\User::where('role', 'admin')->count();
                         $developerCount = App\Models\User::where('role', 'developer')->count();
                         $staffCount = App\Models\User::where('role', 'staff')->count();
-                        $userCount = App\Models\User::where('role', 'user')->count();
+                        $marcomCount = App\Models\User::where('role', 'marcom')->count();
                         
                         // User baru minggu ini
                         $newUsersThisWeek = App\Models\User::whereBetween('created_at', [now()->startOfWeek(), now()->endOfWeek()])->count();
@@ -689,7 +689,7 @@
                                     'admin' => $adminCount,
                                     'developer' => $developerCount,
                                     'staff' => $staffCount,
-                                    'user' => $userCount
+                                    'marcom' => $marcomCount
                                 ];
                                 arsort($roleCounts);
                                 $topRole = key($roleCounts);
@@ -727,9 +727,9 @@
                                 <div class="flex justify-between text-xs">
                                     <span class="flex items-center">
                                         <span class="w-2 h-2 rounded-full bg-gray-500 mr-2"></span>
-                                        User
+                                        Mar. Com
                                     </span>
-                                    <span class="font-medium">{{ $userCount }}</span>
+                                    <span class="font-medium">{{ $marcomCount }}</span>
                                 </div>
                             </div>
                         </div>
