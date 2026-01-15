@@ -35,8 +35,8 @@
                 class="w-full sm:w-48 border-gray-300 rounded-lg text-sm focus:ring-blue-500 focus:border-blue-500">
                 <option value="">Semua Status</option>
                 <option value="Pending" {{ request('status') == 'Pending' ? 'selected' : '' }}>Pending</option>
-                <option value="Disetujui" {{ request('status') == 'Disetujui' ? 'selected' : '' }}>Disetujui</option>
-                <option value="Ditolak" {{ request('status') == 'Ditolak' ? 'selected' : '' }}>Ditolak</option>
+                <option value="Approved" {{ request('status') == 'Approved' ? 'selected' : '' }}>Disetujui</option>
+                <option value="Rejected" {{ request('status') == 'Rejected' ? 'selected' : '' }}>Ditolak</option>
             </select>
 
             <button
