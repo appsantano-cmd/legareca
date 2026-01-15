@@ -90,4 +90,48 @@ class GoogleSheetsService
             $params
         );
     }
+        /**
+     * ⚠️ Escape hatch (untuk repository legacy)
+     * Akses langsung Google Sheets SDK jika memang dibutuhkan
+     */
+    public function raw(): Sheets
+    {
+        return $this->service;
+    }
+
+    /**
+     * Read values helper
+     */
+    public function getValues(string $range): array
+    {
+        $response = $this->service->spreadsheets_values->get(
+            $this->spreadsheetId,
+            $range
+        );
+
+        return $response->getValues() ?? [];
+    }
+
+    /**
+     * Append raw helper (multi rows)
+     */
+    public function appendRaw(array $rows, string $range): void
+    {
+        if (empty($rows)) return;
+
+        $body = new ValueRange([
+            'values' => $rows,
+        ]);
+
+        $this->service->spreadsheets_values->append(
+            $this->spreadsheetId,
+            $range,
+            $body,
+            [
+                'valueInputOption' => 'USER_ENTERED',
+                'insertDataOption' => 'INSERT_ROWS',
+            ]
+        );
+    }
+
 }
