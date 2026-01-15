@@ -447,7 +447,7 @@
             margin-bottom: 10px;
             border-radius: 5px;
             font-size: 14px;
-            animation: fadeIn 0.5s ease;
+            animation: fadeIn 0.4s ease;
         }
 
         .info-box p {
