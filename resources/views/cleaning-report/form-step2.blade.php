@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -286,6 +287,7 @@
         }
     </style>
 </head>
+
 <body class="min-h-screen py-8 px-4 animation-fade-in">
     <div class="max-w-md mx-auto">
         <!-- Header Section -->
@@ -370,12 +372,13 @@
             </div>
             @endif
 
-            <form action="{{ route('cleaning-report.storeStep2') }}" method="POST" enctype="multipart/form-data" id="reportForm">
+            <form action="{{ route('cleaning-report.storeStep2') }}" method="POST" enctype="multipart/form-data"
+                id="reportForm">
                 @csrf
-                
+
                 <!-- Hidden input untuk menyimpan file yang sudah dipilih -->
                 <input type="hidden" name="foto_data" id="foto_data">
-                
+
                 <!-- Date Input -->
                 <div class="mb-8 animation-slide-up" style="animation-delay: 0.3s">
                     <label for="tanggal" class="block font-semibold text-gray-700 mb-3">
@@ -421,14 +424,8 @@
                     <!-- Upload Area -->
                     <div class="upload-area rounded-xl p-6 text-center">
                         <!-- Single file input untuk semua sumber -->
-                        <input 
-                            type="file" 
-                            id="foto-input" 
-                            name="foto" 
-                            accept="image/*"
-                            class="hidden"
-                        >
-                        
+                        <input type="file" id="foto-input" name="foto" accept="image/*" class="hidden">
+
                         <div id="upload-area" class="cursor-pointer">
                             <div class="flex flex-col items-center">
                                 <div class="w-16 h-16 rounded-full bg-gradient-to-r from-blue-100 to-purple-100 flex items-center justify-center mb-4">
@@ -482,7 +479,7 @@
                             </div>
                         </div>
                     </div>
-                    
+
                     <!-- Error message container -->
                     <div id="error-message" class="hidden mt-4 p-4 bg-gradient-to-r from-red-50 to-pink-50 border border-red-200 text-red-700 rounded-xl text-sm"></div>
                 </div>
@@ -523,25 +520,25 @@
     <script>
         // Set default date to today
         document.getElementById('tanggal').valueAsDate = new Date();
-        
+
         let currentFile = null;
         let currentFileName = '';
-        
+
         // Deteksi perangkat mobile
         function isMobileDevice() {
             return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
         }
-        
+
         // Deteksi iOS
         function isIOS() {
             return /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
         }
-        
+
         // Deteksi Android
         function isAndroid() {
             return /Android/.test(navigator.userAgent);
         }
-        
+
         // Format ukuran file
         function formatFileSize(bytes) {
             if (bytes === 0) return '0 Bytes';
@@ -550,20 +547,20 @@
             const i = Math.floor(Math.log(bytes) / Math.log(k));
             return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
         }
-        
+
         // Buka kamera
         function openCamera() {
             const input = document.getElementById('foto-input');
-            
+
             // Reset input terlebih dahulu
             input.value = '';
-            
+
             // Set atribut untuk kamera
             if (isIOS()) {
                 // Untuk iOS, coba kedua metode
                 input.removeAttribute('capture');
                 input.setAttribute('capture', 'environment'); // Kamera belakang
-                
+
                 // Coba dengan user-facing camera juga
                 setTimeout(() => {
                     input.click();
@@ -577,68 +574,68 @@
                 input.removeAttribute('capture');
                 input.click();
             }
-            
+
             // Set event handler
             input.onchange = function(e) {
                 handleFileSelection(e);
             };
-            
+
             if (!isIOS()) {
                 input.click();
             }
         }
-        
+
         // Buka gallery
         function openGallery() {
             const input = document.getElementById('foto-input');
-            
+
             // Reset input
             input.value = '';
-            
+
             // Hapus atribut capture untuk gallery
             input.removeAttribute('capture');
-            
+
             // Set event handler
             input.onchange = function(e) {
                 handleFileSelection(e);
             };
-            
+
             input.click();
         }
-        
+
         // Handle pemilihan file
         function handleFileSelection(event) {
             const file = event.target.files[0];
-            
+
             if (!file) return;
-            
+
             // Reset error message
             hideError();
-            
+
             // Validasi tipe file
             if (!file.type.match('image.*')) {
                 showError('Please select an image file (JPG, PNG, etc.)');
                 resetFileInput();
                 return;
             }
-            
+
             // Simpan file dan nama
             currentFile = file;
             currentFileName = file.name;
-            
+
             // Tampilkan loading
             showLoading(true);
-            
+
             // Proses file
             processFile(file);
         }
-        
+
         // Proses file (HEIC conversion untuk iOS)
         function processFile(file) {
             // Untuk iOS, konversi HEIC ke JPEG jika perlu
-            if (isIOS() && (file.type === 'image/heic' || file.type === 'image/heif' || 
-                file.name.toLowerCase().endsWith('.heic') || file.name.toLowerCase().endsWith('.heif'))) {
-                
+            if (isIOS() && (file.type === 'image/heic' || file.type === 'image/heif' ||
+                    file.name.toLowerCase().endsWith('.heic') || file.name.toLowerCase().endsWith('.heif'))) {
+
                 convertHEICtoJPEG(file).then(convertedFile => {
                     currentFile = convertedFile;
                     displayFile(convertedFile);
@@ -651,7 +648,7 @@
                 displayFile(file);
             }
         }
-        
+
         // Konversi HEIC ke JPEG (untuk iOS)
         function convertHEICtoJPEG(file) {
             return new Promise((resolve, reject) => {
@@ -662,9 +659,11 @@
                         toType: 'image/jpeg',
                         quality: 0.9
                     }).then(jpegBlob => {
-                        const convertedFile = new File([jpegBlob], 
-                            file.name.replace(/\.heic$|\.heif$/i, '.jpg'), 
-                            { type: 'image/jpeg', lastModified: new Date().getTime() }
+                        const convertedFile = new File([jpegBlob],
+                            file.name.replace(/\.heic$|\.heif$/i, '.jpg'), {
+                                type: 'image/jpeg',
+                                lastModified: new Date().getTime()
+                            }
                         );
                         resolve(convertedFile);
                     }).catch(error => {
@@ -677,18 +676,18 @@
                 }
             });
         }
-        
+
         // Tampilkan file di preview
         function displayFile(file) {
             const reader = new FileReader();
-            
+
             reader.onload = function(e) {
                 const preview = document.getElementById('preview-image');
                 preview.src = e.target.result;
-                
+
                 // Simpan data base64 untuk backup
                 document.getElementById('foto_data').value = e.target.result;
-                
+
                 // Tampilkan info file
                 displayFileInfo(file);
                 
@@ -698,15 +697,15 @@
                     showLoading(false);
                 }, 500);
             };
-            
+
             reader.onerror = function() {
                 showError('Error reading file. Please try again.');
                 showLoading(false);
             };
-            
+
             reader.readAsDataURL(file);
         }
-        
+
         // Tampilkan informasi file
         function displayFileInfo(file) {
             const fileInfo = document.getElementById('file-info');
@@ -738,7 +737,7 @@
                 }, 10);
             }, 300);
         }
-        
+
         // Ulang ambil foto
         function retakePhoto() {
             removeImage();
@@ -786,7 +785,7 @@
                 }
             }, 500);
         }
-        
+
         // Reset input file
         function resetFileInput() {
             const input = document.getElementById('foto-input');
@@ -794,7 +793,7 @@
             currentFile = null;
             currentFileName = '';
         }
-        
+
         // Tampilkan loading
         function showLoading(show) {
             const loading = document.getElementById('loading');
@@ -822,7 +821,7 @@
                 errorDiv.style.transition = 'opacity 0.3s ease';
             }, 10);
         }
-        
+
         // Sembunyikan error
         function hideError() {
             const errorDiv = document.getElementById('error-message');
@@ -832,19 +831,19 @@
                 errorDiv.style.opacity = '';
             }, 300);
         }
-        
+
         // Validasi form sebelum submit
         document.getElementById('reportForm').addEventListener('submit', function(e) {
             const input = document.getElementById('foto-input');
             const fotoData = document.getElementById('foto_data');
-            
+
             // Cek apakah ada file yang dipilih
             if (!input.files || input.files.length === 0) {
                 e.preventDefault();
                 showError('Please select or take a photo before submitting.');
                 return false;
             }
-            
+
             // Validasi tanggal
             const tanggalInput = document.getElementById('tanggal');
             if (!tanggalInput.value) {
@@ -852,7 +851,7 @@
                 showError('Please select a date.');
                 return false;
             }
-            
+
             // Tambahan: Backup dengan base64 jika file input kosong tapi ada preview
             const previewContainer = document.getElementById('preview-container');
             if (!previewContainer.classList.contains('hidden') && input.files.length === 0 && fotoData.value) {
@@ -860,7 +859,7 @@
                 // Kita akan submit dengan base64 data
                 console.log('Using base64 backup data');
             }
-            
+
             // Disable tombol submit untuk mencegah double submit
             const submitBtn = document.getElementById('submit-btn');
             submitBtn.disabled = true;
@@ -883,6 +882,34 @@
                     `;
                 }
             }
+
+            // ===== TAMBAHKAN KODE REFRESH NOTIFIKASI DI SINI =====
+            // Refresh notifikasi setelah 1.5 detik (beri waktu server memproses)
+            setTimeout(() => {
+                // Coba panggil fungsi refresh notifikasi
+                if (typeof window.parent !== 'undefined' &&
+                    typeof window.parent.refreshNotifications === 'function') {
+                    window.parent.refreshNotifications();
+                } else if (typeof window.refreshNotifications === 'function') {
+                    window.refreshNotifications();
+                } else if (typeof fetchNotifications === 'function') {
+                    fetchNotifications();
+                } else {
+                    // Fallback: AJAX call langsung ke endpoint notifikasi
+                    fetch('/api/notifications/unread-count', {
+                            headers: {
+                                'Accept': 'application/json',
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')
+                                    .content
+                            }
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            console.log('Notifications updated after form submit');
+                        });
+                }
+            }, 1500);
+
         });
         
         // Add ripple effect to buttons
@@ -953,10 +980,10 @@
             }
         }
     </script>
-    
+
     <!-- Library untuk konversi HEIC (iOS) -->
     <script src="https://cdn.jsdelivr.net/npm/heic2any@0.0.3/dist/heic2any.min.js"></script>
-    
+
     <!-- Optional: Tambahkan polyfill untuk browsers lama -->
     <script>
         // Polyfill untuk File API jika diperlukan
@@ -965,4 +992,5 @@
         }
     </script>
 </body>
+
 </html>

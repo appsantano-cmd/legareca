@@ -8,6 +8,8 @@ use App\Http\Controllers\PengajuanIzinController;
 use App\Http\Controllers\ScreeningController;
 use App\Http\Controllers\SiftingController;
 use App\Http\Controllers\DailyCleaningReportController;
+use App\Http\Controllers\API\NotificationController;
+use App\Http\Controllers\NotificationPageController;
 
 // Public Routes
 Route::get('/', function () {
@@ -63,7 +65,10 @@ Route::middleware('auth')->group(function () {
             Route::get('/check-config', [DailyCleaningReportController::class, 'checkGoogleSheetsConfig'])
                 ->name('check-config');
         });
+
+
     });
+
 
     // Admin/Developer Routes (restricted access)
     Route::middleware(['role:developer,admin'])->group(function () {
@@ -85,6 +90,15 @@ Route::middleware('auth')->group(function () {
             Route::get('/thankyou', [ScreeningController::class, 'thankyou'])->name('thankyou');
             Route::get('/cancelled', [ScreeningController::class, 'cancelled'])->name('cancelled');
         });
+    });
+
+    //Notification
+    Route::prefix('notifications')->group(function () {
+        Route::get('/', [NotificationPageController::class, 'index'])->name('notifications.all');
+        Route::post('/{id}/read', [NotificationPageController::class, 'markAsRead'])->name('notifications.read');
+        Route::post('/read-all', [NotificationPageController::class, 'markAllAsRead'])->name('notifications.read-all');
+        Route::delete('/{id}', [NotificationPageController::class, 'destroy'])->name('notifications.destroy');
+        Route::delete('/', [NotificationPageController::class, 'clearAll'])->name('notifications.clear-all');
     });
 });
 
