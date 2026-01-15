@@ -302,8 +302,8 @@
                         </a>
 
                         <!-- Tukar Shift -->
-                        <a href="/sifting"
-                            class="flex items-center p-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition duration-200 {{ request()->is('sifting') ? 'active-menu' : '' }}">
+                        <a href="/shifting"
+                            class="flex items-center p-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition duration-200 {{ request()->is('shifting') ? 'active-menu' : '' }}">
                             <i class="fas fa-exchange-alt text-lg w-6"></i>
                             <span class="ml-3 font-medium">Tukar Shift</span>
                         </a>
@@ -333,8 +333,8 @@
                         </a>
 
                         <!-- Tukar Shift -->
-                        <a href="/sifting"
-                            class="flex items-center p-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition duration-200 {{ request()->is('sifting') ? 'active-menu' : '' }}">
+                        <a href="/shifting"
+                            class="flex items-center p-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition duration-200 {{ request()->is('shifting') ? 'active-menu' : '' }}">
                             <i class="fas fa-exchange-alt text-lg w-6"></i>
                             <span class="ml-3 font-medium">Tukar Shift</span>
                         </a>
@@ -420,7 +420,7 @@
                                             $iconClass = 'fa-broom';
                                             $bgColor = 'bg-green-100';
                                             $textColor = 'text-green-600';
-                                        } elseif (str_contains($notification->type, 'sifting')) {
+                                        } elseif (str_contains($notification->type, 'shifting')) {
                                             $iconClass = 'fa-exchange-alt';
                                             $bgColor = 'bg-blue-100';
                                             $textColor = 'text-blue-600';
@@ -557,7 +557,7 @@
 
                     <!-- Shift Change Card -->
                     <div class="staff-card-secondary rounded-xl shadow-lg overflow-hidden card-hover">
-                        <a href="/sifting" class="block p-6 h-full">
+                        <a href="/shifting" class="block p-6 h-full">
                             <div class="flex items-center justify-between mb-4">
                                 <div
                                     class="w-12 h-12 rounded-lg bg-white/20 backdrop-blur-sm flex items-center justify-center">
@@ -1028,14 +1028,14 @@
             notifications.forEach((notification, index) => {
                 const icons = {
                     'cleaning_submitted': 'fa-broom',
-                    'sifting_requested': 'fa-exchange-alt',
+                    'shifting_requested': 'fa-exchange-alt',
                     'izin_submitted': 'fa-file-alt',
                     'user_registered': 'fa-user-plus'
                 };
 
                 const colors = {
                     'cleaning_submitted': 'green',
-                    'sifting_requested': 'blue',
+                    'shifting_requested': 'blue',
                     'izin_submitted': 'yellow',
                     'user_registered': 'blue'
                 };
