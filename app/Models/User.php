@@ -14,7 +14,9 @@ class User extends Authenticatable
 
     const ROLE_DEVELOPER = 'developer';
     const ROLE_ADMIN = 'admin';
+    const ROLE_MARCOM = 'marcom';
     const ROLE_STAFF = 'staff';
+    const ROLE_GUEST = 'guest';
 
     /**
      * The attributes that are mass assignable.
@@ -61,11 +63,16 @@ class User extends Authenticatable
         return $this->role === self::ROLE_ADMIN;
     }
 
+    public function isMarcom()
+    {
+        return $this->role === self::ROLE_MARCOM;
+    }
+
     public function isStaff()
     {
         return $this->role === self::ROLE_STAFF;
     }
-    
+
     public function isGuest()
     {
         return $this->role === self::ROLE_GUEST;
