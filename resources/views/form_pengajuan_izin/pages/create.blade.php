@@ -146,11 +146,26 @@
             <label class="block text-sm font-semibold mb-1">
                 Jika Memilih Izin Sakit lebih dari 1 hari, lampirkan surat dokter
             </label>
-            <input type="file" name="documen_pendukung"
-                class="w-full border rounded-lg px-3 py-2 text-sm">
+
+            <input 
+                type="file" 
+                name="documen_pendukung"
+                accept="image/*,application/pdf"
+                capture="environment"
+                class="w-full border rounded-lg px-3 py-2 text-sm"
+                onchange="previewFile(event)"
+            >
+
             <small class="text-gray-500">
-                PDF / JPG / PNG (maks. 2MB)
+                Foto / PDF (maks. 20MB)
             </small>
+
+            {{-- Preview --}}
+            <div id="preview" class="mt-2 hidden">
+                <img id="preview-image" class="max-h-48 rounded border">
+                <p id="preview-file" class="text-sm text-gray-600"></p>
+            </div>
+
             @error('documen_pendukung')
                 <small class="text-red-500 block">{{ $message }}</small>
             @enderror
@@ -206,5 +221,27 @@
         </div>
 
     </form>
+    <script>
+    function previewFile(event) {
+        const file = event.target.files[0];
+        const preview = document.getElementById('preview');
+        const img = document.getElementById('preview-image');
+        const fileText = document.getElementById('preview-file');
+
+        if (!file) return;
+
+        preview.classList.remove('hidden');
+
+        if (file.type.startsWith('image/')) {
+            img.src = URL.createObjectURL(file);
+            img.classList.remove('hidden');
+            fileText.innerText = `${file.name} (${(file.size / 1024 / 1024).toFixed(2)} MB)`;
+        } else {
+            img.classList.add('hidden');
+            fileText.innerText = `${file.name} (${(file.size / 1024 / 1024).toFixed(2)} MB)`;
+        }
+    }
+    </script>
+
 </div>
 @endsection

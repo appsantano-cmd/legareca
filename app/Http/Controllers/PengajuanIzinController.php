@@ -56,7 +56,7 @@ class PengajuanIzinController extends Controller
             'nomor_telepon' => 'required|string|max:20',
             'alamat' => 'required|string|max:255',
             'konfirmasi' => 'required|accepted',
-            'documen_pendukung' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
+            'documen_pendukung' => 'nullable|file|mimes:jpg,jpeg,png,webp,pdf,heic,heif|max:20480',
         ]);
 
         // 🔥 LOGIKA FINAL JENIS IZIN
