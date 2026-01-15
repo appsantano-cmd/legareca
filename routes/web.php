@@ -21,6 +21,24 @@ Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [LoginController::class, 'login']);
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
+// Screening Routes
+Route::prefix('screening')->name('screening.')->group(function () {
+    Route::get('/', [ScreeningController::class, 'welcome'])->name('welcome');
+    Route::get('/agreement', [ScreeningController::class, 'agreement'])->name('agreement');
+    Route::get('/yakin', [ScreeningController::class, 'yakin'])->name('yakin');
+    Route::get('/owner', [ScreeningController::class, 'ownerForm'])->name('ownerForm');
+    Route::post('/owner/submit', [ScreeningController::class, 'submitOwner'])->name('submitOwner');
+    Route::get('/pets', [ScreeningController::class, 'petTable'])->name('petTable');
+    Route::post('/submit-pets', [ScreeningController::class, 'submitPets'])->name('submitPets');
+    Route::get('/result', [ScreeningController::class, 'screeningResult'])->name('result');
+    Route::post('/result/submit', [ScreeningController::class, 'submitScreeningResult'])->name('submitResult');
+    Route::get('/no-hp', [ScreeningController::class, 'noHp'])->name('noHp');
+    Route::post('/no-hp/submit', [ScreeningController::class, 'submitNoHp'])->name('submitNoHp');
+    Route::get('/thankyou', [ScreeningController::class, 'thankyou'])->name('thankyou');
+    Route::get('/cancelled', [ScreeningController::class, 'cancelled'])->name('cancelled');
+    Route::get('/export-sheets', action: [ScreeningController::class, 'exportToSheets'])->name('screening.exportSheets');
+});
+
 // Authentication Protected Routes
 Route::middleware('auth')->group(function () {
     // Dashboard
@@ -65,31 +83,12 @@ Route::middleware('auth')->group(function () {
             Route::get('/check-config', [DailyCleaningReportController::class, 'checkGoogleSheetsConfig'])
                 ->name('check-config');
         });
-
-
     });
 
 
     // Admin/Developer Routes (restricted access)
     Route::middleware(['role:developer,admin'])->group(function () {
         Route::resource('users', UserController::class)->only(['index', 'create', 'store']);
-
-        // Screening Routes
-        Route::prefix('screening')->name('screening.')->group(function () {
-            Route::get('/', [ScreeningController::class, 'welcome'])->name('welcome');
-            Route::get('/agreement', [ScreeningController::class, 'agreement'])->name('agreement');
-            Route::get('/yakin', [ScreeningController::class, 'yakin'])->name('yakin');
-            Route::get('/owner', [ScreeningController::class, 'ownerForm'])->name('ownerForm');
-            Route::post('/owner/submit', [ScreeningController::class, 'submitOwner'])->name('submitOwner');
-            Route::get('/pets', [ScreeningController::class, 'petTable'])->name('petTable');
-            Route::post('/submit-pets', [ScreeningController::class, 'submitPets'])->name('submitPets');
-            Route::get('/result', [ScreeningController::class, 'screeningResult'])->name('result');
-            Route::post('/result/submit', [ScreeningController::class, 'submitScreeningResult'])->name('submitResult');
-            Route::get('/no-hp', [ScreeningController::class, 'noHp'])->name('noHp');
-            Route::post('/no-hp/submit', [ScreeningController::class, 'submitNoHp'])->name('submitNoHp');
-            Route::get('/thankyou', [ScreeningController::class, 'thankyou'])->name('thankyou');
-            Route::get('/cancelled', [ScreeningController::class, 'cancelled'])->name('cancelled');
-        });
     });
 
     //Notification
@@ -102,5 +101,3 @@ Route::middleware('auth')->group(function () {
     });
 });
 
-// Public Screening Export Route (if needed without authentication)
-Route::get('/export-sheets', [ScreeningController::class, 'exportToSheets'])->name('screening.exportSheets');
