@@ -166,33 +166,45 @@ class DailyCleaningReportController extends Controller
     /**
      * Method untuk save ke Google Sheets dengan path credentials yang benar
      */
-    /**
-     * Method untuk save ke Google Sheets dengan path credentials yang benar
-     */
-    /**
-     * Method untuk save ke Google Sheets dengan path credentials yang benar
-     */
     private function saveToGoogleSheets($report)
     {
         try {
             Log::info('📊 Starting Google Sheets save for report ID: ' . $report->id);
 
-            // PERBAIKAN PATH: Gunakan storage_path() bukan relative path
+            // PATH YANG BENAR: credentials.json di storage/app/
             $credentialsPath = storage_path('app/credentials.json');
-
+            
             Log::info('🔍 Checking credentials at: ' . $credentialsPath);
 
             if (!file_exists($credentialsPath)) {
-                // Coba alternative path
-                $alternativePath = base_path('credentials.json');
-                if (file_exists($alternativePath)) {
-                    $credentialsPath = $alternativePath;
-                    Log::info('✅ Using alternative path: ' . $alternativePath);
+                Log::error('❌ Credentials file not found at: ' . $credentialsPath);
+                
+                // Coba cari di beberapa lokasi umum
+                $possiblePaths = [
+                    storage_path('app/credentials.json'),
+                    base_path('storage/app/credentials.json'),
+                    base_path('credentials.json'),
+                    app_path('credentials.json'),
+                ];
+                
+                $foundPath = null;
+                foreach ($possiblePaths as $path) {
+                    if (file_exists($path)) {
+                        $foundPath = $path;
+                        Log::info('✅ Found credentials at: ' . $path);
+                        break;
+                    }
+                }
+                
+                if ($foundPath) {
+                    $credentialsPath = $foundPath;
                 } else {
                     Log::error('❌ Credentials file not found at any location');
+                    Log::info('💡 Please place credentials.json in: ' . storage_path('app/'));
+                    
                     return [
                         'success' => false,
-                        'message' => 'Google Sheets credentials file not found. Please contact administrator.'
+                        'message' => 'Google Sheets credentials file not found. Please place credentials.json in storage/app/ folder.'
                     ];
                 }
             }
@@ -228,17 +240,16 @@ class DailyCleaningReportController extends Controller
             $client->addScope(Sheets::SPREADSHEETS);
             $client->setAccessType('offline');
 
-            // IMPORTANT: Tambahkan ini untuk service account authentication
+            // Tambahkan ini untuk service account authentication
             $client->setSubject($credentialsJson['client_email'] ?? null);
 
-            // PERBAIKAN: Hapus konfigurasi SSL verify atau gunakan false untuk development
-            // Pada development/local, kita bisa disable SSL verification sementara
+            // Konfigurasi HTTP client
             $httpClientConfig = [
                 'timeout' => 60,
                 'connect_timeout' => 30,
             ];
 
-            // Hanya di development, disable SSL verification
+            // Hanya di development, disable SSL verification untuk troubleshooting
             if (app()->environment('local')) {
                 $httpClientConfig['verify'] = false;
             }
@@ -308,7 +319,7 @@ class DailyCleaningReportController extends Controller
 
             Log::info('📊 Row data prepared: ', $rowData);
 
-            // Gunakan method append yang lebih simple
+            // Coba append data ke Google Sheets
             try {
                 $range = $sheetName . '!A:G';
                 $body = new ValueRange([
@@ -329,30 +340,13 @@ class DailyCleaningReportController extends Controller
 
                 Log::info('✅ Google Sheets append successful');
 
-                // Cek result
-                if ($result->getUpdates()) {
-                    $updates = $result->getUpdates();
-                    Log::info('📊 Update details:', [
-                        'updatedRange' => $updates->getUpdatedRange() ?? 'N/A',
-                        'updatedRows' => $updates->getUpdatedRows() ?? 'N/A',
-                        'updatedColumns' => $updates->getUpdatedColumns() ?? 'N/A',
-                        'updatedCells' => $updates->getUpdatedCells() ?? 'N/A'
-                    ]);
-
-                    return [
-                        'success' => true,
-                        'message' => 'Data berhasil disimpan ke Google Sheets'
-                    ];
-                } else {
-                    Log::warning('⚠️ Append successful but no update details');
-                    return [
-                        'success' => true,
-                        'message' => 'Data berhasil disimpan ke Google Sheets'
-                    ];
-                }
+                return [
+                    'success' => true,
+                    'message' => 'Data berhasil disimpan ke Google Sheets'
+                ];
             } catch (\Exception $e) {
                 Log::error('❌ Google Sheets append error: ' . $e->getMessage());
-
+                
                 // Coba alternatif: update ke row tertentu
                 try {
                     // Cari baris terakhir
@@ -362,7 +356,7 @@ class DailyCleaningReportController extends Controller
                     $nextRow = empty($values) ? 1 : count($values) + 1;
 
                     // Skip header jika ada
-                    if ($nextRow === 1 && !empty($values[0]) && in_array(strtolower($values[0][0]), ['id', 'id', 'id '])) {
+                    if ($nextRow === 1 && !empty($values[0]) && strtolower($values[0][0]) === 'id') {
                         $nextRow = 2;
                     }
 
@@ -427,35 +421,23 @@ class DailyCleaningReportController extends Controller
     public function simpleTest()
     {
         $credentialsPath = storage_path('app/credentials.json');
-        $alternativePath = base_path('credentials.json');
-
+        
         $result = [
-            'storage_app_exists' => is_dir(storage_path('app')) ? 'YES' : 'NO',
-            'storage_app_permissions' => is_dir(storage_path('app')) ? substr(sprintf('%o', fileperms(storage_path('app'))), -4) : 'N/A',
-            'storage_credentials_path' => $credentialsPath,
-            'storage_credentials_exists' => file_exists($credentialsPath) ? 'YES' : 'NO',
-            'storage_credentials_readable' => is_readable($credentialsPath) ? 'YES' : 'NO',
-            'base_credentials_path' => $alternativePath,
-            'base_credentials_exists' => file_exists($alternativePath) ? 'YES' : 'NO',
-            'base_credentials_readable' => is_readable($alternativePath) ? 'YES' : 'NO',
+            'storage_app_path' => storage_path('app'),
+            'credentials_path' => $credentialsPath,
+            'file_exists' => file_exists($credentialsPath) ? 'YES' : 'NO',
+            'is_readable' => is_readable($credentialsPath) ? 'YES' : 'NO',
+            'file_size' => file_exists($credentialsPath) ? filesize($credentialsPath) : 0,
         ];
 
-        // Cek file yang ada
-        $foundPath = null;
         if (file_exists($credentialsPath)) {
-            $foundPath = $credentialsPath;
-        } elseif (file_exists($alternativePath)) {
-            $foundPath = $alternativePath;
-        }
-
-        if ($foundPath) {
-            $content = file_get_contents($foundPath);
+            $content = file_get_contents($credentialsPath);
             $json = json_decode($content, true);
 
             $result['json_valid'] = $json ? 'YES' : 'NO';
             $result['client_email'] = $json['client_email'] ?? 'NOT FOUND';
             $result['project_id'] = $json['project_id'] ?? 'NOT FOUND';
-
+            
             if ($json && isset($json['private_key'])) {
                 $result['private_key_exists'] = 'YES';
                 $result['private_key_length'] = strlen($json['private_key']);
@@ -463,6 +445,17 @@ class DailyCleaningReportController extends Controller
             } else {
                 $result['private_key_exists'] = 'NO';
             }
+        }
+
+        // Cek beberapa lokasi lain juga
+        $otherPaths = [
+            'base_path/credentials.json' => base_path('credentials.json'),
+            'app_path/credentials.json' => app_path('credentials.json'),
+            'base_path/storage/app/credentials.json' => base_path('storage/app/credentials.json'),
+        ];
+        
+        foreach ($otherPaths as $name => $path) {
+            $result[$name . '_exists'] = file_exists($path) ? 'YES' : 'NO';
         }
 
         return response()->json($result);
@@ -475,7 +468,7 @@ class DailyCleaningReportController extends Controller
     {
         try {
             $credentialsPath = storage_path('app/credentials.json');
-
+            
             // Coba alternative path
             if (!file_exists($credentialsPath)) {
                 $alternativePath = base_path('credentials.json');
@@ -486,8 +479,8 @@ class DailyCleaningReportController extends Controller
                         'success' => false,
                         'message' => 'Credentials file not found',
                         'checked_paths' => [
-                            storage_path('app/credentials.json'),
-                            base_path('credentials.json')
+                            'storage/app/credentials.json' => storage_path('app/credentials.json'),
+                            'credentials.json (root)' => base_path('credentials.json'),
                         ]
                     ]);
                 }
