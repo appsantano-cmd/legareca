@@ -161,7 +161,7 @@ class DailyCleaningReportController extends Controller
     {
         try {
             // PATH YANG DIPERBAIKI - gunakan path dari method testConnection
-            $credentialsPath = storage_path('app/credentials/google-sheets.json');
+            $credentialsPath = storage_path('app/credential.json');
             
             if (!file_exists($credentialsPath)) {
                 Log::error('Credentials file not found at: ' . $credentialsPath);
@@ -322,7 +322,7 @@ class DailyCleaningReportController extends Controller
      */
     public function simpleTest()
     {
-        $credentialsPath = storage_path('app/credentials/google-sheets.json');
+        $credentialsPath = storage_path('app/credential.json');
         
         $result = [
             'credentials_path' => $credentialsPath,
@@ -356,7 +356,7 @@ class DailyCleaningReportController extends Controller
     public function testConnection()
     {
         try {
-            $credentialsPath = storage_path('app/credentials/google-sheets.json');
+            $credentialsPath = storage_path('app/credential.json');
             $spreadsheetId = '1ENclJ4VKSh4zsz5WAD5dAsQZg654FtUDJLyQnH3p9NI';
             
             if (!file_exists($credentialsPath)) {
