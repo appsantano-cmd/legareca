@@ -1,11 +1,10 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-</head>
-<body>
-    <h1>halo halaman ini masih dalam perbaikan oleh ajitama jaya</h1>
-</body>
-</html>
+@extends('layouts.app')
+
+@section('body-class', 'bg-cyan-900')
+
+@section('title', 'Art Gallery')
+
+@section('content')
+<div>
+    <h1 class="text-white">Halo anjay</h1>
+</div>

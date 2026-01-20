@@ -9,15 +9,16 @@
 
     @stack('styles')
 </head>
-<body class="bg-gray-100 min-h-screen">
-
-    @include('partials.navbar')
+<body class="@yield('body-class', 'bg-gray-100') min-h-screen">
 
     <main class="container mx-auto py-6">
         @yield('content')
     </main>
 
-    @include('partials.footer')
+    {{-- Footer --}}
+    @if (! View::hasSection('hide-footer'))
+        @include('partials.footer')
+    @endif
 
     @stack('scripts')
 </body>
