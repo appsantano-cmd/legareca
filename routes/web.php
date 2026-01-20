@@ -10,6 +10,8 @@ use App\Http\Controllers\shiftingController;
 use App\Http\Controllers\DailyCleaningReportController;
 use App\Http\Controllers\API\NotificationController;
 use App\Http\Controllers\NotificationPageController;
+use App\Http\Controllers\VenueBookingController;
+
 
 // Public Routes
 Route::get('/', function () {
@@ -99,4 +101,10 @@ Route::middleware('auth')->group(function () {
         Route::delete('/{id}', [NotificationPageController::class, 'destroy'])->name('notifications.destroy');
         Route::delete('/', [NotificationPageController::class, 'clearAll'])->name('notifications.clear-all');
     });
-});
+
+   // Venue Booking Routes
+
+    Route::get('/venue', [VenueBookingController::class, 'index'])->name('venue.index');
+    Route::post('/venue/step', [VenueBookingController::class, 'handleStep'])->name('venue.step');
+    Route::post('/venue/submit', [VenueBookingController::class, 'submitBooking'])->name('venue.submit');
+    });
