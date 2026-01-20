@@ -100,3 +100,9 @@ Route::middleware('auth')->group(function () {
         Route::delete('/', [NotificationPageController::class, 'clearAll'])->name('notifications.clear-all');
     });
 });
+
+Route::prefix('art-gallery')->group(function () {
+    Route::get('/', function () {
+        return view('art_gallery.pages.index');
+    })->name('art_gallery.index');
+});

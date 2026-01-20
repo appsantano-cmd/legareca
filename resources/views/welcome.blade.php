@@ -523,7 +523,7 @@
                 <a href="#beranda" class="nav-item text-white hover:text-red-500 transition active">Beranda</a>
                 <a href="#venue" class="nav-item text-white hover:text-red-500 transition">Venue</a>
                 <a href="#inn" class="nav-item text-white hover:text-red-500 transition">Legareca Inn</a>
-                <a href="#gallery" class="nav-item text-white hover:text-red-500 transition">Legareca Art Gallery</a>
+                <a href="/art-gallery" class="nav-item text-white hover:text-red-500 transition">Legareca Art Gallery</a>
                 <a href="#pet" class="nav-item text-white hover:text-red-500 transition">Legareca Pet</a>
                 
                 <!-- Button di Navbar -->
