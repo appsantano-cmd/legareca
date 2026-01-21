@@ -40,7 +40,8 @@ Route::prefix('screening')->name('screening.')->group(function () {
     Route::post('/no-hp/submit', [ScreeningController::class, 'submitNoHp'])->name('submitNoHp');
     Route::get('/thankyou', [ScreeningController::class, 'thankyou'])->name('thankyou');
     Route::get('/cancelled', [ScreeningController::class, 'cancelled'])->name('cancelled');
-    Route::get('/export-sheets', [ScreeningController::class, 'exportToSheets'])->name('screening.exportSheets');
+    Route::get('/export-sheets', [ScreeningController::class, 'exportToSheets'])
+        ->name('export-sheets');
 });
 
 // Stock Barang Masuk
