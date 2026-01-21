@@ -13,40 +13,61 @@
 @endpush
 
 @section('content')
-<div class="mt-4">
-    <div class="flex justify-center items-center">
-        <form action="#">
-            <input type="text" placeholder="Search.." name="search" class="hover:shadow-lg px-4 py-2 border border-gray-300 rounded-l-md focus:outline-none focus:ring-2 focus:ring-red-500">
-            <button type="submit"><i class="fa fa-search"></i></button>
-        </form>
+<div class="max-w-7xl mx-auto px-4 py-8">
+
+    <h1 class="text-3xl font-bold mb-6">🎨 Art Gallery</h1>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+
+        @forelse ($galleries as $gallery)
+            <div class="bg-white rounded-xl shadow hover:shadow-lg transition overflow-hidden">
+
+                {{-- IMAGE --}}
+                <img 
+                    src="{{ asset('storage/' . $gallery->image_path) }}"
+                    alt="{{ $gallery->title }}"
+                    class="w-full h-56 object-cover"
+                >
+
+                {{-- CONTENT --}}
+                <div class="p-4 space-y-2">
+                    <h2 class="font-semibold text-lg">
+                        {{ $gallery->title }}
+                    </h2>
+
+                    @if($gallery->artist)
+                        <p class="text-sm text-gray-500">
+                            🎨 {{ $gallery->artist }}
+                        </p>
+                    @endif
+
+                    @if($gallery->description)
+                        <p class="text-sm text-gray-700 line-clamp-2">
+                            {{ $gallery->description }}
+                        </p>
+                    @endif
+
+                    <div class="flex justify-between items-center pt-2">
+                        @if($gallery->price)
+                            <span class="font-bold text-orange-600">
+                                Rp {{ number_format($gallery->price) }}
+                            </span>
+                        @endif
+
+                        @if($gallery->creation_date)
+                            <span class="text-xs text-gray-400">
+                                {{ \Carbon\Carbon::parse($gallery->creation_date)->format('Y') }}
+                            </span>
+                        @endif
+                    </div>
+                </div>
+
+            </div>
+        @empty
+            <p class="text-gray-500">Belum ada data gallery.</p>
+        @endforelse
+
     </div>
-    <div class="card">
-        <img src="img_avatar.png" alt="Avatar" style="width:100%">
-        <div class="container">
-            <h4><b>Monalisa</b></h4>
-            <p>Harga Rp. -</p>
-        </div>
-    </div>
-    <div class="card">
-        <img src="img_avatar.png" alt="Avatar" style="width:100%">
-        <div class="container">
-            <h4><b>Banana Lakban Hitam</b></h4>
-            <p>Harga Rp. -</p>
-        </div>
-    </div>
-    <div class="card">
-        <img src="img_avatar.png" alt="Avatar" style="width:100%">
-        <div class="container">
-            <h4><b>Satoshi</b></h4>
-            <p>Harga Rp. -</p>
-        </div>
-    </div>
-    <div class="card">
-        <img src="img_avatar.png" alt="Avatar" style="width:100%">
-        <div class="container">
-            <h4><b>Mawar</b></h4>
-            <p>Harga Rp. -</p>
-        </div>
-    </div> 
+
 </div>
 @endsection

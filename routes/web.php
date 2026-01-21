@@ -10,11 +10,15 @@ use App\Http\Controllers\shiftingController;
 use App\Http\Controllers\DailyCleaningReportController;
 use App\Http\Controllers\API\NotificationController;
 use App\Http\Controllers\NotificationPageController;
+use App\Http\Controllers\ArtGalleryController;
 
 // Public Routes
 Route::get('/', function () {
     return view('welcome');
 });
+
+Route::get('/art-gallery', [ArtGalleryController::class, 'index'])
+    ->name('gallery.index');
 
 // Authentication Routes
 Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
@@ -85,7 +89,6 @@ Route::middleware('auth')->group(function () {
         });
     });
 
-
     // Admin/Developer Routes (restricted access)
     Route::middleware(['role:developer,admin'])->group(function () {
         Route::resource('users', UserController::class)->only(['index', 'create', 'store']);
@@ -101,8 +104,3 @@ Route::middleware('auth')->group(function () {
     });
 });
 
-Route::prefix('art-gallery')->group(function () {
-    Route::get('/', function () {
-        return view('art_gallery.pages.index');
-    })->name('art_gallery.index');
-});
