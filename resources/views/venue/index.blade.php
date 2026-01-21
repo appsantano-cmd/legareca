@@ -439,7 +439,7 @@
         </div>
 
         <!-- FORM -->
-        <form method="POST" action="{{ route('venue.step') }}" id="booking-form">
+        <form method="POST" action="{{ route('venue.submit') }}" id="booking-form">
             @csrf
             <input type="hidden" name="step" id="stepInput" value="{{ $currentStep ?? 1 }}">
             <input type="hidden" name="duration_value" id="duration_value">

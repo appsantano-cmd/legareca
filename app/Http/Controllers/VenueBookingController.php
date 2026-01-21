@@ -2,34 +2,53 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\VenueBooking;
+use App\Services\GoogleSheetsService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
-use Illuminate\Support\Facades\Validator;
 
 class VenueBookingController extends Controller
 {
+    /**
+     * 🔑 Single source of truth HEADER
+     */
+    private array $sheetHeaders = [
+        'id' => 'ID',
+        'created_at' => 'Dibuat',
+        'nama_pemesan' => 'Nama Pemesan',
+        'nomer_wa' => 'Nomor WhatsApp',
+        'email' => 'Email',
+        'venue' => 'Venue',
+        'jenis_acara' => 'Jenis Acara',
+        'tanggal_acara' => 'Tanggal Acara',
+        'hari_acara' => 'Hari Acara',
+        'tahun_acara' => 'Tahun Acara',
+        'jam_acara' => 'Jam Acara',
+        'durasi_type' => 'Tipe Durasi',
+        'jam_mulai' => 'Jam Mulai',
+        'jam_selesai' => 'Jam Selesai',
+        'tanggal_mulai' => 'Tanggal Mulai',
+        'tanggal_selesai' => 'Tanggal Selesai',
+        'durasi_jam' => 'Durasi Jam',
+        'durasi_hari' => 'Durasi Hari',
+        'durasi_minggu' => 'Durasi Minggu',
+        'durasi_bulan' => 'Durasi Bulan',
+        'perkiraan_peserta' => 'Perkiraan Peserta',
+        'status' => 'Status',
+    ];
+
     public function index(Request $request)
     {
-        // Ambil data dari session jika ada
-        $formData = Session::get('booking_data', []);
-        $currentStep = Session::get('current_step', 1);
-        
-        // Debug: Cek session
-        // dd(['formData' => $formData, 'currentStep' => $currentStep]);
-        
-        return view('venue.index', compact('formData', 'currentStep'));
+        return view('venue.index', [
+            'formData' => Session::get('booking_data', []),
+            'currentStep' => Session::get('current_step', 1),
+        ]);
     }
 
-    public function handleStep(Request $request)
-    {
-        // HAPUS METHOD INI karena kita pakai client-side navigation
-        // Biarkan kosong atau hapus saja
-        return redirect()->route('venue.index');
-    }
-
-    public function submitBooking(Request $request)
-    {
-        // Validasi data final (semua field sekaligus)
+    public function submitBooking(
+        Request $request,
+        GoogleSheetsService $sheets
+    ) {
         $validated = $request->validate([
             'nama_pemesan' => 'required|min:3|max:100',
             'nomer_wa' => 'required|regex:/^08[0-9]{9,12}$/',
@@ -41,65 +60,76 @@ class VenueBookingController extends Controller
             'durasi_type' => 'required',
             'perkiraan_peserta' => 'required|integer|min:1|max:10000',
         ]);
-        
-        // Validasi tambahan berdasarkan durasi_type
-        if ($request->durasi_type === 'jam') {
-            $request->validate([
-                'jam_mulai' => 'required',
-                'jam_selesai' => 'required',
-            ]);
-        } elseif ($request->durasi_type === 'hari') {
-            $request->validate([
-                'tanggal_mulai' => 'required|date',
-                'tanggal_selesai' => 'required|date|after:tanggal_mulai',
-            ]);
-        } elseif ($request->durasi_type === 'minggu') {
-            $request->validate([
-                'durasi_minggu' => 'required|integer|min:1|max:4',
-            ]);
-        } elseif ($request->durasi_type === 'bulan') {
-            $request->validate([
-                'durasi_bulan' => 'required|integer|min:1|max:12',
-            ]);
-        }
-        
-        // Simpan data ke session sebelum redirect
-        Session::put('booking_data', array_merge(
-            Session::get('booking_data', []),
+
+        // simpan DB
+        $booking = VenueBooking::create(array_merge(
             $validated,
-            $request->only([
-                'jam_mulai', 'jam_selesai',
-                'tanggal_mulai', 'tanggal_selesai',
-                'durasi_minggu', 'durasi_bulan',
-                'hari_acara', 'tahun_acara'
-            ])
+            [
+                'hari_acara' => $request->hari_acara,
+                'tahun_acara' => $request->tahun_acara,
+                'jam_mulai' => $request->jam_mulai,
+                'jam_selesai' => $request->jam_selesai,
+                'tanggal_mulai' => $request->tanggal_mulai,
+                'tanggal_selesai' => $request->tanggal_selesai,
+                'durasi_jam' => $request->durasi_jam,
+                'durasi_hari' => $request->durasi_hari,
+                'durasi_minggu' => $request->durasi_minggu,
+                'durasi_bulan' => $request->durasi_bulan,
+                'status' => 'pending',
+            ]
         ));
-        
-        // Proses penyimpanan ke database (uncomment jika sudah ada model)
-        /*
-        $booking = VenueBooking::create([
-            'nama_pemesan' => $request->nama_pemesan,
-            'nomer_wa' => $request->nomer_wa,
-            'email' => $request->email,
-            'venue' => $request->venue,
-            'jenis_acara' => $request->jenis_acara,
-            'tanggal_acara' => $request->tanggal_acara,
-            'jam_acara' => $request->jam_acara,
-            'durasi_type' => $request->durasi_type,
-            'durasi_jam' => $request->durasi_jam,
-            'durasi_hari' => $request->durasi_hari,
-            'durasi_minggu' => $request->durasi_minggu,
-            'durasi_bulan' => $request->durasi_bulan,
-            'perkiraan_peserta' => $request->perkiraan_peserta,
-            'status' => 'pending',
-        ]);
-        */
-        
-        // Hapus session setelah sukses
-        Session::forget('booking_data');
-        Session::forget('current_step');
-        
-        return redirect()->route('venue.index')
-            ->with('success', 'Booking venue berhasil dikirim! Tim kami akan menghubungi Anda dalam 1x24 jam.');
+
+        /**
+         * ================================
+         * GOOGLE SHEETS (SAMA PERSIS DENGAN SHIFTING)
+         * ================================
+         */
+
+        // 1️⃣ Pastikan header sinkron
+        $sheets->setHeader(
+            array_values($this->sheetHeaders),
+            'Venue Bookings!A1'
+        );
+
+        // 2️⃣ Build row by key
+        $row = [
+            'id' => $booking->id,
+            'created_at' => $booking->created_at
+                ->setTimezone('Asia/Jakarta')
+                ->format('Y-m-d H:i:s'),
+            'nama_pemesan' => $booking->nama_pemesan,
+            'nomer_wa' => $booking->nomer_wa,
+            'email' => $booking->email,
+            'venue' => $booking->venue,
+            'jenis_acara' => $booking->jenis_acara,
+            'tanggal_acara' => optional($booking->tanggal_acara)->format('Y-m-d'),
+            'hari_acara' => $booking->hari_acara ?? '-',
+            'tahun_acara' => $booking->tahun_acara ?? '-',
+            'jam_acara' => $booking->jam_acara,
+            'durasi_type' => $booking->durasi_type,
+            'jam_mulai' => $booking->jam_mulai ?? '-',
+            'jam_selesai' => $booking->jam_selesai ?? '-',
+            'tanggal_mulai' => optional($booking->tanggal_mulai)->format('Y-m-d') ?? '-',
+            'tanggal_selesai' => optional($booking->tanggal_selesai)->format('Y-m-d') ?? '-',
+            'durasi_jam' => $booking->durasi_jam ?? '-',
+            'durasi_hari' => $booking->durasi_hari ?? '-',
+            'durasi_minggu' => $booking->durasi_minggu ?? '-',
+            'durasi_bulan' => $booking->durasi_bulan ?? '-',
+            'perkiraan_peserta' => $booking->perkiraan_peserta,
+            'status' => $booking->status,
+        ];
+
+        // 3️⃣ Urutkan sesuai header
+        $orderedRow = [];
+        foreach (array_keys($this->sheetHeaders) as $key) {
+            $orderedRow[] = $row[$key] ?? '-';
+        }
+
+        // 4️⃣ Append
+        $sheets->append($orderedRow, 'Venue Bookings!A2');
+
+        return redirect()
+            ->route('venue.index')
+            ->with('success', 'Booking venue berhasil dikirim.');
     }
 }

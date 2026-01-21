@@ -2,10 +2,13 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class VenueBooking extends Model
 {
+    use HasFactory;
+
     protected $fillable = [
         'nama_pemesan',
         'nomer_wa',
@@ -17,27 +20,15 @@ class VenueBooking extends Model
         'tahun_acara',
         'jam_acara',
         'durasi_type',
+        'jam_mulai',
+        'jam_selesai',
+        'tanggal_mulai',
+        'tanggal_selesai',
         'durasi_jam',
         'durasi_hari',
         'durasi_minggu',
         'durasi_bulan',
-        'tanggal_mulai',
-        'tanggal_selesai',
-        'jam_mulai',
-        'jam_selesai',
         'perkiraan_peserta',
         'status',
-        'booking_code',
-    ];
-
-    protected $casts = [
-        'tanggal_acara' => 'date',
-        'tanggal_mulai' => 'date',
-        'tanggal_selesai' => 'date',
-        'perkiraan_peserta' => 'integer',
-        'durasi_jam' => 'integer',
-        'durasi_hari' => 'integer',
-        'durasi_minggu' => 'integer',
-        'durasi_bulan' => 'integer',
     ];
 }
