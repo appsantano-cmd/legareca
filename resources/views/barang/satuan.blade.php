@@ -396,11 +396,11 @@
                 <h5 class="mb-0 d-flex align-items-center">
                     <i class="fas fa-list-check me-3"></i>
                     Daftar Satuan
-                    <span class="badge bg-light text-primary ms-3">{{ $satuans->count() }} Data</span>
+                    <span class="badge bg-light text-primary ms-3">{{ $satuan->count() }} Data</span>
                 </h5>
             </div>
             <div class="card-body p-0">
-                @if($satuans->isEmpty())
+                @if($satuan->isEmpty())
                     <div class="empty-state">
                         <i class="fas fa-balance-scale empty-state-icon"></i>
                         <h4 class="mb-3">Belum ada data satuan</h4>
@@ -433,7 +433,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach($satuans as $index => $item)
+                                @foreach($satuan as $index => $item)
                                 <tr>
                                     <td class="fw-bold text-primary">{{ $index + 1 }}</td>
                                     <td>
@@ -482,7 +482,7 @@
                         <div class="d-flex flex-column flex-md-row justify-content-between align-items-center">
                             <small class="text-muted">
                                 <i class="fas fa-info-circle me-1"></i>
-                                Total: {{ $satuans->count() }} satuan
+                                Total: {{ $satuan->count() }} satuan
                             </small>
                             <small class="text-muted mt-2 mt-md-0">
                                 <i class="fas fa-sync-alt me-1"></i>

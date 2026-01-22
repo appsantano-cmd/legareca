@@ -40,8 +40,8 @@ class BarangMasukController extends Controller
             ->orderBy('nama_barang')
             ->get();
 
-        // Ambil data satuan dari tabel satuans - HAPUS FILTER STATUS
-        $satuans = Satuan::orderBy('satuan_input')->get();
+        // Ambil data satuan dari tabel satuan - HAPUS FILTER STATUS
+        $satuan = Satuan::orderBy('satuan_input')->get();
 
         // Hitung jumlah data di trash
         $trashCount = BarangMasuk::onlyTrashed()->count();
@@ -52,7 +52,7 @@ class BarangMasukController extends Controller
             'suppliers',
             'barangList',
             'trashCount',
-            'satuans'
+            'satuan'
         ));
     }
 
@@ -564,7 +564,7 @@ class BarangMasukController extends Controller
             $query->orderBy('satuan_input');
 
             // Ambil data sesuai struktur tabel yang benar
-            $satuans = $query->get([
+            $satuan = $query->get([
                 'id',
                 'satuan_input',
                 'satuan_utama',
@@ -573,8 +573,8 @@ class BarangMasukController extends Controller
 
             return response()->json([
                 'success' => true,
-                'satuans' => $satuans,
-                'count' => $satuans->count()
+                'satuan' => $satuan,
+                'count' => $satuan->count()
             ]);
 
         } catch (\Exception $e) {

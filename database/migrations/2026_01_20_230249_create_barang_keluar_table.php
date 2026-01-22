@@ -14,7 +14,7 @@ return new class extends Migration
             $table->enum('department', ['Bar', 'Kitchen', 'Pastry', 'Server', 'Marcom', 'Cleaning Staff']);
             $table->foreignId('barang_id')->constrained('barang')->onDelete('restrict');
             $table->decimal('jumlah_keluar', 10, 5);
-            $table->foreignId('satuan_id')->constrained('satuans')->onDelete('restrict');
+            $table->foreignId('satuan_id')->constrained('satuan')->onDelete('restrict');
             $table->text('keperluan');
             $table->string('nama_penerima');
             $table->timestamps();

@@ -15,11 +15,11 @@ class SatuanController extends Controller
     public function apiIndex()
     {
         try {
-            $satuans = Satuan::select('id', 'satuan_utama', 'satuan_input', 'faktor')
+            $satuan = Satuan::select('id', 'satuan_utama', 'satuan_input', 'faktor')
                 ->orderBy('satuan_utama')
                 ->get();
 
-            return response()->json($satuans);
+            return response()->json($satuan);
 
         } catch (\Exception $e) {
             return response()->json([
@@ -34,8 +34,8 @@ class SatuanController extends Controller
      */
     public function index()
     {
-        $satuans = Satuan::orderBy('satuan_utama')->get();
-        return view('barang.satuan', compact('satuans'));
+        $satuan = Satuan::orderBy('satuan_utama')->get();
+        return view('barang.satuan', compact('satuan'));
     }
 
     /**
@@ -86,8 +86,8 @@ class SatuanController extends Controller
      */
     public function edit(Satuan $satuan)
     {
-        $satuans = Satuan::orderBy('satuan_utama')->get();
-        return view('barang.satuan', compact('satuan', 'satuans'));
+        $satuan = Satuan::orderBy('satuan_utama')->get();
+        return view('barang.satuan', compact('satuan', 'satuan'));
     }
 
     /**
@@ -149,7 +149,7 @@ class SatuanController extends Controller
             $spreadsheetId = env('GOOGLE_SHEETS_SPREADSHEET_ID');
 
             // 1. Ambil data Satuan - DIUBAH: Urutkan berdasarkan ID terkecil
-            $satuans = Satuan::orderBy('id', 'asc')
+            $satuan = Satuan::orderBy('id', 'asc')
                 ->orderBy('satuan_utama')
                 ->orderBy('satuan_input')
                 ->get();
@@ -165,7 +165,7 @@ class SatuanController extends Controller
                 'Tanggal Diperbarui'
             ];
 
-            foreach ($satuans as $item) {
+            foreach ($satuan as $item) {
                 $rows[] = [
                     $item->satuan_input,
                     $item->satuan_utama,

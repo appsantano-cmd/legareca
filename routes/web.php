@@ -103,7 +103,7 @@ Route::prefix('barang')->name('barang.')->group(function () {
 
 // Satuan
 Route::resource('satuan', SatuanController::class);
-Route::get('/api/satuans', [SatuanController::class, 'apiIndex'])->name('api.satuans');
+Route::get('/api/satuan', [SatuanController::class, 'apiIndex'])->name('api.satuan');
 
 // Barang Keluar Routes
 Route::prefix('barang-keluar')->group(function () {

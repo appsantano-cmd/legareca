@@ -51,7 +51,7 @@ class BarangKeluarController extends Controller
             'department' => 'required|in:Bar,Kitchen,Pastry,Server,Marcom,Cleaning Staff',
             'barang_id' => 'required|exists:barang,id',
             'jumlah_keluar' => 'required|numeric|min:0.0001',
-            'satuan_id' => 'required|exists:satuans,id',
+            'satuan_id' => 'required|exists:satuan,id',
             'keperluan' => 'required|string|max:500',
             'nama_penerima' => 'required|string|max:255',
             'tanggal_keluar' => 'required|date',
@@ -263,7 +263,7 @@ class BarangKeluarController extends Controller
             $query = Satuan::query();
 
             // Tambahkan kondisi status=true jika kolom status ada
-            if (\Schema::hasColumn('satuans', 'status')) {
+            if (\Schema::hasColumn('satuan', 'status')) {
                 $query->where('status', true);
             }
 
@@ -275,14 +275,14 @@ class BarangKeluarController extends Controller
                 });
             }
 
-            $satuans = $query->select('id', 'satuan_input', 'satuan_utama', 'faktor')
+            $satuan = $query->select('id', 'satuan_input', 'satuan_utama', 'faktor')
                 ->orderBy('satuan_input')
                 ->limit(50)
                 ->get();
 
-            \Log::info('Satuan data found', ['count' => $satuans->count()]);
+            \Log::info('Satuan data found', ['count' => $satuan->count()]);
 
-            return response()->json($satuans);
+            return response()->json($satuan);
 
         } catch (\Exception $e) {
             \Log::error('Error in getSatuanList', [

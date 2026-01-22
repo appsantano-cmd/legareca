@@ -719,7 +719,7 @@
 
             try {
                 // Ganti dengan endpoint yang sesuai untuk mengambil data satuan
-                const response = await fetch('/api/satuans');
+                const response = await fetch('/api/satuan');
                 satuanData = await response.json();
 
                 loadingSpinner.classList.add('hidden');

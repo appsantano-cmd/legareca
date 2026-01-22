@@ -2169,7 +2169,7 @@
                 console.log('Satuan data received:', data);
 
                 if (data.success) {
-                    renderSatuanTable(data.satuans);
+                    renderSatuanTable(data.satuan);
                 } else {
                     throw new Error(data.message || 'Data tidak valid diterima dari server');
                 }
