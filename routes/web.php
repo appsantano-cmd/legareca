@@ -12,6 +12,8 @@ use App\Http\Controllers\API\NotificationController;
 use App\Http\Controllers\NotificationPageController;
 use App\Http\Controllers\StokGudangController;
 use App\Http\Controllers\StokTransactionController;
+use App\Http\Controllers\SatuanController;
+use App\Http\Controllers\DepartemenController;
 
 // Public Routes
 Route::get('/', function () {
@@ -41,6 +43,11 @@ Route::prefix('screening')->name('screening.')->group(function () {
     Route::get('/export-sheets', [ScreeningController::class, 'exportToSheets'])
         ->name('export-sheets');
 });
+
+Route::resource('departemen', DepartemenController::class)
+    ->parameters(['departemen' => 'departemen']);
+
+Route::resource('satuan', SatuanController::class);
 
 // Route untuk stok gudang
 Route::prefix('stok-gudang')->name('stok.')->group(function () {

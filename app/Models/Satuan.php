@@ -9,21 +9,11 @@ class Satuan extends Model
 {
     use HasFactory;
 
-    protected $fillable = [
-        'satuan_input',
-        'satuan_utama',
-        'faktor'
-    ];
+    protected $table = 'satuan';
+    protected $fillable = ['nama_satuan'];
 
-    protected $casts = [
-        'faktor' => 'decimal:5'
-    ];
-
-    /**
-     * Scope untuk barang aktif
-     */
-    public function scopeActive($query)
+    public function barang()
     {
-        return $query->where('status', true);
+        return $this->hasMany(Barang::class);
     }
 }
