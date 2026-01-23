@@ -10,10 +10,8 @@ use App\Http\Controllers\shiftingController;
 use App\Http\Controllers\DailyCleaningReportController;
 use App\Http\Controllers\API\NotificationController;
 use App\Http\Controllers\NotificationPageController;
-use App\Http\Controllers\BarangMasukController;
-use App\Http\Controllers\BarangController;
-use App\Http\Controllers\SatuanController;
-use App\Http\Controllers\BarangKeluarController;
+use App\Http\Controllers\StokGudangController;
+use App\Http\Controllers\StokTransactionController;
 
 // Public Routes
 Route::get('/', function () {
@@ -44,90 +42,44 @@ Route::prefix('screening')->name('screening.')->group(function () {
         ->name('export-sheets');
 });
 
-// Stock Barang Masuk
-Route::prefix('barang-masuk')->name('barang-masuk.')->group(function () {
-    // Halaman Utama (hanya data aktif)
-    Route::get('/', [BarangMasukController::class, 'index'])->name('index');
-
-    // Trash management
-    Route::get('/trash', [BarangMasukController::class, 'trash'])->name('trash');
-
-    // Data endpoints - PERBAIKAN DI SINI
-    Route::get('/get-barang-data', [BarangMasukController::class, 'getBarangData'])->name('get-barang-data');
-    Route::get('/get-satuan-data', [BarangMasukController::class, 'getSatuanData'])->name('get-satuan-data'); // PERBAIKAN
-
-    // Restore operations
-    Route::post('/{id}/restore', [BarangMasukController::class, 'restore'])->name('restore');
-    Route::post('/restore-all', [BarangMasukController::class, 'restoreAll'])->name('restore.all');
-    Route::delete('/{id}/force-delete', [BarangMasukController::class, 'forceDelete'])->name('force.delete');
-    Route::delete('/empty-trash', [BarangMasukController::class, 'emptyTrash'])->name('empty.trash');
-
-    // CRUD operations
-    Route::post('/store-multiple', [BarangMasukController::class, 'storeMultiple'])->name('store.multiple');
-    Route::get('/{barangMasuk}/edit', [BarangMasukController::class, 'edit'])->name('edit');
-    Route::put('/{barangMasuk}', [BarangMasukController::class, 'update'])->name('update');
-    Route::delete('/{barangMasuk}', [BarangMasukController::class, 'destroy'])->name('destroy');
-
-    // API Routes
-    Route::get('/api/suppliers', [BarangMasukController::class, 'getSuppliers'])->name('api.suppliers');
-    Route::get('/api/barang', [BarangMasukController::class, 'getBarang'])->name('api.barang');
-
-    // Sheet
-    Route::post('/export-sheets', [BarangMasukController::class, 'exportToSheets'])->name('export-sheets');
+// Route untuk stok gudang
+Route::prefix('stok-gudang')->name('stok.')->group(function () {
+    Route::get('/', [StokGudangController::class, 'index'])->name('index');
+    Route::get('/create', [StokGudangController::class, 'create'])->name('create');
+    Route::post('/', [StokGudangController::class, 'store'])->name('store');
+    Route::post('/rollover', [StokGudangController::class, 'rollover'])->name('rollover');
+    Route::get('/export', [StokGudangController::class, 'exportExcel'])->name('export');
+    Route::get('/rollover-history', [StokGudangController::class, 'showRolloverHistory'])->name('rollover.history');
 });
 
-// Barang 
-Route::prefix('barang')->name('barang.')->group(function () {
-    Route::get('/', [BarangController::class, 'index'])->name('index');
-    Route::get('/create', [BarangController::class, 'create'])->name('create');
-    Route::get('/trash', [BarangController::class, 'trash'])->name('trash');
+// Route untuk transaksi harian - URUTAN PENTING!
+Route::prefix('transactions')->name('transactions.')->group(function () {
+    // 1. Route SPESIFIK dulu
+    Route::get('/laporan/harian', [StokTransactionController::class, 'laporanHarian'])->name('laporan');
+    Route::get('/rekapitulasi', [StokTransactionController::class, 'rekapitulasi'])->name('rekapitulasi');
 
-    Route::post('/', [BarangController::class, 'store'])->name('store');
-    Route::post('/store-multiple', [BarangController::class, 'storeMultiple'])->name('store.multiple');
-    Route::get('/{id}', [BarangController::class, 'show'])->name('show');
-    Route::get('/{id}/edit', [BarangController::class, 'edit'])->name('edit');
-    Route::put('/{id}', [BarangController::class, 'update'])->name('update');
-    Route::delete('/{id}', [BarangController::class, 'destroy'])->name('destroy');
+    // 2. Route UMUM kemudian
+    Route::get('/', [StokTransactionController::class, 'index'])->name('index');
+    Route::get('/create', [StokTransactionController::class, 'create'])->name('create');
+    Route::post('/', [StokTransactionController::class, 'store'])->name('store');
 
-    // Trash Management
-    Route::post('/{id}/restore', [BarangController::class, 'restore'])->name('restore');
-    Route::post('/restore-all', [BarangController::class, 'restoreAll'])->name('restore.all');
-    Route::delete('/{id}/force-delete', [BarangController::class, 'forceDelete'])->name('force.delete');
-    Route::delete('/empty-trash', [BarangController::class, 'emptyTrash'])->name('empty.trash');
+    // 3. Route dengan parameter di akhir (dengan constraint numeric)
+    Route::get('/{id}', [StokTransactionController::class, 'show'])
+        ->where('id', '[0-9]+')
+        ->name('show');
 
-    // API Routes
-    Route::get('/api/list', [BarangController::class, 'getBarangList'])->name('api.list');
-    Route::post('/api/check-kode', [BarangController::class, 'checkKodeBarang'])->name('api.check.kode');
-    Route::post('/api/generate-kode', [BarangController::class, 'generateKode'])->name('api.generate');
+    Route::post('/{id}/approve', [StokTransactionController::class, 'approve'])
+        ->where('id', '[0-9]+')
+        ->name('approve');
+
+    Route::post('/{id}/reject', [StokTransactionController::class, 'reject'])
+        ->where('id', '[0-9]+')
+        ->name('reject');
 });
 
-// Satuan
-Route::resource('satuan', SatuanController::class);
-Route::get('/api/satuan', [SatuanController::class, 'apiIndex'])->name('api.satuan');
-
-// Barang Keluar Routes
-Route::prefix('barang-keluar')->group(function () {
-    Route::get('/', [BarangKeluarController::class, 'index'])->name('barang-keluar.index');
-    Route::get('/create', [BarangKeluarController::class, 'create'])->name('barang-keluar.create');
-    Route::post('/', [BarangKeluarController::class, 'store'])->name('barang-keluar.store');
-    Route::get('/{id}', [BarangKeluarController::class, 'show'])->name('barang-keluar.show');
-    Route::get('/{id}/edit', [BarangKeluarController::class, 'edit'])->name('barang-keluar.edit');
-    Route::put('/{id}', [BarangKeluarController::class, 'update'])->name('barang-keluar.update');
-    Route::delete('/{id}', [BarangKeluarController::class, 'destroy'])->name('barang-keluar.destroy');
-
-    // Custom routes
-    Route::get('/trash', [BarangKeluarController::class, 'trash'])->name('barang-keluar.trash');
-    Route::post('/restore/{id}', [BarangKeluarController::class, 'restore'])->name('barang-keluar.restore');
-    Route::delete('/force-delete/{id}', [BarangKeluarController::class, 'forceDelete'])->name('barang-keluar.force-delete');
-    Route::post('/export-to-sheets', [BarangKeluarController::class, 'exportToSheets'])->name('barang-keluar.export-to-sheets');
-});
-
-// API Routes untuk modal (tanpa auth)
-Route::prefix('api/barang-keluar')->group(function () {
-    Route::get('/barang-list', [BarangKeluarController::class, 'getBarangList']);
-    Route::get('/barang/{id}', [BarangKeluarController::class, 'getBarangDetail']);
-    Route::get('/satuan-list', [BarangKeluarController::class, 'getSatuanList']);
-    Route::get('/satuan/{id}', [BarangKeluarController::class, 'getSatuanDetail']);
+// Home route
+Route::get('/', function () {
+    return redirect()->route('transactions.index');
 });
 
 // Authentication Protected Routes
