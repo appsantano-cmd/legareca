@@ -14,9 +14,11 @@
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <div class="container-fluid">
-            <a class="navbar-brand" href="{{ url('/') }}">
-                <i class="bi bi-box-seam me-2"></i>Stok Gudang
+
+            <a class="navbar-brand" href="{{ url('/stok-gudang') }}">
+                <img src="{{ asset('logo.png') }}" alt="Logo" height="32">
             </a>
+
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
@@ -38,11 +40,17 @@
                         </a>
                     </li>
 
-                    <!-- Menu Rollover History -->
                     <li class="nav-item">
-                        <a class="nav-link {{ request()->is('stok-gudang/rollover-history*') ? 'active' : '' }}"
-                            href="{{ route('stok.rollover.history') }}">
-                            <i class="bi bi-clock-history me-1"></i> History Rollover
+                        <a class="nav-link {{ request()->is('departemen*') ? 'active' : '' }}"
+                            href="{{ route('departemen.index') }}">
+                            <i class="bi bi-diagram-3 me-1"></i> Departemen
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link {{ request()->is('satuan*') ? 'active' : '' }}"
+                            href="{{ route('satuan.index') }}">
+                            <i class="bi bi-box me-1"></i> Satuan
                         </a>
                     </li>
 

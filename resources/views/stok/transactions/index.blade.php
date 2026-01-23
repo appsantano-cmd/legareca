@@ -1,6 +1,6 @@
 @extends('layouts.master')
 
-@section('title', 'Transaksi Stok Harian')
+@section('title', 'TRANSAKSI STOK HARIAN')
 
 @section('content')
     <div class="container-fluid py-4">
@@ -14,12 +14,6 @@
                         <div>
                             <a href="{{ route('transactions.create') }}" class="btn btn-light">
                                 <i class="bi bi-plus-circle me-1"></i> Transaksi Baru
-                            </a>
-                            <a href="{{ route('transactions.laporan') }}" class="btn btn-light">
-                                <i class="bi bi-file-text me-1"></i> Laporan Harian
-                            </a>
-                            <a href="{{ route('transactions.rekapitulasi') }}" class="btn btn-light">
-                                <i class="bi bi-bar-chart me-1"></i> Rekapitulasi
                             </a>
                         </div>
                     </div>
@@ -85,24 +79,6 @@
 
                         <!-- Summary Cards -->
                         <div class="row mb-4">
-                            <div class="col-md-4">
-                                <div class="card bg-primary text-white summary-card">
-                                    <div class="card-body">
-                                        <h6 class="card-title"><i class="bi bi-box-arrow-in-down me-2"></i>Total Masuk</h6>
-                                        <h4>{{ number_format($summary['total_masuk'], 2) }}</h4>
-                                        <small>Unit barang masuk</small>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="card bg-danger text-white summary-card">
-                                    <div class="card-body">
-                                        <h6 class="card-title"><i class="bi bi-box-arrow-up me-2"></i>Total Keluar</h6>
-                                        <h4>{{ number_format($summary['total_keluar'], 2) }}</h4>
-                                        <small>Unit barang keluar</small>
-                                    </div>
-                                </div>
-                            </div>
                             <div class="col-md-4">
                                 <div class="card bg-info text-white summary-card">
                                     <div class="card-body">

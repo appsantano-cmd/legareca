@@ -14,6 +14,7 @@ use App\Http\Controllers\StokGudangController;
 use App\Http\Controllers\StokTransactionController;
 use App\Http\Controllers\SatuanController;
 use App\Http\Controllers\DepartemenController;
+use App\Http\Controllers\DashboardStokController;
 
 // Public Routes
 Route::get('/', function () {
@@ -43,11 +44,15 @@ Route::prefix('screening')->name('screening.')->group(function () {
     Route::get('/export-sheets', [ScreeningController::class, 'exportToSheets'])
         ->name('export-sheets');
 });
+Route::get('/dashboardStok', [DashboardStokController::class, 'index'])->name('dashboard.stok');
+Route::get('/dashboardStok/statistics', [DashboardStokController::class, 'getStatistics'])->name('dashboard.stok.statistics');
 
 Route::resource('departemen', DepartemenController::class)
     ->parameters(['departemen' => 'departemen']);
 
 Route::resource('satuan', SatuanController::class);
+// Route API untuk mengambil data satuan dalam format JSON
+Route::get('/api/satuan', [SatuanController::class, 'indexApi'])->name('api.satuan.index');
 
 // Route untuk stok gudang
 Route::prefix('stok-gudang')->name('stok.')->group(function () {
@@ -59,29 +64,16 @@ Route::prefix('stok-gudang')->name('stok.')->group(function () {
     Route::get('/rollover-history', [StokGudangController::class, 'showRolloverHistory'])->name('rollover.history');
 });
 
-// Route untuk transaksi harian - URUTAN PENTING!
+// Route untuk transaksi harian
 Route::prefix('transactions')->name('transactions.')->group(function () {
-    // 1. Route SPESIFIK dulu
-    Route::get('/laporan/harian', [StokTransactionController::class, 'laporanHarian'])->name('laporan');
-    Route::get('/rekapitulasi', [StokTransactionController::class, 'rekapitulasi'])->name('rekapitulasi');
 
-    // 2. Route UMUM kemudian
     Route::get('/', [StokTransactionController::class, 'index'])->name('index');
     Route::get('/create', [StokTransactionController::class, 'create'])->name('create');
     Route::post('/', [StokTransactionController::class, 'store'])->name('store');
 
-    // 3. Route dengan parameter di akhir (dengan constraint numeric)
     Route::get('/{id}', [StokTransactionController::class, 'show'])
         ->where('id', '[0-9]+')
         ->name('show');
-
-    Route::post('/{id}/approve', [StokTransactionController::class, 'approve'])
-        ->where('id', '[0-9]+')
-        ->name('approve');
-
-    Route::post('/{id}/reject', [StokTransactionController::class, 'reject'])
-        ->where('id', '[0-9]+')
-        ->name('reject');
 });
 
 // Home route

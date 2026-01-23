@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\StokGudang;
 use App\Models\StokRolloverHistory;
+use App\Models\Satuan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
@@ -65,7 +66,7 @@ class StokGudangController extends Controller
         $request->validate([
             'kode_barang' => 'required|unique:stok_gudang,kode_barang',
             'nama_barang' => 'required',
-            'satuan' => 'required',
+            'satuan' => 'required|exists:satuan,nama_satuan',
             'stok_awal' => 'required|numeric|min:0',
             'bulan' => 'required|integer|between:1,12',
             'tahun' => 'required|integer',

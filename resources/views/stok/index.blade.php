@@ -1,6 +1,6 @@
 @extends('layouts.master')
 
-@section('title', 'Stok Gudang')
+@section('title', 'STOK GUDANG')
 
 @section('content')
 
@@ -128,48 +128,6 @@
                                 </div>
                             </form>
 
-                            <!-- Stok Summary -->
-                            <div class="row mb-4">
-                                <div class="col-md-3">
-                                    <div class="card bg-primary text-white">
-                                        <div class="card-body">
-                                            <h6 class="card-title">Total Barang</h6>
-                                            <h4>{{ $stok->total() }}</h4>
-                                            <small>Jenis barang di gudang</small>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-3">
-                                    <div class="card bg-success text-white">
-                                        <div class="card-body">
-                                            <h6 class="card-title">Total Stok Akhir</h6>
-                                            <h4>{{ number_format($stok->sum('stok_akhir'), 2) }}</h4>
-                                            <small>Total keseluruhan stok</small>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-3">
-                                    <div class="card bg-info text-white">
-                                        <div class="card-body">
-                                            <h6 class="card-title">Stok Masuk Bulan Ini</h6>
-                                            <h4>{{ number_format($stok->where('bulan', date('m'))->where('tahun', date('Y'))->sum('stok_masuk'), 2) }}
-                                            </h4>
-                                            <small>Bulan {{ date('F') }}</small>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-3">
-                                    <div class="card bg-warning text-white">
-                                        <div class="card-body">
-                                            <h6 class="card-title">Stok Keluar Bulan Ini</h6>
-                                            <h4>{{ number_format($stok->where('bulan', date('m'))->where('tahun', date('Y'))->sum('stok_keluar'), 2) }}
-                                            </h4>
-                                            <small>Bulan {{ date('F') }}</small>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
                             <!-- Stok Table -->
                             <div class="table-responsive">
                                 <table class="table table-hover table-striped">
@@ -184,7 +142,6 @@
                                             <th>Stok Keluar</th>
                                             <th>Stok Akhir</th>
                                             <th>Periode</th>
-                                            <th>Status</th>
                                             <th>Aksi</th>
                                         </tr>
                                     </thead>
@@ -216,19 +173,6 @@
                                                     @endif
                                                 </td>
                                                 <td>
-                                                    @if ($item->stok_akhir <= 0)
-                                                        <span class="badge bg-danger">Habis</span>
-                                                    @elseif($item->stok_akhir < 10)
-                                                        <span class="badge bg-warning">Menipis</span>
-                                                    @else
-                                                        <span class="badge bg-success">Tersedia</span>
-                                                    @endif
-                                                </td>
-                                                <td>
-                                                    <button class="btn btn-sm btn-info" data-bs-toggle="tooltip"
-                                                        title="Detail">
-                                                        <i class="bi bi-eye"></i>
-                                                    </button>
                                                     <button class="btn btn-sm btn-warning" data-bs-toggle="tooltip"
                                                         title="Edit">
                                                         <i class="bi bi-pencil"></i>

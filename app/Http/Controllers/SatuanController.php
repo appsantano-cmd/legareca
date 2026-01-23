@@ -60,4 +60,42 @@ class SatuanController extends Controller
         return redirect()->route('satuan.index')
             ->with('success', 'Satuan berhasil dihapus.');
     }
+
+    public function storeAjax(Request $request)
+    {
+        $request->validate([
+            'nama_satuan' => 'required|string|max:50|unique:satuan,nama_satuan',
+        ]);
+
+        try {
+            $satuan = Satuan::create([
+                'nama_satuan' => $request->nama_satuan
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Satuan berhasil ditambahkan',
+                'data' => $satuan
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal menambahkan satuan: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    // Method untuk API
+    public function getSatuanForApi()
+    {
+        $satuan = Satuan::orderBy('nama_satuan')->get();
+        return response()->json($satuan);
+    }
+
+    public function indexApi()
+    {
+        $satuan = Satuan::orderBy('nama_satuan')->get();
+        return response()->json($satuan);
+    }
 }

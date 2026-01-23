@@ -67,7 +67,7 @@ class StokTransactionController extends Controller
             ->orderBy('nama_barang')
             ->get(['id', 'kode_barang', 'nama_barang', 'satuan', 'stok_akhir']);
 
-        return view('transactions.index', compact('transactions', 'summary', 'barangList'));
+        return view('stok.transactions.index', compact('transactions', 'summary', 'barangList'));
     }
 
     public function create()
@@ -105,7 +105,7 @@ class StokTransactionController extends Controller
             ->pluck('supplier')
             ->toArray();
 
-        return view('transactions.create', compact(
+        return view('stok.transactions.create', compact(
             'barangList',
             'departemenList',
             'keperluanList',
@@ -210,7 +210,7 @@ class StokTransactionController extends Controller
 
             DB::commit();
 
-            return redirect()->route('transactions.index')
+            return redirect()->route('stok.transactions.index')
                 ->with('success', count($transactions) . ' transaksi berhasil ditambahkan dan stok telah diperbarui!');
 
         } catch (\Exception $e) {
@@ -278,67 +278,4 @@ class StokTransactionController extends Controller
         return $stok;
     }
 
-    public function show($id)
-    {
-        $transaction = StokTransaction::with('stokGudang')->findOrFail($id);
-        return view('transactions.show', compact('transaction'));
-    }
-
-    public function laporanHarian(Request $request)
-    {
-        $date = $request->get('tanggal', today()->format('Y-m-d'));
-
-        $transactions = StokTransaction::with('stokGudang')
-            ->where('tanggal', $date)
-            ->orderBy('tipe')
-            ->orderBy('created_at')
-            ->get();
-
-        $summary = [
-            'masuk' => $transactions->where('tipe', 'masuk')->sum('jumlah'),
-            'keluar' => $transactions->where('tipe', 'keluar')->sum('jumlah'),
-            'total_transaksi' => $transactions->count()
-        ];
-
-        return view('transactions.laporan-harian', compact('transactions', 'summary', 'date'));
-    }
-
-    public function rekapitulasi(Request $request)
-    {
-        $startDate = $request->get('start_date', now()->startOfMonth()->format('Y-m-d'));
-        $endDate = $request->get('end_date', now()->format('Y-m-d'));
-
-        $transactions = StokTransaction::with('stokGudang')
-            ->whereBetween('tanggal', [$startDate, $endDate])
-            ->get();
-
-        // Group by barang
-        $rekapitulasi = [];
-        foreach ($transactions as $transaction) {
-            $kode = $transaction->kode_barang;
-
-            if (!isset($rekapitulasi[$kode])) {
-                $rekapitulasi[$kode] = [
-                    'nama_barang' => $transaction->nama_barang,
-                    'satuan' => $transaction->satuan,
-                    'masuk' => 0,
-                    'keluar' => 0,
-                    'transactions' => []
-                ];
-            }
-
-            if ($transaction->tipe == 'masuk') {
-                $rekapitulasi[$kode]['masuk'] += $transaction->jumlah;
-            } else {
-                $rekapitulasi[$kode]['keluar'] += $transaction->jumlah;
-            }
-
-            $rekapitulasi[$kode]['transactions'][] = $transaction;
-        }
-
-        // Sort by nama barang
-        ksort($rekapitulasi);
-
-        return view('transactions.rekapitulasi', compact('rekapitulasi', 'startDate', 'endDate'));
-    }
 }
