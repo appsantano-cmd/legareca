@@ -18,6 +18,7 @@ return new class extends Migration {
             $table->decimal('stok_akhir', 15, 2)->default(0);
             $table->integer('bulan');
             $table->integer('tahun');
+            $table->dateTime('tanggal_submit');
             $table->boolean('is_rollover')->default(false);
             $table->text('keterangan')->nullable();
             $table->timestamps();

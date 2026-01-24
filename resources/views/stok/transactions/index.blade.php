@@ -77,19 +77,6 @@
                             </div>
                         </div>
 
-                        <!-- Summary Cards -->
-                        <div class="row mb-4">
-                            <div class="col-md-4">
-                                <div class="card bg-info text-white summary-card">
-                                    <div class="card-body">
-                                        <h6 class="card-title"><i class="bi bi-calendar-check me-2"></i>Total Transaksi</h6>
-                                        <h4>{{ $transactions->total() }}</h4>
-                                        <small>Transaksi ditemukan</small>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
                         <!-- Transactions Table -->
                         <div class="table-responsive">
                             <table class="table table-hover">

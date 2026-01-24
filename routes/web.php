@@ -8,13 +8,11 @@ use App\Http\Controllers\PengajuanIzinController;
 use App\Http\Controllers\ScreeningController;
 use App\Http\Controllers\shiftingController;
 use App\Http\Controllers\DailyCleaningReportController;
-use App\Http\Controllers\API\NotificationController;
 use App\Http\Controllers\NotificationPageController;
 use App\Http\Controllers\StokGudangController;
 use App\Http\Controllers\StokTransactionController;
 use App\Http\Controllers\SatuanController;
 use App\Http\Controllers\DepartemenController;
-use App\Http\Controllers\DashboardStokController;
 
 // Public Routes
 Route::get('/', function () {
@@ -44,8 +42,15 @@ Route::prefix('screening')->name('screening.')->group(function () {
     Route::get('/export-sheets', [ScreeningController::class, 'exportToSheets'])
         ->name('export-sheets');
 });
-Route::get('/dashboardStok', [DashboardStokController::class, 'index'])->name('dashboard.stok');
-Route::get('/dashboardStok/statistics', [DashboardStokController::class, 'getStatistics'])->name('dashboard.stok.statistics');
+
+//Notification
+Route::prefix('notifications')->group(function () {
+    Route::get('/', [NotificationPageController::class, 'index'])->name('notifications.all');
+    Route::post('/{id}/read', [NotificationPageController::class, 'markAsRead'])->name('notifications.read');
+    Route::post('/read-all', [NotificationPageController::class, 'markAllAsRead'])->name('notifications.read-all');
+    Route::delete('/{id}', [NotificationPageController::class, 'destroy'])->name('notifications.destroy');
+    Route::delete('/', [NotificationPageController::class, 'clearAll'])->name('notifications.clear-all');
+});
 
 Route::resource('departemen', DepartemenController::class)
     ->parameters(['departemen' => 'departemen']);
@@ -59,6 +64,12 @@ Route::prefix('stok-gudang')->name('stok.')->group(function () {
     Route::get('/', [StokGudangController::class, 'index'])->name('index');
     Route::get('/create', [StokGudangController::class, 'create'])->name('create');
     Route::post('/', [StokGudangController::class, 'store'])->name('store');
+
+    // Tambahkan routes untuk edit, update, dan destroy
+    Route::get('/{id}/edit', [StokGudangController::class, 'edit'])->name('edit');
+    Route::put('/{id}', [StokGudangController::class, 'update'])->name('update');
+    Route::delete('/{id}', [StokGudangController::class, 'destroy'])->name('destroy');
+
     Route::post('/rollover', [StokGudangController::class, 'rollover'])->name('rollover');
     Route::get('/export', [StokGudangController::class, 'exportExcel'])->name('export');
     Route::get('/rollover-history', [StokGudangController::class, 'showRolloverHistory'])->name('rollover.history');
@@ -74,11 +85,6 @@ Route::prefix('transactions')->name('transactions.')->group(function () {
     Route::get('/{id}', [StokTransactionController::class, 'show'])
         ->where('id', '[0-9]+')
         ->name('show');
-});
-
-// Home route
-Route::get('/', function () {
-    return redirect()->route('transactions.index');
 });
 
 // Authentication Protected Routes
@@ -133,12 +139,4 @@ Route::middleware('auth')->group(function () {
         Route::resource('users', UserController::class)->only(['index', 'create', 'store']);
     });
 
-    //Notification
-    Route::prefix('notifications')->group(function () {
-        Route::get('/', [NotificationPageController::class, 'index'])->name('notifications.all');
-        Route::post('/{id}/read', [NotificationPageController::class, 'markAsRead'])->name('notifications.read');
-        Route::post('/read-all', [NotificationPageController::class, 'markAllAsRead'])->name('notifications.read-all');
-        Route::delete('/{id}', [NotificationPageController::class, 'destroy'])->name('notifications.destroy');
-        Route::delete('/', [NotificationPageController::class, 'clearAll'])->name('notifications.clear-all');
-    });
 });

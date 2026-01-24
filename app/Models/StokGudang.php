@@ -23,6 +23,7 @@ class StokGudang extends Model
         'stok_akhir',
         'bulan',
         'tahun',
+        'tanggal_submit',
         'is_rollover',
         'keterangan'
     ];
@@ -32,6 +33,7 @@ class StokGudang extends Model
         'stok_masuk' => 'decimal:2',
         'stok_keluar' => 'decimal:2',
         'stok_akhir' => 'decimal:2',
+        'tanggal_submit' => 'datetime',
         'is_rollover' => 'boolean'
     ];
 
@@ -90,7 +92,7 @@ class StokGudang extends Model
             $totalItems = 0;
 
             foreach ($currentStocks as $stock) {
-                // Buat stok untuk bulan berikutnya
+                // Generate kode baru untuk bulan berikutnya (sama dengan bulan ini)
                 $newStock = self::create([
                     'kode_barang' => $stock->kode_barang,
                     'nama_barang' => $stock->nama_barang,
@@ -101,6 +103,7 @@ class StokGudang extends Model
                     'stok_akhir' => $stock->stok_akhir,
                     'bulan' => $nextMonth,
                     'tahun' => $nextYear,
+                    'tanggal_submit' => $now,
                     'is_rollover' => true,
                     'keterangan' => "Rollover dari {$stock->bulan}/{$stock->tahun}"
                 ]);
@@ -229,6 +232,7 @@ class StokGudang extends Model
                 'stok_akhir' => 0,
                 'bulan' => $transaction->tanggal->month,
                 'tahun' => $transaction->tanggal->year,
+                'tanggal_submit' => now(),
                 'is_rollover' => false,
                 'keterangan' => 'Dibuat dari transaksi'
             ]);
