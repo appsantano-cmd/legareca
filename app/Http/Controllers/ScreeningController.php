@@ -568,11 +568,21 @@ class ScreeningController extends Controller
             $service->spreadsheets->batchUpdate($spreadsheetId, $batchFormat);
 
             Log::info('Google Sheets export completed successfully');
-            return true;
+
+            // Kembalikan response JSON untuk fetch
+            return response()->json([
+                'success' => true,
+                'message' => 'Data exported to Google Sheets successfully',
+                'count' => $screenings->count()
+            ]);
 
         } catch (\Exception $e) {
             Log::error('Google Sheets export error: ' . $e->getMessage());
-            return false;
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Export failed: ' . $e->getMessage()
+            ], 500);
         }
     }
 }

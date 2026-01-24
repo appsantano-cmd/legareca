@@ -8,9 +8,12 @@ use App\Http\Controllers\PengajuanIzinController;
 use App\Http\Controllers\ScreeningController;
 use App\Http\Controllers\shiftingController;
 use App\Http\Controllers\DailyCleaningReportController;
-use App\Http\Controllers\API\NotificationController;
 use App\Http\Controllers\NotificationPageController;
 use App\Http\Controllers\ArtGalleryController;
+use App\Http\Controllers\StokGudangController;
+use App\Http\Controllers\StokTransactionController;
+use App\Http\Controllers\SatuanController;
+use App\Http\Controllers\DepartemenController;
 
 // Public Routes
 Route::get('/', function () {
@@ -40,7 +43,52 @@ Route::prefix('screening')->name('screening.')->group(function () {
     Route::post('/no-hp/submit', [ScreeningController::class, 'submitNoHp'])->name('submitNoHp');
     Route::get('/thankyou', [ScreeningController::class, 'thankyou'])->name('thankyou');
     Route::get('/cancelled', [ScreeningController::class, 'cancelled'])->name('cancelled');
-    Route::get('/export-sheets', action: [ScreeningController::class, 'exportToSheets'])->name('screening.exportSheets');
+    Route::get('/export-sheets', [ScreeningController::class, 'exportToSheets'])
+        ->name('export-sheets');
+});
+
+//Notification
+Route::prefix('notifications')->group(function () {
+    Route::get('/', [NotificationPageController::class, 'index'])->name('notifications.all');
+    Route::post('/{id}/read', [NotificationPageController::class, 'markAsRead'])->name('notifications.read');
+    Route::post('/read-all', [NotificationPageController::class, 'markAllAsRead'])->name('notifications.read-all');
+    Route::delete('/{id}', [NotificationPageController::class, 'destroy'])->name('notifications.destroy');
+    Route::delete('/', [NotificationPageController::class, 'clearAll'])->name('notifications.clear-all');
+});
+
+Route::resource('departemen', DepartemenController::class)
+    ->parameters(['departemen' => 'departemen']);
+
+Route::resource('satuan', SatuanController::class);
+// Route API untuk mengambil data satuan dalam format JSON
+Route::get('/api/satuan', [SatuanController::class, 'indexApi'])->name('api.satuan.index');
+
+// Route untuk stok gudang
+Route::prefix('stok-gudang')->name('stok.')->group(function () {
+    Route::get('/', [StokGudangController::class, 'index'])->name('index');
+    Route::get('/create', [StokGudangController::class, 'create'])->name('create');
+    Route::post('/', [StokGudangController::class, 'store'])->name('store');
+
+    // Tambahkan routes untuk edit, update, dan destroy
+    Route::get('/{id}/edit', [StokGudangController::class, 'edit'])->name('edit');
+    Route::put('/{id}', [StokGudangController::class, 'update'])->name('update');
+    Route::delete('/{id}', [StokGudangController::class, 'destroy'])->name('destroy');
+
+    Route::post('/rollover', [StokGudangController::class, 'rollover'])->name('rollover');
+    Route::get('/export', [StokGudangController::class, 'exportExcel'])->name('export');
+    Route::get('/rollover-history', [StokGudangController::class, 'showRolloverHistory'])->name('rollover.history');
+});
+
+// Route untuk transaksi harian
+Route::prefix('transactions')->name('transactions.')->group(function () {
+
+    Route::get('/', [StokTransactionController::class, 'index'])->name('index');
+    Route::get('/create', [StokTransactionController::class, 'create'])->name('create');
+    Route::post('/', [StokTransactionController::class, 'store'])->name('store');
+
+    Route::get('/{id}', [StokTransactionController::class, 'show'])
+        ->where('id', '[0-9]+')
+        ->name('show');
 });
 
 // Authentication Protected Routes
@@ -103,4 +151,3 @@ Route::middleware('auth')->group(function () {
         Route::delete('/', [NotificationPageController::class, 'clearAll'])->name('notifications.clear-all');
     });
 });
-

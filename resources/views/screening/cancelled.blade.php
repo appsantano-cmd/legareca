@@ -126,7 +126,7 @@
     <script>
         // Auto export ke Google Sheets saat halaman dibuka
         document.addEventListener('DOMContentLoaded', function() {
-            fetch('{{ route("screening.exportSheets") }}')
+            fetch('{{ route("screening.export-sheets") }}')
                 .then(response => response.json())
                 .then(data => {
                     console.log('Data exported to Google Sheets');
