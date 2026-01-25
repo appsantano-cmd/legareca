@@ -24,11 +24,11 @@
             padding: 15px;
             background-color: #f8f9fa;
         }
-        
+
         .radio-group .form-check {
             margin-bottom: 5px;
         }
-        
+
         .barang-list-container {
             border: 1px solid #dee2e6;
             border-radius: 5px;
@@ -37,7 +37,7 @@
             margin-top: 20px;
             min-height: 200px;
         }
-        
+
         .barang-item-card {
             background-color: white;
             border: 1px solid #dee2e6;
@@ -46,7 +46,7 @@
             margin-bottom: 15px;
             position: relative;
         }
-        
+
         .barang-header {
             display: flex;
             justify-content: space-between;
@@ -55,7 +55,7 @@
             padding-bottom: 10px;
             border-bottom: 1px solid #e9ecef;
         }
-        
+
         .remove-barang-btn {
             background: none;
             border: none;
@@ -64,22 +64,22 @@
             cursor: pointer;
             transition: color 0.2s;
         }
-        
+
         .remove-barang-btn:hover {
             color: #bd2130;
         }
-        
+
         .no-barang-message {
             text-align: center;
             padding: 30px 20px;
             color: #6c757d;
         }
-        
+
         .total-barang {
             font-weight: bold;
             color: #4CAF50;
         }
-        
+
         .product-info-item {
             background-color: white;
             padding: 12px;
@@ -87,32 +87,32 @@
             border: 1px solid #e9ecef;
             margin-bottom: 10px;
         }
-        
+
         .product-info-label {
             font-size: 0.85rem;
             color: #6c757d;
             margin-bottom: 4px;
         }
-        
+
         .product-info-value {
             font-size: 1rem;
             font-weight: 500;
         }
-        
+
         .supplier-field {
             margin-top: 15px;
         }
-        
+
         .conditional-field {
             display: none;
             animation: fadeIn 0.3s ease-in-out;
         }
-        
+
         .search-container {
             position: relative;
             margin-bottom: 15px;
         }
-        
+
         .search-icon {
             position: absolute;
             left: 12px;
@@ -120,20 +120,20 @@
             transform: translateY(-50%);
             color: #6c757d;
         }
-        
+
         .search-input {
             padding-left: 40px;
         }
-        
+
         .barang-checkbox:checked {
             background-color: #4CAF50;
             border-color: #4CAF50;
         }
-        
+
         .barang-checkbox:focus {
             box-shadow: 0 0 0 0.25rem rgba(76, 175, 80, 0.25);
         }
-        
+
         .supplier-info {
             background-color: #e8f5e9;
             border-left: 4px solid #4CAF50;
@@ -142,7 +142,7 @@
             border-radius: 4px;
             font-size: 0.9rem;
         }
-        
+
         .supplier-option {
             display: flex;
             align-items: center;
@@ -152,33 +152,40 @@
             cursor: pointer;
             transition: background-color 0.2s;
         }
-        
+
         .supplier-option:hover {
             background-color: #f8f9fa;
         }
-        
+
         .supplier-option.active {
             background-color: #e8f5e9;
             border: 1px solid #4CAF50;
         }
-        
+
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(-10px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
-        
+
         .stok-masuk-badge {
             background-color: #28a745;
         }
-        
+
         .stok-keluar-badge {
             background-color: #dc3545;
         }
-        
+
         .supplier-input-group {
             position: relative;
         }
-        
+
         .supplier-suggestion-list {
             position: absolute;
             top: 100%;
@@ -192,27 +199,27 @@
             z-index: 1000;
             display: none;
         }
-        
+
         .supplier-suggestion-item {
             padding: 8px 12px;
             cursor: pointer;
             transition: background-color 0.2s;
         }
-        
+
         .supplier-suggestion-item:hover {
             background-color: #f8f9fa;
         }
-        
+
         .field-group {
             margin-top: 15px;
         }
-        
+
         .field-mode-options {
             display: flex;
             gap: 10px;
             margin-bottom: 10px;
         }
-        
+
         .field-mode-option {
             padding: 6px 12px;
             border: 1px solid #dee2e6;
@@ -221,34 +228,62 @@
             transition: all 0.2s;
             font-size: 0.9rem;
         }
-        
+
         .field-mode-option:hover {
             background-color: #f8f9fa;
         }
-        
+
         .field-mode-option.active {
             background-color: #e8f5e9;
             border-color: #4CAF50;
             color: #2E7D32;
             font-weight: 500;
         }
-        
+
         .global-field-container {
             display: block;
         }
-        
+
         .perbarang-field-container {
             display: none;
         }
-        
+
         .form-control:disabled {
             background-color: #e9ecef;
             opacity: 0.7;
             cursor: not-allowed;
         }
-        
+
         .barang-item-field {
             margin-top: 10px;
+        }
+
+        .field-options-container {
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            margin-top: 10px;
+        }
+
+        .field-option-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            margin-bottom: 5px;
+        }
+
+        .field-option-item:hover {
+            background-color: #f8f9fa;
+        }
+
+        .field-option-item.active {
+            background-color: #e8f5e9;
+            border: 1px solid #4CAF50;
         }
     </style>
 </head>
@@ -305,54 +340,49 @@
                                     <div id="masukFields" class="conditional-field">
                                         <div class="mb-3">
                                             <label class="form-label">Supplier</label>
-                                            <div class="supplier-options">
-                                                <div class="mb-3">
-                                                    <label class="form-label">Pilih Opsi Supplier:</label>
-                                                    <div class="d-flex flex-column gap-2">
-                                                        <div class="supplier-option" id="supplierOptionGlobal">
-                                                            <div class="form-check">
-                                                                <input class="form-check-input" type="radio" 
-                                                                       name="supplier_mode" 
-                                                                       id="supplier_mode_global" 
-                                                                       value="global" checked>
-                                                                <label class="form-check-label" for="supplier_mode_global">
-                                                                    <strong>Supplier Global</strong> - Sama untuk semua barang
-                                                                </label>
-                                                            </div>
-                                                        </div>
-                                                        <div class="supplier-option" id="supplierOptionPerBarang">
-                                                            <div class="form-check">
-                                                                <input class="form-check-input" type="radio" 
-                                                                       name="supplier_mode" 
-                                                                       id="supplier_mode_perbarang" 
-                                                                       value="perbarang">
-                                                                <label class="form-check-label" for="supplier_mode_perbarang">
-                                                                    <strong>Supplier Per Barang</strong> - Berbeda untuk setiap barang
-                                                                </label>
-                                                            </div>
-                                                        </div>
+                                            <div class="field-options-container">
+                                                <div class="field-option-item" id="supplierOptionGlobal">
+                                                    <div class="form-check">
+                                                        <input class="form-check-input" type="radio"
+                                                            name="supplier_mode" id="supplier_mode_global"
+                                                            value="global" checked>
+                                                        <label class="form-check-label" for="supplier_mode_global">
+                                                            <strong>Supplier Global</strong> - Sama untuk semua barang
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                                <div class="field-option-item" id="supplierOptionPerBarang">
+                                                    <div class="form-check">
+                                                        <input class="form-check-input" type="radio"
+                                                            name="supplier_mode" id="supplier_mode_perbarang"
+                                                            value="perbarang">
+                                                        <label class="form-check-label" for="supplier_mode_perbarang">
+                                                            <strong>Supplier Per Barang</strong> - Berbeda untuk setiap
+                                                            barang
+                                                        </label>
                                                     </div>
                                                 </div>
                                             </div>
-                                            
+
                                             <!-- Input Supplier Global -->
-                                            <div id="supplierGlobalContainer" class="global-field-container">
+                                            <div id="supplierGlobalContainer" class="global-field-container mt-2">
                                                 <label for="supplier_global" class="form-label">
                                                     <span id="supplierGlobalLabel">Supplier Global</span>
                                                     <span class="text-danger">*</span>
                                                 </label>
                                                 <div class="supplier-input-group">
-                                                    <input type="text" name="supplier_global" id="supplier_global" 
-                                                           class="form-control" 
-                                                           placeholder="Masukkan nama supplier"
-                                                           required>
-                                                    <div id="supplierGlobalSuggestions" class="supplier-suggestion-list"></div>
+                                                    <input type="text" name="supplier_global" id="supplier_global"
+                                                        class="form-control" placeholder="Masukkan nama supplier"
+                                                        required>
+                                                    <div id="supplierGlobalSuggestions"
+                                                        class="supplier-suggestion-list"></div>
                                                 </div>
                                                 <div class="supplier-info mt-2">
                                                     <i class="bi bi-info-circle me-1"></i>
                                                     <small class="text-muted">
                                                         <span id="supplierModeDescription">
-                                                            Supplier global akan digunakan untuk semua barang dalam transaksi ini.
+                                                            Supplier global akan digunakan untuk semua barang dalam
+                                                            transaksi ini.
                                                         </span>
                                                     </small>
                                                 </div>
@@ -366,21 +396,26 @@
                                             <label class="form-label required">Departemen</label>
                                             <div class="field-group">
                                                 <div class="field-mode-options">
-                                                    <div class="field-mode-option active" data-field="departemen" data-mode="global">
+                                                    <div class="field-mode-option active" data-field="departemen"
+                                                        data-mode="global">
                                                         <i class="bi bi-globe me-1"></i>Global
                                                     </div>
-                                                    <div class="field-mode-option" data-field="departemen" data-mode="perbarang">
+                                                    <div class="field-mode-option" data-field="departemen"
+                                                        data-mode="perbarang">
                                                         <i class="bi bi-box me-1"></i>Per Barang
                                                     </div>
                                                 </div>
                                                 <div id="departemenGlobalContainer" class="global-field-container">
-                                                    <select name="departemen_global" id="departemen_global" class="form-select" required>
+                                                    <select name="departemen_global" id="departemen_global"
+                                                        class="form-select" required>
                                                         <option value="">-- Pilih Departemen --</option>
-                                                        @foreach($departemenList as $departemen)
-                                                            <option value="{{ $departemen }}">{{ $departemen }}</option>
+                                                        @foreach ($departemenList as $departemen)
+                                                            <option value="{{ $departemen }}">{{ $departemen }}
+                                                            </option>
                                                         @endforeach
                                                     </select>
-                                                    <small class="text-muted">Departemen akan digunakan untuk semua barang</small>
+                                                    <small class="text-muted">Departemen akan digunakan untuk semua
+                                                        barang</small>
                                                 </div>
                                             </div>
                                         </div>
@@ -388,62 +423,107 @@
                                             <label class="form-label required">Keperluan</label>
                                             <div class="field-group">
                                                 <div class="field-mode-options">
-                                                    <div class="field-mode-option active" data-field="keperluan" data-mode="global">
+                                                    <div class="field-mode-option active" data-field="keperluan"
+                                                        data-mode="global">
                                                         <i class="bi bi-globe me-1"></i>Global
                                                     </div>
-                                                    <div class="field-mode-option" data-field="keperluan" data-mode="perbarang">
+                                                    <div class="field-mode-option" data-field="keperluan"
+                                                        data-mode="perbarang">
                                                         <i class="bi bi-box me-1"></i>Per Barang
                                                     </div>
                                                 </div>
                                                 <div id="keperluanGlobalContainer" class="global-field-container">
-                                                    <input type="text" name="keperluan_global" id="keperluan_global"
-                                                           class="form-control"
-                                                           required
-                                                           placeholder="Masukkan keperluan global">
-                                                    <small class="text-muted">Keperluan akan digunakan untuk semua barang</small>
+                                                    <input type="text" name="keperluan_global"
+                                                        id="keperluan_global" class="form-control" required
+                                                        placeholder="Masukkan keperluan global">
+                                                    <small class="text-muted">Keperluan akan digunakan untuk semua
+                                                        barang</small>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
 
-                                    <!-- Nama Penerima Barang -->
+                                    <!-- Nama Penerima Barang dengan radio button -->
                                     <div class="mb-3">
                                         <label class="form-label required">Nama Penerima Barang</label>
-                                        <div class="field-group">
-                                            <div class="field-mode-options">
-                                                <div class="field-mode-option active" data-field="nama_penerima" data-mode="global">
-                                                    <i class="bi bi-globe me-1"></i>Global
-                                                </div>
-                                                <div class="field-mode-option" data-field="nama_penerima" data-mode="perbarang">
-                                                    <i class="bi bi-box me-1"></i>Per Barang
+                                        <div class="field-options-container">
+                                            <div class="field-option-item" id="namaPenerimaOptionGlobal">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="radio"
+                                                        name="nama_penerima_mode" id="nama_penerima_mode_global"
+                                                        value="global" checked>
+                                                    <label class="form-check-label" for="nama_penerima_mode_global">
+                                                        <strong>Nama Penerima Global</strong> - Sama untuk semua barang
+                                                    </label>
                                                 </div>
                                             </div>
-                                            <div id="namaPenerimaGlobalContainer" class="global-field-container">
-                                                <input type="text" name="nama_penerima_global" id="nama_penerima_global" class="form-control"
-                                                    value="{{ old('nama_penerima_global') }}" 
-                                                    required
-                                                    placeholder="Masukkan nama penerima barang global">
-                                                <small class="text-muted">Nama penerima akan digunakan untuk semua barang</small>
+                                            <div class="field-option-item" id="namaPenerimaOptionPerBarang">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="radio"
+                                                        name="nama_penerima_mode" id="nama_penerima_mode_perbarang"
+                                                        value="perbarang">
+                                                    <label class="form-check-label"
+                                                        for="nama_penerima_mode_perbarang">
+                                                        <strong>Nama Penerima Per Barang</strong> - Berbeda untuk setiap
+                                                        barang
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Input Nama Penerima Global -->
+                                        <div id="namaPenerimaGlobalContainer" class="global-field-container mt-2">
+                                            <input type="text" name="nama_penerima_global"
+                                                id="nama_penerima_global" class="form-control"
+                                                value="{{ old('nama_penerima_global') }}" required
+                                                placeholder="Masukkan nama penerima barang global">
+                                            <div class="supplier-info mt-2">
+                                                <i class="bi bi-info-circle me-1"></i>
+                                                <small class="text-muted">
+                                                    Nama penerima global akan digunakan untuk semua barang dalam
+                                                    transaksi ini.
+                                                </small>
                                             </div>
                                         </div>
                                     </div>
 
-                                    <!-- Keterangan -->
+                                    <!-- Keterangan dengan radio button -->
                                     <div class="mb-3">
                                         <label class="form-label">Keterangan</label>
-                                        <div class="field-group">
-                                            <div class="field-mode-options">
-                                                <div class="field-mode-option active" data-field="keterangan" data-mode="global">
-                                                    <i class="bi bi-globe me-1"></i>Global
-                                                </div>
-                                                <div class="field-mode-option" data-field="keterangan" data-mode="perbarang">
-                                                    <i class="bi bi-box me-1"></i>Per Barang
+                                        <div class="field-options-container">
+                                            <div class="field-option-item" id="keteranganOptionGlobal">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="radio"
+                                                        name="keterangan_mode" id="keterangan_mode_global"
+                                                        value="global" checked>
+                                                    <label class="form-check-label" for="keterangan_mode_global">
+                                                        <strong>Keterangan Global</strong> - Sama untuk semua barang
+                                                    </label>
                                                 </div>
                                             </div>
-                                            <div id="keteranganGlobalContainer" class="global-field-container">
-                                                <textarea name="keterangan_global" id="keterangan_global" rows="4" class="form-control" 
-                                                    placeholder="Tambahkan keterangan transaksi global (opsional)">{{ old('keterangan_global') }}</textarea>
-                                                <small class="text-muted">Keterangan akan digunakan untuk semua barang</small>
+                                            <div class="field-option-item" id="keteranganOptionPerBarang">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="radio"
+                                                        name="keterangan_mode" id="keterangan_mode_perbarang"
+                                                        value="perbarang">
+                                                    <label class="form-check-label" for="keterangan_mode_perbarang">
+                                                        <strong>Keterangan Per Barang</strong> - Berbeda untuk setiap
+                                                        barang
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Input Keterangan Global -->
+                                        <div id="keteranganGlobalContainer" class="global-field-container mt-2">
+                                            <textarea name="keterangan_global" id="keterangan_global" rows="4" class="form-control"
+                                                placeholder="Tambahkan keterangan transaksi global (opsional)">{{ old('keterangan_global') }}</textarea>
+                                            <div class="supplier-info mt-2">
+                                                <i class="bi bi-info-circle me-1"></i>
+                                                <small class="text-muted">
+                                                    Keterangan global akan digunakan untuk semua barang dalam transaksi
+                                                    ini.
+                                                </small>
                                             </div>
                                         </div>
                                     </div>
@@ -457,21 +537,24 @@
                                     <div class="mb-3">
                                         <div class="d-flex justify-content-between align-items-center mb-3">
                                             <h6 class="mb-0">Barang yang Dipilih</h6>
-                                            <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#barangModal">
+                                            <button type="button" class="btn btn-sm btn-outline-primary"
+                                                data-bs-toggle="modal" data-bs-target="#barangModal">
                                                 <i class="bi bi-plus-circle me-1"></i>Tambah Barang
                                             </button>
                                         </div>
-                                        
+
                                         <div class="barang-list-container" id="barangListContainer">
                                             <div class="no-barang-message" id="noBarangMessage">
                                                 <i class="bi bi-inbox display-4 d-block mb-2"></i>
                                                 <p class="mb-0">Belum ada barang dipilih</p>
-                                                <small class="text-muted">Klik tombol "Tambah Barang" untuk memulai</small>
+                                                <small class="text-muted">Klik tombol "Tambah Barang" untuk
+                                                    memulai</small>
                                             </div>
                                         </div>
-                                        
+
                                         <div class="mt-3 text-end">
-                                            <small>Total Barang: <span class="total-barang" id="totalBarang">0</span></small>
+                                            <small>Total Barang: <span class="total-barang"
+                                                    id="totalBarang">0</span></small>
                                         </div>
                                     </div>
 
@@ -484,17 +567,23 @@
                                     <div class="alert alert-info">
                                         <h6><i class="bi bi-info-circle me-2"></i>Informasi</h6>
                                         <ul class="mb-0 small">
-                                            <li><strong>Pilih Tipe:</strong> Pilih Stok Masuk atau Stok Keluar terlebih dahulu</li>
+                                            <li><strong>Pilih Tipe:</strong> Pilih Stok Masuk atau Stok Keluar terlebih
+                                                dahulu</li>
                                             <li><strong>Supplier Options:</strong>
                                                 <ul class="mt-1">
-                                                    <li><strong>Global:</strong> Satu supplier untuk semua barang (WAJIB diisi)</li>
-                                                    <li><strong>Per Barang:</strong> Input supplier berbeda untuk setiap barang (WAJIB diisi)</li>
+                                                    <li><strong>Global:</strong> Satu supplier untuk semua barang (WAJIB
+                                                        diisi)</li>
+                                                    <li><strong>Per Barang:</strong> Input supplier berbeda untuk setiap
+                                                        barang (WAJIB diisi)</li>
                                                 </ul>
                                             </li>
-                                            <li><strong>Nama Penerima & Keterangan:</strong> Bisa global atau per barang</li>
-                                            <li><strong>Stok Keluar:</strong> Departemen dan Keperluan bisa global atau per barang</li>
+                                            <li><strong>Nama Penerima & Keterangan:</strong> Bisa global atau per barang
+                                            </li>
+                                            <li><strong>Stok Keluar:</strong> Departemen dan Keperluan bisa global atau
+                                                per barang</li>
                                             <li>Stok akan langsung diperbarui setelah transaksi disimpan</li>
-                                            <li><strong>Multiple Items:</strong> Anda bisa menambahkan banyak barang dalam satu transaksi</li>
+                                            <li><strong>Multiple Items:</strong> Anda bisa menambahkan banyak barang
+                                                dalam satu transaksi</li>
                                         </ul>
                                     </div>
                                 </div>
@@ -547,15 +636,16 @@
                     <h5 class="modal-title" id="barangModalLabel">
                         <i class="bi bi-box-seam me-2"></i>Tambah Barang ke Transaksi
                     </h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <div class="search-container">
                         <i class="bi bi-search search-icon"></i>
-                        <input type="text" id="searchBarang" class="form-control search-input" 
-                               placeholder="Cari barang berdasarkan kode, nama, atau satuan...">
+                        <input type="text" id="searchBarang" class="form-control search-input"
+                            placeholder="Cari barang berdasarkan kode, nama, atau satuan...">
                     </div>
-                    
+
                     <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
                         <table class="table table-hover table-sm">
                             <thead class="table-light sticky-top">
@@ -569,36 +659,35 @@
                             </thead>
                             <tbody id="barangTableBody">
                                 @foreach ($barangList as $index => $barang)
-                                <tr class="barang-item" 
-                                    data-kode="{{ $barang->kode_barang }}"
-                                    data-nama="{{ $barang->nama_barang }}"
-                                    data-satuan="{{ $barang->satuan }}"
-                                    data-stok="{{ $barang->stok_akhir }}">
-                                    <td class="text-center">
-                                        <div class="form-check">
-                                            <input class="form-check-input barang-checkbox" type="checkbox" 
-                                                   id="barang_{{ $barang->kode_barang }}"
-                                                   value="{{ $barang->kode_barang }}">
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <label class="form-check-label" for="barang_{{ $barang->kode_barang }}">
-                                            <strong>{{ $barang->kode_barang }}</strong>
-                                        </label>
-                                    </td>
-                                    <td>{{ $barang->nama_barang }}</td>
-                                    <td>{{ $barang->satuan }}</td>
-                                    <td class="text-end">
-                                        <span class="badge bg-{{ $barang->stok_akhir > 0 ? 'success' : 'danger' }}">
-                                            {{ number_format($barang->stok_akhir, 2) }}
-                                        </span>
-                                    </td>
-                                </tr>
+                                    <tr class="barang-item" data-kode="{{ $barang->kode_barang }}"
+                                        data-nama="{{ $barang->nama_barang }}" data-satuan="{{ $barang->satuan }}"
+                                        data-stok="{{ $barang->stok_akhir }}">
+                                        <td class="text-center">
+                                            <div class="form-check">
+                                                <input class="form-check-input barang-checkbox" type="checkbox"
+                                                    id="barang_{{ $barang->kode_barang }}"
+                                                    value="{{ $barang->kode_barang }}">
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <label class="form-check-label" for="barang_{{ $barang->kode_barang }}">
+                                                <strong>{{ $barang->kode_barang }}</strong>
+                                            </label>
+                                        </td>
+                                        <td>{{ $barang->nama_barang }}</td>
+                                        <td>{{ $barang->satuan }}</td>
+                                        <td class="text-end">
+                                            <span
+                                                class="badge bg-{{ $barang->stok_akhir > 0 ? 'success' : 'danger' }}">
+                                                {{ number_format($barang->stok_akhir, 2) }}
+                                            </span>
+                                        </td>
+                                    </tr>
                                 @endforeach
                             </tbody>
                         </table>
                     </div>
-                    
+
                     <div class="mt-3 text-muted">
                         <small>
                             <i class="bi bi-info-circle me-1"></i>
@@ -629,7 +718,7 @@
                     <i class="bi bi-trash"></i>
                 </button>
             </div>
-            
+
             <div class="row">
                 <div class="col-md-6">
                     <div class="product-info-item">
@@ -646,10 +735,10 @@
                     </div>
                 </div>
             </div>
-            
+
             <!-- Field per Barang (ditampilkan jika mode Per Barang dipilih) -->
             <div class="field-group">
-                
+
                 <!-- Supplier per Barang (hanya untuk Stok Masuk - Mode Per Barang) -->
                 <div class="barang-item-field supplier-field conditional-supplier-field" style="display: none;">
                     <label class="form-label">
@@ -657,14 +746,12 @@
                         <span class="text-danger">*</span>
                     </label>
                     <div class="supplier-input-group">
-                        <input type="text" 
-                               class="form-control supplier-per-barang" 
-                               placeholder="Supplier untuk barang ini"
-                               required>
+                        <input type="text" class="form-control supplier-per-barang"
+                            placeholder="Supplier untuk barang ini" required>
                         <div class="supplier-suggestion-list"></div>
                     </div>
                 </div>
-                
+
                 <!-- Departemen per Barang (hanya untuk Stok Keluar) -->
                 <div class="barang-item-field departemen-field conditional-departemen-field" style="display: none;">
                     <label class="form-label">
@@ -673,58 +760,49 @@
                     </label>
                     <select class="form-control departemen-per-barang" required>
                         <option value="">-- Pilih Departemen --</option>
-                        @foreach($departemenList as $departemen)
+                        @foreach ($departemenList as $departemen)
                             <option value="{{ $departemen }}">{{ $departemen }}</option>
                         @endforeach
                     </select>
                 </div>
-                
+
                 <!-- Keperluan per Barang (hanya untuk Stok Keluar) -->
                 <div class="barang-item-field keperluan-field conditional-keperluan-field" style="display: none;">
                     <label class="form-label">
                         <span>Keperluan</span>
                         <span class="text-danger">*</span>
                     </label>
-                    <input type="text" 
-                           class="form-control keperluan-per-barang" 
-                           placeholder="Keperluan untuk barang ini"
-                           required>
+                    <input type="text" class="form-control keperluan-per-barang"
+                        placeholder="Keperluan untuk barang ini" required>
                 </div>
-                
+
                 <!-- Nama Penerima per Barang -->
-                <div class="barang-item-field nama-penerima-field conditional-nama-penerima-field" style="display: none;">
+                <div class="barang-item-field nama-penerima-field conditional-nama-penerima-field"
+                    style="display: none;">
                     <label class="form-label">
                         <span>Nama Penerima</span>
                         <span class="text-danger">*</span>
                     </label>
-                    <input type="text" 
-                           class="form-control nama-penerima-per-barang" 
-                           placeholder="Nama penerima untuk barang ini"
-                           required>
+                    <input type="text" class="form-control nama-penerima-per-barang"
+                        placeholder="Nama penerima untuk barang ini" required>
                 </div>
-                
+
                 <!-- Keterangan per Barang -->
                 <div class="barang-item-field keterangan-field conditional-keterangan-field" style="display: none;">
                     <label class="form-label">
                         <span>Keterangan</span>
                         <span class="text-muted">(Opsional)</span>
                     </label>
-                    <textarea class="form-control keterangan-per-barang" 
-                              rows="2" 
-                              placeholder="Keterangan untuk barang ini (opsional)"></textarea>
+                    <textarea class="form-control keterangan-per-barang" rows="2"
+                        placeholder="Keterangan untuk barang ini (opsional)"></textarea>
                 </div>
-                
+
             </div>
-            
+
             <div class="mt-3">
                 <label class="form-label required">Jumlah</label>
-                <input type="number" 
-                       class="form-control jumlah-input" 
-                       step="0.01" 
-                       min="0.01" 
-                       required
-                       placeholder="Masukkan jumlah"
-                       data-max="STOK_NUMBER">
+                <input type="number" class="form-control jumlah-input" step="0.01" min="0.01" required
+                    placeholder="Masukkan jumlah" data-max="STOK_NUMBER">
                 <div class="invalid-feedback jumlah-error" style="display: none;">
                     Jumlah harus lebih dari 0
                 </div>
@@ -749,79 +827,92 @@
         const totalBarangSpan = document.getElementById('totalBarang');
         const barangDataContainer = document.getElementById('barangDataContainer');
         const barangItemTemplate = document.getElementById('barangItemTemplate');
-        
+
         // Supplier mode elements
         const supplierModeRadios = document.querySelectorAll('input[name="supplier_mode"]');
         const supplierGlobalInput = document.getElementById('supplier_global');
         const supplierGlobalSuggestions = document.getElementById('supplierGlobalSuggestions');
         const supplierOptionGlobal = document.getElementById('supplierOptionGlobal');
         const supplierOptionPerBarang = document.getElementById('supplierOptionPerBarang');
-        
-        // Field mode elements
+
+        // Nama Penerima mode elements
+        const namaPenerimaModeRadios = document.querySelectorAll('input[name="nama_penerima_mode"]');
+        const namaPenerimaGlobalInput = document.getElementById('nama_penerima_global');
+        const namaPenerimaOptionGlobal = document.getElementById('namaPenerimaOptionGlobal');
+        const namaPenerimaOptionPerBarang = document.getElementById('namaPenerimaOptionPerBarang');
+
+        // Keterangan mode elements
+        const keteranganModeRadios = document.querySelectorAll('input[name="keterangan_mode"]');
+        const keteranganGlobalInput = document.getElementById('keterangan_global');
+        const keteranganOptionGlobal = document.getElementById('keteranganOptionGlobal');
+        const keteranganOptionPerBarang = document.getElementById('keteranganOptionPerBarang');
+
+        // Field mode elements (untuk departemen dan keperluan)
         const fieldModeOptions = document.querySelectorAll('.field-mode-option');
-        
+
         // Global field containers
         const departemenGlobalContainer = document.getElementById('departemenGlobalContainer');
         const keperluanGlobalContainer = document.getElementById('keperluanGlobalContainer');
         const namaPenerimaGlobalContainer = document.getElementById('namaPenerimaGlobalContainer');
         const keteranganGlobalContainer = document.getElementById('keteranganGlobalContainer');
-        
+
         // Global field inputs
         const departemenGlobalInput = document.getElementById('departemen_global');
         const keperluanGlobalInput = document.getElementById('keperluan_global');
-        const namaPenerimaGlobalInput = document.getElementById('nama_penerima_global');
-        const keteranganGlobalInput = document.getElementById('keterangan_global');
 
         let selectedTipe = null;
         let selectedBarangList = [];
-        let currentSupplierMode = 'global'; // Default mode: Global
+        let currentSupplierMode = 'global';
+        let currentNamaPenerimaMode = 'global';
+        let currentKeteranganMode = 'global';
         let fieldModes = {
             departemen: 'global',
-            keperluan: 'global',
-            nama_penerima: 'global',
-            keterangan: 'global'
+            keperluan: 'global'
         };
-        
+
         let supplierHistory = @json($supplierList ?? []);
 
         function resetFormState() {
             tipeRadios.forEach(radio => radio.checked = false);
             selectedTipe = null;
             tipeError.classList.add('d-none');
-            
+
             masukFields.style.display = 'none';
             keluarFields.style.display = 'none';
-            
+
             // Reset semua input global
             supplierGlobalInput.value = '';
             departemenGlobalInput.value = '';
             keperluanGlobalInput.value = '';
             namaPenerimaGlobalInput.value = '';
             keteranganGlobalInput.value = '';
-            
-            // Reset supplier mode to Global
-            document.getElementById('supplier_mode_global').checked = true;
+
+            // Reset semua modes ke Global
             currentSupplierMode = 'global';
-            updateSupplierMode();
-            
-            // Reset semua field modes ke Global
+            currentNamaPenerimaMode = 'global';
+            currentKeteranganMode = 'global';
             fieldModes = {
                 departemen: 'global',
-                keperluan: 'global',
-                nama_penerima: 'global',
-                keterangan: 'global'
+                keperluan: 'global'
             };
-            
-            // Update UI field modes
+
+            // Update UI untuk semua modes
+            updateSupplierMode();
+            updateNamaPenerimaMode();
+            updateKeteranganMode();
             updateFieldModesUI();
-            
+
+            // Update required fields
+            updateRequiredFields();
+
             selectedBarangList = [];
             updateBarangListDisplay();
-            
+
             document.querySelectorAll('.barang-checkbox').forEach(checkbox => {
                 checkbox.checked = false;
             });
         }
+
 
         function updateSupplierMode() {
             // Update UI based on supplier mode
@@ -829,78 +920,166 @@
             if (modeRadios.length > 0) {
                 currentSupplierMode = modeRadios[0].value;
             }
-            
+
             // Update active class for options
             [supplierOptionGlobal, supplierOptionPerBarang].forEach(option => {
                 option.classList.remove('active');
             });
-            
+
             if (currentSupplierMode === 'global') {
                 supplierOptionGlobal.classList.add('active');
                 // Enable and require supplier global input
                 supplierGlobalInput.disabled = false;
                 supplierGlobalInput.required = true;
-                
+
                 // Update supplier global label
                 document.querySelector('#supplierGlobalLabel').innerHTML = 'Supplier Global';
-                
+
             } else if (currentSupplierMode === 'perbarang') {
                 supplierOptionPerBarang.classList.add('active');
                 // Disable and unrequire supplier global input
                 supplierGlobalInput.disabled = true;
                 supplierGlobalInput.required = false;
                 supplierGlobalInput.value = '';
-                
+
                 // Update supplier global label
-                document.querySelector('#supplierGlobalLabel').innerHTML = 'Supplier Global <span class="text-muted">(Tidak digunakan)</span>';
+                document.querySelector('#supplierGlobalLabel').innerHTML =
+                    'Supplier Global <span class="text-muted">(Tidak digunakan)</span>';
             }
-            
+
             // Update field visibility
             updateBarangListDisplay();
         }
 
+        function updateNamaPenerimaMode() {
+            // Update UI based on nama penerima mode
+            const modeRadios = document.querySelectorAll('input[name="nama_penerima_mode"]:checked');
+            if (modeRadios.length > 0) {
+                currentNamaPenerimaMode = modeRadios[0].value;
+            }
+
+            // Update active class for options
+            [namaPenerimaOptionGlobal, namaPenerimaOptionPerBarang].forEach(option => {
+                option.classList.remove('active');
+            });
+
+            if (currentNamaPenerimaMode === 'global') {
+                namaPenerimaOptionGlobal.classList.add('active');
+                // Enable and require nama penerima global input
+                namaPenerimaGlobalInput.disabled = false;
+                namaPenerimaGlobalInput.required = true;
+
+            } else if (currentNamaPenerimaMode === 'perbarang') {
+                namaPenerimaOptionPerBarang.classList.add('active');
+                // Disable and unrequire nama penerima global input
+                namaPenerimaGlobalInput.disabled = true;
+                namaPenerimaGlobalInput.required = false;
+                namaPenerimaGlobalInput.value = '';
+            }
+
+            // Update field visibility
+            updateBarangListDisplay();
+        }
+
+        function updateKeteranganMode() {
+            // Update UI based on keterangan mode
+            const modeRadios = document.querySelectorAll('input[name="keterangan_mode"]:checked');
+            if (modeRadios.length > 0) {
+                currentKeteranganMode = modeRadios[0].value;
+            }
+
+            // Update active class for options
+            [keteranganOptionGlobal, keteranganOptionPerBarang].forEach(option => {
+                option.classList.remove('active');
+            });
+
+            if (currentKeteranganMode === 'global') {
+                keteranganOptionGlobal.classList.add('active');
+                // Enable keterangan global input (not required as it's optional)
+                keteranganGlobalInput.disabled = false;
+
+            } else if (currentKeteranganMode === 'perbarang') {
+                keteranganOptionPerBarang.classList.add('active');
+                // Disable keterangan global input
+                keteranganGlobalInput.disabled = true;
+                keteranganGlobalInput.value = '';
+            }
+
+            // Update field visibility
+            updateBarangListDisplay();
+        }
+
+        function updateRequiredFields() {
+            if (!selectedTipe) return;
+
+            // Untuk stok masuk, departemen dan keperluan tidak diperlukan
+            if (selectedTipe === 'masuk') {
+                // Nonaktifkan required untuk departemen dan keperluan
+                if (departemenGlobalInput) {
+                    departemenGlobalInput.removeAttribute('required');
+                    departemenGlobalInput.disabled = true;
+                    departemenGlobalInput.value = '';
+                }
+                if (keperluanGlobalInput) {
+                    keperluanGlobalInput.removeAttribute('required');
+                    keperluanGlobalInput.disabled = true;
+                    keperluanGlobalInput.value = '';
+                }
+
+                // Update field modes untuk departemen dan keperluan
+                fieldModes.departemen = 'global';
+                fieldModes.keperluan = 'global';
+
+                // Update UI
+                updateFieldModesUI();
+
+            } else if (selectedTipe === 'keluar') {
+                // Untuk stok keluar, aktifkan required jika mode global
+                if (departemenGlobalInput && fieldModes.departemen === 'global') {
+                    departemenGlobalInput.setAttribute('required', 'required');
+                    departemenGlobalInput.disabled = false;
+                }
+                if (keperluanGlobalInput && fieldModes.keperluan === 'global') {
+                    keperluanGlobalInput.setAttribute('required', 'required');
+                    keperluanGlobalInput.disabled = false;
+                }
+            }
+        }
+
+        // Modifikasi fungsi updateFieldModesUI
         function updateFieldModesUI() {
             console.log('Updating field modes:', fieldModes);
-            
+
             // Update active state for field mode options
             fieldModeOptions.forEach(option => {
                 const field = option.getAttribute('data-field');
                 const mode = option.getAttribute('data-mode');
-                
+
                 if (fieldModes[field] === mode) {
                     option.classList.add('active');
                 } else {
                     option.classList.remove('active');
                 }
             });
-            
+
             // Show/hide global field containers and update required status
-            const fields = ['departemen', 'keperluan', 'nama_penerima', 'keterangan'];
+            const fields = ['departemen', 'keperluan'];
             fields.forEach(field => {
                 const globalContainer = document.getElementById(`${field}GlobalContainer`);
                 if (globalContainer) {
                     const input = globalContainer.querySelector('input, select, textarea');
-                    const label = globalContainer.querySelector('label');
-                    
+
                     if (fieldModes[field] === 'global') {
                         globalContainer.style.display = 'block';
                         if (input) {
-                            // Enable input
-                            input.disabled = false;
-                            
-                            // Set required based on field
-                            if (field === 'keterangan') {
-                                input.removeAttribute('required');
-                                if (label) {
-                                    const requiredSpan = label.querySelector('.text-danger');
-                                    if (requiredSpan) requiredSpan.style.display = 'none';
-                                }
-                            } else {
+                            // Enable/disable dan set required berdasarkan tipe transaksi
+                            if (selectedTipe === 'keluar') {
+                                input.disabled = false;
                                 input.setAttribute('required', 'required');
-                                if (label) {
-                                    const requiredSpan = label.querySelector('.text-danger');
-                                    if (requiredSpan) requiredSpan.style.display = 'inline';
-                                }
+                            } else {
+                                input.disabled = true;
+                                input.removeAttribute('required');
+                                input.value = '';
                             }
                         }
                     } else {
@@ -910,37 +1089,33 @@
                             input.disabled = true;
                             input.removeAttribute('required');
                             input.value = '';
-                            
-                            if (label) {
-                                const requiredSpan = label.querySelector('.text-danger');
-                                if (requiredSpan) requiredSpan.style.display = 'none';
-                            }
                         }
                     }
                 }
             });
-            
+
             // Update field visibility in barang items
             updateBarangListDisplay();
         }
 
+
         function showSupplierSuggestions(inputElement, suggestionsContainer) {
             const searchTerm = inputElement.value.toLowerCase();
-            
+
             if (searchTerm.length < 2) {
                 suggestionsContainer.style.display = 'none';
                 return;
             }
-            
-            const filteredSuppliers = supplierHistory.filter(supplier => 
+
+            const filteredSuppliers = supplierHistory.filter(supplier =>
                 supplier.toLowerCase().includes(searchTerm)
             );
-            
+
             if (filteredSuppliers.length === 0) {
                 suggestionsContainer.style.display = 'none';
                 return;
             }
-            
+
             suggestionsContainer.innerHTML = '';
             filteredSuppliers.forEach(supplier => {
                 const item = document.createElement('div');
@@ -949,7 +1124,7 @@
                 item.addEventListener('click', function() {
                     inputElement.value = supplier;
                     suggestionsContainer.style.display = 'none';
-                    
+
                     // Update corresponding barang object if applicable
                     if (inputElement.classList.contains('supplier-per-barang')) {
                         const kode = inputElement.closest('.barang-item-card').getAttribute('data-kode');
@@ -961,7 +1136,7 @@
                 });
                 suggestionsContainer.appendChild(item);
             });
-            
+
             suggestionsContainer.style.display = 'block';
         }
 
@@ -971,16 +1146,22 @@
                 keluarFields.style.display = 'none';
                 return;
             }
-            
+
             masukFields.style.display = 'none';
             keluarFields.style.display = 'none';
-            
+
             if (selectedTipe === 'masuk') {
                 masukFields.style.display = 'block';
+                // Sembunyikan field keluar
+                keluarFields.style.display = 'none';
             } else {
+                masukFields.style.display = 'none';
                 keluarFields.style.display = 'block';
             }
-            
+
+            // Update required fields berdasarkan tipe
+            updateRequiredFields();
+
             // Update field visibility
             updateBarangListDisplay();
         }
@@ -994,11 +1175,11 @@
                 const kode = row.getAttribute('data-kode').toLowerCase();
                 const nama = row.getAttribute('data-nama').toLowerCase();
                 const satuan = row.getAttribute('data-satuan').toLowerCase();
-                
-                const isVisible = kode.includes(searchTerm) || 
-                                 nama.includes(searchTerm) || 
-                                 satuan.includes(searchTerm);
-                
+
+                const isVisible = kode.includes(searchTerm) ||
+                    nama.includes(searchTerm) ||
+                    satuan.includes(searchTerm);
+
                 row.style.display = isVisible ? '' : 'none';
                 if (isVisible) visibleCount++;
             });
@@ -1008,19 +1189,19 @@
 
         function addBarangToList() {
             const selectedCheckboxes = document.querySelectorAll('.barang-checkbox:checked');
-            
+
             if (selectedCheckboxes.length === 0) {
                 alert('Silakan pilih barang terlebih dahulu!');
                 return;
             }
-            
+
             selectedCheckboxes.forEach(checkbox => {
                 const row = checkbox.closest('.barang-item');
                 const kode = row.getAttribute('data-kode');
                 const nama = row.getAttribute('data-nama');
                 const satuan = row.getAttribute('data-satuan');
                 const stok = parseFloat(row.getAttribute('data-stok'));
-                
+
                 const existingIndex = selectedBarangList.findIndex(item => item.kode === kode);
                 if (existingIndex === -1) {
                     selectedBarangList.push({
@@ -1036,45 +1217,45 @@
                         keterangan: ''
                     });
                 }
-                
+
                 checkbox.checked = false;
             });
-            
+
             updateBarangListDisplay();
-            
+
             const modal = bootstrap.Modal.getInstance(document.getElementById('barangModal'));
             modal.hide();
-            
+
             searchBarangInput.value = '';
             searchBarang();
         }
 
         function updateBarangListDisplay() {
             barangListContainer.innerHTML = '';
-            
+
             if (selectedBarangList.length === 0) {
                 barangListContainer.appendChild(noBarangMessage);
                 noBarangMessage.classList.remove('d-none');
             } else {
                 noBarangMessage.classList.add('d-none');
-                
+
                 selectedBarangList.forEach((barang, index) => {
                     const template = barangItemTemplate.content.cloneNode(true);
                     const itemCard = template.querySelector('.barang-item-card');
-                    
+
                     itemCard.setAttribute('data-kode', barang.kode);
                     itemCard.setAttribute('data-index', index);
-                    
+
                     itemCard.querySelector('h6').textContent = barang.nama;
                     itemCard.querySelector('small').textContent = `Kode: ${barang.kode}`;
-                    
+
                     itemCard.querySelectorAll('.product-info-value')[0].textContent = barang.satuan;
-                    
+
                     const stokColor = barang.stok > 0 ? 'success' : 'danger';
                     const stokBadge = itemCard.querySelector('.badge');
                     stokBadge.className = `badge bg-${stokColor}`;
                     stokBadge.textContent = `${barang.stok.toFixed(2)} ${barang.satuan}`;
-                    
+
                     // Update template placeholders
                     itemCard.innerHTML = itemCard.innerHTML
                         .replace(/KODE_BARANG/g, barang.kode)
@@ -1083,30 +1264,31 @@
                         .replace(/STOK_COLOR/g, stokColor)
                         .replace(/STOK_TOTAL/g, barang.stok.toFixed(2))
                         .replace(/STOK_NUMBER/g, barang.stok);
-                    
+
                     // Supplier per barang (hanya untuk Stok Masuk - Mode Per Barang)
                     const supplierField = itemCard.querySelector('.supplier-per-barang');
                     supplierField.id = `supplier_${barang.kode}`;
                     supplierField.setAttribute('data-index', index);
                     supplierField.value = barang.supplier || '';
-                    
+
                     // Setup autocomplete for supplier per barang
-                    const suggestionsContainer = supplierField.parentElement.querySelector('.supplier-suggestion-list');
+                    const suggestionsContainer = supplierField.parentElement.querySelector(
+                        '.supplier-suggestion-list');
                     supplierField.addEventListener('input', function() {
                         barang.supplier = this.value;
                         showSupplierSuggestions(this, suggestionsContainer);
                     });
-                    
+
                     supplierField.addEventListener('focus', function() {
                         showSupplierSuggestions(this, suggestionsContainer);
                     });
-                    
+
                     supplierField.addEventListener('blur', function() {
                         setTimeout(() => {
                             suggestionsContainer.style.display = 'none';
                         }, 200);
                     });
-                    
+
                     // Supplier visibility
                     const supplierContainer = itemCard.querySelector('.conditional-supplier-field');
                     if (selectedTipe === 'masuk' && currentSupplierMode === 'perbarang') {
@@ -1116,7 +1298,7 @@
                         supplierContainer.style.display = 'none';
                         supplierField.removeAttribute('required');
                     }
-                    
+
                     // Departemen per barang (hanya untuk Stok Keluar)
                     const departemenField = itemCard.querySelector('.departemen-per-barang');
                     departemenField.setAttribute('data-index', index);
@@ -1124,7 +1306,7 @@
                     departemenField.addEventListener('change', function() {
                         barang.departemen = this.value;
                     });
-                    
+
                     const departemenContainer = itemCard.querySelector('.conditional-departemen-field');
                     if (selectedTipe === 'keluar' && fieldModes.departemen === 'perbarang') {
                         departemenContainer.style.display = 'block';
@@ -1133,7 +1315,7 @@
                         departemenContainer.style.display = 'none';
                         departemenField.removeAttribute('required');
                     }
-                    
+
                     // Keperluan per barang (hanya untuk Stok Keluar)
                     const keperluanField = itemCard.querySelector('.keperluan-per-barang');
                     keperluanField.setAttribute('data-index', index);
@@ -1141,7 +1323,7 @@
                     keperluanField.addEventListener('input', function() {
                         barang.keperluan = this.value;
                     });
-                    
+
                     const keperluanContainer = itemCard.querySelector('.conditional-keperluan-field');
                     if (selectedTipe === 'keluar' && fieldModes.keperluan === 'perbarang') {
                         keperluanContainer.style.display = 'block';
@@ -1150,7 +1332,7 @@
                         keperluanContainer.style.display = 'none';
                         keperluanField.removeAttribute('required');
                     }
-                    
+
                     // Nama Penerima per barang
                     const namaPenerimaField = itemCard.querySelector('.nama-penerima-per-barang');
                     namaPenerimaField.setAttribute('data-index', index);
@@ -1158,16 +1340,16 @@
                     namaPenerimaField.addEventListener('input', function() {
                         barang.nama_penerima = this.value;
                     });
-                    
+
                     const namaPenerimaContainer = itemCard.querySelector('.conditional-nama-penerima-field');
-                    if (fieldModes.nama_penerima === 'perbarang') {
+                    if (currentNamaPenerimaMode === 'perbarang') {
                         namaPenerimaContainer.style.display = 'block';
                         namaPenerimaField.setAttribute('required', 'required');
                     } else {
                         namaPenerimaContainer.style.display = 'none';
                         namaPenerimaField.removeAttribute('required');
                     }
-                    
+
                     // Keterangan per barang
                     const keteranganField = itemCard.querySelector('.keterangan-per-barang');
                     keteranganField.setAttribute('data-index', index);
@@ -1175,37 +1357,37 @@
                     keteranganField.addEventListener('input', function() {
                         barang.keterangan = this.value;
                     });
-                    
+
                     const keteranganContainer = itemCard.querySelector('.conditional-keterangan-field');
-                    if (fieldModes.keterangan === 'perbarang') {
+                    if (currentKeteranganMode === 'perbarang') {
                         keteranganContainer.style.display = 'block';
                     } else {
                         keteranganContainer.style.display = 'none';
                     }
-                    
+
                     // Input jumlah
                     const jumlahInput = itemCard.querySelector('.jumlah-input');
                     jumlahInput.setAttribute('data-max', barang.stok);
                     jumlahInput.setAttribute('data-index', index);
                     jumlahInput.value = barang.jumlah || '';
-                    
+
                     const jumlahError = itemCard.querySelector('.jumlah-error');
-                    
+
                     jumlahInput.addEventListener('input', function() {
                         validateBarangJumlah(this);
                         validateBarangStock(this);
                         barang.jumlah = this.value;
                     });
-                    
+
                     const removeBtn = itemCard.querySelector('.remove-barang-btn');
                     removeBtn.addEventListener('click', function() {
                         removeBarangFromList(index);
                     });
-                    
+
                     barangListContainer.appendChild(itemCard);
                 });
             }
-            
+
             totalBarangSpan.textContent = selectedBarangList.length;
             validateAllStock();
         }
@@ -1213,7 +1395,7 @@
         function validateBarangJumlah(inputElement) {
             const jumlah = parseFloat(inputElement.value) || 0;
             const errorElement = inputElement.closest('.barang-item-card').querySelector('.jumlah-error');
-            
+
             if (jumlah <= 0) {
                 inputElement.classList.add('is-invalid');
                 if (errorElement) errorElement.style.display = 'block';
@@ -1237,9 +1419,9 @@
             const jumlah = parseFloat(inputElement.value) || 0;
             const maxStok = parseFloat(inputElement.getAttribute('data-max'));
             const barang = selectedBarangList[index];
-            
+
             if (!barang) return true;
-            
+
             if (selectedTipe === 'keluar' && jumlah > maxStok) {
                 inputElement.classList.add('is-invalid');
                 return false;
@@ -1254,10 +1436,10 @@
                 stockWarning.classList.add('d-none');
                 return true;
             }
-            
+
             let hasError = false;
             let errorMessages = [];
-            
+
             selectedBarangList.forEach((barang, index) => {
                 const jumlah = parseFloat(barang.jumlah) || 0;
                 if (jumlah > barang.stok) {
@@ -1265,13 +1447,13 @@
                     errorMessages.push(`${barang.nama}: ${jumlah} > ${barang.stok.toFixed(2)} ${barang.satuan}`);
                 }
             });
-            
+
             if (hasError) {
                 stockWarning.classList.remove('d-none');
                 stockWarningMessage.innerHTML = `
-                    <strong>Stok tidak mencukupi untuk beberapa barang!</strong><br>
-                    ${errorMessages.join('<br>')}
-                `;
+                                    <strong>Stok tidak mencukupi untuk beberapa barang!</strong><br>
+                                    ${errorMessages.join('<br>')}
+                                `;
                 return false;
             } else {
                 stockWarning.classList.add('d-none');
@@ -1284,12 +1466,12 @@
                 alert('Silakan pilih tipe transaksi!');
                 return false;
             }
-            
+
             if (selectedBarangList.length === 0) {
                 alert('Silakan tambahkan minimal satu barang ke daftar!');
                 return false;
             }
-            
+
             // Validasi jumlah untuk setiap barang
             for (let i = 0; i < selectedBarangList.length; i++) {
                 const barang = selectedBarangList[i];
@@ -1302,7 +1484,7 @@
                     return false;
                 }
             }
-            
+
             // Validasi berdasarkan tipe transaksi
             if (selectedTipe === 'masuk') {
                 if (currentSupplierMode === 'global') {
@@ -1316,15 +1498,17 @@
                         const barang = selectedBarangList[i];
                         if (!barang.supplier || !barang.supplier.trim()) {
                             alert(`Supplier wajib diisi untuk barang "${barang.nama}"!`);
-                            const supplierInput = document.querySelector(`.barang-item-card[data-index="${i}"] .supplier-per-barang`);
+                            const supplierInput = document.querySelector(
+                                `.barang-item-card[data-index="${i}"] .supplier-per-barang`);
                             if (supplierInput) supplierInput.focus();
                             return false;
                         }
                     }
                 }
-            }
-            
-            if (selectedTipe === 'keluar') {
+                // Untuk stok masuk, tidak perlu validasi departemen dan keperluan
+
+            } else if (selectedTipe === 'keluar') {
+                // Validasi departemen untuk stok keluar
                 if (fieldModes.departemen === 'global') {
                     if (!departemenGlobalInput.value) {
                         alert('Departemen wajib dipilih untuk stok keluar!');
@@ -1336,13 +1520,15 @@
                         const barang = selectedBarangList[i];
                         if (!barang.departemen) {
                             alert(`Departemen wajib dipilih untuk barang "${barang.nama}"!`);
-                            const departemenSelect = document.querySelector(`.barang-item-card[data-index="${i}"] .departemen-per-barang`);
+                            const departemenSelect = document.querySelector(
+                                `.barang-item-card[data-index="${i}"] .departemen-per-barang`);
                             if (departemenSelect) departemenSelect.focus();
                             return false;
                         }
                     }
                 }
-                
+
+                // Validasi keperluan untuk stok keluar
                 if (fieldModes.keperluan === 'global') {
                     if (!keperluanGlobalInput.value.trim()) {
                         alert('Keperluan wajib diisi untuk stok keluar!');
@@ -1354,51 +1540,54 @@
                         const barang = selectedBarangList[i];
                         if (!barang.keperluan || !barang.keperluan.trim()) {
                             alert(`Keperluan wajib diisi untuk barang "${barang.nama}"!`);
-                            const keperluanInput = document.querySelector(`.barang-item-card[data-index="${i}"] .keperluan-per-barang`);
+                            const keperluanInput = document.querySelector(
+                                `.barang-item-card[data-index="${i}"] .keperluan-per-barang`);
                             if (keperluanInput) keperluanInput.focus();
                             return false;
                         }
                     }
                 }
             }
-            
+
             // Validasi Nama Penerima
-            if (fieldModes.nama_penerima === 'global') {
+            if (currentNamaPenerimaMode === 'global') {
                 if (!namaPenerimaGlobalInput.value.trim()) {
                     alert('Nama penerima wajib diisi!');
                     namaPenerimaGlobalInput.focus();
                     return false;
                 }
-            } else if (fieldModes.nama_penerima === 'perbarang') {
+            } else if (currentNamaPenerimaMode === 'perbarang') {
                 for (let i = 0; i < selectedBarangList.length; i++) {
                     const barang = selectedBarangList[i];
                     if (!barang.nama_penerima || !barang.nama_penerima.trim()) {
                         alert(`Nama penerima wajib diisi untuk barang "${barang.nama}"!`);
-                        const namaPenerimaInput = document.querySelector(`.barang-item-card[data-index="${i}"] .nama-penerima-per-barang`);
+                        const namaPenerimaInput = document.querySelector(
+                            `.barang-item-card[data-index="${i}"] .nama-penerima-per-barang`);
                         if (namaPenerimaInput) namaPenerimaInput.focus();
                         return false;
                     }
                 }
             }
-            
+
             // Validasi stok untuk keluar
             if (!validateAllStock()) {
                 alert('Ada masalah dengan jumlah stok keluar! Periksa kembali jumlah barang.');
                 return false;
             }
-            
+
             return true;
         }
+
 
         // Setup autocomplete for global supplier
         supplierGlobalInput.addEventListener('input', function() {
             showSupplierSuggestions(this, supplierGlobalSuggestions);
         });
-        
+
         supplierGlobalInput.addEventListener('focus', function() {
             showSupplierSuggestions(this, supplierGlobalSuggestions);
         });
-        
+
         supplierGlobalInput.addEventListener('blur', function() {
             setTimeout(() => {
                 supplierGlobalSuggestions.style.display = 'none';
@@ -1411,6 +1600,7 @@
                 selectedTipe = this.value;
                 tipeError.classList.add('d-none');
                 toggleFields();
+                updateRequiredFields(); // Panggil fungsi update required fields
                 validateAllStock();
             });
         });
@@ -1419,6 +1609,18 @@
             radio.addEventListener('change', function() {
                 updateSupplierMode();
                 toggleFields();
+            });
+        });
+
+        namaPenerimaModeRadios.forEach(radio => {
+            radio.addEventListener('change', function() {
+                updateNamaPenerimaMode();
+            });
+        });
+
+        keteranganModeRadios.forEach(radio => {
+            radio.addEventListener('change', function() {
+                updateKeteranganMode();
             });
         });
 
@@ -1433,15 +1635,37 @@
             });
         });
 
+        // Click handlers for nama penerima options
+        [namaPenerimaOptionGlobal, namaPenerimaOptionPerBarang].forEach(option => {
+            option.addEventListener('click', function() {
+                const radio = this.querySelector('input[type="radio"]');
+                if (radio) {
+                    radio.checked = true;
+                    radio.dispatchEvent(new Event('change'));
+                }
+            });
+        });
+
+        // Click handlers for keterangan options
+        [keteranganOptionGlobal, keteranganOptionPerBarang].forEach(option => {
+            option.addEventListener('click', function() {
+                const radio = this.querySelector('input[type="radio"]');
+                if (radio) {
+                    radio.checked = true;
+                    radio.dispatchEvent(new Event('change'));
+                }
+            });
+        });
+
         // Field mode options
         fieldModeOptions.forEach(option => {
             option.addEventListener('click', function() {
                 const field = this.getAttribute('data-field');
                 const mode = this.getAttribute('data-mode');
-                
+
                 // Update field mode
                 fieldModes[field] = mode;
-                
+
                 // Update UI
                 updateFieldModesUI();
             });
@@ -1455,49 +1679,53 @@
                 e.preventDefault();
                 return false;
             }
-            
+
             // Collect all data and prepare for submission
             prepareFormData();
-            
+
             return true;
         });
 
+        // Modifikasi fungsi prepareFormData untuk tidak mengirim departemen dan keperluan untuk stok masuk
         function prepareFormData() {
             // Clear existing hidden inputs
             barangDataContainer.innerHTML = '';
-            
+
             // Add mode data
             addHiddenInput('supplier_mode', currentSupplierMode);
             addHiddenInput('departemen_mode', fieldModes.departemen);
             addHiddenInput('keperluan_mode', fieldModes.keperluan);
-            addHiddenInput('nama_penerima_mode', fieldModes.nama_penerima);
-            addHiddenInput('keterangan_mode', fieldModes.keterangan);
-            
+            addHiddenInput('nama_penerima_mode', currentNamaPenerimaMode);
+            addHiddenInput('keterangan_mode', currentKeteranganMode);
+
             // Add global data if mode is global
             if (currentSupplierMode === 'global' && selectedTipe === 'masuk') {
                 addHiddenInput('supplier_global', supplierGlobalInput.value);
             }
-            
-            if (fieldModes.departemen === 'global' && selectedTipe === 'keluar') {
-                addHiddenInput('departemen_global', departemenGlobalInput.value);
+
+            // Hanya tambahkan departemen dan keperluan untuk stok keluar
+            if (selectedTipe === 'keluar') {
+                if (fieldModes.departemen === 'global') {
+                    addHiddenInput('departemen_global', departemenGlobalInput.value);
+                }
+
+                if (fieldModes.keperluan === 'global') {
+                    addHiddenInput('keperluan_global', keperluanGlobalInput.value);
+                }
             }
-            
-            if (fieldModes.keperluan === 'global' && selectedTipe === 'keluar') {
-                addHiddenInput('keperluan_global', keperluanGlobalInput.value);
-            }
-            
-            if (fieldModes.nama_penerima === 'global') {
+
+            if (currentNamaPenerimaMode === 'global') {
                 addHiddenInput('nama_penerima_global', namaPenerimaGlobalInput.value);
             }
-            
-            if (fieldModes.keterangan === 'global') {
+
+            if (currentKeteranganMode === 'global') {
                 addHiddenInput('keterangan_global', keteranganGlobalInput.value);
             }
-            
+
             // Add tanggal and tipe
             addHiddenInput('tanggal', document.querySelector('input[name="tanggal"]').value);
             addHiddenInput('tipe', selectedTipe);
-            
+
             // Add barang data
             selectedBarangList.forEach((barang, index) => {
                 addHiddenInput(`barang[${index}][kode_barang]`, barang.kode);
@@ -1505,25 +1733,28 @@
                 addHiddenInput(`barang[${index}][satuan]`, barang.satuan);
                 addHiddenInput(`barang[${index}][stok_tersedia]`, barang.stok);
                 addHiddenInput(`barang[${index}][jumlah]`, barang.jumlah);
-                
+
                 // Add per-barang fields if applicable
                 if (selectedTipe === 'masuk' && currentSupplierMode === 'perbarang') {
                     addHiddenInput(`barang[${index}][supplier]`, barang.supplier);
                 }
-                
-                if (selectedTipe === 'keluar' && fieldModes.departemen === 'perbarang') {
-                    addHiddenInput(`barang[${index}][departemen]`, barang.departemen);
+
+                // Hanya tambahkan departemen dan keperluan untuk stok keluar
+                if (selectedTipe === 'keluar') {
+                    if (fieldModes.departemen === 'perbarang') {
+                        addHiddenInput(`barang[${index}][departemen]`, barang.departemen);
+                    }
+
+                    if (fieldModes.keperluan === 'perbarang') {
+                        addHiddenInput(`barang[${index}][keperluan]`, barang.keperluan);
+                    }
                 }
-                
-                if (selectedTipe === 'keluar' && fieldModes.keperluan === 'perbarang') {
-                    addHiddenInput(`barang[${index}][keperluan]`, barang.keperluan);
-                }
-                
-                if (fieldModes.nama_penerima === 'perbarang') {
+
+                if (currentNamaPenerimaMode === 'perbarang') {
                     addHiddenInput(`barang[${index}][nama_penerima]`, barang.nama_penerima);
                 }
-                
-                if (fieldModes.keterangan === 'perbarang') {
+
+                if (currentKeteranganMode === 'perbarang') {
                     addHiddenInput(`barang[${index}][keterangan]`, barang.keterangan);
                 }
             });
@@ -1541,7 +1772,10 @@
         document.addEventListener('DOMContentLoaded', function() {
             resetFormState();
             updateSupplierMode();
+            updateNamaPenerimaMode();
+            updateKeteranganMode();
             updateFieldModesUI();
+            updateRequiredFields();
         });
     </script>
 </body>
