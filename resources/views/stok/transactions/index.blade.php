@@ -19,6 +19,25 @@
                     </div>
 
                     <div class="card-body">
+                        <!-- Flash Messages -->
+                        @if (session('success'))
+                            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                                <i class="bi bi-check-circle me-2"></i>
+                                {{ session('success') }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"
+                                    aria-label="Close"></button>
+                            </div>
+                        @endif
+
+                        @if (session('error'))
+                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                <i class="bi bi-exclamation-triangle me-2"></i>
+                                {{ session('error') }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"
+                                    aria-label="Close"></button>
+                            </div>
+                        @endif
+
                         <!-- Filter Form -->
                         <div class="card filter-card mb-4">
                             <div class="card-body">
@@ -30,23 +49,13 @@
                                                 value="{{ request('tanggal', date('Y-m-d')) }}">
                                         </div>
                                         <div class="col-md-2">
-                                            <label class="form-label">Dari Tanggal</label>
-                                            <input type="date" name="start_date" class="form-control"
-                                                value="{{ request('start_date') }}">
-                                        </div>
-                                        <div class="col-md-2">
-                                            <label class="form-label">Sampai Tanggal</label>
-                                            <input type="date" name="end_date" class="form-control"
-                                                value="{{ request('end_date') }}">
-                                        </div>
-                                        <div class="col-md-2">
                                             <label class="form-label">Tipe</label>
                                             <select name="tipe" class="form-select">
                                                 <option value="">Semua</option>
-                                                <option value="masuk"
-                                                    {{ request('tipe') == 'masuk' ? 'selected' : '' }}>Masuk</option>
-                                                <option value="keluar"
-                                                    {{ request('tipe') == 'keluar' ? 'selected' : '' }}>Keluar</option>
+                                                <option value="masuk" {{ request('tipe') == 'masuk' ? 'selected' : '' }}>
+                                                    Masuk</option>
+                                                <option value="keluar" {{ request('tipe') == 'keluar' ? 'selected' : '' }}>
+                                                    Keluar</option>
                                             </select>
                                         </div>
                                         <div class="col-md-2">
@@ -92,38 +101,52 @@
                                         <th>Info</th>
                                         <th>Penerima</th>
                                         <th>Waktu</th>
+                                        <th>Aksi</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     @forelse($transactions as $transaction)
                                         <tr>
-                                            <td>{{ $loop->iteration }}</td>
+                                            <td>{{ $loop->iteration + ($transactions->currentPage() - 1) * $transactions->perPage() }}
+                                            </td>
                                             <td>{{ $transaction->tanggal->format('d/m/Y') }}</td>
                                             <td>
                                                 <span class="badge bg-secondary">{{ $transaction->kode_barang }}</span>
                                             </td>
                                             <td>{{ $transaction->nama_barang }}</td>
                                             <td>
-                                                <span class="badge bg-{{ $transaction->tipe == 'masuk' ? 'success' : 'danger' }}">
+                                                <span
+                                                    class="badge bg-{{ $transaction->tipe == 'masuk' ? 'success' : 'danger' }}">
                                                     {{ $transaction->tipe == 'masuk' ? 'MASUK' : 'KELUAR' }}
                                                 </span>
                                             </td>
-                                            <td class="{{ $transaction->tipe == 'masuk' ? 'text-success' : 'text-danger' }}">
+                                            <td
+                                                class="{{ $transaction->tipe == 'masuk' ? 'text-success' : 'text-danger' }}">
                                                 <strong>{{ number_format($transaction->jumlah, 2) }}</strong>
                                             </td>
                                             <td>{{ $transaction->satuan }}</td>
                                             <td>
-                                                @if($transaction->tipe == 'masuk')
+                                                @if ($transaction->tipe == 'masuk')
                                                     <small><strong>Supplier:</strong> {{ $transaction->supplier }}</small>
                                                 @else
                                                     <div>
-                                                        <small><strong>Departemen:</strong> {{ $transaction->departemen }}</small><br>
-                                                        <small><strong>Keperluan:</strong> {{ $transaction->keperluan }}</small>
+                                                        <small><strong>Departemen:</strong>
+                                                            {{ $transaction->departemen }}</small><br>
+                                                        <small><strong>Keperluan:</strong>
+                                                            {{ $transaction->keperluan }}</small>
                                                     </div>
                                                 @endif
                                             </td>
                                             <td>{{ $transaction->nama_penerima }}</td>
                                             <td>{{ $transaction->created_at->format('H:i') }}</td>
+                                            <td>
+                                                <div class="btn-group btn-group-sm">
+                                                    <a href="{{ route('transactions.edit', $transaction->id) }}"
+                                                        class="btn btn-warning" title="Edit">
+                                                        <i class="bi bi-pencil"></i>
+                                                    </a>
+                                                </div>
+                                            </td>
                                         </tr>
                                     @empty
                                         <tr>
@@ -182,7 +205,40 @@
         .summary-card:hover {
             transform: translateY(-5px);
         }
+
+        .btn-group-sm .btn {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.875rem;
+        }
     </style>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function confirmDelete(id) {
+            if (confirm('Apakah Anda yakin ingin menghapus transaksi ini?')) {
+                // Buat form dinamis
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = '/transactions/' + id;
+                form.style.display = 'none';
+
+                // Tambahkan CSRF token
+                const csrfToken = document.createElement('input');
+                csrfToken.type = 'hidden';
+                csrfToken.name = '_token';
+                csrfToken.value = '{{ csrf_token() }}';
+                form.appendChild(csrfToken);
+
+                // Tambahkan method spoofing
+                const methodInput = document.createElement('input');
+                methodInput.type = 'hidden';
+                methodInput.name = '_method';
+                methodInput.value = 'DELETE';
+                form.appendChild(methodInput);
+
+                document.body.appendChild(form);
+                form.submit();
+            }
+        }
+    </script>
 @endsection

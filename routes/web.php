@@ -86,9 +86,16 @@ Route::prefix('transactions')->name('transactions.')->group(function () {
     Route::get('/create', [StokTransactionController::class, 'create'])->name('create');
     Route::post('/', [StokTransactionController::class, 'store'])->name('store');
 
+
+    // Tambahkan route edit, update, dan destroy
+    Route::get('/{transaction}/edit', [StokTransactionController::class, 'edit'])->name('edit');
+    Route::put('/{transaction}', [StokTransactionController::class, 'update'])->name('update');
+    Route::delete('/{transaction}', [StokTransactionController::class, 'destroy'])->name('destroy');
+
     Route::get('/{id}', [StokTransactionController::class, 'show'])
         ->where('id', '[0-9]+')
         ->name('show');
+
 });
 
 // Authentication Protected Routes

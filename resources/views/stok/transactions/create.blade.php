@@ -299,6 +299,24 @@
                         </h4>
                     </div>
 
+                    @if (session('success'))
+                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                            <i class="bi bi-check-circle me-2"></i>
+                            {{ session('success') }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"
+                                aria-label="Close"></button>
+                        </div>
+                    @endif
+
+                    @if (session('error'))
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            <i class="bi bi-exclamation-triangle me-2"></i>
+                            {{ session('error') }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"
+                                aria-label="Close"></button>
+                        </div>
+                    @endif
+
                     <div class="card-body">
                         <form action="{{ route('transactions.store') }}" method="POST" id="transactionForm">
                             @csrf
@@ -411,8 +429,10 @@
                                                         <input class="form-check-input" type="radio"
                                                             name="departemen_mode" id="departemen_mode_perbarang"
                                                             value="perbarang">
-                                                        <label class="form-check-label" for="departemen_mode_perbarang">
-                                                            <strong>Departemen Per Barang</strong> - Berbeda untuk setiap barang
+                                                        <label class="form-check-label"
+                                                            for="departemen_mode_perbarang">
+                                                            <strong>Departemen Per Barang</strong> - Berbeda untuk
+                                                            setiap barang
                                                         </label>
                                                     </div>
                                                 </div>
@@ -431,7 +451,8 @@
                                                 <div class="supplier-info mt-2">
                                                     <i class="bi bi-info-circle me-1"></i>
                                                     <small class="text-muted">
-                                                        Departemen global akan digunakan untuk semua barang dalam transaksi ini.
+                                                        Departemen global akan digunakan untuk semua barang dalam
+                                                        transaksi ini.
                                                     </small>
                                                 </div>
                                             </div>
@@ -456,8 +477,10 @@
                                                         <input class="form-check-input" type="radio"
                                                             name="keperluan_mode" id="keperluan_mode_perbarang"
                                                             value="perbarang">
-                                                        <label class="form-check-label" for="keperluan_mode_perbarang">
-                                                            <strong>Keperluan Per Barang</strong> - Berbeda untuk setiap barang
+                                                        <label class="form-check-label"
+                                                            for="keperluan_mode_perbarang">
+                                                            <strong>Keperluan Per Barang</strong> - Berbeda untuk setiap
+                                                            barang
                                                         </label>
                                                     </div>
                                                 </div>
@@ -465,13 +488,14 @@
 
                                             <!-- Input Keperluan Global -->
                                             <div id="keperluanGlobalContainer" class="global-field-container mt-2">
-                                                <input type="text" name="keperluan_global"
-                                                    id="keperluan_global" class="form-control" required
+                                                <input type="text" name="keperluan_global" id="keperluan_global"
+                                                    class="form-control" required
                                                     placeholder="Masukkan keperluan global">
                                                 <div class="supplier-info mt-2">
                                                     <i class="bi bi-info-circle me-1"></i>
                                                     <small class="text-muted">
-                                                        Keperluan global akan digunakan untuk semua barang dalam transaksi ini.
+                                                        Keperluan global akan digunakan untuk semua barang dalam
+                                                        transaksi ini.
                                                     </small>
                                                 </div>
                                             </div>
@@ -614,8 +638,10 @@
                                             </li>
                                             <li><strong>Departemen & Keperluan:</strong>
                                                 <ul class="mt-1">
-                                                    <li><strong>Global:</strong> Sama untuk semua barang (WAJIB diisi untuk Stok Keluar)</li>
-                                                    <li><strong>Per Barang:</strong> Berbeda untuk setiap barang (WAJIB diisi untuk Stok Keluar)</li>
+                                                    <li><strong>Global:</strong> Sama untuk semua barang (WAJIB diisi
+                                                        untuk Stok Keluar)</li>
+                                                    <li><strong>Per Barang:</strong> Berbeda untuk setiap barang (WAJIB
+                                                        diisi untuk Stok Keluar)</li>
                                                 </ul>
                                             </li>
                                             <li><strong>Nama Penerima & Keterangan:</strong> Bisa global atau per barang
@@ -656,8 +682,10 @@
                         <li>Anda bisa menambahkan <strong>banyak barang</strong> dalam satu transaksi</li>
                         <li><strong>Semua Field bisa Global atau Per Barang:</strong>
                             <ul class="mt-1">
-                                <li><strong>Stok Masuk:</strong> Supplier (WAJIB), Nama Penerima (WAJIB), Keterangan (Opsional)</li>
-                                <li><strong>Stok Keluar:</strong> Departemen (WAJIB), Keperluan (WAJIB), Nama Penerima (WAJIB), Keterangan (Opsional)</li>
+                                <li><strong>Stok Masuk:</strong> Supplier (WAJIB), Nama Penerima (WAJIB), Keterangan
+                                    (Opsional)</li>
+                                <li><strong>Stok Keluar:</strong> Departemen (WAJIB), Keperluan (WAJIB), Nama Penerima
+                                    (WAJIB), Keterangan (Opsional)</li>
                             </ul>
                         </li>
                     </ul>

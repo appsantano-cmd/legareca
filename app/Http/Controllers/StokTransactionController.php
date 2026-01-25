@@ -126,7 +126,7 @@ class StokTransactionController extends Controller
             'barang' => 'required|array|min:1',
             'barang.*.kode_barang' => 'required|exists:stok_gudang,kode_barang',
             'barang.*.jumlah' => 'required|numeric|min:0.01',
-            
+
             // Mode validation
             'supplier_mode' => 'required|in:global,perbarang',
             'departemen_mode' => 'required|in:global,perbarang',
@@ -154,7 +154,7 @@ class StokTransactionController extends Controller
                     $rules["barang.{$index}.departemen"] = 'required';
                 }
             }
-            
+
             if ($request->keperluan_mode == 'global') {
                 $rules['keperluan_global'] = 'required';
             } else {
@@ -164,7 +164,7 @@ class StokTransactionController extends Controller
                 }
             }
         }
-        
+
         // Validasi nama penerima
         if ($request->nama_penerima_mode == 'global') {
             $rules['nama_penerima_global'] = 'required';
@@ -174,8 +174,6 @@ class StokTransactionController extends Controller
                 $rules["barang.{$index}.nama_penerima"] = 'required';
             }
         }
-        
-        // Validasi keterangan (opsional, tidak perlu required)
 
         $request->validate($rules);
 
@@ -230,7 +228,7 @@ class StokTransactionController extends Controller
                         $transactionData['supplier'] = $barangData['supplier'] ?? null;
                     }
                 }
-                
+
                 // Departemen dan Keperluan (hanya untuk Stok Keluar)
                 if ($request->tipe == 'keluar') {
                     if ($request->departemen_mode == 'global') {
@@ -238,21 +236,21 @@ class StokTransactionController extends Controller
                     } else {
                         $transactionData['departemen'] = $barangData['departemen'] ?? null;
                     }
-                    
+
                     if ($request->keperluan_mode == 'global') {
                         $transactionData['keperluan'] = $request->keperluan_global;
                     } else {
                         $transactionData['keperluan'] = $barangData['keperluan'] ?? null;
                     }
                 }
-                
+
                 // Nama Penerima
                 if ($request->nama_penerima_mode == 'global') {
                     $transactionData['nama_penerima'] = $request->nama_penerima_global;
                 } else {
                     $transactionData['nama_penerima'] = $barangData['nama_penerima'] ?? null;
                 }
-                
+
                 // Keterangan
                 if ($request->keterangan_mode == 'global') {
                     $transactionData['keterangan'] = $request->keterangan_global ?? null;
@@ -286,10 +284,195 @@ class StokTransactionController extends Controller
 
             return redirect()->route('transactions.index')
                 ->with('success', count($transactions) . ' transaksi berhasil ditambahkan dan stok telah diperbarui!');
-
         } catch (\Exception $e) {
             DB::rollBack();
             return back()->withErrors(['error' => 'Gagal menyimpan transaksi: ' . $e->getMessage()])->withInput();
+        }
+    }
+
+    public function edit($id)
+    {
+        $transaction = StokTransaction::findOrFail($id);
+        
+        // Ambil data barang yang sama untuk dropdown
+        $barangList = StokGudang::where('bulan', $transaction->created_at->month)
+            ->where('tahun', $transaction->created_at->year)
+            ->orderBy('nama_barang')
+            ->get(['id', 'kode_barang', 'nama_barang', 'satuan', 'stok_akhir']);
+
+        // Data untuk dropdown
+        $departemenList = [
+            'Produksi',
+            'Gudang',
+            'Logistik',
+            'IT',
+            'HRD',
+            'Keuangan',
+            'Marketing',
+            'Maintenance',
+            'Lainnya'
+        ];
+
+        $keperluanList = [
+            'Produksi',
+            'Maintenance',
+            'Pemakaian Kantor',
+            'Project',
+            'Penjualan',
+            'Lainnya'
+        ];
+
+        // Get distinct suppliers from transactions
+        $supplierList = StokTransaction::where('tipe', 'masuk')
+            ->whereNotNull('supplier')
+            ->distinct()
+            ->pluck('supplier')
+            ->toArray();
+
+        // Sort suppliers alphabetically
+        sort($supplierList);
+
+        return view('stok.transactions.edit', compact(
+            'transaction',
+            'barangList',
+            'departemenList',
+            'keperluanList',
+            'supplierList'
+        ));
+    }
+
+    public function update(Request $request, $id)
+    {
+        $transaction = StokTransaction::findOrFail($id);
+        
+        // Validasi
+        $rules = [
+            'tanggal' => 'required|date',
+            'kode_barang' => 'required|exists:stok_gudang,kode_barang',
+            'jumlah' => 'required|numeric|min:0.01',
+        ];
+
+        // Validasi tambahan berdasarkan tipe
+        if ($transaction->tipe == 'masuk') {
+            $rules['supplier'] = 'required';
+        } else {
+            $rules['departemen'] = 'required';
+            $rules['keperluan'] = 'required';
+        }
+
+        $rules['nama_penerima'] = 'required';
+
+        $request->validate($rules);
+
+        DB::beginTransaction();
+
+        try {
+            $tanggalTransaksi = Carbon::parse($request->tanggal);
+            $bulan = $tanggalTransaksi->month;
+            $tahun = $tanggalTransaksi->year;
+
+            // Cari stok gudang yang sesuai
+            $stokGudang = StokGudang::where('kode_barang', $request->kode_barang)
+                ->where('bulan', $bulan)
+                ->where('tahun', $tahun)
+                ->first();
+
+            if (!$stokGudang) {
+                throw new \Exception("Stok gudang untuk barang ini tidak ditemukan!");
+            }
+
+            // Validasi stok untuk pengeluaran jika jumlah berubah
+            if ($transaction->tipe == 'keluar' && $request->jumlah != $transaction->jumlah) {
+                // Kembalikan stok lama dulu
+                $stokGudang->stok_keluar -= $transaction->jumlah;
+                $stokGudang->stok_akhir = $stokGudang->stok_awal + $stokGudang->stok_masuk - $stokGudang->stok_keluar;
+                
+                // Validasi stok baru
+                if ($stokGudang->stok_akhir < $request->jumlah) {
+                    throw new \Exception("Stok tidak mencukupi! Stok tersedia: {$stokGudang->stok_akhir} {$stokGudang->satuan}");
+                }
+                
+                // Update dengan jumlah baru
+                $stokGudang->stok_keluar += $request->jumlah;
+            } elseif ($transaction->tipe == 'masuk' && $request->jumlah != $transaction->jumlah) {
+                // Untuk stok masuk, cukup update selisihnya
+                $selisih = $request->jumlah - $transaction->jumlah;
+                $stokGudang->stok_masuk += $selisih;
+            }
+
+            // Update stok akhir
+            $stokGudang->stok_akhir = $stokGudang->stok_awal + $stokGudang->stok_masuk - $stokGudang->stok_keluar;
+            
+            // Validasi stok tidak boleh negatif
+            if ($stokGudang->stok_akhir < 0) {
+                throw new \Exception('Stok tidak boleh negatif!');
+            }
+
+            // Update data transaksi
+            $transaction->update([
+                'tanggal' => $request->tanggal,
+                'kode_barang' => $request->kode_barang,
+                'nama_barang' => $stokGudang->nama_barang,
+                'jumlah' => $request->jumlah,
+                'satuan' => $stokGudang->satuan,
+                'supplier' => $transaction->tipe == 'masuk' ? $request->supplier : null,
+                'departemen' => $transaction->tipe == 'keluar' ? $request->departemen : null,
+                'keperluan' => $transaction->tipe == 'keluar' ? $request->keperluan : null,
+                'nama_penerima' => $request->nama_penerima,
+                'keterangan' => $request->keterangan,
+                'stok_gudang_id' => $stokGudang->id,
+            ]);
+
+            // Simpan perubahan stok
+            $stokGudang->save();
+
+            DB::commit();
+
+            return redirect()->route('transactions.index')
+                ->with('success', 'Transaksi berhasil diperbarui!');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->withErrors(['error' => 'Gagal memperbarui transaksi: ' . $e->getMessage()])->withInput();
+        }
+    }
+
+    public function destroy($id)
+    {
+        $transaction = StokTransaction::findOrFail($id);
+        
+        DB::beginTransaction();
+        
+        try {
+            // Dapatkan stok gudang terkait
+            $stokGudang = StokGudang::where('kode_barang', $transaction->kode_barang)
+                ->where('bulan', $transaction->created_at->month)
+                ->where('tahun', $transaction->created_at->year)
+                ->first();
+            
+            if ($stokGudang) {
+                // Kembalikan stok
+                if ($transaction->tipe == 'masuk') {
+                    $stokGudang->stok_masuk -= $transaction->jumlah;
+                } else {
+                    $stokGudang->stok_keluar -= $transaction->jumlah;
+                }
+                
+                // Update stok akhir
+                $stokGudang->stok_akhir = $stokGudang->stok_awal + $stokGudang->stok_masuk - $stokGudang->stok_keluar;
+                $stokGudang->save();
+            }
+            
+            // Hapus transaksi
+            $transaction->delete();
+            
+            DB::commit();
+            
+            return redirect()->route('transactions.index')
+                ->with('success', 'Transaksi berhasil dihapus!');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return redirect()->route('transactions.index')
+                ->with('error', 'Gagal menghapus transaksi: ' . $e->getMessage());
         }
     }
 
@@ -304,7 +487,7 @@ class StokTransactionController extends Controller
         } else {
             $stokGudang->stok_keluar += $transaction->jumlah;
         }
-        
+
         // Update stok akhir
         $stokGudang->stok_akhir = $stokGudang->stok_awal + $stokGudang->stok_masuk - $stokGudang->stok_keluar;
 
