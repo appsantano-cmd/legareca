@@ -64,12 +64,53 @@ Route::resource('satuan', SatuanController::class);
 Route::get('/api/satuan', [SatuanController::class, 'indexApi'])->name('api.satuan.index');
 
 // Route untuk stok gudang
+// Route::prefix('stok-gudang')->name('stok.')->group(function () {
+//     Route::get('/', [StokGudangController::class, 'index'])->name('index');
+//     Route::get('/create', [StokGudangController::class, 'create'])->name('create');
+//     Route::post('/', [StokGudangController::class, 'store'])->name('store');
+
+//     // Tambahkan routes untuk edit, update, dan destroy
+//     Route::get('/{id}/edit', [StokGudangController::class, 'edit'])->name('edit');
+//     Route::put('/{id}', [StokGudangController::class, 'update'])->name('update');
+//     Route::delete('/{id}', [StokGudangController::class, 'destroy'])->name('destroy');
+
+//     Route::post('/rollover', [StokGudangController::class, 'rollover'])->name('rollover');
+//     Route::get('/export', [StokGudangController::class, 'exportExcel'])->name('export');
+//     Route::get('/rollover-history', [StokGudangController::class, 'showRolloverHistory'])->name('rollover.history');
+// });
+
+// Route untuk transaksi harian
+// Route::prefix('transactions')->name('transactions.')->group(function () {
+
+//     Route::get('/', [StokTransactionController::class, 'index'])->name('index');
+//     Route::get('/create', [StokTransactionController::class, 'create'])->name('create');
+//     Route::post('/', [StokTransactionController::class, 'store'])->name('store');
+
+
+//     // Tambahkan route edit, update, dan destroy
+//     Route::get('/{transaction}/edit', [StokTransactionController::class, 'edit'])->name('edit');
+//     Route::put('/{transaction}', [StokTransactionController::class, 'update'])->name('update');
+//     Route::delete('/{transaction}', [StokTransactionController::class, 'destroy'])->name('destroy');
+
+//     Route::get('/{id}', [StokTransactionController::class, 'show'])
+//         ->where('id', '[0-9]+')
+//         ->name('show');
+
+// });
+
+// =======================
+// STOK GUDANG - PUBLIC
+// =======================
 Route::prefix('stok-gudang')->name('stok.')->group(function () {
-    Route::get('/', [StokGudangController::class, 'index'])->name('index');
     Route::get('/create', [StokGudangController::class, 'create'])->name('create');
     Route::post('/', [StokGudangController::class, 'store'])->name('store');
+});
 
-    // Tambahkan routes untuk edit, update, dan destroy
+// =======================
+// STOK GUDANG - AUTH
+// =======================
+Route::middleware('auth')->prefix('stok-gudang')->name('stok.')->group(function () {
+    Route::get('/', [StokGudangController::class, 'index'])->name('index');
     Route::get('/{id}/edit', [StokGudangController::class, 'edit'])->name('edit');
     Route::put('/{id}', [StokGudangController::class, 'update'])->name('update');
     Route::delete('/{id}', [StokGudangController::class, 'destroy'])->name('destroy');
@@ -79,15 +120,21 @@ Route::prefix('stok-gudang')->name('stok.')->group(function () {
     Route::get('/rollover-history', [StokGudangController::class, 'showRolloverHistory'])->name('rollover.history');
 });
 
-// Route untuk transaksi harian
-Route::prefix('transactions')->name('transactions.')->group(function () {
 
-    Route::get('/', [StokTransactionController::class, 'index'])->name('index');
+// =======================
+// TRANSACTIONS - PUBLIC
+// =======================
+Route::prefix('transactions')->name('transactions.')->group(function () {
     Route::get('/create', [StokTransactionController::class, 'create'])->name('create');
     Route::post('/', [StokTransactionController::class, 'store'])->name('store');
+});
 
+// =======================
+// TRANSACTIONS - AUTH
+// =======================
+Route::middleware('auth')->prefix('transactions')->name('transactions.')->group(function () {
+    Route::get('/', [StokTransactionController::class, 'index'])->name('index');
 
-    // Tambahkan route edit, update, dan destroy
     Route::get('/{transaction}/edit', [StokTransactionController::class, 'edit'])->name('edit');
     Route::put('/{transaction}', [StokTransactionController::class, 'update'])->name('update');
     Route::delete('/{transaction}', [StokTransactionController::class, 'destroy'])->name('destroy');
@@ -95,7 +142,6 @@ Route::prefix('transactions')->name('transactions.')->group(function () {
     Route::get('/{id}', [StokTransactionController::class, 'show'])
         ->where('id', '[0-9]+')
         ->name('show');
-
 });
 
 // Authentication Protected Routes

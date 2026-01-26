@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\StokGudang;
 use App\Models\StokTransaction;
+use App\Models\Departemen; // Tambahkan model Departemen
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
@@ -77,18 +78,25 @@ class StokTransactionController extends Controller
             ->orderBy('nama_barang')
             ->get(['id', 'kode_barang', 'nama_barang', 'satuan', 'stok_akhir']);
 
-        // Data untuk dropdown
-        $departemenList = [
-            'Produksi',
-            'Gudang',
-            'Logistik',
-            'IT',
-            'HRD',
-            'Keuangan',
-            'Marketing',
-            'Maintenance',
-            'Lainnya'
-        ];
+        // Data untuk dropdown - Ambil dari database Departemen
+        $departemenList = Departemen::orderBy('nama_departemen')
+            ->pluck('nama_departemen')
+            ->toArray();
+
+        // Jika tabel departemen kosong, gunakan data default
+        if (empty($departemenList)) {
+            $departemenList = [
+                'Produksi',
+                'Gudang',
+                'Logistik',
+                'IT',
+                'HRD',
+                'Keuangan',
+                'Marketing',
+                'Maintenance',
+                'Lainnya'
+            ];
+        }
 
         $keperluanList = [
             'Produksi',
@@ -282,7 +290,7 @@ class StokTransactionController extends Controller
 
             DB::commit();
 
-            return redirect()->route('transactions.index')
+            return redirect()->route('transactions.create')
                 ->with('success', count($transactions) . ' transaksi berhasil ditambahkan dan stok telah diperbarui!');
         } catch (\Exception $e) {
             DB::rollBack();
@@ -300,18 +308,25 @@ class StokTransactionController extends Controller
             ->orderBy('nama_barang')
             ->get(['id', 'kode_barang', 'nama_barang', 'satuan', 'stok_akhir']);
 
-        // Data untuk dropdown
-        $departemenList = [
-            'Produksi',
-            'Gudang',
-            'Logistik',
-            'IT',
-            'HRD',
-            'Keuangan',
-            'Marketing',
-            'Maintenance',
-            'Lainnya'
-        ];
+        // Data untuk dropdown - Ambil dari database Departemen
+        $departemenList = Departemen::orderBy('nama_departemen')
+            ->pluck('nama_departemen')
+            ->toArray();
+
+        // Jika tabel departemen kosong, gunakan data default
+        if (empty($departemenList)) {
+            $departemenList = [
+                'Produksi',
+                'Gudang',
+                'Logistik',
+                'IT',
+                'HRD',
+                'Keuangan',
+                'Marketing',
+                'Maintenance',
+                'Lainnya'
+            ];
+        }
 
         $keperluanList = [
             'Produksi',
@@ -474,6 +489,38 @@ class StokTransactionController extends Controller
             return redirect()->route('transactions.index')
                 ->with('error', 'Gagal menghapus transaksi: ' . $e->getMessage());
         }
+    }
+
+    /**
+     * Method untuk mengambil data departemen via AJAX (opsional)
+     */
+    public function getDepartemenList(Request $request)
+    {
+        $search = $request->input('search', '');
+        
+        $departemenList = Departemen::when($search, function ($query, $search) {
+                return $query->where('nama_departemen', 'like', "%{$search}%");
+            })
+            ->orderBy('nama_departemen')
+            ->pluck('nama_departemen')
+            ->toArray();
+        
+        // Jika tabel departemen kosong, gunakan data default
+        if (empty($departemenList)) {
+            $departemenList = [
+                'Produksi',
+                'Gudang',
+                'Logistik',
+                'IT',
+                'HRD',
+                'Keuangan',
+                'Marketing',
+                'Maintenance',
+                'Lainnya'
+            ];
+        }
+        
+        return response()->json($departemenList);
     }
 
     /**
