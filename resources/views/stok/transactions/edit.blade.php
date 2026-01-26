@@ -18,17 +18,6 @@
             color: #dc3545;
         }
 
-        .radio-group {
-            border: 1px solid #dee2e6;
-            border-radius: 5px;
-            padding: 15px;
-            background-color: #f8f9fa;
-        }
-
-        .radio-group .form-check {
-            margin-bottom: 5px;
-        }
-
         .info-box {
             background-color: #ffffff;
             border-left: 4px solid #ffe100;
@@ -61,6 +50,38 @@
 
         .badge-keluar {
             background-color: #ff0019;
+        }
+
+        /* Modal departemen styles */
+        .modal-departemen-search-container {
+            position: relative;
+            margin-bottom: 15px;
+        }
+
+        .modal-departemen-search-icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #6c757d;
+        }
+
+        .modal-departemen-search-input {
+            padding-left: 40px;
+        }
+
+        .departemen-item {
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .departemen-item:hover {
+            background-color: #f8f9fa;
+        }
+
+        .departemen-item.selected {
+            background-color: #e8f5e9;
+            border-left: 4px solid #4CAF50;
         }
     </style>
 </head>
@@ -189,15 +210,15 @@
                                     @else
                                         <div class="mb-3">
                                             <label class="form-label required">Departemen</label>
-                                            <select name="departemen" class="form-select" required>
-                                                <option value="">-- Pilih Departemen --</option>
-                                                @foreach ($departemenList as $departemen)
-                                                    <option value="{{ $departemen }}"
-                                                        {{ old('departemen', $transaction->departemen) == $departemen ? 'selected' : '' }}>
-                                                        {{ $departemen }}
-                                                    </option>
-                                                @endforeach
-                                            </select>
+                                            <div class="d-flex gap-2">
+                                                <input type="text" name="departemen" class="form-control"
+                                                    value="{{ old('departemen', $transaction->departemen) }}"
+                                                    placeholder="Pilih departemen" readonly required>
+                                                <button type="button" class="btn btn-outline-primary"
+                                                    id="btnPilihDepartemen">
+                                                    <i class="bi bi-search"></i> Pilih
+                                                </button>
+                                            </div>
                                             @error('departemen')
                                                 <div class="text-danger small">{{ $message }}</div>
                                             @enderror
@@ -257,8 +278,134 @@
         </div>
     </div>
 
+    <!-- Modal Departemen -->
+    <div class="modal fade" id="departemenModal" tabindex="-1" aria-labelledby="departemenModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="departemenModalLabel">
+                        <i class="bi bi-building me-2"></i>Pilih Departemen
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="modal-departemen-search-container">
+                        <i class="bi bi-search modal-departemen-search-icon"></i>
+                        <input type="text" id="searchDepartemen" class="form-control modal-departemen-search-input"
+                            placeholder="Cari departemen...">
+                    </div>
+
+                    <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
+                        <table class="table table-hover table-sm">
+                            <thead class="table-light sticky-top">
+                                <tr>
+                                    <th width="50">No</th>
+                                    <th>Nama Departemen</th>
+                                    <th width="100">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="departemenTableBody">
+                                <!-- Data akan diisi via JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="mt-3 text-muted">
+                        <small>
+                            <i class="bi bi-info-circle me-1"></i>
+                            Menampilkan <span id="departemenCount">0</span> departemen
+                        </small>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="bi bi-x-circle me-1"></i>Tutup
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <template id="departemenRowTemplate">
+        <tr class="departemen-item">
+            <td class="text-center">INDEX</td>
+            <td class="departemen-nama">NAMA_DEPARTEMEN</td>
+            <td class="text-center">
+                <button type="button" class="btn btn-sm btn-outline-primary btn-pilih-departemen">
+                    <i class="bi bi-check-circle me-1"></i>Pilih
+                </button>
+            </td>
+        </tr>
+    </template>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
+        const departemenModal = new bootstrap.Modal(document.getElementById('departemenModal'));
+        const departemenTableBody = document.getElementById('departemenTableBody');
+        const departemenCountSpan = document.getElementById('departemenCount');
+        const searchDepartemenInput = document.getElementById('searchDepartemen');
+        const btnPilihDepartemen = document.getElementById('btnPilihDepartemen');
+        const departemenInput = document.querySelector('input[name="departemen"]');
+        const departemenRowTemplate = document.getElementById('departemenRowTemplate');
+        
+        let departemenList = @json($departemenList ?? []);
+
+        function loadDepartemenList() {
+            departemenTableBody.innerHTML = '';
+            let count = 0;
+
+            departemenList.forEach((departemen, index) => {
+                const template = departemenRowTemplate.content.cloneNode(true);
+                const row = template.querySelector('.departemen-item');
+                
+                row.querySelector('td:first-child').textContent = index + 1;
+                row.querySelector('.departemen-nama').textContent = departemen;
+                
+                const selectBtn = row.querySelector('.btn-pilih-departemen');
+                selectBtn.addEventListener('click', function() {
+                    selectDepartemen(departemen);
+                });
+
+                departemenTableBody.appendChild(row);
+                count++;
+            });
+
+            departemenCountSpan.textContent = count;
+            searchDepartemen();
+        }
+
+        function searchDepartemen() {
+            const searchTerm = searchDepartemenInput.value.toLowerCase();
+            const rows = departemenTableBody.getElementsByClassName('departemen-item');
+            let visibleCount = 0;
+
+            Array.from(rows).forEach(row => {
+                const departemenNama = row.querySelector('.departemen-nama').textContent.toLowerCase();
+                const isVisible = departemenNama.includes(searchTerm);
+                
+                row.style.display = isVisible ? '' : 'none';
+                if (isVisible) visibleCount++;
+            });
+
+            departemenCountSpan.textContent = visibleCount;
+        }
+
+        function selectDepartemen(departemen) {
+            departemenInput.value = departemen;
+            departemenModal.hide();
+        }
+
+        // Event listener untuk tombol pilih departemen
+        btnPilihDepartemen.addEventListener('click', function() {
+            loadDepartemenList();
+            departemenModal.show();
+        });
+
+        // Event listener untuk pencarian departemen
+        searchDepartemenInput.addEventListener('input', searchDepartemen);
+
         // Update stok info when barang is changed
         document.querySelector('select[name="kode_barang"]').addEventListener('change', function() {
             const selectedOption = this.options[this.selectedIndex];
@@ -296,6 +443,25 @@
                         }
                     }
                 }
+            }
+        });
+
+        // Initialize departemen list
+        document.addEventListener('DOMContentLoaded', function() {
+            // Pre-populate departemen list if needed
+            if (departemenList.length === 0) {
+                // Fallback to default list if no data from controller
+                departemenList = [
+                    'Produksi',
+                    'Gudang',
+                    'Logistik',
+                    'IT',
+                    'HRD',
+                    'Keuangan',
+                    'Marketing',
+                    'Maintenance',
+                    'Lainnya'
+                ];
             }
         });
     </script>

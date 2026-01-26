@@ -285,6 +285,74 @@
             background-color: #e8f5e9;
             border: 1px solid #4CAF50;
         }
+
+        /* Modal departemen styles */
+        .modal-departemen-search-container {
+            position: relative;
+            margin-bottom: 15px;
+        }
+
+        .modal-departemen-search-icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #6c757d;
+        }
+
+        .modal-departemen-search-input {
+            padding-left: 40px;
+        }
+
+        .departemen-item {
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .departemen-item:hover {
+            background-color: #f8f9fa;
+        }
+
+        .departemen-item.selected {
+            background-color: #e8f5e9;
+            border-left: 4px solid #4CAF50;
+        }
+
+        .departemen-select-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            cursor: pointer;
+            color: #4CAF50;
+            font-weight: 500;
+        }
+
+        .departemen-select-btn:hover {
+            text-decoration: underline;
+        }
+
+        .btn:disabled,
+        .btn.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+
+        .btn-outline-primary:disabled,
+        .btn-outline-primary.disabled {
+            color: #6c757d;
+            border-color: #6c757d;
+            background-color: transparent;
+        }
+
+        .btn-pilih-departemen-perbarang:disabled,
+        .btn-pilih-departemen-perbarang.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            pointer-events: none;
+            border-color: #6c757d;
+            color: #6c757d;
+        }
     </style>
 </head>
 
@@ -440,14 +508,16 @@
 
                                             <!-- Input Departemen Global -->
                                             <div id="departemenGlobalContainer" class="global-field-container mt-2">
-                                                <select name="departemen_global" id="departemen_global"
-                                                    class="form-select" required>
-                                                    <option value="">-- Pilih Departemen --</option>
-                                                    @foreach ($departemenList as $departemen)
-                                                        <option value="{{ $departemen }}">{{ $departemen }}
-                                                        </option>
-                                                    @endforeach
-                                                </select>
+                                                <div class="d-flex gap-2">
+                                                    <input type="text" name="departemen_global"
+                                                        id="departemen_global" class="form-control"
+                                                        placeholder="Pilih departemen" readonly required>
+                                                    <button type="button" class="btn btn-outline-primary"
+                                                        id="btnPilihDepartemenGlobal"
+                                                        data-target="#departemen_global">
+                                                        <i class="bi bi-search"></i> Pilih
+                                                    </button>
+                                                </div>
                                                 <div class="supplier-info mt-2">
                                                     <i class="bi bi-info-circle me-1"></i>
                                                     <small class="text-muted">
@@ -694,6 +764,7 @@
         </div>
     </div>
 
+    <!-- Modal Barang -->
     <div class="modal fade" id="barangModal" tabindex="-1" aria-labelledby="barangModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
@@ -772,6 +843,56 @@
         </div>
     </div>
 
+    <!-- Modal Departemen -->
+    <div class="modal fade" id="departemenModal" tabindex="-1" aria-labelledby="departemenModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="departemenModalLabel">
+                        <i class="bi bi-building me-2"></i>Pilih Departemen
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="modal-departemen-search-container">
+                        <i class="bi bi-search modal-departemen-search-icon"></i>
+                        <input type="text" id="searchDepartemen"
+                            class="form-control modal-departemen-search-input" placeholder="Cari departemen...">
+                    </div>
+
+                    <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
+                        <table class="table table-hover table-sm">
+                            <thead class="table-light sticky-top">
+                                <tr>
+                                    <th width="50">No</th>
+                                    <th>Nama Departemen</th>
+                                    <th width="100">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="departemenTableBody">
+                                <!-- Data akan diisi via JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="mt-3 text-muted">
+                        <small>
+                            <i class="bi bi-info-circle me-1"></i>
+                            Menampilkan <span id="departemenCount">0</span> departemen
+                        </small>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="bi bi-x-circle me-1"></i>Tutup
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <template id="barangItemTemplate">
         <div class="barang-item-card" data-kode="KODE_BARANG">
             <div class="barang-header">
@@ -817,21 +938,22 @@
                     </div>
                 </div>
 
-                <!-- Departemen per Barang (hanya untuk Stok Keluar) -->
+                <!-- Departemen per Barang (hanya untuk Stok Keluar - Mode Per Barang) -->
                 <div class="barang-item-field departemen-field conditional-departemen-field" style="display: none;">
                     <label class="form-label">
                         <span>Departemen</span>
                         <span class="text-danger">*</span>
                     </label>
-                    <select class="form-control departemen-per-barang" required>
-                        <option value="">-- Pilih Departemen --</option>
-                        @foreach ($departemenList as $departemen)
-                            <option value="{{ $departemen }}">{{ $departemen }}</option>
-                        @endforeach
-                    </select>
+                    <div class="d-flex gap-2">
+                        <input type="text" class="form-control departemen-per-barang"
+                            placeholder="Pilih departemen untuk barang ini" readonly required>
+                        <button type="button" class="btn btn-outline-primary btn-sm btn-pilih-departemen-perbarang">
+                            <i class="bi bi-search"></i> Pilih
+                        </button>
+                    </div>
                 </div>
 
-                <!-- Keperluan per Barang (hanya untuk Stok Keluar) -->
+                <!-- Keperluan per Barang (hanya untuk Stok Keluar - Mode Per Barang) -->
                 <div class="barang-item-field keperluan-field conditional-keperluan-field" style="display: none;">
                     <label class="form-label">
                         <span>Keperluan</span>
@@ -875,6 +997,18 @@
         </div>
     </template>
 
+    <template id="departemenRowTemplate">
+        <tr class="departemen-item">
+            <td class="text-center">INDEX</td>
+            <td class="departemen-nama">NAMA_DEPARTEMEN</td>
+            <td class="text-center">
+                <button type="button" class="btn btn-sm btn-outline-primary btn-pilih-departemen">
+                    <i class="bi bi-check-circle me-1"></i>Pilih
+                </button>
+            </td>
+        </tr>
+    </template>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         const tipeRadios = document.querySelectorAll('input[name="tipe"]');
@@ -892,6 +1026,7 @@
         const totalBarangSpan = document.getElementById('totalBarang');
         const barangDataContainer = document.getElementById('barangDataContainer');
         const barangItemTemplate = document.getElementById('barangItemTemplate');
+        const departemenRowTemplate = document.getElementById('departemenRowTemplate');
 
         // Supplier mode elements
         const supplierModeRadios = document.querySelectorAll('input[name="supplier_mode"]');
@@ -924,6 +1059,13 @@
         const keteranganOptionGlobal = document.getElementById('keteranganOptionGlobal');
         const keteranganOptionPerBarang = document.getElementById('keteranganOptionPerBarang');
 
+        // Modal elements
+        const departemenModal = new bootstrap.Modal(document.getElementById('departemenModal'));
+        const departemenTableBody = document.getElementById('departemenTableBody');
+        const departemenCountSpan = document.getElementById('departemenCount');
+        const searchDepartemenInput = document.getElementById('searchDepartemen');
+        const btnPilihDepartemenGlobal = document.getElementById('btnPilihDepartemenGlobal');
+
         let selectedTipe = null;
         let selectedBarangList = [];
         let currentSupplierMode = 'global';
@@ -931,8 +1073,11 @@
         let currentKeperluanMode = 'global';
         let currentNamaPenerimaMode = 'global';
         let currentKeteranganMode = 'global';
+        let targetDepartemenInput = null;
+        let currentBarangIndex = null;
 
         let supplierHistory = @json($supplierList ?? []);
+        let departemenList = @json($departemenList ?? []);
 
         function resetFormState() {
             tipeRadios.forEach(radio => radio.checked = false);
@@ -1028,8 +1173,22 @@
 
             if (currentDepartemenMode === 'global') {
                 departemenOptionGlobal.classList.add('active');
+
+                // Nonaktifkan tombol pilih departemen di bagian informasi transaksi
+                if (btnPilihDepartemenGlobal) {
+                    btnPilihDepartemenGlobal.disabled = false;
+                    btnPilihDepartemenGlobal.classList.remove('disabled');
+                }
             } else if (currentDepartemenMode === 'perbarang') {
                 departemenOptionPerBarang.classList.add('active');
+
+                // Nonaktifkan tombol pilih departemen di bagian informasi transaksi
+                if (btnPilihDepartemenGlobal) {
+                    btnPilihDepartemenGlobal.disabled = true;
+                    btnPilihDepartemenGlobal.classList.add('disabled');
+                    btnPilihDepartemenGlobal.setAttribute('title',
+                        'Tombol dinonaktifkan karena menggunakan mode Per Barang');
+                }
             }
 
             // Update input status based on tipe transaksi
@@ -1037,16 +1196,28 @@
                 if (currentDepartemenMode === 'global') {
                     departemenGlobalInput.disabled = false;
                     departemenGlobalInput.required = true;
+                    // Juga nonaktifkan input jika tombol dinonaktifkan
+                    if (btnPilihDepartemenGlobal) {
+                        departemenGlobalInput.readOnly = true; // Read only karena pilih via modal
+                    }
                 } else {
                     departemenGlobalInput.disabled = true;
                     departemenGlobalInput.required = false;
                     departemenGlobalInput.value = '';
+                    departemenGlobalInput.readOnly = false; // Bukan read only
                 }
             } else {
                 // Untuk stok masuk, departemen tidak diperlukan
                 departemenGlobalInput.disabled = true;
                 departemenGlobalInput.required = false;
                 departemenGlobalInput.value = '';
+                departemenGlobalInput.readOnly = false;
+
+                // Pastikan tombol dinonaktifkan untuk stok masuk
+                if (btnPilihDepartemenGlobal) {
+                    btnPilihDepartemenGlobal.disabled = true;
+                    btnPilihDepartemenGlobal.classList.add('disabled');
+                }
             }
 
             // Update field visibility
@@ -1201,6 +1372,12 @@
             if (!selectedTipe) {
                 masukFields.style.display = 'none';
                 keluarFields.style.display = 'none';
+
+                // Nonaktifkan semua tombol pilih departemen
+                if (btnPilihDepartemenGlobal) {
+                    btnPilihDepartemenGlobal.disabled = true;
+                    btnPilihDepartemenGlobal.classList.add('disabled');
+                }
                 return;
             }
 
@@ -1210,9 +1387,19 @@
             if (selectedTipe === 'masuk') {
                 masukFields.style.display = 'block';
                 keluarFields.style.display = 'none';
+
+                // Nonaktifkan tombol pilih departemen untuk stok masuk
+                if (btnPilihDepartemenGlobal) {
+                    btnPilihDepartemenGlobal.disabled = true;
+                    btnPilihDepartemenGlobal.classList.add('disabled');
+                    btnPilihDepartemenGlobal.setAttribute('title', 'Hanya untuk stok keluar');
+                }
             } else {
                 masukFields.style.display = 'none';
                 keluarFields.style.display = 'block';
+
+                // Aktifkan/nonaktifkan tombol berdasarkan mode
+                updateDepartemenMode(); // Ini akan mengatur status tombol
             }
 
             // Update all modes untuk mengatur required yang benar
@@ -1359,17 +1546,33 @@
                     const departemenField = itemCard.querySelector('.departemen-per-barang');
                     departemenField.setAttribute('data-index', index);
                     departemenField.value = barang.departemen || '';
-                    departemenField.addEventListener('change', function() {
-                        barang.departemen = this.value;
-                    });
 
+                    // KEPERLUAN PER BARANG - MODIFIKASI DI SINI
                     const departemenContainer = itemCard.querySelector('.conditional-departemen-field');
                     if (selectedTipe === 'keluar' && currentDepartemenMode === 'perbarang') {
                         departemenContainer.style.display = 'block';
                         departemenField.setAttribute('required', 'required');
+
+                        // Aktifkan tombol pilih departemen per barang
+                        const btnPilihDepartemenPerbarang = itemCard.querySelector(
+                            '.btn-pilih-departemen-perbarang');
+                        if (btnPilihDepartemenPerbarang) {
+                            btnPilihDepartemenPerbarang.disabled = false;
+                            btnPilihDepartemenPerbarang.classList.remove('disabled');
+                            btnPilihDepartemenPerbarang.removeAttribute('title');
+                        }
                     } else {
                         departemenContainer.style.display = 'none';
                         departemenField.removeAttribute('required');
+
+                        // Nonaktifkan tombol pilih departemen per barang
+                        const btnPilihDepartemenPerbarang = itemCard.querySelector(
+                            '.btn-pilih-departemen-perbarang');
+                        if (btnPilihDepartemenPerbarang) {
+                            btnPilihDepartemenPerbarang.disabled = true;
+                            btnPilihDepartemenPerbarang.classList.add('disabled');
+                            btnPilihDepartemenPerbarang.setAttribute('title', 'Mode Global dipilih');
+                        }
                     }
 
                     // Keperluan per barang (hanya untuk Stok Keluar)
@@ -1434,6 +1637,20 @@
                         validateBarangStock(this);
                         barang.jumlah = this.value;
                     });
+
+                    // Setup event listener for departemen per barang button
+                    const btnPilihDepartemenPerbarang = itemCard.querySelector('.btn-pilih-departemen-perbarang');
+                    if (btnPilihDepartemenPerbarang) {
+                        // Hanya tambahkan event listener jika tombol tidak disabled
+                        if (!btnPilihDepartemenPerbarang.disabled) {
+                            btnPilihDepartemenPerbarang.addEventListener('click', function() {
+                                currentBarangIndex = index;
+                                targetDepartemenInput = departemenField;
+                                loadDepartemenList();
+                                departemenModal.show();
+                            });
+                        }
+                    }
 
                     const removeBtn = itemCard.querySelector('.remove-barang-btn');
                     removeBtn.addEventListener('click', function() {
@@ -1633,6 +1850,61 @@
             return true;
         }
 
+        function loadDepartemenList() {
+            departemenTableBody.innerHTML = '';
+            let count = 0;
+
+            departemenList.forEach((departemen, index) => {
+                const template = departemenRowTemplate.content.cloneNode(true);
+                const row = template.querySelector('.departemen-item');
+
+                row.querySelector('td:first-child').textContent = index + 1;
+                row.querySelector('.departemen-nama').textContent = departemen;
+
+                const selectBtn = row.querySelector('.btn-pilih-departemen');
+                selectBtn.addEventListener('click', function() {
+                    selectDepartemen(departemen);
+                });
+
+                departemenTableBody.appendChild(row);
+                count++;
+            });
+
+            departemenCountSpan.textContent = count;
+            searchDepartemen();
+        }
+
+        function searchDepartemen() {
+            const searchTerm = searchDepartemenInput.value.toLowerCase();
+            const rows = departemenTableBody.getElementsByClassName('departemen-item');
+            let visibleCount = 0;
+
+            Array.from(rows).forEach(row => {
+                const departemenNama = row.querySelector('.departemen-nama').textContent.toLowerCase();
+                const isVisible = departemenNama.includes(searchTerm);
+
+                row.style.display = isVisible ? '' : 'none';
+                if (isVisible) visibleCount++;
+            });
+
+            departemenCountSpan.textContent = visibleCount;
+        }
+
+        function selectDepartemen(departemen) {
+            if (targetDepartemenInput) {
+                targetDepartemenInput.value = departemen;
+
+                // Update data barang jika mode per barang
+                if (currentBarangIndex !== null && selectedBarangList[currentBarangIndex]) {
+                    selectedBarangList[currentBarangIndex].departemen = departemen;
+                }
+            }
+
+            departemenModal.hide();
+            targetDepartemenInput = null;
+            currentBarangIndex = null;
+        }
+
         // Setup autocomplete for global supplier
         supplierGlobalInput.addEventListener('input', function() {
             showSupplierSuggestions(this, supplierGlobalSuggestions);
@@ -1688,6 +1960,17 @@
                 updateKeteranganMode();
             });
         });
+
+        // Event listener untuk tombol pilih departemen global
+        btnPilihDepartemenGlobal.addEventListener('click', function() {
+            targetDepartemenInput = departemenGlobalInput;
+            currentBarangIndex = null;
+            loadDepartemenList();
+            departemenModal.show();
+        });
+
+        // Event listener untuk pencarian departemen
+        searchDepartemenInput.addEventListener('input', searchDepartemen);
 
         // Click handlers untuk semua option items
         function setupOptionClickHandler(optionElement) {
@@ -1804,6 +2087,13 @@
         document.addEventListener('DOMContentLoaded', function() {
             resetFormState();
             updateAllModes();
+
+            // Nonaktifkan tombol pilih departemen global secara default
+            if (btnPilihDepartemenGlobal) {
+                btnPilihDepartemenGlobal.disabled = true;
+                btnPilihDepartemenGlobal.classList.add('disabled');
+                btnPilihDepartemenGlobal.setAttribute('title', 'Pilih tipe transaksi terlebih dahulu');
+            }
         });
     </script>
 </body>

@@ -13,6 +13,22 @@
                         </h4>
                     </div>
 
+                    @if (session('success'))
+                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                            <i class="bi bi-check-circle me-2"></i>
+                            {{ session('success') }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    @endif
+
+                    @if (session('error'))
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            <i class="bi bi-exclamation-triangle me-2"></i>
+                            {{ session('error') }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    @endif
+
                     <div class="card-body">
                         <form action="{{ route('stok.store') }}" method="POST" id="stokForm">
                             @csrf
@@ -23,41 +39,31 @@
                                     <h5 class="border-bottom pb-2 mb-3">
                                         <i class="bi bi-info-circle me-2"></i>Informasi Sistem
                                     </h5>
-                                    
+
                                     <div class="row">
                                         <div class="col-md-4 mb-3">
                                             <label class="form-label">Kode Barang</label>
-                                            <input type="text" 
-                                                   class="form-control bg-light" 
-                                                   value="{{ $kodeBarang }}" 
-                                                   readonly
-                                                   style="font-weight: bold; color: #0d6efd;">
+                                            <input type="text" class="form-control bg-light" value="{{ $kodeBarang }}"
+                                                readonly style="font-weight: bold; color: #0d6efd;">
                                             <input type="hidden" name="kode_barang" value="{{ $kodeBarang }}">
                                             <small class="text-muted">Kode di-generate otomatis oleh sistem</small>
                                         </div>
-                                        
+
                                         <div class="col-md-4 mb-3">
                                             <label class="form-label">Tanggal Submit</label>
-                                            <input type="datetime-local" 
-                                                   class="form-control bg-light" 
-                                                   id="tanggalSubmitInput"
-                                                   readonly
-                                                   value="{{ date('Y-m-d\TH:i') }}">
+                                            <input type="datetime-local" class="form-control bg-light"
+                                                id="tanggalSubmitInput" readonly value="{{ date('Y-m-d\TH:i') }}">
                                             <input type="hidden" name="tanggal_submit" id="tanggalSubmitHidden">
                                             <small class="text-muted">Tanggal otomatis dari sistem</small>
                                         </div>
-                                        
+
                                         <div class="col-md-4 mb-3">
                                             <label class="form-label">Periode</label>
                                             <div class="input-group">
-                                                <input type="text" 
-                                                       class="form-control bg-light text-center" 
-                                                       id="bulanDisplay"
-                                                       readonly>
-                                                <input type="text" 
-                                                       class="form-control bg-light text-center" 
-                                                       id="tahunDisplay"
-                                                       readonly>
+                                                <input type="text" class="form-control bg-light text-center"
+                                                    id="bulanDisplay" readonly>
+                                                <input type="text" class="form-control bg-light text-center"
+                                                    id="tahunDisplay" readonly>
                                                 <input type="hidden" name="bulan" id="bulanHidden">
                                                 <input type="hidden" name="tahun" id="tahunHidden">
                                             </div>
@@ -79,9 +85,8 @@
                                         <label class="form-label required">Nama Barang</label>
                                         <input type="text" name="nama_barang"
                                             class="form-control @error('nama_barang') is-invalid @enderror"
-                                            value="{{ old('nama_barang') }}" 
-                                            placeholder="Contoh: Marie Regal, Tepung Terigu, Gula Pasir"
-                                            required
+                                            value="{{ old('nama_barang') }}"
+                                            placeholder="Contoh: Marie Regal, Tepung Terigu, Gula Pasir" required
                                             id="namaBarangInput">
                                         @error('nama_barang')
                                             <div class="invalid-feedback">{{ $message }}</div>
@@ -93,14 +98,11 @@
                                     <div class="mb-3">
                                         <label class="form-label required">Ukuran Barang</label>
                                         <div class="input-group">
-                                            <input type="text" 
-                                                   name="ukuran_barang"
-                                                   class="form-control @error('ukuran_barang') is-invalid @enderror"
-                                                   value="{{ old('ukuran_barang') }}"
-                                                   placeholder="Contoh: 1 KG, 500 GR, 250 ML"
-                                                   required
-                                                   id="ukuranBarangInput"
-                                                   oninput="autoUppercase(this)">
+                                            <input type="text" name="ukuran_barang"
+                                                class="form-control @error('ukuran_barang') is-invalid @enderror"
+                                                value="{{ old('ukuran_barang') }}"
+                                                placeholder="Contoh: 1 KG, 500 GR, 250 ML" required id="ukuranBarangInput"
+                                                oninput="autoUppercase(this)">
                                             <span class="input-group-text">
                                                 <i class="bi bi-arrow-up" title="Otomatis UPPERCASE"></i>
                                             </span>
@@ -115,8 +117,8 @@
                                         <label class="form-label required">Satuan</label>
                                         <div class="input-group mb-2">
                                             <input type="text" class="form-control" id="satuanDisplay"
-                                                placeholder="Klik untuk memilih satuan" readonly value="{{ old('satuan') }}"
-                                                required>
+                                                placeholder="Klik untuk memilih satuan" readonly
+                                                value="{{ old('satuan') }}" required>
                                             <input type="hidden" name="satuan" id="satuanValue"
                                                 value="{{ old('satuan') }}">
                                             <button class="btn btn-outline-primary" type="button" id="openSatuanModal">
@@ -169,7 +171,7 @@
                                     <!-- Hidden fields untuk stok_masuk dan stok_keluar (selalu 0) -->
                                     <input type="hidden" name="stok_masuk" value="0">
                                     <input type="hidden" name="stok_keluar" value="0">
-                                    
+
                                     <!-- Hidden field untuk gabungan nama_barang + ukuran (tidak perlu lagi karena diolah di controller) -->
                                     <input type="hidden" name="nama_barang_gabungan" id="namaBarangGabungan">
                                 </div>
@@ -378,18 +380,18 @@
                     selectedSatuanContainer.style.display = 'block';
                     selectedSatuanText.textContent = oldSatuan;
                 }
-                
+
                 // Set old values for nama_barang and ukuran_barang if any
-                @if(old('nama_barang'))
+                @if (old('nama_barang'))
                     namaBarangInput.value = "{{ old('nama_barang') }}";
                 @endif
-                
-                @if(old('ukuran_barang'))
+
+                @if (old('ukuran_barang'))
                     ukuranBarangInput.value = "{{ old('ukuran_barang') }}";
                 @endif
-                
+
                 updateNamaBarangPreview();
-                
+
                 // Focus on nama barang input
                 namaBarangInput.focus();
             }
@@ -404,9 +406,9 @@
             function updateNamaBarangPreview() {
                 const namaBarang = namaBarangInput.value.trim();
                 const ukuranBarang = ukuranBarangInput.value.trim();
-                
+
                 let previewText = '-';
-                
+
                 if (namaBarang && ukuranBarang) {
                     // Format: "Nama Barang UKURAN"
                     previewText = `${namaBarang} ${ukuranBarang}`;
@@ -415,7 +417,7 @@
                 } else if (ukuranBarang) {
                     previewText = `[Belum ada nama barang] ${ukuranBarang}`;
                 }
-                
+
                 namaBarangPreview.textContent = previewText;
             }
 
@@ -423,31 +425,31 @@
             function updateSystemInfo() {
                 // Get current date and time from browser
                 const now = new Date();
-                
+
                 // Format date for datetime-local input (YYYY-MM-DDTHH:mm)
                 const year = now.getFullYear();
                 const month = String(now.getMonth() + 1).padStart(2, '0');
                 const day = String(now.getDate()).padStart(2, '0');
                 const hours = String(now.getHours()).padStart(2, '0');
                 const minutes = String(now.getMinutes()).padStart(2, '0');
-                
+
                 const dateTimeString = `${year}-${month}-${day}T${hours}:${minutes}`;
                 tanggalSubmitInput.value = dateTimeString;
                 tanggalSubmitHidden.value = dateTimeString;
-                
+
                 // Get month name
                 const monthNames = [
                     'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
                     'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
                 ];
-                
+
                 const monthName = monthNames[now.getMonth()];
                 const currentYear = now.getFullYear();
-                
+
                 // Update display
                 bulanDisplay.value = monthName;
                 tahunDisplay.value = currentYear;
-                
+
                 // Update hidden fields
                 bulanHidden.value = now.getMonth() + 1; // 1-12
                 tahunHidden.value = currentYear;
@@ -491,7 +493,8 @@
                         // Tampilkan pesan error yang lebih jelas
                         if (error instanceof TypeError) {
                             alert(
-                                'Error: Server mengembalikan respons dalam format yang tidak diharapkan. Silakan coba lagi.');
+                                'Error: Server mengembalikan respons dalam format yang tidak diharapkan. Silakan coba lagi.'
+                                );
                         }
                     });
             }
@@ -717,7 +720,7 @@
             document.getElementById('stokForm').addEventListener('submit', function(e) {
                 // Update tanggal submit dengan waktu terkini sebelum submit
                 updateSystemInfo();
-                
+
                 // Validate inputs
                 if (!satuanValue.value.trim()) {
                     e.preventDefault();
@@ -725,24 +728,24 @@
                     openSatuanModalBtn.focus();
                     return false;
                 }
-                
+
                 if (!namaBarangInput.value.trim()) {
                     e.preventDefault();
                     alert('Silakan isi nama barang!');
                     namaBarangInput.focus();
                     return false;
                 }
-                
+
                 if (!ukuranBarangInput.value.trim()) {
                     e.preventDefault();
                     alert('Silakan isi ukuran barang!');
                     ukuranBarangInput.focus();
                     return false;
                 }
-                
+
                 // Auto uppercase ukuran before submit (for safety)
                 ukuranBarangInput.value = ukuranBarangInput.value.toUpperCase();
-                
+
                 return true;
             });
 
@@ -807,12 +810,12 @@
             background-color: #f8f9fa !important;
         }
 
-        .input-group > .form-control:first-child {
+        .input-group>.form-control:first-child {
             border-top-right-radius: 0;
             border-bottom-right-radius: 0;
         }
 
-        .input-group > .form-control:last-child {
+        .input-group>.form-control:last-child {
             border-top-left-radius: 0;
             border-bottom-left-radius: 0;
             border-left: 0;

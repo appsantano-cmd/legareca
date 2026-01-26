@@ -149,7 +149,7 @@ class StokGudangController extends Controller
 
             DB::commit();
 
-            return redirect()->route('stok.index')
+            return redirect()->route('stok.create')
                 ->with('success', 'Data barang berhasil ditambahkan. Kode: ' . $kodeBarang . ', Nama: ' . $namaBarangFinal . ', Stok awal: ' . $request->stok_awal);
 
         } catch (\Exception $e) {
