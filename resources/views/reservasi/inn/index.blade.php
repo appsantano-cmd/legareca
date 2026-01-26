@@ -141,25 +141,15 @@
     }
 
     .booking-btn {
-        background: linear-gradient(135deg, #e76f51, #d65c3e);
-        color: white;
-        padding: 14px 30px;
-        border-radius: 10px;
-        text-decoration: none;
-        display: inline-block;
-        transition: all 0.3s ease;
-        border: none;
-        font-weight: 600;
-        box-shadow: 0 4px 15px rgba(231, 111, 81, 0.3);
-        white-space: nowrap;
+        background: linear-gradient(135deg, #ff7a18, #ff3d00);
+        color: #ffffff;
     }
 
     .booking-btn:hover {
-        background: linear-gradient(135deg, #d65c3e, #c54a30);
-        transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(231, 111, 81, 0.4);
-        color: white;
+        background: linear-gradient(135deg, #ff6a00, #e53935);
+        color: #ffffff;
     }
+
 
     .section-title {
         position: relative;
@@ -430,17 +420,27 @@
 </nav>
 
 <!-- Hero Section -->
-<section class="hero-section text-center pt-16">
+<section class="hero-section text-center pt-24 pb-3">
     <div class="container">
         <div class="hero-content">
-            <h1 class="display-4 fw-bold mb-3 animate__animated animate__fadeInDown">Legareca Inn</h1>
-            <p class="lead-text animate__animated animate__fadeInUp">Penginapan premium dengan kenyamanan maksimal di jantung Yogyakarta. Pengalaman menginap yang tak terlupakan dengan fasilitas lengkap dan pelayanan terbaik.</p>
-            <a href="#rooms" class="btn btn-light btn-lg px-5 py-3 rounded-pill fw-bold shadow animate__animated animate__fadeInUp" style="background: white; color: #264653;">
+            <h1 class="display-4 fw-bold mb-4 animate__animated animate__fadeInDown">
+                Legareca Inn
+            </h1>
+
+            <p class="lead-text mb-5 animate__animated animate__fadeInUp">
+                Penginapan premium dengan kenyamanan maksimal di jantung Yogyakarta.
+                Pengalaman menginap yang tak terlupakan dengan fasilitas lengkap dan pelayanan terbaik.
+            </p>
+
+            <a href="#rooms"
+                class="btn btn-light btn-lg px-5 py-3 rounded-pill fw-bold shadow animate__animated animate__fadeInUp"
+                style="background: white; color: #264653;">
                 <i class="fas fa-bed me-2"></i>Lihat Kamar Tersedia
             </a>
         </div>
     </div>
 </section>
+
 
 <!-- Room List Section -->
 <section id="rooms" class="py-5">
@@ -473,7 +473,7 @@
                         </ul>
 
                         <div class="room-actions">
-                            <a href="https://wa.me/6281234567890?text=Halo,%20saya%20ingin%20bertanya%20tentang%20Standard%20Room%20di%20Legareca%20Inn"
+                            <a href="https://wa.me/6281328897679?text=Halo,%20saya%20ingin%20bertanya%20tentang%20Standard%20Room%20di%20Legareca%20Inn"
                                 target="_blank" class="whatsapp-btn">
                                 <i class="fab fa-whatsapp"></i> WhatsApp
                             </a>
@@ -624,7 +624,7 @@
                                 <i class="fas fa-map-marker-alt"></i>
                             </div>
                             <h5 class="fw-bold mb-3" style="color: #264653;">Lokasi</h5>
-                            <p class="mb-2 fw-bold" style="color: #2a9d8f;">Jl. Legareca No. 123, Yogyakarta 55111</p>
+                            <p class="mb-2 fw-bold" style="color: #2a9d8f;">Jl. Padokan Baru No.B789, Jogonalan Lor, Tirtonirmolo, Kec. Kasihan, Kabupaten Bantul, Daerah Istimewa Yogyakarta 55181</p>
                             <p class="text-muted mb-0">Berlokasi strategis di kawasan Legareca Space, mudah dijangkau dari berbagai fasilitas seni dan budaya Yogyakarta.</p>
                         </div>
                     </div>

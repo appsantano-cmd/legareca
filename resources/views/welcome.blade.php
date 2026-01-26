@@ -765,15 +765,15 @@
                     <ul class="space-y-2">
                         <li class="flex items-start">
                             <span class="mr-2">📍</span>
-                            <span>Jl. Legareca No. 123, Jakarta Selatan</span>
+                            <span>Jl. Padokan Baru No.B789, Jogonalan Lor, Tirtonirmolo, Kec. Kasihan, Kabupaten Bantul, Daerah Istimewa Yogyakarta 55181</span>
                         </li>
                         <li class="flex items-start">
                             <span class="mr-2">📞</span>
-                            <span>(021) 1234-5678</span>
+                            <span>0812-2950-8183</span>
                         </li>
                         <li class="flex items-start">
                             <span class="mr-2">✉️</span>
-                            <span>info@legarecaspace.com</span>
+                            <span>legareca.space@gmail.com</span>
                         </li>
                         <li class="flex items-start">
                             <span class="mr-2">🕐</span>
@@ -800,7 +800,7 @@
     <!-- Footer Bergerak -->
     <footer class="footer-moving">
         <div class="moving-text">
-            C 2026 Santano • Legareca Space • Jl. Legareca No. 123, Jakarta Selatan • (021) 1234-5678 • info@legarecaspace.com • C 2026 Santano • Legareca Space • Jl. Legareca No. 123, Jakarta Selatan • (021) 1234-5678 • info@legarecaspace.com
+            C 2026 Santano • Legareca Space • Jl. Padokan Baru No.B789, Jogonalan Lor, Tirtonirmolo, Kec. Kasihan, Kabupaten Bantul, Daerah Istimewa Yogyakarta 55181 • Phone: 0812-2950-8183 • legareca.space@gmail.com • C 2026 Santano • Legareca Space • Jl. Padokan Baru No.B789, Jogonalan Lor, Tirtonirmolo, Kec. Kasihan, Kabupaten Bantul, Daerah Istimewa Yogyakarta 55181 • Phone: 0812-2950-8183 • legareca.space@gmail.com
         </div>
     </footer>
 
