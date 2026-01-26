@@ -1,46 +1,50 @@
-<nav class="bg-white shadow px-6 py-4">
-    <div class="container mx-auto flex flex-col md:flex-row items-center justify-between">
-        <!-- Logo Section -->
-        <div class="flex items-center space-x-3 mb-4 md:mb-0">
-            <img src="{{ asset('storage/logo/logo.png') }}" alt="logo" class="h-10">
-            <span class="text-xl font-bold text-gray-800">Legareca Space</span>
+<!-- Navbar Baru -->
+<nav class="fixed top-0 left-0 w-full z-30 nav-overlay">
+    <div class="container flex items-center justify-between h-16">
+        
+        <!-- Logo -->
+        <div class="text-xl font-bold text-white flex items-center gap-2">
+            <span>Legareca Space</span>
         </div>
+        
+        <!-- Desktop Menu -->
+        <div class="nav-menu hidden absolute top-full left-0 w-full bg-black text-white flex flex-col items-center gap-4 p-6 md:static md:w-auto md:bg-transparent md:flex md:flex-row md:items-center md:gap-8">
+            <a href="{{ url('/') }}"
+            class="nav-item text-white hover:text-red-500 transition {{ request()->is('/') ? 'active' : '' }}">
+                Beranda
+            </a>
 
-        <!-- Desktop Navigation Menu -->
-        <div class="hidden md:flex space-x-8">
-            <a href="#" class="text-gray-700 hover:text-blue-600 font-medium">Beranda</a>
-            <a href="#" class="text-gray-700 hover:text-blue-600 font-medium">Venue</a>
-            <a href="#" class="text-gray-700 hover:text-blue-600 font-medium">Legareca Inn</a>
-            <a href="#" class="text-gray-700 hover:text-blue-600 font-medium">Legareca Art Gallery</a>
-            <a href="#" class="text-gray-700 hover:text-blue-600 font-medium">Legareca Pet</a>
-            <a href="#" class="text-gray-700 hover:text-blue-600 font-medium">HUBUNGI KAMI</a>
-        </div>
+            <a href="#venue"
+            class="nav-item text-white hover:text-red-500 transition {{ request()->is('venue*') ? 'active' : '' }}">
+                Venue
+            </a>
 
-        <!-- Mobile Menu Button -->
-        <div class="md:hidden">
-            <button id="mobile-menu-button" class="text-gray-700 focus:outline-none">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
-                </svg>
+            <a href="#inn"
+            class="nav-item text-white hover:text-red-500 transition {{ request()->is('inn*') ? 'active' : '' }}">
+                Legareca Inn
+            </a>
+
+            <a href="{{ url('/art-gallery') }}"
+            class="nav-item text-white hover:text-red-500 transition {{ request()->is('art-gallery*') ? 'active' : '' }}">
+                Legareca Art Gallery
+            </a>
+
+            <a href="#pet"
+            class="nav-item text-white hover:text-red-500 transition {{ request()->is('pet*') ? 'active' : '' }}">
+                Legareca Pet
+            </a>
+            <button class="nav-button text-white text-sm">
+                Hubungi Kami
             </button>
         </div>
-    </div>
-
-    <!-- Mobile Navigation Menu (Hidden by default) -->
-    <div id="mobile-menu" class="hidden md:hidden mt-4 space-y-3">
-        <a href="#" class="block text-gray-700 hover:text-blue-600 font-medium py-2">Beranda</a>
-        <a href="#" class="block text-gray-700 hover:text-blue-600 font-medium py-2">Venue</a>
-        <a href="#" class="block text-gray-700 hover:text-blue-600 font-medium py-2">Legareca Inn</a>
-        <a href="#" class="block text-gray-700 hover:text-blue-600 font-medium py-2">Legareca Art Gallery</a>
-        <a href="#" class="block text-gray-700 hover:text-blue-600 font-medium py-2">Legareca Pet</a>
-        <a href="#" class="block text-gray-700 hover:text-blue-600 font-medium py-2">HUBUNGI KAMI</a>
+        
+        <!-- Mobile Menu Button -->
+        <button class="mobile-menu-btn text-white">
+            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="3" y1="12" x2="21" y2="12"></line>
+                <line x1="3" y1="6" x2="21" y2="6"></line>
+                <line x1="3" y1="18" x2="21" y2="18"></line>
+            </svg>
+        </button>
     </div>
 </nav>
-
-<!-- JavaScript for mobile menu toggle -->
-<script>
-    document.getElementById('mobile-menu-button').addEventListener('click', function() {
-        const mobileMenu = document.getElementById('mobile-menu');
-        mobileMenu.classList.toggle('hidden');
-    });
-</script>

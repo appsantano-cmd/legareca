@@ -10,7 +10,7 @@ use Google\Service\Sheets\ValueRange;
 class PengajuanIzinSheetRepository
 {
     protected string $spreadsheetId;
-    protected $service;
+    protected GoogleSheetsService $service;
     protected string $sheetName = 'Pengajuan Izin';
 
     public function __construct()
@@ -18,7 +18,7 @@ class PengajuanIzinSheetRepository
         $this->spreadsheetId = config('services.google.spreadsheet_id')
             ?? '1ENclJ4VKSh4zsz5WAD5dAsQZg654FtUDJLyQnH3p9NI';
 
-        $this->service = GoogleSheetsService::client();
+        $this->service = new GoogleSheetsService();
     }
 
     /**
@@ -26,7 +26,7 @@ class PengajuanIzinSheetRepository
      */
     public function ensureSheetExists(): void
     {
-        $spreadsheet = $this->service->spreadsheets->get($this->spreadsheetId);
+        $spreadsheet = $this->service->raw()->spreadsheets->get($this->spreadsheetId);
         $sheets = $spreadsheet->getSheets();
 
         $exists = collect($sheets)->contains(
@@ -47,7 +47,8 @@ class PengajuanIzinSheetRepository
                 'requests' => [$request],
             ]);
 
-            $this->service->spreadsheets
+            $this->service->raw()
+                ->spreadsheets
                 ->batchUpdate($this->spreadsheetId, $batchRequest);
         }
 
@@ -57,16 +58,9 @@ class PengajuanIzinSheetRepository
 
     protected function ensureHeaderExists(): void
     {
-        $range = "{$this->sheetName}!A1:M1";
+        $range = "{$this->sheetName}!A1:N1";
+        $values = $this->service->getValues($range);
 
-        $response = $this->service->spreadsheets_values->get(
-            $this->spreadsheetId,
-            $range
-        );
-
-        $values = $response->getValues();
-
-        // Jika baris 1 kosong → tulis header
         if (empty($values)) {
             $this->addHeader();
         }
@@ -94,31 +88,68 @@ class PengajuanIzinSheetRepository
             'Created At',
         ]];
 
-        $this->service->spreadsheets_values->update(
+        $this->service->raw()->spreadsheets_values->update(
             $this->spreadsheetId,
             "{$this->sheetName}!A1:N1",
             new ValueRange(['values' => $headers]),
             ['valueInputOption' => 'RAW']
         );
     }
-    /**
- * Sync data pengajuan izin dari database ke Google Sheet
- */
-    /**
- * Sync data pengajuan izin dari database ke Google Sheet
- */
-public function syncFromDatabase($izin): void
-{
-    $existingIds = $this->getExistingIds();
 
-    $rows = [];
+    /**
+     * Sync data pengajuan izin dari database ke Google Sheet
+     */
+    public function syncFromDatabase($izin): void
+    {
+        $existingIds = $this->getExistingIds();
+        $rows = [];
 
-    foreach ($izin as $item) {
-        if (in_array($item->id, $existingIds)) {
-            continue; // ⛔ sudah ada → skip
+        foreach ($izin as $item) {
+            if (in_array($item->id, $existingIds)) {
+                continue;
+            }
+
+            $rows[] = [
+                (int) $item->id,
+                (string) $item->nama,
+                (string) $item->divisi,
+                (string) $item->jenis_izin,
+                (string) $item->tanggal_mulai,
+                (string) $item->tanggal_selesai,
+                (string) $item->jumlah_hari,
+                (string) $item->keterangan_tambahan,
+                (string) $item->nomor_telepon,
+                (string) $item->alamat,
+                (string) $item->documen_pendukung,
+                (string) $item->konfirmasi,
+                (string) $item->status,
+                optional($item->created_at)->format('Y-m-d H:i:s'),
+            ];
         }
 
-        $rows[] = [
+        $this->service->appendRaw(
+            $rows,
+            "{$this->sheetName}!A:N"
+        );
+    }
+
+    /**
+     * Ambil semua pengajuan_id yang sudah ada di Sheet
+     */
+    protected function getExistingIds(): array
+    {
+        $range = "{$this->sheetName}!A2:A";
+        $values = $this->service->getValues($range);
+
+        return collect($values)
+            ->flatten()
+            ->map(fn ($v) => (int) $v)
+            ->toArray();
+    }
+
+    public function appendSingle($item): void
+    {
+        $values = [[
             (int) $item->id,
             (string) $item->nama,
             (string) $item->divisi,
@@ -132,107 +163,32 @@ public function syncFromDatabase($izin): void
             (string) $item->documen_pendukung,
             (string) $item->konfirmasi,
             (string) $item->status,
-            $item->created_at
-                ? $item->created_at->format('Y-m-d H:i:s')
-                : '',
-        ];
+            optional($item->created_at)->format('Y-m-d H:i:s'),
+        ]];
+
+        $this->service->appendRaw(
+            $values,
+            "{$this->sheetName}!A:N"
+        );
     }
 
-    if (empty($rows)) {
-        return; // tidak ada data baru
-    }
+    public function fetchApprovalStatuses(): array
+    {
+        $rows = $this->service->getValues("{$this->sheetName}!A2:N");
+        $result = [];
 
-    $this->service->spreadsheets_values->append(
-        $this->spreadsheetId,
-        "{$this->sheetName}!A:N",
-        new \Google\Service\Sheets\ValueRange([
-            'values' => $rows,
-        ]),
-        [
-            'valueInputOption' => 'USER_ENTERED',
-            'insertDataOption' => 'INSERT_ROWS',
-        ]
-    );
-}
+        foreach ($rows as $row) {
+            $id = $row[0] ?? null;
+            $status = $row[12] ?? null;
 
-/**
- * Ambil semua pengajuan_id yang sudah ada di Sheet
- */
-protected function getExistingIds(): array
-{
-    $range = "{$this->sheetName}!A2:A";
-
-    $response = $this->service->spreadsheets_values->get(
-        $this->spreadsheetId,
-        $range
-    );
-
-    $values = $response->getValues() ?? [];
-
-    return collect($values)
-        ->flatten()
-        ->map(fn ($v) => (int) $v)
-        ->toArray();
-}
-
-public function appendSingle($item): void
-{
-    $values = [[
-        (int) $item->id,
-        (string) $item->nama,
-        (string) $item->divisi,
-        (string) $item->jenis_izin,
-        (string) $item->tanggal_mulai,
-        (string) $item->tanggal_selesai,
-        (string) $item->jumlah_hari,
-        (string) $item->keterangan_tambahan,
-        (string) $item->nomor_telepon,
-        (string) $item->alamat,
-        (string) $item->documen_pendukung,
-        (string) $item->konfirmasi,
-        (string) $item->status,
-        $item->created_at
-            ? $item->created_at->format('Y-m-d H:i:s')
-            : '',
-    ]];
-
-    $this->service->spreadsheets_values->append(
-        $this->spreadsheetId,
-        "{$this->sheetName}!A:N",
-        new ValueRange([
-            'values' => $values
-        ]),
-        [
-            'valueInputOption' => 'USER_ENTERED',
-            'insertDataOption' => 'INSERT_ROWS',
-        ]
-    );
-}
-public function fetchApprovalStatuses(): array
-{
-    $response = $this->service->spreadsheets_values->get(
-        $this->spreadsheetId,
-        "{$this->sheetName}!A2:N"
-    );
-
-    $rows = $response->getValues() ?? [];
-    $result = [];
-
-    foreach ($rows as $row) {
-        $id = $row[0] ?? null;
-        $status = $row[12] ?? null; // kolom M (0-based)
-
-        if ($id && $status) {
-            $result[] = [
-                'id' => (int) $id,
-                'status' => trim($status),
-            ];
+            if ($id && $status) {
+                $result[] = [
+                    'id' => (int) $id,
+                    'status' => trim($status),
+                ];
+            }
         }
+
+        return $result;
     }
-
-    return $result;
-}
-
-
-
 }

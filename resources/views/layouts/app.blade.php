@@ -19,7 +19,11 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <!-- Tailwind CSS (TAMBAHKAN INI) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+
     
     @stack('styles')
     
@@ -76,19 +80,22 @@
         }
     </style>
 </head>
-<body>
-    <!-- Main Content -->
-    <main>
+<body class="@yield('body-class', 'bg-gray-100') min-h-screen">
+
+    {{-- Navbar hanya muncul jika halaman minta --}}
+    @if (! View::hasSection('hide-navbar'))
+         @include('partials.navbar')
+    @endif
+
+    <main class="container mx-auto py-6 pt-20">
         @yield('content')
     </main>
-    
-    <!-- Footer -->
-    @include('partials.footer')
-    
-    <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    
-    <!-- Custom JS -->
+
+    {{-- Footer --}}
+    @if (! View::hasSection('hide-footer'))
+        @include('partials.footer')
+    @endif
+
     @stack('scripts')
 </body>
 </html>

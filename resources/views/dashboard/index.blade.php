@@ -309,7 +309,7 @@
                         </a>
 
                         <!-- Pengajuan Izin -->
-                        <a href="/izin"
+                        <a href="{{ route('izin.create') }}"
                             class="flex items-center p-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition duration-200 {{ request()->is('izin') ? 'active-menu' : '' }}">
                             <i class="fas fa-file-alt text-lg w-6"></i>
                             <span class="ml-3 font-medium">Pengajuan Izin</span>
@@ -340,7 +340,7 @@
                         </a>
 
                         <!-- Pengajuan Izin -->
-                        <a href="/izin"
+                        <a href="{{ route('izin.create') }}"
                             class="flex items-center p-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition duration-200 {{ request()->is('izin') ? 'active-menu' : '' }}">
                             <i class="fas fa-file-alt text-lg w-6"></i>
                             <span class="ml-3 font-medium">Pengajuan Izin</span>
