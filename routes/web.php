@@ -14,7 +14,7 @@ use App\Http\Controllers\StokGudangController;
 use App\Http\Controllers\StokTransactionController;
 use App\Http\Controllers\SatuanController;
 use App\Http\Controllers\DepartemenController;
-use App\Http\Controllers\ReservasiController; // TAMBAHKAN INI
+use App\Http\Controllers\ReservasiController;
 
 // Public Routes
 Route::get('/', function () {
@@ -48,13 +48,13 @@ Route::prefix('screening')->name('screening.')->group(function () {
         ->name('export-sheets');
 });
 
-//Notification
-Route::prefix('notifications')->group(function () {
-    Route::get('/', [NotificationPageController::class, 'index'])->name('notifications.all');
-    Route::post('/{id}/read', [NotificationPageController::class, 'markAsRead'])->name('notifications.read');
-    Route::post('/read-all', [NotificationPageController::class, 'markAllAsRead'])->name('notifications.read-all');
-    Route::delete('/{id}', [NotificationPageController::class, 'destroy'])->name('notifications.destroy');
-    Route::delete('/', [NotificationPageController::class, 'clearAll'])->name('notifications.clear-all');
+// Notification Routes (Public)
+Route::prefix('notifications')->name('notifications.')->group(function () {
+    Route::get('/', [NotificationPageController::class, 'index'])->name('all');
+    Route::post('/{id}/read', [NotificationPageController::class, 'markAsRead'])->name('read');
+    Route::post('/read-all', [NotificationPageController::class, 'markAllAsRead'])->name('read-all');
+    Route::delete('/{id}', [NotificationPageController::class, 'destroy'])->name('destroy');
+    Route::delete('/', [NotificationPageController::class, 'clearAll'])->name('clear-all');
 });
 
 Route::resource('departemen', DepartemenController::class)
@@ -63,41 +63,6 @@ Route::resource('departemen', DepartemenController::class)
 Route::resource('satuan', SatuanController::class);
 // Route API untuk mengambil data satuan dalam format JSON
 Route::get('/api/satuan', [SatuanController::class, 'indexApi'])->name('api.satuan.index');
-
-// Route untuk stok gudang
-// Route::prefix('stok-gudang')->name('stok.')->group(function () {
-//     Route::get('/', [StokGudangController::class, 'index'])->name('index');
-//     Route::get('/create', [StokGudangController::class, 'create'])->name('create');
-//     Route::post('/', [StokGudangController::class, 'store'])->name('store');
-
-//     // Tambahkan routes untuk edit, update, dan destroy
-//     Route::get('/{id}/edit', [StokGudangController::class, 'edit'])->name('edit');
-//     Route::put('/{id}', [StokGudangController::class, 'update'])->name('update');
-//     Route::delete('/{id}', [StokGudangController::class, 'destroy'])->name('destroy');
-
-//     Route::post('/rollover', [StokGudangController::class, 'rollover'])->name('rollover');
-//     Route::get('/export', [StokGudangController::class, 'exportExcel'])->name('export');
-//     Route::get('/rollover-history', [StokGudangController::class, 'showRolloverHistory'])->name('rollover.history');
-// });
-
-// Route untuk transaksi harian
-// Route::prefix('transactions')->name('transactions.')->group(function () {
-
-//     Route::get('/', [StokTransactionController::class, 'index'])->name('index');
-//     Route::get('/create', [StokTransactionController::class, 'create'])->name('create');
-//     Route::post('/', [StokTransactionController::class, 'store'])->name('store');
-
-
-//     // Tambahkan route edit, update, dan destroy
-//     Route::get('/{transaction}/edit', [StokTransactionController::class, 'edit'])->name('edit');
-//     Route::put('/{transaction}', [StokTransactionController::class, 'update'])->name('update');
-//     Route::delete('/{transaction}', [StokTransactionController::class, 'destroy'])->name('destroy');
-
-//     Route::get('/{id}', [StokTransactionController::class, 'show'])
-//         ->where('id', '[0-9]+')
-//         ->name('show');
-
-// });
 
 // =======================
 // STOK GUDANG - PUBLIC
@@ -121,7 +86,6 @@ Route::middleware('auth')->prefix('stok-gudang')->name('stok.')->group(function 
     Route::get('/rollover-history', [StokGudangController::class, 'showRolloverHistory'])->name('rollover.history');
 });
 
-
 // =======================
 // TRANSACTIONS - PUBLIC
 // =======================
@@ -143,48 +107,6 @@ Route::middleware('auth')->prefix('transactions')->name('transactions.')->group(
     Route::get('/{id}', [StokTransactionController::class, 'show'])
         ->where('id', '[0-9]+')
         ->name('show');
-});
-
-// Public Pages Routes (Accessible without login)
-Route::get('/layanan', function () {
-    return view('layanan.index');
-})->name('layanan');
-
-Route::get('/agenda', function () {
-    return view('agenda.index');
-})->name('agenda');
-
-Route::get('/informasi', function () {
-    return view('informasi.index');
-})->name('informasi');
-
-Route::get('/media', function () {
-    return view('media.index');
-})->name('media');
-
-Route::get('/profil', function () {
-    return view('profil.index');
-})->name('profil');
-
-Route::get('/faq', function () {
-    return view('faq.index');
-})->name('faq');
-
-// Reservasi Routes (Public - bisa diakses tanpa login)
-Route::prefix('reservasi')->name('reservasi.')->group(function () {
-    // Halaman utama reservasi (landing page)
-    Route::get('/', function () {
-        return redirect()->route('reservasi.inn.index');
-    })->name('index');
-    
-    // Legareca Inn
-    Route::get('/inn', [ReservasiController::class, 'innIndex'])->name('inn.index');
-    Route::post('/inn/submit', [ReservasiController::class, 'innSubmit'])->name('inn.submit');
-    
-    // Jika nanti ada reservasi lain
-    // Route::get('/venue', [ReservasiController::class, 'venueIndex'])->name('venue.index');
-    // Route::get('/gallery', [ReservasiController::class, 'galleryIndex'])->name('gallery.index');
-    // Route::get('/pet', [ReservasiController::class, 'petIndex'])->name('pet.index');
 });
 
 // Public Pages Routes (Accessible without login)
@@ -269,9 +191,8 @@ Route::middleware('auth')->group(function () {
         Route::get('/test-google-sheets', [DailyCleaningReportController::class, 'testGoogleSheetsConnection'])
             ->name('test-google-sheets');
 
-            Route::get('/check-config', [DailyCleaningReportController::class, 'checkGoogleSheetsConfig'])
-                ->name('check-config');
-        });
+        Route::get('/check-config', [DailyCleaningReportController::class, 'checkGoogleSheetsConfig'])
+            ->name('check-config');
     });
 
     // Admin/Developer Routes (restricted access)
@@ -279,12 +200,12 @@ Route::middleware('auth')->group(function () {
         Route::resource('users', UserController::class)->only(['index', 'create', 'store']);
     });
 
-    // Notification Routes
-    Route::prefix('notifications')->name('notifications.')->group(function () {
-        Route::get('/', [NotificationPageController::class, 'index'])->name('all');
-        Route::post('/{id}/read', [NotificationPageController::class, 'markAsRead'])->name('read');
-        Route::post('/read-all', [NotificationPageController::class, 'markAllAsRead'])->name('read-all');
-        Route::delete('/{id}', [NotificationPageController::class, 'destroy'])->name('destroy');
-        Route::delete('/', [NotificationPageController::class, 'clearAll'])->name('clear-all');
-    });
+    // Notification Routes (duplicate - consider removing or consolidating)
+    // Route::prefix('notifications')->name('notifications.')->group(function () {
+    //     Route::get('/', [NotificationPageController::class, 'index'])->name('all');
+    //     Route::post('/{id}/read', [NotificationPageController::class, 'markAsRead'])->name('read');
+    //     Route::post('/read-all', [NotificationPageController::class, 'markAllAsRead'])->name('read-all');
+    //     Route::delete('/{id}', [NotificationPageController::class, 'destroy'])->name('destroy');
+    //     Route::delete('/', [NotificationPageController::class, 'clearAll'])->name('clear-all');
+    // });
 });

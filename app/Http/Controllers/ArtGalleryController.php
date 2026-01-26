@@ -10,6 +10,7 @@ class ArtGalleryController extends Controller
     {
         $galleries = ArtGallery::latest()->get();
 
-        return view('art_gallery.pages.index', compact('galleries'));
+        // Ubah ini untuk menggunakan view yang sudah ada
+        return view('art-gallery.index', compact('galleries'));
     }
 }
