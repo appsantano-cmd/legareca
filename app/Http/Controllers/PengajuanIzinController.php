@@ -13,20 +13,49 @@ class PengajuanIzinController extends Controller
      * Tampilkan daftar pengajuan izin
      */
     public function index(Request $request)
-    {
-        $query = PengajuanIzin::query();
-
-        // 🔎 FILTER STATUS
-        if ($request->filled('status')) {
-            $query->where('status', $request->status);
-        }
-
-        $izin = $query
-            ->orderBy('created_at', 'desc')
-            ->get();
-
-        return view('form_pengajuan_izin.pages.index', compact('izin'));
+{
+    $query = PengajuanIzin::query();
+    
+    // Filter status
+    if ($request->status) {
+        $query->where('status', $request->status);
     }
+    
+    // Search
+    if ($request->search) {
+        $query->where(function($q) use ($request) {
+            $q->where('nama', 'like', "%{$request->search}%")
+              ->orWhere('jenis_izin', 'like', "%{$request->search}%")
+              ->orWhere('divisi', 'like', "%{$request->search}%");
+        });
+    }
+    
+    // Filter tanggal mulai
+    if ($request->start_date) {
+        $query->whereDate('tanggal_mulai', '>=', $request->start_date);
+    }
+    
+    // Filter tanggal selesai
+    if ($request->end_date) {
+        $query->whereDate('tanggal_selesai', '<=', $request->end_date);
+    }
+    
+    // Statistics
+    $stats = [
+        'total' => PengajuanIzin::count(),
+        'pending' => PengajuanIzin::where('status', 'Pending')->count(),
+        'approved' => PengajuanIzin::where('status', 'Disetujui')->count(),
+        'rejected' => PengajuanIzin::where('status', 'Ditolak')->count(),
+    ];
+    
+    // Sorting
+    $query->latest();
+    
+    // Pagination
+    $izin = $query->paginate(10)->withQueryString();
+    
+    return view('form_pengajuan_izin.pages.index', compact('izin', 'stats'));
+}
 
 
     /**
@@ -56,7 +85,7 @@ class PengajuanIzinController extends Controller
             'nomor_telepon' => 'required|string|max:20',
             'alamat' => 'required|string|max:255',
             'konfirmasi' => 'required|accepted',
-            'documen_pendukung' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
+            'documen_pendukung' => 'nullable|file|mimes:jpg,jpeg,png,webp,pdf,heic,heif|max:20480',
         ]);
 
         // 🔥 LOGIKA FINAL JENIS IZIN
