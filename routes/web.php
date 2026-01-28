@@ -6,7 +6,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\PengajuanIzinController;
 use App\Http\Controllers\ScreeningController;
-use App\Http\Controllers\shiftingController;
+use App\Http\Controllers\ShiftingController;
 use App\Http\Controllers\DailyCleaningReportController;
 use App\Http\Controllers\NotificationPageController;
 use App\Http\Controllers\ArtGalleryController;
@@ -161,8 +161,8 @@ Route::middleware('auth')->group(function () {
 
         // shifting Routes
         Route::prefix('shifting')->name('shifting.')->group(function () {
-            Route::get('/', [shiftingController::class, 'index'])->name('index');
-            Route::post('/submit', [shiftingController::class, 'submit'])->name('submit');
+            Route::get('/', [ShiftingController::class, 'index'])->name('index');
+            Route::post('/submit', [ShiftingController::class, 'submit'])->name('submit');
         });
 
         // Daily Cleaning Report Routes
