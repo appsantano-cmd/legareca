@@ -524,7 +524,7 @@
                 <a href="#venue" class="nav-item text-white hover:text-red-500 transition">Venue</a>
                 <a href="/reservasi" class="nav-item text-white hover:text-red-500 transition">Legareca Inn</a>
                 <a href="/art-gallery" class="nav-item text-white hover:text-red-500 transition">Legareca Art Gallery</a>
-                <a href="#pet" class="nav-item text-white hover:text-red-500 transition">Legareca Pet</a>
+                <a href="#pet" class="nav-item text-white hover:text-red-500 transition">Lega Pet Hotel</a>
                 
                 <!-- Button di Navbar -->
                 <button class="nav-button text-white text-sm">
@@ -616,10 +616,10 @@
                 <!-- Tambahan card untuk demo scroll horizontal -->
                 <div class="horizontal-card">
                     <div class="overflow-hidden">
-                        <img src="https://images.unsplash.com/photo-1596394516093-501ba68a0ba6?ixlib=rb-4.0.3&auto=format&fit=crop&w=1170&q=80" alt="Legareca Pet" class="horizontal-card-image">
+                        <img src="https://images.unsplash.com/photo-1596394516093-501ba68a0ba6?ixlib=rb-4.0.3&auto=format&fit=crop&w=1170&q=80" alt="Lega Pet Hotel" class="horizontal-card-image">
                     </div>
                     <div class="horizontal-card-content">
-                        <h3 class="text-xl font-bold mb-2">Legareca Pet</h3>
+                        <h3 class="text-xl font-bold mb-2">Lega Pet Hotel</h3>
                         <p class="text-gray-700 mb-4">Fasilitas perawatan hewan peliharaan dengan layanan grooming dan penitipan.</p>
                         <a href="#pet" class="inline-block text-red-500 font-semibold hover:text-red-600">Selengkapnya →</a>
                     </div>

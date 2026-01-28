@@ -15,6 +15,157 @@
         /* 4rem = 64px (tinggi navbar) */
     }
 
+    /* FIX UNTUK BOOTSTRAP MODAL & BUTTON - IMPORTANT! */
+    .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        z-index: 9999;
+        width: 100%;
+        height: 100%;
+        overflow-x: hidden;
+        overflow-y: auto;
+        outline: 0;
+    }
+    
+    .modal-dialog {
+        position: relative;
+        width: auto;
+        margin: 0.5rem;
+        pointer-events: none;
+    }
+    
+    .modal.fade .modal-dialog {
+        transition: transform 0.3s ease-out;
+        transform: translate(0, -50px);
+    }
+    
+    .modal.show .modal-dialog {
+        transform: none;
+    }
+    
+    .modal-content {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        pointer-events: auto;
+        background-color: #fff;
+        background-clip: padding-box;
+        border: 1px solid rgba(0, 0, 0, 0.2);
+        border-radius: 16px;
+        outline: 0;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    }
+    
+    .modal-backdrop {
+        position: fixed;
+        top: 0;
+        left: 0;
+        z-index: 9998;
+        width: 100vw;
+        height: 100vh;
+        background-color: #000;
+    }
+    
+    .modal-backdrop.fade {
+        opacity: 0;
+    }
+    
+    .modal-backdrop.show {
+        opacity: 0.5;
+    }
+    
+    .modal-header {
+        display: flex;
+        flex-shrink: 0;
+        align-items: center;
+        justify-content: space-between;
+        padding: 25px 30px;
+        background: linear-gradient(135deg, #264653, #2a9d8f);
+        color: white;
+        border-radius: 16px 16px 0 0;
+        border: none;
+    }
+    
+    .modal-body {
+        position: relative;
+        flex: 1 1 auto;
+        padding: 1.5rem;
+    }
+    
+    .modal-footer {
+        display: flex;
+        flex-wrap: wrap;
+        flex-shrink: 0;
+        align-items: center;
+        justify-content: flex-end;
+        padding: 0.75rem;
+        border-top: 1px solid #dee2e6;
+        border-bottom-right-radius: calc(0.3rem - 1px);
+        border-bottom-left-radius: calc(0.3rem - 1px);
+    }
+    
+    .btn-close {
+        box-sizing: content-box;
+        width: 1em;
+        height: 1em;
+        padding: 0.25em 0.25em;
+        color: white;
+        background: transparent url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23fff'%3e%3cpath d='M.293.293a1 1 0 011.414 0L8 6.586 14.293.293a1 1 0 111.414 1.414L9.414 8l6.293 6.293a1 1 0 01-1.414 1.414L8 9.414l-6.293 6.293a1 1 0 01-1.414-1.414L6.586 8 .293 1.707a1 1 0 010-1.414z'/%3e%3c/svg%3e") center/1em auto no-repeat;
+        border: 0;
+        border-radius: 0.25rem;
+        opacity: 0.8;
+    }
+    
+    .btn-close:hover {
+        opacity: 1;
+    }
+
+    /* FIX UNTUK BUTTONS */
+    .btn {
+        display: inline-block;
+        font-weight: 400;
+        line-height: 1.5;
+        text-align: center;
+        text-decoration: none;
+        vertical-align: middle;
+        cursor: pointer;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        user-select: none;
+        background-color: transparent;
+        border: 1px solid transparent;
+        padding: 0.5rem 1.5rem;
+        font-size: 1rem;
+        border-radius: 10px;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-primary {
+        background: linear-gradient(135deg, #2a9d8f, #1d7873);
+        color: white;
+        border: none;
+    }
+    
+    .btn-primary:hover {
+        background: linear-gradient(135deg, #1d7873, #155e58);
+        color: white;
+        transform: translateY(-2px);
+    }
+    
+    .btn-outline-secondary {
+        color: #6c757d;
+        border-color: #6c757d;
+    }
+    
+    .btn-outline-secondary:hover {
+        color: #fff;
+        background-color: #6c757d;
+        border-color: #6c757d;
+    }
+
     /* Custom Styles for Legareca Inn Page - Hanya yang perlu */
     .hero-section {
         background: linear-gradient(rgba(10, 37, 64, 0.85), rgba(10, 37, 64, 0.9)),
@@ -143,13 +294,26 @@
     .booking-btn {
         background: linear-gradient(135deg, #ff7a18, #ff3d00);
         color: #ffffff;
+        padding: 14px 28px;
+        border-radius: 10px;
+        border: none;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        text-decoration: none;
+        cursor: pointer;
+        box-shadow: 0 4px 15px rgba(255, 122, 24, 0.3);
+        flex: 1;
     }
 
     .booking-btn:hover {
         background: linear-gradient(135deg, #ff6a00, #e53935);
         color: #ffffff;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(255, 122, 24, 0.4);
     }
-
 
     .section-title {
         position: relative;
@@ -219,24 +383,6 @@
         transform: translateY(-5px);
     }
 
-    .modal-content {
-        border-radius: 16px;
-        border: none;
-        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-    }
-
-    .modal-header {
-        background: linear-gradient(135deg, #264653, #2a9d8f);
-        color: white;
-        border-radius: 16px 16px 0 0;
-        padding: 25px 30px;
-        border: none;
-    }
-
-    .modal-header .btn-close {
-        filter: invert(1) brightness(100%);
-    }
-
     .form-control,
     .form-select {
         padding: 12px 15px;
@@ -249,20 +395,6 @@
     .form-select:focus {
         border-color: #2a9d8f;
         box-shadow: 0 0 0 0.25rem rgba(42, 157, 143, 0.25);
-    }
-
-    .btn-primary {
-        background: linear-gradient(135deg, #2a9d8f, #1d7873);
-        border: none;
-        padding: 12px 30px;
-        border-radius: 10px;
-        font-weight: 600;
-        transition: all 0.3s ease;
-    }
-
-    .btn-primary:hover {
-        background: linear-gradient(135deg, #1d7873, #155e58);
-        transform: translateY(-2px);
     }
 
     .lead-text {
@@ -310,6 +442,64 @@
         opacity: 0.9;
     }
 
+    /* FIX untuk Bootstrap Input Group */
+    .input-group {
+        position: relative;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: stretch;
+        width: 100%;
+    }
+    
+    .input-group-text {
+        display: flex;
+        align-items: center;
+        padding: 0.375rem 0.75rem;
+        font-size: 1rem;
+        font-weight: 400;
+        line-height: 1.5;
+        color: #212529;
+        text-align: center;
+        white-space: nowrap;
+        background-color: #e9ecef;
+        border: 1px solid #ced4da;
+        border-radius: 0.25rem;
+    }
+    
+    .input-group > .form-control {
+        position: relative;
+        flex: 1 1 auto;
+        width: 1%;
+        min-width: 0;
+    }
+    
+    .input-group > .form-control:not(:first-child) {
+        border-top-left-radius: 0;
+        border-bottom-left-radius: 0;
+        margin-left: -1px;
+    }
+    
+    .input-group > .input-group-text:first-child {
+        border-top-right-radius: 0;
+        border-bottom-right-radius: 0;
+        border-right: 0;
+    }
+
+    /* Alert styling */
+    .alert {
+        position: relative;
+        padding: 1rem;
+        margin-bottom: 1rem;
+        border: 1px solid transparent;
+        border-radius: 0.25rem;
+    }
+    
+    .alert-info {
+        color: #055160;
+        background-color: #cff4fc;
+        border-color: #b6effb;
+    }
+
     @media (max-width: 768px) {
         .hero-section {
             padding: 80px 0;
@@ -355,16 +545,14 @@
             </span>
         </div>
 
-
-
         <!-- Desktop Menu -->
         <div class="hidden md:flex items-center space-x-8">
             <a href="/" class="text-white hover:text-red-400 font-medium relative group transition-colors duration-300">
                 Beranda
                 <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-red-500 group-hover:w-full transition-all duration-300"></span>
             </a>
-            <a href="#venue" class="text-white hover:text-red-400 font-medium relative group transition-colors duration-300">
-                Venue
+            <a href="/legareca-space" class="text-white hover:text-red-400 font-medium relative group transition-colors duration-300">
+                Legareca Space
                 <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-red-500 group-hover:w-full transition-all duration-300"></span>
             </a>
             <a href="/reservasi" class="text-red-400 font-medium relative group transition-colors duration-300">
@@ -376,7 +564,7 @@
                 <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-red-500 group-hover:w-full transition-all duration-300"></span>
             </a>
             <a href="#pet" class="text-white hover:text-red-400 font-medium relative group transition-colors duration-300">
-                Legareca Pet
+                Lega Pet Hotel
                 <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-red-500 group-hover:w-full transition-all duration-300"></span>
             </a>
 
@@ -399,8 +587,8 @@
             <a href="/" class="block text-white hover:text-red-400 py-3 px-4 hover:bg-white/5 rounded-lg transition-colors duration-300">
                 Beranda
             </a>
-            <a href="#venue" class="block text-white hover:text-red-400 py-3 px-4 hover:bg-white/5 rounded-lg transition-colors duration-300">
-                Venue
+            <a href="/legareca-space" class="block text-white hover:text-red-400 py-3 px-4 hover:bg-white/5 rounded-lg transition-colors duration-300">
+                Legareca Space
             </a>
             <a href="/reservasi" class="block text-red-400 py-3 px-4 bg-white/5 rounded-lg transition-colors duration-300">
                 Legareca Inn
@@ -409,7 +597,7 @@
                 Legareca Art Gallery
             </a>
             <a href="#pet" class="block text-white hover:text-red-400 py-3 px-4 hover:bg-white/5 rounded-lg transition-colors duration-300">
-                Legareca Pet
+                Lega Pet Hotel
             </a>
 
             <a href="#contact" class="block bg-gradient-to-r from-red-500 to-orange-500 text-white font-semibold py-3 px-6 rounded-full hover:from-red-600 hover:to-orange-600 transition-all duration-300 text-center mt-4">
@@ -419,369 +607,370 @@
     </div>
 </nav>
 
-<!-- Hero Section -->
-<section class="hero-section text-center pt-24 pb-3">
-    <div class="container">
-        <div class="hero-content">
-            <h1 class="display-4 fw-bold mb-4 animate__animated animate__fadeInDown">
-                Legareca Inn
-            </h1>
+<main>
+    <!-- Hero Section -->
+    <section class="hero-section text-center pt-24 pb-3">
+        <div class="container">
+            <div class="hero-content">
+                <h1 class="display-4 fw-bold mb-4 animate__animated animate__fadeInDown">
+                    Legareca Inn
+                </h1>
 
-            <p class="lead-text mb-5 animate__animated animate__fadeInUp">
-                Penginapan premium dengan kenyamanan maksimal di jantung Yogyakarta.
-                Pengalaman menginap yang tak terlupakan dengan fasilitas lengkap dan pelayanan terbaik.
-            </p>
+                <p class="lead-text mb-5 animate__animated animate__fadeInUp">
+                    Penginapan premium dengan kenyamanan maksimal di jantung Yogyakarta.
+                    Pengalaman menginap yang tak terlupakan dengan fasilitas lengkap dan pelayanan terbaik.
+                </p>
 
-            <a href="#rooms"
-                class="btn btn-light btn-lg px-5 py-3 rounded-pill fw-bold shadow animate__animated animate__fadeInUp"
-                style="background: white; color: #264653;">
-                <i class="fas fa-bed me-2"></i>Lihat Kamar Tersedia
-            </a>
+                <a href="#rooms"
+                    class="btn btn-light btn-lg px-5 py-3 rounded-pill fw-bold shadow animate__animated animate__fadeInUp"
+                    style="background: white; color: #264653;">
+                    <i class="fas fa-bed me-2"></i>Lihat Kamar Tersedia
+                </a>
+            </div>
         </div>
-    </div>
-</section>
+    </section>
 
 
-<!-- Room List Section -->
-<section id="rooms" class="py-5">
-    <div class="container">
-        <div class="text-center mb-5">
-            <h2 class="section-title d-inline-block">Kamar Tersedia</h2>
-            <p class="text-muted mb-5" style="max-width: 700px; margin: 0 auto;">Temukan kamar yang sesuai dengan kebutuhan Anda. Setiap kamar didesain dengan sentuhan modern dan fasilitas lengkap untuk kenyamanan maksimal.</p>
-        </div>
+    <!-- Room List Section -->
+    <section id="rooms" class="py-5">
+        <div class="container">
+            <div class="text-center mb-5">
+                <h2 class="section-title d-inline-block">Kamar Tersedia</h2>
+                <p class="text-muted mb-5" style="max-width: 700px; margin: 0 auto;">Temukan kamar yang sesuai dengan kebutuhan Anda. Setiap kamar didesain dengan sentuhan modern dan fasilitas lengkap untuk kenyamanan maksimal.</p>
+            </div>
 
-        <div class="row">
-            <!-- Room 1: Standard Room -->
-            <div class="col-lg-4 col-md-6">
-                <div class="room-card">
-                    <div class="position-relative overflow-hidden">
-                        <img src="https://images.unsplash.com/photo-1631049307264-da0ec9d70304?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80"
-                            alt="Standard Room" class="room-image">
-                        <span class="badge bg-success badge-availability">Tersedia</span>
+            <div class="row">
+                <!-- Room 1: Standard Room -->
+                <div class="col-lg-4 col-md-6">
+                    <div class="room-card">
+                        <div class="position-relative overflow-hidden">
+                            <img src="https://images.unsplash.com/photo-1631049307264-da0ec9d70304?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80"
+                                alt="Standard Room" class="room-image">
+                            <span class="badge bg-success badge-availability">Tersedia</span>
+                        </div>
+                        <div class="p-4">
+                            <h3 class="h4 mb-3 fw-bold" style="color: #264653;">Standard Room</h3>
+                            <div class="room-price mb-3">Rp 350.000 / malam</div>
+                            <p class="room-description">Kamar nyaman dengan tempat tidur queen size, dilengkapi AC, TV LED 32", dan kamar mandi pribadi yang bersih.</p>
+
+                            <ul class="room-features mb-4">
+                                <li><i class="fas fa-bed"></i> 1 Tempat Tidur Queen Size</li>
+                                <li><i class="fas fa-user"></i> Maksimal 2 orang</li>
+                                <li><i class="fas fa-wifi"></i> WiFi High-Speed</li>
+                                <li><i class="fas fa-coffee"></i> Sarapan Inklusif</li>
+                                <li><i class="fas fa-snowflake"></i> AC</li>
+                            </ul>
+
+                            <div class="room-actions">
+                                <a href="https://wa.me/6281328897679?text=Halo,%20saya%20ingin%20bertanya%20tentang%20Standard%20Room%20di%20Legareca%20Inn"
+                                    target="_blank" class="whatsapp-btn">
+                                    <i class="fab fa-whatsapp"></i> WhatsApp
+                                </a>
+                                <button type="button" class="booking-btn" data-bs-toggle="modal" data-bs-target="#bookingModal" data-room="Standard Room" data-price="350000">
+                                    Booking Sekarang
+                                </button>
+                            </div>
+                        </div>
                     </div>
-                    <div class="p-4">
-                        <h3 class="h4 mb-3 fw-bold" style="color: #264653;">Standard Room</h3>
-                        <div class="room-price mb-3">Rp 350.000 / malam</div>
-                        <p class="room-description">Kamar nyaman dengan tempat tidur queen size, dilengkapi AC, TV LED 32", dan kamar mandi pribadi yang bersih.</p>
+                </div>
 
-                        <ul class="room-features mb-4">
-                            <li><i class="fas fa-bed"></i> 1 Tempat Tidur Queen Size</li>
-                            <li><i class="fas fa-user"></i> Maksimal 2 orang</li>
-                            <li><i class="fas fa-wifi"></i> WiFi High-Speed</li>
-                            <li><i class="fas fa-coffee"></i> Sarapan Inklusif</li>
-                            <li><i class="fas fa-snowflake"></i> AC</li>
-                        </ul>
+                <!-- Room 2: Deluxe Room -->
+                <div class="col-lg-4 col-md-6">
+                    <div class="room-card">
+                        <div class="position-relative overflow-hidden">
+                            <img src="https://images.unsplash.com/photo-1566665797739-1674de7a421a?ixlib=rb-4.0.3&auto=format&fit=crop&w=2074&q=80"
+                                alt="Deluxe Room" class="room-image">
+                            <span class="badge bg-success badge-availability">Tersedia</span>
+                        </div>
+                        <div class="p-4">
+                            <h3 class="h4 mb-3 fw-bold" style="color: #264653;">Deluxe Room</h3>
+                            <div class="room-price mb-3">Rp 550.000 / malam</div>
+                            <p class="room-description">Kamar lebih luas dengan balkon pribadi, tempat kerja ergonomis, dan fasilitas premium untuk pengalaman menginap yang lebih eksklusif.</p>
 
-                        <div class="room-actions">
-                            <a href="https://wa.me/6281328897679?text=Halo,%20saya%20ingin%20bertanya%20tentang%20Standard%20Room%20di%20Legareca%20Inn"
-                                target="_blank" class="whatsapp-btn">
-                                <i class="fab fa-whatsapp"></i> WhatsApp
-                            </a>
-                            <button type="button" class="booking-btn" data-bs-toggle="modal" data-bs-target="#bookingModal" data-room="Standard Room" data-price="350000">
-                                Booking Sekarang
-                            </button>
+                            <ul class="room-features mb-4">
+                                <li><i class="fas fa-bed"></i> 1 Tempat Tidur King Size</li>
+                                <li><i class="fas fa-user"></i> Maksimal 2 orang</li>
+                                <li><i class="fas fa-wifi"></i> WiFi High-Speed Premium</li>
+                                <li><i class="fas fa-utensils"></i> Sarapan Premium</li>
+                                <li><i class="fas fa-bath"></i> Bathtub</li>
+                                <li><i class="fas fa-desktop"></i> Meja Kerja</li>
+                            </ul>
+
+                            <div class="room-actions">
+                                <a href="https://wa.me/6281234567890?text=Halo,%20saya%20ingin%20bertanya%20tentang%20Deluxe%20Room%20di%20Legareca%20Inn"
+                                    target="_blank" class="whatsapp-btn">
+                                    <i class="fab fa-whatsapp"></i> WhatsApp
+                                </a>
+                                <button type="button" class="booking-btn" data-bs-toggle="modal" data-bs-target="#bookingModal" data-room="Deluxe Room" data-price="550000">
+                                    Booking Sekarang
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Room 3: Family Suite -->
+                <div class="col-lg-4 col-md-6">
+                    <div class="room-card">
+                        <div class="position-relative overflow-hidden">
+                            <img src="https://images.unsplash.com/photo-1615873968403-89e068629265?ixlib=rb-4.0.3&auto=format&fit=crop&w=2080&q=80"
+                                alt="Family Suite" class="room-image">
+                            <span class="badge bg-warning text-dark badge-availability">Terbatas</span>
+                        </div>
+                        <div class="p-4">
+                            <h3 class="h4 mb-3 fw-bold" style="color: #264653;">Family Suite</h3>
+                            <div class="room-price mb-3">Rp 850.000 / malam</div>
+                            <p class="room-description">Suite keluarga eksklusif dengan 2 kamar tidur terpisah, ruang tamu, dan dapur kecil. Ideal untuk keluarga atau rombongan kecil.</p>
+
+                            <ul class="room-features mb-4">
+                                <li><i class="fas fa-bed"></i> 2 Kamar Tidur (King + Twin)</li>
+                                <li><i class="fas fa-user"></i> Maksimal 4 orang</li>
+                                <li><i class="fas fa-wifi"></i> WiFi High-Speed</li>
+                                <li><i class="fas fa-utensils"></i> Dapur Kecil</li>
+                                <li><i class="fas fa-couch"></i> Ruang Tamu Terpisah</li>
+                                <li><i class="fas fa-tv"></i> 2 TV LED 40"</li>
+                            </ul>
+
+                            <div class="room-actions">
+                                <a href="https://wa.me/6281234567890?text=Halo,%20saya%20ingin%20bertanya%20tentang%20Family%20Suite%20di%20Legareca%20Inn"
+                                    target="_blank" class="whatsapp-btn">
+                                    <i class="fab fa-whatsapp"></i> WhatsApp
+                                </a>
+                                <button type="button" class="booking-btn" data-bs-toggle="modal" data-bs-target="#bookingModal" data-room="Family Suite" data-price="850000">
+                                    Booking Sekarang
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Room 2: Deluxe Room -->
-            <div class="col-lg-4 col-md-6">
-                <div class="room-card">
-                    <div class="position-relative overflow-hidden">
-                        <img src="https://images.unsplash.com/photo-1566665797739-1674de7a421a?ixlib=rb-4.0.3&auto=format&fit=crop&w=2074&q=80"
-                            alt="Deluxe Room" class="room-image">
-                        <span class="badge bg-success badge-availability">Tersedia</span>
-                    </div>
-                    <div class="p-4">
-                        <h3 class="h4 mb-3 fw-bold" style="color: #264653;">Deluxe Room</h3>
-                        <div class="room-price mb-3">Rp 550.000 / malam</div>
-                        <p class="room-description">Kamar lebih luas dengan balkon pribadi, tempat kerja ergonomis, dan fasilitas premium untuk pengalaman menginap yang lebih eksklusif.</p>
-
-                        <ul class="room-features mb-4">
-                            <li><i class="fas fa-bed"></i> 1 Tempat Tidur King Size</li>
-                            <li><i class="fas fa-user"></i> Maksimal 2 orang</li>
-                            <li><i class="fas fa-wifi"></i> WiFi High-Speed Premium</li>
-                            <li><i class="fas fa-utensils"></i> Sarapan Premium</li>
-                            <li><i class="fas fa-bath"></i> Bathtub</li>
-                            <li><i class="fas fa-desktop"></i> Meja Kerja</li>
-                        </ul>
-
-                        <div class="room-actions">
-                            <a href="https://wa.me/6281234567890?text=Halo,%20saya%20ingin%20bertanya%20tentang%20Deluxe%20Room%20di%20Legareca%20Inn"
-                                target="_blank" class="whatsapp-btn">
-                                <i class="fab fa-whatsapp"></i> WhatsApp
-                            </a>
-                            <button type="button" class="booking-btn" data-bs-toggle="modal" data-bs-target="#bookingModal" data-room="Deluxe Room" data-price="550000">
-                                Booking Sekarang
-                            </button>
-                        </div>
+            <!-- Stats Section -->
+            <div class="row mt-5">
+                <div class="col-md-3 col-6">
+                    <div class="stats-box">
+                        <div class="stats-number">24/7</div>
+                        <div class="stats-label">Resepsionis</div>
                     </div>
                 </div>
-            </div>
-
-            <!-- Room 3: Family Suite -->
-            <div class="col-lg-4 col-md-6">
-                <div class="room-card">
-                    <div class="position-relative overflow-hidden">
-                        <img src="https://images.unsplash.com/photo-1615873968403-89e068629265?ixlib=rb-4.0.3&auto=format&fit=crop&w=2080&q=80"
-                            alt="Family Suite" class="room-image">
-                        <span class="badge bg-warning text-dark badge-availability">Terbatas</span>
+                <div class="col-md-3 col-6">
+                    <div class="stats-box">
+                        <div class="stats-number">50+</div>
+                        <div class="stats-label">Kamar</div>
                     </div>
-                    <div class="p-4">
-                        <h3 class="h4 mb-3 fw-bold" style="color: #264653;">Family Suite</h3>
-                        <div class="room-price mb-3">Rp 850.000 / malam</div>
-                        <p class="room-description">Suite keluarga eksklusif dengan 2 kamar tidur terpisah, ruang tamu, dan dapur kecil. Ideal untuk keluarga atau rombongan kecil.</p>
-
-                        <ul class="room-features mb-4">
-                            <li><i class="fas fa-bed"></i> 2 Kamar Tidur (King + Twin)</li>
-                            <li><i class="fas fa-user"></i> Maksimal 4 orang</li>
-                            <li><i class="fas fa-wifi"></i> WiFi High-Speed</li>
-                            <li><i class="fas fa-utensils"></i> Dapur Kecil</li>
-                            <li><i class="fas fa-couch"></i> Ruang Tamu Terpisah</li>
-                            <li><i class="fas fa-tv"></i> 2 TV LED 40"</li>
-                        </ul>
-
-                        <div class="room-actions">
-                            <a href="https://wa.me/6281234567890?text=Halo,%20saya%20ingin%20bertanya%20tentang%20Family%20Suite%20di%20Legareca%20Inn"
-                                target="_blank" class="whatsapp-btn">
-                                <i class="fab fa-whatsapp"></i> WhatsApp
-                            </a>
-                            <button type="button" class="booking-btn" data-bs-toggle="modal" data-bs-target="#bookingModal" data-room="Family Suite" data-price="850000">
-                                Booking Sekarang
-                            </button>
-                        </div>
+                </div>
+                <div class="col-md-3 col-6">
+                    <div class="stats-box">
+                        <div class="stats-number">4.8</div>
+                        <div class="stats-label">Rating</div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-6">
+                    <div class="stats-box">
+                        <div class="stats-number">100%</div>
+                        <div class="stats-label">Kepuasan</div>
                     </div>
                 </div>
             </div>
         </div>
+    </section>
 
-        <!-- Stats Section -->
-        <div class="row mt-5">
-            <div class="col-md-3 col-6">
-                <div class="stats-box">
-                    <div class="stats-number">24/7</div>
-                    <div class="stats-label">Resepsionis</div>
-                </div>
-            </div>
-            <div class="col-md-3 col-6">
-                <div class="stats-box">
-                    <div class="stats-number">50+</div>
-                    <div class="stats-label">Kamar</div>
-                </div>
-            </div>
-            <div class="col-md-3 col-6">
-                <div class="stats-box">
-                    <div class="stats-number">4.8</div>
-                    <div class="stats-label">Rating</div>
-                </div>
-            </div>
-            <div class="col-md-3 col-6">
-                <div class="stats-box">
-                    <div class="stats-number">100%</div>
-                    <div class="stats-label">Kepuasan</div>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
+    <!-- Contact & Information Section -->
+    <section id="contact" class="py-5" style="background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8">
+                    <div class="contact-box">
+                        <h2 class="section-title" style="font-size: 1.8rem;">Informasi & Reservasi</h2>
+                        <p class="mb-4" style="color: #666;">Hubungi kami untuk informasi lebih lanjut atau melakukan reservasi. Tim kami siap membantu Anda 24/7.</p>
 
-<!-- Contact & Information Section -->
-<section id="contact" class="py-5" style="background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);">
-    <div class="container">
-        <div class="row">
-            <div class="col-lg-8">
-                <div class="contact-box">
-                    <h2 class="section-title" style="font-size: 1.8rem;">Informasi & Reservasi</h2>
-                    <p class="mb-4" style="color: #666;">Hubungi kami untuk informasi lebih lanjut atau melakukan reservasi. Tim kami siap membantu Anda 24/7.</p>
+                        <div class="row mb-4">
+                            <div class="col-md-6 mb-4">
+                                <div class="info-card">
+                                    <div class="feature-icon">
+                                        <i class="fas fa-phone-alt"></i>
+                                    </div>
+                                    <h5 class="fw-bold mb-3" style="color: #264653;">Telepon</h5>
+                                    <p class="mb-2 fw-bold" style="color: #2a9d8f; font-size: 1.2rem;">(0274) 123-4567</p>
+                                    <p class="text-muted mb-0">Senin - Minggu: 08.00 - 20.00 WIB</p>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-4">
+                                <div class="info-card">
+                                    <div class="feature-icon">
+                                        <i class="fas fa-envelope"></i>
+                                    </div>
+                                    <h5 class="fw-bold mb-3" style="color: #264653;">Email</h5>
+                                    <p class="mb-2 fw-bold" style="color: #2a9d8f; font-size: 1.1rem;">reservasi@legarecainn.com</p>
+                                    <p class="text-muted mb-0">Respon dalam 1x24 jam</p>
+                                </div>
+                            </div>
+                        </div>
 
-                    <div class="row mb-4">
-                        <div class="col-md-6 mb-4">
+                        <div class="mb-4">
                             <div class="info-card">
                                 <div class="feature-icon">
-                                    <i class="fas fa-phone-alt"></i>
+                                    <i class="fas fa-map-marker-alt"></i>
                                 </div>
-                                <h5 class="fw-bold mb-3" style="color: #264653;">Telepon</h5>
-                                <p class="mb-2 fw-bold" style="color: #2a9d8f; font-size: 1.2rem;">(0274) 123-4567</p>
-                                <p class="text-muted mb-0">Senin - Minggu: 08.00 - 20.00 WIB</p>
+                                <h5 class="fw-bold mb-3" style="color: #264653;">Lokasi</h5>
+                                <p class="mb-2 fw-bold" style="color: #2a9d8f;">Jl. Padokan Baru No.B789, Jogonalan Lor, Tirtonirmolo, Kec. Kasihan, Kabupaten Bantul, Daerah Istimewa Yogyakarta 55181</p>
+                                <p class="text-muted mb-0">Berlokasi strategis di kawasan Legareca Space, mudah dijangkau dari berbagai fasilitas seni dan budaya Yogyakarta.</p>
                             </div>
                         </div>
-                        <div class="col-md-6 mb-4">
-                            <div class="info-card">
-                                <div class="feature-icon">
-                                    <i class="fas fa-envelope"></i>
-                                </div>
-                                <h5 class="fw-bold mb-3" style="color: #264653;">Email</h5>
-                                <p class="mb-2 fw-bold" style="color: #2a9d8f; font-size: 1.1rem;">reservasi@legarecainn.com</p>
-                                <p class="text-muted mb-0">Respon dalam 1x24 jam</p>
-                            </div>
+
+                        <div class="d-flex flex-wrap gap-3">
+                            <a href="https://wa.me/6281234567890" target="_blank" class="whatsapp-btn px-5">
+                                <i class="fab fa-whatsapp"></i> Chat via WhatsApp
+                            </a>
+                            <a href="tel:+622741234567" class="booking-btn px-5" style="background: linear-gradient(135deg, #264653, #2a9d8f);">
+                                <i class="fas fa-phone-alt"></i> Telepon Sekarang
+                            </a>
                         </div>
                     </div>
+                </div>
 
-                    <div class="mb-4">
-                        <div class="info-card">
-                            <div class="feature-icon">
-                                <i class="fas fa-map-marker-alt"></i>
-                            </div>
-                            <h5 class="fw-bold mb-3" style="color: #264653;">Lokasi</h5>
-                            <p class="mb-2 fw-bold" style="color: #2a9d8f;">Jl. Padokan Baru No.B789, Jogonalan Lor, Tirtonirmolo, Kec. Kasihan, Kabupaten Bantul, Daerah Istimewa Yogyakarta 55181</p>
-                            <p class="text-muted mb-0">Berlokasi strategis di kawasan Legareca Space, mudah dijangkau dari berbagai fasilitas seni dan budaya Yogyakarta.</p>
-                        </div>
-                    </div>
+                <div class="col-lg-4">
+                    <div class="info-card h-100">
+                        <h3 class="h5 fw-bold mb-4" style="color: #264653;">Fasilitas & Layanan</h3>
+                        <ul class="facility-list list-unstyled">
+                            <li><i class="fas fa-check-circle text-success me-3"></i> Resepsionis 24 jam</li>
+                            <li><i class="fas fa-check-circle text-success me-3"></i> Area parkir luas & aman</li>
+                            <li><i class="fas fa-check-circle text-success me-3"></i> Restoran & kafe premium</li>
+                            <li><i class="fas fa-check-circle text-success me-3"></i> Laundry & dry cleaning</li>
+                            <li><i class="fas fa-check-circle text-success me-3"></i> Ruang meeting & co-working</li>
+                            <li><i class="fas fa-check-circle text-success me-3"></i> Tour & travel assistance</li>
+                            <li><i class="fas fa-check-circle text-success me-3"></i> Airport transfer service</li>
+                            <li><i class="fas fa-check-circle text-success me-3"></i> Gym & wellness center</li>
+                        </ul>
 
-                    <div class="d-flex flex-wrap gap-3">
-                        <a href="https://wa.me/6281234567890" target="_blank" class="whatsapp-btn px-5">
-                            <i class="fab fa-whatsapp"></i> Chat via WhatsApp
-                        </a>
-                        <a href="tel:+622741234567" class="booking-btn px-5" style="background: linear-gradient(135deg, #264653, #2a9d8f);">
-                            <i class="fas fa-phone-alt"></i> Telepon Sekarang
-                        </a>
+                        <h3 class="h5 fw-bold mt-5 mb-3" style="color: #264653;">Kebijakan</h3>
+                        <ul class="facility-list list-unstyled">
+                            <li><i class="fas fa-sign-in-alt text-primary me-3"></i> Check-in: 14.00 WIB</li>
+                            <li><i class="fas fa-sign-out-alt text-primary me-3"></i> Check-out: 12.00 WIB</li>
+                            <li><i class="fas fa-smoking-ban text-danger me-3"></i> Area bebas rokok</li>
+                            <li><i class="fas fa-paw text-warning me-3"></i> Tidak menerima hewan peliharaan</li>
+                            <li><i class="fas fa-child text-info me-3"></i> Anak di bawah 5 tahun gratis</li>
+                        </ul>
                     </div>
                 </div>
             </div>
+        </div>
+    </section>
 
-            <div class="col-lg-4">
-                <div class="info-card h-100">
-                    <h3 class="h5 fw-bold mb-4" style="color: #264653;">Fasilitas & Layanan</h3>
-                    <ul class="facility-list list-unstyled">
-                        <li><i class="fas fa-check-circle text-success me-3"></i> Resepsionis 24 jam</li>
-                        <li><i class="fas fa-check-circle text-success me-3"></i> Area parkir luas & aman</li>
-                        <li><i class="fas fa-check-circle text-success me-3"></i> Restoran & kafe premium</li>
-                        <li><i class="fas fa-check-circle text-success me-3"></i> Laundry & dry cleaning</li>
-                        <li><i class="fas fa-check-circle text-success me-3"></i> Ruang meeting & co-working</li>
-                        <li><i class="fas fa-check-circle text-success me-3"></i> Tour & travel assistance</li>
-                        <li><i class="fas fa-check-circle text-success me-3"></i> Airport transfer service</li>
-                        <li><i class="fas fa-check-circle text-success me-3"></i> Gym & wellness center</li>
-                    </ul>
+    <!-- Booking Modal -->
+    <div class="modal fade" id="bookingModal" tabindex="-1" aria-labelledby="bookingModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="bookingModalLabel"><i class="fas fa-calendar-check me-2"></i>Form Reservasi Kamar</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <form id="bookingForm">
+                        @csrf
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <label for="roomType" class="form-label fw-bold">Tipe Kamar</label>
+                                <input type="text" class="form-control form-control-lg" id="roomType" name="room_type" readonly style="background: #f8f9fa; font-weight: 600;">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="roomPrice" class="form-label fw-bold">Harga per Malam</label>
+                                <input type="text" class="form-control form-control-lg" id="roomPrice" name="room_price" readonly style="background: #f8f9fa; font-weight: 600; color: #2a9d8f;">
+                            </div>
+                        </div>
 
-                    <h3 class="h5 fw-bold mt-5 mb-3" style="color: #264653;">Kebijakan</h3>
-                    <ul class="facility-list list-unstyled">
-                        <li><i class="fas fa-sign-in-alt text-primary me-3"></i> Check-in: 14.00 WIB</li>
-                        <li><i class="fas fa-sign-out-alt text-primary me-3"></i> Check-out: 12.00 WIB</li>
-                        <li><i class="fas fa-smoking-ban text-danger me-3"></i> Area bebas rokok</li>
-                        <li><i class="fas fa-paw text-warning me-3"></i> Tidak menerima hewan peliharaan</li>
-                        <li><i class="fas fa-child text-info me-3"></i> Anak di bawah 5 tahun gratis</li>
-                    </ul>
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <label for="checkIn" class="form-label fw-bold">Tanggal Check-in</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-primary text-white"><i class="fas fa-calendar-alt"></i></span>
+                                    <input type="date" class="form-control" id="checkIn" name="check_in" required min="{{ date('Y-m-d') }}">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="checkOut" class="form-label fw-bold">Tanggal Check-out</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-primary text-white"><i class="fas fa-calendar-alt"></i></span>
+                                    <input type="date" class="form-control" id="checkOut" name="check_out" required>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <label for="guests" class="form-label fw-bold">Jumlah Tamu</label>
+                                <select class="form-select" id="guests" name="guests" required>
+                                    <option value="1">1 Orang</option>
+                                    <option value="2" selected>2 Orang</option>
+                                    <option value="3">3 Orang</option>
+                                    <option value="4">4 Orang</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="rooms" class="form-label fw-bold">Jumlah Kamar</label>
+                                <select class="form-select" id="rooms" name="rooms" required>
+                                    <option value="1" selected>1 Kamar</option>
+                                    <option value="2">2 Kamar</option>
+                                    <option value="3">3 Kamar</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <label for="fullName" class="form-label fw-bold">Nama Lengkap</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-primary text-white"><i class="fas fa-user"></i></span>
+                                    <input type="text" class="form-control" id="fullName" name="full_name" required placeholder="Nama sesuai KTP">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="phone" class="form-label fw-bold">Nomor WhatsApp</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-success text-white"><i class="fab fa-whatsapp"></i></span>
+                                    <input type="tel" class="form-control" id="phone" name="phone" required placeholder="628xxxxxxxxxx">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="email" class="form-label fw-bold">Alamat Email</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-primary text-white"><i class="fas fa-envelope"></i></span>
+                                <input type="email" class="form-control" id="email" name="email" required placeholder="email@anda.com">
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="specialRequest" class="form-label fw-bold">Permintaan Khusus</label>
+                            <textarea class="form-control" id="specialRequest" name="special_request" rows="3" placeholder="Contoh: Kamar lantai atas, peringatan anniversary, makanan khusus, dll."></textarea>
+                            <div class="form-text">Silakan isi jika ada permintaan khusus untuk kenyamanan Anda</div>
+                        </div>
+
+                        <div class="alert alert-info border-info">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-info-circle fa-2x text-info me-3"></i>
+                                <div>
+                                    <h6 class="alert-heading mb-2">Informasi Penting</h6>
+                                    <p class="mb-0">Setelah mengisi form ini, Anda akan diarahkan ke WhatsApp untuk konfirmasi dan pembayaran. Reservasi akan dikonfirmasi setelah pembayaran diterima.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer border-top-0 pt-0 px-4 pb-4">
+                    <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" form="bookingForm" class="btn btn-primary px-4 py-2">
+                        <i class="fas fa-paper-plane me-2"></i>Kirim Reservasi
+                    </button>
                 </div>
             </div>
         </div>
     </div>
-</section>
-
-<!-- Booking Modal -->
-<div class="modal fade" id="bookingModal" tabindex="-1" aria-labelledby="bookingModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="bookingModalLabel"><i class="fas fa-calendar-check me-2"></i>Form Reservasi Kamar</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body p-4">
-                <form id="bookingForm">
-                    @csrf
-                    <div class="row mb-4">
-                        <div class="col-md-6">
-                            <label for="roomType" class="form-label fw-bold">Tipe Kamar</label>
-                            <input type="text" class="form-control form-control-lg" id="roomType" name="room_type" readonly style="background: #f8f9fa; font-weight: 600;">
-                        </div>
-                        <div class="col-md-6">
-                            <label for="roomPrice" class="form-label fw-bold">Harga per Malam</label>
-                            <input type="text" class="form-control form-control-lg" id="roomPrice" name="room_price" readonly style="background: #f8f9fa; font-weight: 600; color: #2a9d8f;">
-                        </div>
-                    </div>
-
-                    <div class="row mb-4">
-                        <div class="col-md-6">
-                            <label for="checkIn" class="form-label fw-bold">Tanggal Check-in</label>
-                            <div class="input-group">
-                                <span class="input-group-text bg-primary text-white"><i class="fas fa-calendar-alt"></i></span>
-                                <input type="date" class="form-control" id="checkIn" name="check_in" required min="{{ date('Y-m-d') }}">
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <label for="checkOut" class="form-label fw-bold">Tanggal Check-out</label>
-                            <div class="input-group">
-                                <span class="input-group-text bg-primary text-white"><i class="fas fa-calendar-alt"></i></span>
-                                <input type="date" class="form-control" id="checkOut" name="check_out" required>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="row mb-4">
-                        <div class="col-md-6">
-                            <label for="guests" class="form-label fw-bold">Jumlah Tamu</label>
-                            <select class="form-select" id="guests" name="guests" required>
-                                <option value="1">1 Orang</option>
-                                <option value="2" selected>2 Orang</option>
-                                <option value="3">3 Orang</option>
-                                <option value="4">4 Orang</option>
-                            </select>
-                        </div>
-                        <div class="col-md-6">
-                            <label for="rooms" class="form-label fw-bold">Jumlah Kamar</label>
-                            <select class="form-select" id="rooms" name="rooms" required>
-                                <option value="1" selected>1 Kamar</option>
-                                <option value="2">2 Kamar</option>
-                                <option value="3">3 Kamar</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="row mb-4">
-                        <div class="col-md-6">
-                            <label for="fullName" class="form-label fw-bold">Nama Lengkap</label>
-                            <div class="input-group">
-                                <span class="input-group-text bg-primary text-white"><i class="fas fa-user"></i></span>
-                                <input type="text" class="form-control" id="fullName" name="full_name" required placeholder="Nama sesuai KTP">
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <label for="phone" class="form-label fw-bold">Nomor WhatsApp</label>
-                            <div class="input-group">
-                                <span class="input-group-text bg-success text-white"><i class="fab fa-whatsapp"></i></span>
-                                <input type="tel" class="form-control" id="phone" name="phone" required placeholder="628xxxxxxxxxx">
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="mb-4">
-                        <label for="email" class="form-label fw-bold">Alamat Email</label>
-                        <div class="input-group">
-                            <span class="input-group-text bg-primary text-white"><i class="fas fa-envelope"></i></span>
-                            <input type="email" class="form-control" id="email" name="email" required placeholder="email@anda.com">
-                        </div>
-                    </div>
-
-                    <div class="mb-4">
-                        <label for="specialRequest" class="form-label fw-bold">Permintaan Khusus</label>
-                        <textarea class="form-control" id="specialRequest" name="special_request" rows="3" placeholder="Contoh: Kamar lantai atas, peringatan anniversary, makanan khusus, dll."></textarea>
-                        <div class="form-text">Silakan isi jika ada permintaan khusus untuk kenyamanan Anda</div>
-                    </div>
-
-                    <div class="alert alert-info border-info">
-                        <div class="d-flex align-items-center">
-                            <i class="fas fa-info-circle fa-2x text-info me-3"></i>
-                            <div>
-                                <h6 class="alert-heading mb-2">Informasi Penting</h6>
-                                <p class="mb-0">Setelah mengisi form ini, Anda akan diarahkan ke WhatsApp untuk konfirmasi dan pembayaran. Reservasi akan dikonfirmasi setelah pembayaran diterima.</p>
-                            </div>
-                        </div>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer border-top-0 pt-0 px-4 pb-4">
-                <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal">Batal</button>
-                <button type="submit" form="bookingForm" class="btn btn-primary px-4 py-2">
-                    <i class="fas fa-paper-plane me-2"></i>Kirim Reservasi
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
+</main>
 @endsection
 
 @section('scripts')
-<script src="https://cdn.jsdelivr.net/npm/animate.css@4.1.1/animate.min.css"></script>
 <script>
     // Mobile Menu Toggle
     document.addEventListener('DOMContentLoaded', function() {
