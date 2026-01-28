@@ -315,11 +315,18 @@
                             <span class="ml-3 font-medium">Daftar Cleaning Report</span>
                         </a>
 
-                        <!-- Tukar Shift -->
-                        <a href="/shifting"
+                        <!-- Form Tukar Shift -->
+                        <a href="/shifting/create"
                             class="flex items-center p-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition duration-200 {{ request()->is('shifting') ? 'active-menu' : '' }}">
                             <i class="fas fa-exchange-alt text-lg w-6"></i>
                             <span class="ml-3 font-medium">Tukar Shift</span>
+                        </a>
+
+                        <!-- Daftar Tukar Shift -->
+                        <a href="/shifting"
+                            class="flex items-center p-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition duration-200 {{ request()->is('shifting') ? 'active-menu' : '' }}">
+                            <i class="fas fa-exchange-alt text-lg w-6"></i>
+                            <span class="ml-3 font-medium">Daftar Tukar Shift</span>
                         </a>
 
                         <!-- Form Pengajuan Izin -->

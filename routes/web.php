@@ -131,6 +131,7 @@ Route::middleware('auth')->group(function () {
         // shifting Routes
         Route::prefix('shifting')->name('shifting.')->group(function () {
             Route::get('/', [ShiftingController::class, 'index'])->name('index');
+            Route::get('/create', [ShiftingController::class, 'create'])->name('create');
             Route::post('/submit', [ShiftingController::class, 'submit'])->name('submit');
         });
 
