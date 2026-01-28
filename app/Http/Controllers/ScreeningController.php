@@ -13,6 +13,86 @@ use App\Models\ScreeningPet;
 
 class ScreeningController extends Controller
 {
+    /**
+     * Display a listing of the screenings.
+     */
+    public function index(Request $request)
+    {
+        // Filter parameters
+        $search = $request->query('search');
+        $status = $request->query('status');
+        $startDate = $request->query('start_date');
+        $endDate = $request->query('end_date');
+
+        // Base query
+        $query = Screening::with('pets')->latest();
+
+        // Apply filters
+        if ($search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('owner_name', 'like', "%{$search}%")
+                    ->orWhere('phone_number', 'like', "%{$search}%")
+                    ->orWhereHas('pets', function ($q2) use ($search) {
+                        $q2->where('name', 'like', "%{$search}%");
+                    });
+            });
+        }
+
+        if ($status && $status !== 'all') {
+            $query->where('status', $status);
+        }
+
+        if ($startDate) {
+            $query->whereDate('created_at', '>=', $startDate);
+        }
+
+        if ($endDate) {
+            $query->whereDate('created_at', '<=', $endDate);
+        }
+
+        // Get paginated results
+        $screenings = $query->paginate(20);
+
+        // Statistics
+        $stats = [
+            'total' => Screening::count(),
+            'completed' => Screening::where('status', 'completed')->count(),
+            'cancelled' => Screening::where('status', 'cancelled')->count(),
+            'today' => Screening::whereDate('created_at', today())->count(),
+        ];
+
+        return view('screening.index', compact('screenings', 'stats', 'search', 'status', 'startDate', 'endDate'));
+    }
+
+    /**
+     * Display the specified screening.
+     */
+    public function show($id)
+    {
+        $screening = Screening::with('pets')->findOrFail($id);
+        return view('screening.show', compact('screening'));
+    }
+
+    /**
+     * Remove the specified screening from storage.
+     */
+    public function destroy($id)
+    {
+        try {
+            $screening = Screening::findOrFail($id);
+            $screening->pets()->delete();
+            $screening->delete();
+
+            return redirect()->route('screening.index')
+                ->with('success', 'Data screening berhasil dihapus.');
+
+        } catch (\Exception $e) {
+            Log::error('Failed to delete screening: ' . $e->getMessage());
+            return redirect()->route('screening.index')
+                ->with('error', 'Gagal menghapus data: ' . $e->getMessage());
+        }
+    }
+
     public function welcome()
     {
         return view('screening.welcome');
@@ -585,4 +665,107 @@ class ScreeningController extends Controller
             ], 500);
         }
     }
+
+    /**
+     * Export data to CSV/Excel
+     */
+    public function export(Request $request)
+    {
+        try {
+            $startDate = $request->query('start_date');
+            $endDate = $request->query('end_date');
+            $status = $request->query('status');
+
+            $query = Screening::with('pets')->latest();
+
+            if ($startDate) {
+                $query->whereDate('created_at', '>=', $startDate);
+            }
+
+            if ($endDate) {
+                $query->whereDate('created_at', '<=', $endDate);
+            }
+
+            if ($status && $status !== 'all') {
+                $query->where('status', $status);
+            }
+
+            $screenings = $query->get();
+
+            $fileName = 'screening-data-' . date('Y-m-d-H-i-s') . '.csv';
+            $headers = [
+                'Content-Type' => 'text/csv',
+                'Content-Disposition' => "attachment; filename=\"$fileName\"",
+                'Pragma' => 'no-cache',
+                'Cache-Control' => 'must-revalidate, post-check=0, pre-check=0',
+                'Expires' => '0'
+            ];
+
+            $callback = function () use ($screenings) {
+                $file = fopen('php://output', 'w');
+
+                // Header row
+                fputcsv($file, [
+                    'ID',
+                    'Tanggal',
+                    'Owner',
+                    'Phone',
+                    'Jumlah Pet',
+                    'Status',
+                    'Pet Name',
+                    'Breed',
+                    'Sex',
+                    'Age',
+                    'Vaksin',
+                    'Kutu',
+                    'Kutu Action',
+                    'Jamur',
+                    'Birahi',
+                    'Birahi Action',
+                    'Kulit',
+                    'Telinga',
+                    'Riwayat',
+                    'Pet Status'
+                ]);
+
+                // Data rows
+                foreach ($screenings as $s) {
+                    foreach ($s->pets as $p) {
+                        fputcsv($file, [
+                            $s->id,
+                            $s->created_at->setTimezone('Asia/Jakarta')->format('Y-m-d H:i:s'),
+                            $s->owner_name,
+                            $s->phone_number,
+                            $s->pet_count,
+                            $s->status_text,
+                            $p->name,
+                            $p->breed,
+                            $p->sex,
+                            $p->age,
+                            $p->vaksin,
+                            $p->kutu,
+                            $p->kutu_action ? ($p->kutu_action == 'tidak_periksa' ? 'Tidak Periksa' : 'Lanjut Obat') : '-',
+                            $p->jamur,
+                            $p->birahi,
+                            $p->birahi_action ? ($p->birahi_action == 'tidak_periksa' ? 'Tidak Periksa' : 'Lanjut Obat') : '-',
+                            $p->kulit,
+                            $p->telinga,
+                            $p->riwayat,
+                            $p->status_text
+                        ]);
+                    }
+                }
+
+                fclose($file);
+            };
+
+            return response()->stream($callback, 200, $headers);
+
+        } catch (\Exception $e) {
+            Log::error('Export error: ' . $e->getMessage());
+            return redirect()->route('screening.index')
+                ->with('error', 'Gagal mengekspor data: ' . $e->getMessage());
+        }
+    }
+
 }

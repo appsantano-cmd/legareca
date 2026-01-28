@@ -269,7 +269,6 @@
                             class="flex items-center p-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition duration-200 {{ request()->routeIs('users.create') ? 'active-menu' : '' }}">
                             <i class="fas fa-user-plus text-lg w-6"></i>
                             <span class="ml-3 font-medium">Tambah User</span>
-                            <span class="ml-auto bg-blue-100 text-blue-600 text-xs px-2 py-1 rounded-full">New</span>
                         </a>
 
                         <!-- User List -->
@@ -288,17 +287,32 @@
                                 Management</span>
                         </div>
 
-                        <!-- Screening -->
+                        <!-- Form Screening -->
                         <a href="/screening"
                             class="flex items-center p-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition duration-200 {{ request()->is('screening') ? 'active-menu' : '' }}">
                             <i class="fas fa-clipboard-check text-lg w-6"></i>
-                            <span class="ml-3 font-medium">Screening</span>
+                            <span class="ml-3 font-medium">Form Screening</span>
                         </a>
-                        <!-- Cleaning  -->
+
+                        <!-- Daftar Screening -->
+                        <a href="/screening/data"
+                            class="flex items-center p-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition duration-200 {{ request()->is('screening') ? 'active-menu' : '' }}">
+                            <i class="fas fa-clipboard-check text-lg w-6"></i>
+                            <span class="ml-3 font-medium">Daftar Screening</span>
+                        </a>
+
+                        <!-- Form Cleaning  -->
                         <a href="/cleaning-report"
                             class="flex items-center p-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition duration-200 {{ request()->is('cleaning-report') ? 'active-menu' : '' }}">
                             <i class="fas fa-broom text-lg w-6"></i>
-                            <span class="ml-3 font-medium">Cleaning Report</span>
+                            <span class="ml-3 font-medium">Form Cleaning Report</span>
+                        </a>
+
+                        <!-- Daftar Cleaning  -->
+                        <a href="/cleaning-report"
+                            class="flex items-center p-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition duration-200 {{ request()->is('cleaning-report') ? 'active-menu' : '' }}">
+                            <i class="fas fa-broom text-lg w-6"></i>
+                            <span class="ml-3 font-medium">Daftar Cleaning Report</span>
                         </a>
 
                         <!-- Tukar Shift -->
@@ -308,13 +322,19 @@
                             <span class="ml-3 font-medium">Tukar Shift</span>
                         </a>
 
-                        <!-- Pengajuan Izin -->
+                        <!-- Form Pengajuan Izin -->
                         <a href="{{ route('izin.create') }}"
                             class="flex items-center p-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition duration-200 {{ request()->is('izin') ? 'active-menu' : '' }}">
                             <i class="fas fa-file-alt text-lg w-6"></i>
-                            <span class="ml-3 font-medium">Pengajuan Izin</span>
+                            <span class="ml-3 font-medium">Form Pengajuan Izin</span>
                         </a>
 
+                        <!-- Daftar Pengajuan Izin -->
+                        <a href="{{ route('izin.index') }}"
+                            class="flex items-center p-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition duration-200 {{ request()->is('izin') ? 'active-menu' : '' }}">
+                            <i class="fas fa-file-alt text-lg w-6"></i>
+                            <span class="ml-3 font-medium">Daftar Pengajuan Izin</span>
+                        </a>
                     </li>
                 @endif
 
@@ -582,300 +602,8 @@
                     </div>
                 </div>
             @else
-                <!-- Admin/Developer Dashboard Content -->
-                <!-- Stats Cards dengan Data Real dari Database -->
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                    <!-- Total Users Card -->
-                    @php
-                        $totalUsers = App\Models\User::count();
-
-                        // Hitung pertumbuhan bulan ini vs bulan lalu
-                        $currentMonthStart = now()->startOfMonth();
-                        $currentMonthEnd = now()->endOfMonth();
-                        $lastMonthStart = now()->subMonth()->startOfMonth();
-                        $lastMonthEnd = now()->subMonth()->endOfMonth();
-
-                        $usersThisMonth = App\Models\User::whereBetween('created_at', [
-                            $currentMonthStart,
-                            $currentMonthEnd,
-                        ])->count();
-                        $usersLastMonth = App\Models\User::whereBetween('created_at', [
-                            $lastMonthStart,
-                            $lastMonthEnd,
-                        ])->count();
-
-                        if ($usersLastMonth > 0) {
-                            $growthPercentage = round((($usersThisMonth - $usersLastMonth) / $usersLastMonth) * 100);
-                        } else {
-                            $growthPercentage = $usersThisMonth > 0 ? 100 : 0;
-                        }
-
-                        $growthColor = $growthPercentage >= 0 ? 'text-green-600 bg-green-50' : 'text-red-600 bg-red-50';
-                        $growthIcon = $growthPercentage >= 0 ? 'fas fa-arrow-up' : 'fas fa-arrow-down';
-
-                        // Hitung user hari ini
-                        $usersToday = App\Models\User::whereDate('created_at', today())->count();
-
-                        // Hitung user aktif (updated_at dalam 7 hari terakhir)
-                        $activeUsers = App\Models\User::where('updated_at', '>=', now()->subDays(7))->count();
-                        $activePercentage = $totalUsers > 0 ? round(($activeUsers / $totalUsers) * 100) : 0;
-
-                        // Hitung user berdasarkan role
-                        $adminCount = App\Models\User::where('role', 'admin')->count();
-                        $developerCount = App\Models\User::where('role', 'developer')->count();
-                        $staffCount = App\Models\User::where('role', 'staff')->count();
-                        $marcomCount = App\Models\User::where('role', 'marcom')->count();
-
-                        // User baru minggu ini
-                        $newUsersThisWeek = App\Models\User::whereBetween('created_at', [
-                            now()->startOfWeek(),
-                            now()->endOfWeek(),
-                        ])->count();
-                        $newUsersLastWeek = App\Models\User::whereBetween('created_at', [
-                            now()->subWeek()->startOfWeek(),
-                            now()->subWeek()->endOfWeek(),
-                        ])->count();
-
-                        if ($newUsersLastWeek > 0) {
-                            $weekGrowth = round((($newUsersThisWeek - $newUsersLastWeek) / $newUsersLastWeek) * 100);
-                        } else {
-                            $weekGrowth = $newUsersThisWeek > 0 ? 100 : 0;
-                        }
-
-                        $weekGrowthColor = $weekGrowth >= 0 ? 'text-green-600 bg-green-50' : 'text-red-600 bg-red-50';
-                        $weekGrowthIcon = $weekGrowth >= 0 ? 'fas fa-arrow-up' : 'fas fa-arrow-down';
-                    @endphp
-
-                    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 card-hover">
-                        <div class="flex items-center justify-between mb-4">
-                            <div class="w-12 h-12 rounded-lg bg-blue-100 flex items-center justify-center">
-                                <i class="fas fa-users text-blue-600 text-xl"></i>
-                            </div>
-                            <span class="text-sm font-medium {{ $growthColor }} px-3 py-1 rounded-full">
-                                <i class="{{ $growthIcon }} mr-1"></i>{{ abs($growthPercentage) }}%
-                            </span>
-                        </div>
-                        <h3 class="text-2xl font-bold text-gray-800 mb-1">{{ number_format($totalUsers) }}</h3>
-                        <p class="text-gray-600 text-sm">Total Users</p>
-                        <div class="mt-4 pt-4 border-t border-gray-100">
-                            <div class="flex justify-between text-xs text-gray-500">
-                                <span>Today: {{ $usersToday }}</span>
-                                <span>This Month: {{ $usersThisMonth }}</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Active Users Card -->
-                    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 card-hover">
-                        <div class="flex items-center justify-between mb-4">
-                            <div class="w-12 h-12 rounded-lg bg-green-100 flex items-center justify-center">
-                                <i class="fas fa-user-check text-green-600 text-xl"></i>
-                            </div>
-                            <span class="text-sm font-medium text-green-600 bg-green-50 px-3 py-1 rounded-full">
-                                {{ $activePercentage }}% Active
-                            </span>
-                        </div>
-                        <h3 class="text-2xl font-bold text-gray-800 mb-1">{{ number_format($activeUsers) }}</h3>
-                        <p class="text-gray-600 text-sm">Active Users (7 days)</p>
-                        <div class="mt-4 pt-4 border-t border-gray-100">
-                            <div class="text-xs text-gray-500">
-                                <div class="flex justify-between mb-1">
-                                    <span>Active: {{ $activeUsers }}</span>
-                                    <span>Total: {{ $totalUsers }}</span>
-                                </div>
-                                <div class="w-full bg-gray-200 rounded-full h-1.5 mt-2">
-                                    <div class="bg-green-500 h-1.5 rounded-full"
-                                        style="width: {{ $activePercentage }}%"></div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Role Distribution Card -->
-                    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 card-hover">
-                        <div class="flex items-center justify-between mb-4">
-                            <div class="w-12 h-12 rounded-lg bg-purple-100 flex items-center justify-center">
-                                <i class="fas fa-user-tag text-purple-600 text-xl"></i>
-                            </div>
-                            @php
-                                // Cari role dengan jumlah terbanyak
-                                $roleCounts = [
-                                    'admin' => $adminCount,
-                                    'developer' => $developerCount,
-                                    'staff' => $staffCount,
-                                    'marcom' => $marcomCount,
-                                ];
-                                arsort($roleCounts);
-                                $topRole = key($roleCounts);
-                                $topRolePercentage =
-                                    $totalUsers > 0 ? round(($roleCounts[$topRole] / $totalUsers) * 100) : 0;
-                            @endphp
-                            <span
-                                class="text-sm font-medium text-purple-600 bg-purple-50 px-3 py-1 rounded-full capitalize">
-                                {{ $topRolePercentage }}% {{ $topRole }}
-                            </span>
-                        </div>
-                        <h3 class="text-2xl font-bold text-gray-800 mb-1">{{ number_format($totalUsers) }}</h3>
-                        <p class="text-gray-600 text-sm">Role Distribution</p>
-                        <div class="mt-4 pt-4 border-t border-gray-100">
-                            <div class="space-y-2">
-                                <div class="flex justify-between text-xs">
-                                    <span class="flex items-center">
-                                        <span class="w-2 h-2 rounded-full bg-red-500 mr-2"></span>
-                                        Admin
-                                    </span>
-                                    <span class="font-medium">{{ $adminCount }}</span>
-                                </div>
-                                <div class="flex justify-between text-xs">
-                                    <span class="flex items-center">
-                                        <span class="w-2 h-2 rounded-full bg-blue-500 mr-2"></span>
-                                        Developer
-                                    </span>
-                                    <span class="font-medium">{{ $developerCount }}</span>
-                                </div>
-                                <div class="flex justify-between text-xs">
-                                    <span class="flex items-center">
-                                        <span class="w-2 h-2 rounded-full bg-green-500 mr-2"></span>
-                                        Staff
-                                    </span>
-                                    <span class="font-medium">{{ $staffCount }}</span>
-                                </div>
-                                <div class="flex justify-between text-xs">
-                                    <span class="flex items-center">
-                                        <span class="w-2 h-2 rounded-full bg-gray-500 mr-2"></span>
-                                        Mar. Com
-                                    </span>
-                                    <span class="font-medium">{{ $marcomCount }}</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- New Users This Week -->
-                    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 card-hover">
-                        <div class="flex items-center justify-between mb-4">
-                            <div class="w-12 h-12 rounded-lg bg-orange-100 flex items-center justify-center">
-                                <i class="fas fa-user-plus text-orange-600 text-xl"></i>
-                            </div>
-                            <span class="text-sm font-medium {{ $weekGrowthColor }} px-3 py-1 rounded-full">
-                                <i class="{{ $weekGrowthIcon }} mr-1"></i>{{ abs($weekGrowth) }}%
-                            </span>
-                        </div>
-                        <h3 class="text-2xl font-bold text-gray-800 mb-1">{{ number_format($newUsersThisWeek) }}</h3>
-                        <p class="text-gray-600 text-sm">New This Week</p>
-                        <div class="mt-4 pt-4 border-t border-gray-100">
-                            <div class="text-xs text-gray-500">
-                                <div class="flex justify-between mb-1">
-                                    <span>Last Week: {{ $newUsersLastWeek }}</span>
-                                    <span>Today: {{ $usersToday }}</span>
-                                </div>
-                                <div class="flex items-center mt-2">
-                                    <i class="fas fa-calendar-week text-gray-400 mr-2 text-xs"></i>
-                                    <span>{{ now()->startOfWeek()->format('M d') }} -
-                                        {{ now()->endOfWeek()->format('M d') }}</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Recent Users Table -->
-                @php
-                    $recentUsers = App\Models\User::orderBy('created_at', 'desc')->take(5)->get();
-                @endphp
-
-                <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
-                    <div class="flex justify-between items-center mb-6">
-                        <div>
-                            <h2 class="text-xl font-bold text-gray-800">Recent Users</h2>
-                            <p class="text-gray-600 text-sm">Latest registered users</p>
-                        </div>
-                        @if (in_array(auth()->user()->role, ['admin', 'developer']))
-                            <a href="{{ route('users.index') }}"
-                                class="px-4 py-2 bg-blue-50 text-blue-600 rounded-lg font-medium hover:bg-blue-100 transition duration-200">
-                                View All Users
-                            </a>
-                        @endif
-                    </div>
-
-                    <div class="overflow-x-auto">
-                        <table class="w-full">
-                            <thead>
-                                <tr class="border-b border-gray-200">
-                                    <th class="text-left py-3 px-4 text-sm font-medium text-gray-600">Name</th>
-                                    <th class="text-left py-3 px-4 text-sm font-medium text-gray-600">Email</th>
-                                    <th class="text-left py-3 px-4 text-sm font-medium text-gray-600">Role</th>
-                                    <th class="text-left py-3 px-4 text-sm font-medium text-gray-600">Joined</th>
-                                    <th class="text-left py-3 px-4 text-sm font-medium text-gray-600">Status</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @forelse($recentUsers as $user)
-                                    <tr class="border-b border-gray-100 hover:bg-gray-50">
-                                        <td class="py-3 px-4">
-                                            <div class="flex items-center">
-                                                <div
-                                                    class="w-8 h-8 rounded-full bg-gradient-to-r from-blue-500 to-indigo-600 flex items-center justify-center text-white font-bold text-sm mr-3">
-                                                    {{ strtoupper(substr($user->name, 0, 1)) }}
-                                                </div>
-                                                <span class="font-medium">{{ $user->name }}</span>
-                                            </div>
-                                        </td>
-                                        <td class="py-3 px-4 text-gray-600 text-sm">{{ $user->email }}</td>
-                                        <td class="py-3 px-4">
-                                            @php
-                                                $roleColors = [
-                                                    'admin' => 'role-badge-admin',
-                                                    'developer' => 'role-badge-developer',
-                                                    'staff' => 'role-badge-staff',
-                                                    'user' => 'role-badge-user',
-                                                ];
-                                                $roleColor = $roleColors[$user->role] ?? 'role-badge-user';
-                                            @endphp
-                                            <span
-                                                class="px-3 py-1 rounded-full text-xs font-medium {{ $roleColor }} capitalize">
-                                                {{ $user->role }}
-                                            </span>
-                                        </td>
-                                        <td class="py-3 px-4 text-gray-600 text-sm">
-                                            {{ $user->created_at->format('M d, Y') }}</td>
-                                        <td class="py-3 px-4">
-                                            @php
-                                                $isActive = $user->updated_at >= now()->subDays(7);
-                                            @endphp
-                                            <div class="flex items-center">
-                                                <div
-                                                    class="w-2 h-2 rounded-full {{ $isActive ? 'bg-green-500' : 'bg-gray-400' }} mr-2">
-                                                </div>
-                                                <span
-                                                    class="text-sm {{ $isActive ? 'text-green-600' : 'text-gray-600' }}">
-                                                    {{ $isActive ? 'Active' : 'Inactive' }}
-                                                </span>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                @empty
-                                    <tr>
-                                        <td colspan="5" class="py-8 text-center text-gray-500">
-                                            No users found
-                                        </td>
-                                    </tr>
-                                @endforelse
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
             @endif
         </main>
-
-        <!-- Footer -->
-        <footer class="bg-white border-t border-gray-200 py-6 px-6">
-            <div class="flex flex-col md:flex-row justify-between items-center">
-                <div class="text-gray-600 text-sm mb-4 md:mb-0">
-                    &copy; {{ date('Y') }} Management System. All rights reserved.
-                </div>
-            </div>
-        </footer>
     </div>
 
     <script>

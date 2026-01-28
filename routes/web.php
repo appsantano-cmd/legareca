@@ -6,7 +6,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\PengajuanIzinController;
 use App\Http\Controllers\ScreeningController;
-use App\Http\Controllers\shiftingController;
+use App\Http\Controllers\ShiftingController;
 use App\Http\Controllers\DailyCleaningReportController;
 use App\Http\Controllers\NotificationPageController;
 use App\Http\Controllers\ArtGalleryController;
@@ -14,6 +14,7 @@ use App\Http\Controllers\StokGudangController;
 use App\Http\Controllers\StokTransactionController;
 use App\Http\Controllers\SatuanController;
 use App\Http\Controllers\DepartemenController;
+use App\Http\Controllers\VenueBookingController;
 use App\Http\Controllers\ReservasiController;
 
 // Public Routes
@@ -31,6 +32,9 @@ Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
 // Screening Routes
 Route::prefix('screening')->name('screening.')->group(function () {
+    Route::get('/data', [ScreeningController::class, 'index'])->name('index');
+    Route::get('/data/{id}', [ScreeningController::class, 'show'])->name('show');
+    Route::delete('/data/{id}', [ScreeningController::class, 'destroy'])->name('destroy');
     Route::get('/', [ScreeningController::class, 'welcome'])->name('welcome');
     Route::get('/agreement', [ScreeningController::class, 'agreement'])->name('agreement');
     Route::get('/yakin', [ScreeningController::class, 'yakin'])->name('yakin');
@@ -46,6 +50,7 @@ Route::prefix('screening')->name('screening.')->group(function () {
     Route::get('/cancelled', [ScreeningController::class, 'cancelled'])->name('cancelled');
     Route::get('/export-sheets', [ScreeningController::class, 'exportToSheets'])
         ->name('export-sheets');
+    Route::post('/data/export', [ScreeningController::class, 'export'])->name('export');
 });
 
 // Notification Routes (Public)
@@ -164,11 +169,11 @@ Route::middleware('auth')->group(function () {
         Route::post('/', [PengajuanIzinController::class, 'store'])->name('store');
     });
 
-    // shifting Routes
-    Route::prefix('shifting')->name('shifting.')->group(function () {
-        Route::get('/', [shiftingController::class, 'index'])->name('index');
-        Route::post('/submit', [shiftingController::class, 'submit'])->name('submit');
-    });
+        // shifting Routes
+        Route::prefix('shifting')->name('shifting.')->group(function () {
+            Route::get('/', [ShiftingController::class, 'index'])->name('index');
+            Route::post('/submit', [ShiftingController::class, 'submit'])->name('submit');
+        });
 
     // Daily Cleaning Report Routes
     Route::prefix('cleaning-report')->name('cleaning-report.')->group(function () {
@@ -200,12 +205,18 @@ Route::middleware('auth')->group(function () {
         Route::resource('users', UserController::class)->only(['index', 'create', 'store']);
     });
 
-    // Notification Routes (duplicate - consider removing or consolidating)
-    // Route::prefix('notifications')->name('notifications.')->group(function () {
-    //     Route::get('/', [NotificationPageController::class, 'index'])->name('all');
-    //     Route::post('/{id}/read', [NotificationPageController::class, 'markAsRead'])->name('read');
-    //     Route::post('/read-all', [NotificationPageController::class, 'markAllAsRead'])->name('read-all');
-    //     Route::delete('/{id}', [NotificationPageController::class, 'destroy'])->name('destroy');
-    //     Route::delete('/', [NotificationPageController::class, 'clearAll'])->name('clear-all');
-    // });
+    //Notification
+    Route::prefix('notifications')->group(function () {
+        Route::get('/', [NotificationPageController::class, 'index'])->name('notifications.all');
+        Route::post('/{id}/read', [NotificationPageController::class, 'markAsRead'])->name('notifications.read');
+        Route::post('/read-all', [NotificationPageController::class, 'markAllAsRead'])->name('notifications.read-all');
+        Route::delete('/{id}', [NotificationPageController::class, 'destroy'])->name('notifications.destroy');
+        Route::delete('/', [NotificationPageController::class, 'clearAll'])->name('notifications.clear-all');
+    });
+
+    // Venue Booking Routes
+
+    Route::get('/venue', [VenueBookingController::class, 'index'])->name('venue.index');
+    Route::post('/venue/step', [VenueBookingController::class, 'handleStep'])->name('venue.step');
+    Route::post('/venue/submit', [VenueBookingController::class, 'submitBooking'])->name('venue.submit');
 });
