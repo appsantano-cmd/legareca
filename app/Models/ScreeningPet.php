@@ -50,7 +50,7 @@ class ScreeningPet extends Model
     public function isHealthy(): bool
     {
         $negativeCategories = ['kutu', 'jamur', 'birahi', 'kulit', 'telinga'];
-        
+
         foreach ($negativeCategories as $category) {
             if ($this->$category !== 'Negatif') {
                 return false;
@@ -82,7 +82,7 @@ class ScreeningPet extends Model
      */
     private function getActionText($action): string
     {
-        return match($action) {
+        return match ($action) {
             'tidak_periksa' => 'Tidak Periksa',
             'lanjut_obat' => 'Lanjut Obat',
             default => $action
@@ -94,25 +94,20 @@ class ScreeningPet extends Model
      */
     public function isCancelled(): bool
     {
-        return $this->status === 'cancelled' || 
-               $this->kutu_action === 'tidak_periksa' || 
-               $this->birahi_action === 'tidak_periksa';
+        return $this->status === 'cancelled' ||
+            $this->kutu_action === 'tidak_periksa' ||
+            $this->birahi_action === 'tidak_periksa';
     }
 
     /**
      * Format status untuk tampilan
      */
-    public function getStatusTextAttribute(): string
+    public function getStatusTextAttribute()
     {
-        if ($this->isCancelled()) {
+        if ($this->kutu_action == 'tidak_periksa' || $this->birahi_action == 'tidak_periksa') {
             return 'Dibatalkan';
         }
-        
-        return match($this->status) {
-            'completed' => 'Selesai',
-            'cancelled' => 'Dibatalkan',
-            default => $this->status
-        };
+        return 'Selesai';
     }
 
     /**
@@ -121,19 +116,19 @@ class ScreeningPet extends Model
     public function getCancellationReasonAttribute(): ?string
     {
         $reasons = [];
-        
+
         if ($this->kutu_action === 'tidak_periksa') {
             $reasons[] = "Kutu positif ({$this->kutu})";
         }
-        
+
         if ($this->birahi_action === 'tidak_periksa') {
             $reasons[] = "Birahi positif";
         }
-        
+
         if (!empty($reasons)) {
             return implode(', ', $reasons);
         }
-        
+
         return null;
     }
 }

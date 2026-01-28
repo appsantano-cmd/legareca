@@ -314,7 +314,7 @@
 
                     <!-- Form Actions -->
                     <div class="flex flex-col sm:flex-row justify-end gap-4 pt-6 border-t border-gray-200">
-                        <a href="{{ route('users.index') }}"
+                        <a href="{{ route('dashboard') }}"
                             class="btn-secondary text-white font-medium py-3 px-6 rounded-lg text-center transition duration-200 flex items-center justify-center">
                             <i class="fas fa-times mr-2"></i>
                             <span>Batal</span>

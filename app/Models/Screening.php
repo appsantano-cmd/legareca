@@ -382,12 +382,12 @@ class Screening extends Model
     /**
      * Format status untuk tampilan
      */
-    public function getStatusTextAttribute(): string
+    public function getStatusTextAttribute()
     {
-        return match ($this->status) {
+        return [
             'completed' => 'Selesai',
-            'cancelled' => 'Dibatalkan',
-            default => $this->status
-        };
+            'cancelled' => 'Dibatalkan'
+        ]
+        [$this->status] ?? 'Unknown';
     }
 }
