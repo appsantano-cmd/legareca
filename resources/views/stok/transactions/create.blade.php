@@ -353,6 +353,24 @@
             border-color: #6c757d;
             color: #6c757d;
         }
+
+        /* Style khusus untuk input tanggal yang readonly */
+        .date-input-readonly {
+            background-color: #f8f9fa !important;
+            cursor: default !important;
+            border-color: #dee2e6 !important;
+            color: #495057 !important;
+        }
+
+        .date-input-readonly:hover {
+            background-color: #f8f9fa !important;
+        }
+
+        .date-input-readonly:focus {
+            box-shadow: none !important;
+            border-color: #dee2e6 !important;
+            background-color: #f8f9fa !important;
+        }
     </style>
 </head>
 
@@ -394,11 +412,19 @@
                                     <h5 class="border-bottom pb-2 mb-3">
                                         <i class="bi bi-clipboard-data me-2"></i>Informasi Transaksi
                                     </h5>
+                                    
+                                    <!-- MODIFIKASI DI SINI: Input tanggal diubah menjadi readonly -->
                                     <div class="mb-3">
                                         <label class="form-label required">Tanggal Transaksi</label>
-                                        <input type="date" name="tanggal" class="form-control"
-                                            value="{{ date('Y-m-d') }}" required>
+                                        <input type="date" name="tanggal" class="form-control date-input-readonly"
+                                            value="{{ date('Y-m-d') }}" readonly required
+                                            title="Tanggal transaksi tidak dapat diubah (otomatis tanggal hari ini)">
+                                        <small class="text-muted mt-1 d-block">
+                                            <i class="bi bi-info-circle me-1"></i>
+                                            Tanggal transaksi ditetapkan otomatis sebagai hari ini
+                                        </small>
                                     </div>
+                                    
                                     <div class="mb-3">
                                         <label class="form-label required">Tipe Transaksi</label>
                                         <div class="radio-group">
@@ -696,6 +722,7 @@
                                     <div class="alert alert-info">
                                         <h6><i class="bi bi-info-circle me-2"></i>Informasi</h6>
                                         <ul class="mb-0 small">
+                                            <li><strong>Tanggal:</strong> Otomatis ditetapkan sebagai hari ini dan tidak dapat diubah</li>
                                             <li><strong>Pilih Tipe:</strong> Pilih Stok Masuk atau Stok Keluar terlebih
                                                 dahulu</li>
                                             <li><strong>Supplier Options:</strong>
@@ -744,6 +771,7 @@
                 <div class="alert alert-info mt-3">
                     <h6><i class="bi bi-info-circle me-2"></i>Informasi Penting</h6>
                     <ul class="mb-0">
+                        <li><strong>Tanggal Transaksi:</strong> Otomatis menggunakan tanggal hari ini dan tidak dapat diubah</li>
                         <li>Transaksi <strong>Stok Masuk</strong> akan menambah stok barang</li>
                         <li>Transaksi <strong>Stok Keluar</strong> akan mengurangi stok barang</li>
                         <li>Pastikan jumlah stok keluar tidak melebihi stok tersedia</li>

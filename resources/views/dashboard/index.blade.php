@@ -294,66 +294,65 @@
                         <!-- Form Screening -->
                         <a href="/screening"
                             class="flex items-center p-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition duration-200 {{ request()->is('screening') ? 'active-menu' : '' }}">
-                            <i class="fas fa-clipboard-check text-lg w-6"></i>
+                            <i class="fas fa-clipboard-list text-lg w-6"></i>
                             <span class="ml-3 font-medium">Form Screening</span>
                         </a>
 
                         <!-- Daftar Screening -->
                         <a href="/screening/data"
-                            class="flex items-center p-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition duration-200 {{ request()->is('screening') ? 'active-menu' : '' }}">
-                            <i class="fas fa-clipboard-check text-lg w-6"></i>
+                            class="flex items-center p-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition duration-200 {{ request()->is('screening/data') ? 'active-menu' : '' }}">
+                            <i class="fas fa-list-check text-lg w-6"></i>
                             <span class="ml-3 font-medium">Daftar Screening</span>
                         </a>
 
-                        <!-- Form Cleaning  -->
+                        <!-- Form Cleaning -->
                         <a href="/cleaning-report"
                             class="flex items-center p-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition duration-200 {{ request()->is('cleaning-report') ? 'active-menu' : '' }}">
-                            <i class="fas fa-broom text-lg w-6"></i>
+                            <i class="fas fa-pen-to-square text-lg w-6"></i>
                             <span class="ml-3 font-medium">Form Cleaning Report</span>
                         </a>
 
-                        <!-- Daftar Cleaning  -->
-                        <a href="/cleaning-report"
-                            class="flex items-center p-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition duration-200 {{ request()->is('cleaning-report') ? 'active-menu' : '' }}">
+                        <!-- Daftar Cleaning -->
+                        <a href="/cleaning-report/data"
+                            class="flex items-center p-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition duration-200 {{ request()->is('cleaning-report/data') ? 'active-menu' : '' }}">
                             <i class="fas fa-broom text-lg w-6"></i>
                             <span class="ml-3 font-medium">Daftar Cleaning Report</span>
                         </a>
 
                         <!-- Form Tukar Shift -->
                         <a href="/shifting/create"
-                            class="flex items-center p-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition duration-200 {{ request()->is('shifting') ? 'active-menu' : '' }}">
-                            <i class="fas fa-exchange-alt text-lg w-6"></i>
+                            class="flex items-center p-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition duration-200 {{ request()->is('shifting/create') ? 'active-menu' : '' }}">
+                            <i class="fas fa-right-left text-lg w-6"></i>
                             <span class="ml-3 font-medium">Tukar Shift</span>
                         </a>
 
                         <!-- Daftar Tukar Shift -->
                         <a href="/shifting"
                             class="flex items-center p-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition duration-200 {{ request()->is('shifting') ? 'active-menu' : '' }}">
-                            <i class="fas fa-exchange-alt text-lg w-6"></i>
+                            <i class="fas fa-calendar-days text-lg w-6"></i>
                             <span class="ml-3 font-medium">Daftar Tukar Shift</span>
                         </a>
 
                         <!-- Form Pengajuan Izin -->
                         <a href="{{ route('izin.create') }}"
-                            class="flex items-center p-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition duration-200 {{ request()->is('izin') ? 'active-menu' : '' }}">
-                            <i class="fas fa-file-alt text-lg w-6"></i>
+                            class="flex items-center p-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition duration-200 {{ request()->is('izin/create') ? 'active-menu' : '' }}">
+                            <i class="fas fa-file-circle-plus text-lg w-6"></i>
                             <span class="ml-3 font-medium">Form Pengajuan Izin</span>
                         </a>
 
                         <!-- Daftar Pengajuan Izin -->
                         <a href="{{ route('izin.index') }}"
                             class="flex items-center p-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition duration-200 {{ request()->is('izin') ? 'active-menu' : '' }}">
-                            <i class="fas fa-file-alt text-lg w-6"></i>
+                            <i class="fas fa-folder-open text-lg w-6"></i>
                             <span class="ml-3 font-medium">Daftar Pengajuan Izin</span>
                         </a>
 
                         <!-- Stok Gudang -->
                         <a href="{{ route('stok.index') }}"
-                            class="flex items-center p-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition duration-200 {{ request()->is('izin') ? 'active-menu' : '' }}">
-                            <i class="fas fa-file-alt text-lg w-6"></i>
+                            class="flex items-center p-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition duration-200 {{ request()->is('stok*') ? 'active-menu' : '' }}">
+                            <i class="fas fa-boxes-stacked text-lg w-6"></i>
                             <span class="ml-3 font-medium">Stok Gudang</span>
                         </a>
-                    </li>
                 @endif
 
                 <!-- Staff Menu (Staff only) -->
@@ -648,7 +647,7 @@
         function toggleDesktopSidebar() {
             const sidebar = document.getElementById('sidebar');
             const mainContent = document.getElementById('main-content');
-            
+
             // Hanya toggle jika bukan di mobile
             if (window.innerWidth >= 768) {
                 if (sidebar.classList.contains('sidebar-expanded')) {
@@ -710,11 +709,11 @@
                 const sidebar = document.getElementById('sidebar');
                 const mainContent = document.getElementById('main-content');
                 const overlay = document.getElementById('overlay');
-                
+
                 // Jika beralih dari mobile ke desktop, pastikan sidebar dalam keadaan normal
                 if (window.innerWidth >= 768) {
                     closeMobileSidebar();
-                    
+
                     // Pastikan kelas yang tepat diterapkan untuk desktop
                     if (sidebar.classList.contains('sidebar-collapsed')) {
                         mainContent.classList.remove('main-content-expanded');
