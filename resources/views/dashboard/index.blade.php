@@ -31,10 +31,12 @@
 
         .main-content-expanded {
             margin-left: 260px;
+            width: calc(100% - 260px);
         }
 
         .main-content-collapsed {
             margin-left: 70px;
+            width: calc(100% - 70px);
         }
 
         @media (max-width: 768px) {
@@ -42,6 +44,7 @@
                 position: fixed;
                 left: -260px;
                 z-index: 50;
+                height: 100vh;
             }
 
             .sidebar-active {
@@ -51,6 +54,7 @@
             .main-content-expanded,
             .main-content-collapsed {
                 margin-left: 0;
+                width: 100%;
             }
 
             .overlay {
@@ -214,7 +218,7 @@
 
 <body class="bg-gray-50">
     <!-- Overlay for mobile sidebar -->
-    <div id="overlay" class="overlay" onclick="toggleSidebar()"></div>
+    <div id="overlay" class="overlay" onclick="closeMobileSidebar()"></div>
 
     <!-- Sidebar -->
     <div id="sidebar" class="sidebar sidebar-expanded bg-white h-screen fixed left-0 top-0 shadow-lg z-40">
@@ -237,15 +241,15 @@
                         <p class="text-xs text-gray-500">Management System</p>
                     </div>
                 </div>
-                <button id="sidebar-toggle" class="text-gray-500 hover:text-gray-700 lg:hidden"
-                    onclick="toggleSidebar()">
+                <button id="sidebar-close" class="text-gray-500 hover:text-gray-700 lg:hidden"
+                    onclick="closeMobileSidebar()">
                     <i class="fas fa-times text-lg"></i>
                 </button>
             </div>
         </div>
 
         <!-- Navigation Menu -->
-        <div class="p-4 overflow-y-auto h-[calc(100vh-260px)]">
+        <div class="p-4 overflow-y-auto" style="height: calc(100vh - 120px);">
             <ul class="space-y-2">
                 <!-- Home/Dashboard -->
                 <li>
@@ -342,6 +346,13 @@
                             <i class="fas fa-file-alt text-lg w-6"></i>
                             <span class="ml-3 font-medium">Daftar Pengajuan Izin</span>
                         </a>
+
+                        <!-- Stok Gudang -->
+                        <a href="{{ route('stok.index') }}"
+                            class="flex items-center p-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition duration-200 {{ request()->is('izin') ? 'active-menu' : '' }}">
+                            <i class="fas fa-file-alt text-lg w-6"></i>
+                            <span class="ml-3 font-medium">Stok Gudang</span>
+                        </a>
                     </li>
                 @endif
 
@@ -387,7 +398,7 @@
                 <!-- Left side: Menu button and breadcrumb -->
                 <div class="flex items-center">
                     <button id="mobile-menu-button" class="text-gray-600 hover:text-gray-900 mr-4 lg:hidden"
-                        onclick="toggleSidebar()">
+                        onclick="openMobileSidebar()">
                         <i class="fas fa-bars text-xl"></i>
                     </button>
 
@@ -614,37 +625,45 @@
     </div>
 
     <script>
-        // Toggle mobile sidebar
-        function toggleSidebar() {
+        // Mobile sidebar functions
+        function openMobileSidebar() {
             const sidebar = document.getElementById('sidebar');
             const overlay = document.getElementById('overlay');
 
-            sidebar.classList.toggle('sidebar-active');
-            overlay.classList.toggle('overlay-active');
-
-            // Prevent body scrolling when sidebar is open on mobile
-            if (sidebar.classList.contains('sidebar-active')) {
-                document.body.style.overflow = 'hidden';
-            } else {
-                document.body.style.overflow = 'auto';
-            }
+            sidebar.classList.add('sidebar-active');
+            overlay.classList.add('overlay-active');
+            document.body.style.overflow = 'hidden';
         }
 
-        // Toggle desktop sidebar
+        function closeMobileSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('overlay');
+
+            sidebar.classList.remove('sidebar-active');
+            overlay.classList.remove('overlay-active');
+            document.body.style.overflow = 'auto';
+        }
+
+        // Desktop sidebar function
         function toggleDesktopSidebar() {
             const sidebar = document.getElementById('sidebar');
             const mainContent = document.getElementById('main-content');
-
-            if (sidebar.classList.contains('sidebar-expanded')) {
-                sidebar.classList.remove('sidebar-expanded');
-                sidebar.classList.add('sidebar-collapsed');
-                mainContent.classList.remove('main-content-expanded');
-                mainContent.classList.add('main-content-collapsed');
-            } else {
-                sidebar.classList.remove('sidebar-collapsed');
-                sidebar.classList.add('sidebar-expanded');
-                mainContent.classList.remove('main-content-collapsed');
-                mainContent.classList.add('main-content-expanded');
+            
+            // Hanya toggle jika bukan di mobile
+            if (window.innerWidth >= 768) {
+                if (sidebar.classList.contains('sidebar-expanded')) {
+                    // Collapse sidebar
+                    sidebar.classList.remove('sidebar-expanded');
+                    sidebar.classList.add('sidebar-collapsed');
+                    mainContent.classList.remove('main-content-expanded');
+                    mainContent.classList.add('main-content-collapsed');
+                } else {
+                    // Expand sidebar
+                    sidebar.classList.remove('sidebar-collapsed');
+                    sidebar.classList.add('sidebar-expanded');
+                    mainContent.classList.remove('main-content-collapsed');
+                    mainContent.classList.add('main-content-expanded');
+                }
             }
         }
 
@@ -676,14 +695,35 @@
 
         // Initialize page
         document.addEventListener('DOMContentLoaded', function() {
-            // Close sidebar on mobile when clicking a link
+            // Close mobile sidebar when clicking a link
             const sidebarLinks = document.querySelectorAll('#sidebar a');
             sidebarLinks.forEach(link => {
                 link.addEventListener('click', function() {
                     if (window.innerWidth < 768) {
-                        toggleSidebar();
+                        closeMobileSidebar();
                     }
                 });
+            });
+
+            // Handle window resize
+            window.addEventListener('resize', function() {
+                const sidebar = document.getElementById('sidebar');
+                const mainContent = document.getElementById('main-content');
+                const overlay = document.getElementById('overlay');
+                
+                // Jika beralih dari mobile ke desktop, pastikan sidebar dalam keadaan normal
+                if (window.innerWidth >= 768) {
+                    closeMobileSidebar();
+                    
+                    // Pastikan kelas yang tepat diterapkan untuk desktop
+                    if (sidebar.classList.contains('sidebar-collapsed')) {
+                        mainContent.classList.remove('main-content-expanded');
+                        mainContent.classList.add('main-content-collapsed');
+                    } else {
+                        mainContent.classList.remove('main-content-collapsed');
+                        mainContent.classList.add('main-content-expanded');
+                    }
+                }
             });
 
             // Update time every minute
@@ -834,4 +874,3 @@
 </body>
 
 </html>
->>>>>>> main

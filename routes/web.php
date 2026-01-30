@@ -61,25 +61,12 @@ Route::prefix('notifications')->group(function () {
     Route::delete('/', [NotificationPageController::class, 'clearAll'])->name('notifications.clear-all');
 });
 
-Route::resource('departemen', DepartemenController::class)
-    ->parameters(['departemen' => 'departemen']);
-
-Route::resource('satuan', SatuanController::class);
-// Route API untuk mengambil data satuan dalam format JSON
-Route::get('/api/satuan', [SatuanController::class, 'indexApi'])->name('api.satuan.index');
-
-// =======================
-// STOK GUDANG - PUBLIC
-// =======================
-Route::prefix('stok-gudang')->name('stok.')->group(function () {
-    Route::get('/create', [StokGudangController::class, 'create'])->name('create');
-    Route::post('/', [StokGudangController::class, 'store'])->name('store');
-});
-
 // =======================
 // STOK GUDANG - AUTH
 // =======================
 Route::middleware('auth')->prefix('stok-gudang')->name('stok.')->group(function () {
+    Route::get('/create', [StokGudangController::class, 'create'])->name('create');
+    Route::post('/', [StokGudangController::class, 'store'])->name('store');
     Route::get('/', [StokGudangController::class, 'index'])->name('index');
     Route::get('/{id}/edit', [StokGudangController::class, 'edit'])->name('edit');
     Route::put('/{id}', [StokGudangController::class, 'update'])->name('update');
@@ -89,7 +76,6 @@ Route::middleware('auth')->prefix('stok-gudang')->name('stok.')->group(function 
     Route::get('/export', [StokGudangController::class, 'exportExcel'])->name('export');
     Route::get('/rollover-history', [StokGudangController::class, 'showRolloverHistory'])->name('rollover.history');
 });
-
 
 // =======================
 // TRANSACTIONS - PUBLIC
@@ -116,6 +102,14 @@ Route::middleware('auth')->prefix('transactions')->name('transactions.')->group(
 
 // Authentication Protected Routes
 Route::middleware('auth')->group(function () {
+
+    Route::resource('departemen', DepartemenController::class)
+        ->parameters(['departemen' => 'departemen']);
+
+    Route::resource('satuan', SatuanController::class);
+    // Route API untuk mengambil data satuan dalam format JSON
+    Route::get('/api/satuan', [SatuanController::class, 'indexApi'])->name('api.satuan.index');
+
     // Dashboard
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
