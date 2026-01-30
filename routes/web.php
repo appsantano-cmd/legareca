@@ -16,6 +16,7 @@ use App\Http\Controllers\SatuanController;
 use App\Http\Controllers\DepartemenController;
 use App\Http\Controllers\VenueBookingController;
 use App\Http\Controllers\ReservasiController;
+use App\Http\Controllers\CafeRestoController;
 
 // Public Routes
 Route::get('/', function () {
@@ -220,3 +221,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/venue/step', [VenueBookingController::class, 'handleStep'])->name('venue.step');
     Route::post('/venue/submit', [VenueBookingController::class, 'submitBooking'])->name('venue.submit');
 });
+
+/// Cafe & Resto Routes
+Route::get('/cafe-resto', [App\Http\Controllers\CafeRestoController::class, 'index'])->name('cafe-resto');
+Route::post('/cafe-resto/reservation', [App\Http\Controllers\CafeRestoController::class, 'store'])->name('cafe-resto.reservation.store');
