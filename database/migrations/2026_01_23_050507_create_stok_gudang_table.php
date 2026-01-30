@@ -9,9 +9,11 @@ return new class extends Migration {
     {
         Schema::create('stok_gudang', function (Blueprint $table) {
             $table->id();
-            $table->string('kode_barang'); // HAPUS ->unique()
+            $table->string('kode_barang');
             $table->string('nama_barang');
             $table->string('satuan');
+            $table->string('departemen');
+            $table->string('supplier');
             $table->decimal('stok_awal', 15, 2)->default(0);
             $table->decimal('stok_masuk', 15, 2)->default(0);
             $table->decimal('stok_keluar', 15, 2)->default(0);

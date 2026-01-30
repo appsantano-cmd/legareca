@@ -17,6 +17,8 @@ class StokGudang extends Model
         'kode_barang',
         'nama_barang',
         'satuan',
+        'departemen',
+        'supplier',
         'stok_awal',
         'stok_masuk',
         'stok_keluar',
@@ -36,6 +38,11 @@ class StokGudang extends Model
         'tanggal_submit' => 'datetime',
         'is_rollover' => 'boolean'
     ];
+
+    public function masterStok()
+    {
+        return $this->belongsTo(MasterStokGudang::class, 'kode_barang', 'kode_barang');
+    }
 
     // Relasi dengan transaksi
     public function transactions()
@@ -97,6 +104,8 @@ class StokGudang extends Model
                     'kode_barang' => $stock->kode_barang,
                     'nama_barang' => $stock->nama_barang,
                     'satuan' => $stock->satuan,
+                    'departemen' => $stock->departemen,
+                    'supplier' => $stock->supplier,
                     'stok_awal' => $stock->stok_akhir, // Stok akhir bulan ini menjadi stok awal bulan berikutnya
                     'stok_masuk' => 0,
                     'stok_keluar' => 0,

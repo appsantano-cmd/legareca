@@ -60,4 +60,10 @@ class DepartemenController extends Controller
         return redirect()->route('departemen.index')
             ->with('success', 'Departemen berhasil dihapus.');
     }
+    
+    public function indexApi()
+    {
+        $departemen = Departemen::orderBy('nama_departemen')->get();
+        return response()->json($departemen);
+    }
 }

@@ -14,6 +14,7 @@ use App\Http\Controllers\StokGudangController;
 use App\Http\Controllers\StokTransactionController;
 use App\Http\Controllers\SatuanController;
 use App\Http\Controllers\DepartemenController;
+use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\VenueBookingController;
 
 // Public Routes
@@ -103,12 +104,27 @@ Route::middleware('auth')->prefix('transactions')->name('transactions.')->group(
 // Authentication Protected Routes
 Route::middleware('auth')->group(function () {
 
+    // Departemen
     Route::resource('departemen', DepartemenController::class)
         ->parameters(['departemen' => 'departemen']);
+    Route::get('/api/departemen', [DepartemenController::class, 'indexApi'])->name('api.departemen.index');
 
+    // Satuan
     Route::resource('satuan', SatuanController::class);
-    // Route API untuk mengambil data satuan dalam format JSON
     Route::get('/api/satuan', [SatuanController::class, 'indexApi'])->name('api.satuan.index');
+
+    // Supplier
+    Route::prefix('supplier')->name('supplier.')->group(function () {
+        Route::get('/', [SupplierController::class, 'index'])->name('index');
+        Route::get('/create', [SupplierController::class, 'create'])->name('create');
+        Route::post('/', [SupplierController::class, 'store'])->name('store');
+        Route::get('/{supplier}/edit', [SupplierController::class, 'edit'])->name('edit');
+        Route::put('/{supplier}', [SupplierController::class, 'update'])->name('update');
+        Route::delete('/{supplier}', [SupplierController::class, 'destroy'])->name('destroy');
+        Route::put('/{id}/restore', [SupplierController::class, 'restore'])->name('restore');
+
+        Route::get('/api/supplier', [SupplierController::class, 'indexApi'])->name('api.supplier.index');
+    });
 
     // Dashboard
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');

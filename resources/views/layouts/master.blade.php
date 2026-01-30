@@ -61,6 +61,12 @@
                         </a>
                     </li>
 
+                    <li class="nav-item">
+                        <a class="nav-link {{ request()->is('supplier*') ? 'active' : '' }}"
+                            href="{{ route('supplier.index') }}">
+                            <i class="bi bi-box me-1"></i> Supplier
+                        </a>
+                    </li>
                 </ul>
 
                 <ul class="navbar-nav">
