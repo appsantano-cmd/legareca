@@ -64,7 +64,7 @@ Route::prefix('screening')->name('screening.')->group(function () {
     Route::get('/cancelled', [ScreeningController::class, 'cancelled'])->name('cancelled');
     Route::get('/export-sheets', [ScreeningController::class, 'exportToSheets'])
         ->name('export-sheets');
-    Route::post('/data/export', [ScreeningController::class, 'export'])->name('export');
+    Route::get('/export', [ScreeningController::class, 'export'])->name('export');
 });
 
 //Notification

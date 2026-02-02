@@ -7,6 +7,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Revolution\Google\Sheets\Facades\Sheets;
 use Illuminate\Support\Facades\Mail;
+use App\Exports\ScreeningsExport;
+use Maatwebsite\Excel\Facades\Excel;
 
 use App\Models\Screening;
 use App\Models\ScreeningPet;
@@ -640,7 +642,7 @@ class ScreeningController extends Controller
                     $rows[] = [
                         $s->id,
                         $s->status_text,
-                        $s->created_at->setTimezone('Asia/Jakarta')->translatedFormat('Y-m-d H:i:s'),
+                        $s->created_at->setTimezone('Asia/Jakarta')->translatedFormat('d-m-Y H:i:s'),
                         $s->owner_name,
                         $s->pet_count,
                         $s->phone_number,
@@ -736,99 +738,22 @@ class ScreeningController extends Controller
     }
 
     /**
-     * Export data to CSV/Excel
+     * Export data to Excel (XLSX)
      */
     public function export(Request $request)
     {
         try {
+            $search = $request->query('search');
+            $status = $request->query('status');
             $startDate = $request->query('start_date');
             $endDate = $request->query('end_date');
-            $status = $request->query('status');
 
-            $query = Screening::with('pets')->latest();
+            $fileName = 'screening-data-' . date('d-F-Y') . '.xlsx';
 
-            if ($startDate) {
-                $query->whereDate('created_at', '>=', $startDate);
-            }
-
-            if ($endDate) {
-                $query->whereDate('created_at', '<=', $endDate);
-            }
-
-            if ($status && $status !== 'all') {
-                $query->where('status', $status);
-            }
-
-            $screenings = $query->get();
-
-            $fileName = 'screening-data-' . date('Y-m-d-H-i-s') . '.csv';
-            $headers = [
-                'Content-Type' => 'text/csv',
-                'Content-Disposition' => "attachment; filename=\"$fileName\"",
-                'Pragma' => 'no-cache',
-                'Cache-Control' => 'must-revalidate, post-check=0, pre-check=0',
-                'Expires' => '0'
-            ];
-
-            $callback = function () use ($screenings) {
-                $file = fopen('php://output', 'w');
-
-                // Header row
-                fputcsv($file, [
-                    'ID',
-                    'Tanggal',
-                    'Owner',
-                    'Phone',
-                    'Jumlah Pet',
-                    'Status',
-                    'Pet Name',
-                    'Breed',
-                    'Sex',
-                    'Age',
-                    'Vaksin',
-                    'Kutu',
-                    'Kutu Action',
-                    'Jamur',
-                    'Birahi',
-                    'Birahi Action',
-                    'Kulit',
-                    'Telinga',
-                    'Riwayat',
-                    'Pet Status'
-                ]);
-
-                // Data rows
-                foreach ($screenings as $s) {
-                    foreach ($s->pets as $p) {
-                        fputcsv($file, [
-                            $s->id,
-                            $s->created_at->setTimezone('Asia/Jakarta')->format('Y-m-d H:i:s'),
-                            $s->owner_name,
-                            $s->phone_number,
-                            $s->pet_count,
-                            $s->status_text,
-                            $p->name,
-                            $p->breed,
-                            $p->sex,
-                            $p->age,
-                            $p->vaksin,
-                            $p->kutu,
-                            $p->kutu_action ? ($p->kutu_action == 'tidak_periksa' ? 'Tidak Periksa' : 'Lanjut Obat') : '-',
-                            $p->jamur,
-                            $p->birahi,
-                            $p->birahi_action ? ($p->birahi_action == 'tidak_periksa' ? 'Tidak Periksa' : 'Lanjut Obat') : '-',
-                            $p->kulit,
-                            $p->telinga,
-                            $p->riwayat,
-                            $p->status_text
-                        ]);
-                    }
-                }
-
-                fclose($file);
-            };
-
-            return response()->stream($callback, 200, $headers);
+            return Excel::download(
+                new ScreeningsExport($search, $status, $startDate, $endDate),
+                $fileName
+            );
 
         } catch (\Exception $e) {
             Log::error('Export error: ' . $e->getMessage());

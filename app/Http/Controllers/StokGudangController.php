@@ -357,9 +357,9 @@ class StokGudangController extends Controller
         $exportType = $request->export_type;
 
         if ($exportType === 'master') {
-            $filename = 'master-stok-gudang-' . Carbon::now()->format('Y-m-d') . '.xlsx';
+            $filename = 'master-stok-gudang-' . Carbon::now()->format('d-m-Y') . '.xlsx';
         } else {
-            $filename = 'stok-detail-gudang-' . $startDate->format('Y-m-d') . '-to-' . $endDate->format('Y-m-d') . '.xlsx';
+            $filename = 'stok-detail-gudang-' . $startDate->format('d-m-Y') . '-to-' . $endDate->format('d-m-Y') . '.xlsx';
         }
 
         return Excel::download(new StokGudangExport($startDate, $endDate, $exportType), $filename);

@@ -12,6 +12,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- DataTables -->
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css">
+    <!-- SweetAlert2 -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
 
     <style>
         body {
@@ -103,6 +105,13 @@
             border-radius: 8px;
         }
 
+        .btn-success {
+            background: linear-gradient(135deg, #20c997 0%, #0d6efd 100%);
+            border: none;
+            color: white;
+            border-radius: 8px;
+        }
+
         .btn-danger {
             border-radius: 8px;
         }
@@ -111,15 +120,52 @@
             padding: 5px 10px;
             margin: 2px;
         }
+        
+        .export-loading {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .export-loading-content {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        
+        .spinner-border {
+            width: 3rem;
+            height: 3rem;
+        }
     </style>
 </head>
 
 <body>
+    <!-- Loading overlay -->
+    <div class="export-loading" id="exportLoading">
+        <div class="export-loading-content">
+            <div class="spinner-border text-primary mb-3" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <h5>Mengekspor data ke Excel...</h5>
+            <p class="text-muted">Mohon tunggu sebentar</p>
+        </div>
+    </div>
+
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-dark mb-4">
         <div class="container">
         </div>
     </nav>
+    
     <div class="container">
         <!-- Header -->
         <div class="d-flex justify-content-between align-items-center mb-4">
@@ -133,9 +179,9 @@
                 <a href="{{ route('dashboard') }}" class="btn btn-export">
                     <i class="fas fa-file-export me-2"></i>Dashboard
                 </a>
-                <a href="{{ route('screening.export') }}" class="btn btn-export">
-                    <i class="fas fa-file-export me-2"></i>Export CSV
-                </a>
+                <button type="button" class="btn btn-success" id="exportExcelBtn">
+                    <i class="fas fa-file-excel me-2"></i>Export Excel
+                </button>
             </div>
         </div>
 
@@ -197,7 +243,7 @@
 
         <!-- Filter Section -->
         <div class="filter-section">
-            <form method="GET" action="{{ route('screening.index') }}">
+            <form method="GET" action="{{ route('screening.index') }}" id="filterForm">
                 <div class="row g-3">
                     <div class="col-md-4">
                         <label class="form-label">Cari</label>
@@ -362,6 +408,9 @@
     <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script>
 
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.js"></script>
+
     <script>
         // Initialize DataTable (optional - uncomment if you want to use DataTables instead of Laravel pagination)
         /*
@@ -410,6 +459,33 @@
                 document.getElementById('delete-form-' + id).submit();
             }
         }
+
+        // Export Excel dengan SweetAlert
+        $(document).ready(function() {
+            $('#exportExcelBtn').click(function() {
+                // Ambil semua parameter filter dari form
+                const formData = $('#filterForm').serialize();
+                
+                // Tampilkan loading
+                $('#exportLoading').show();
+                
+                // Buat URL untuk export dengan parameter filter
+                const exportUrl = '{{ route("screening.export") }}?' + formData;
+                
+                // Redirect ke URL export
+                window.location.href = exportUrl;
+                
+                // Sembunyikan loading setelah 3 detik (fallback)
+                setTimeout(function() {
+                    $('#exportLoading').hide();
+                }, 3000);
+            });
+            
+            // Sembunyikan loading jika user kembali ke halaman
+            $(window).on('pageshow', function() {
+                $('#exportLoading').hide();
+            });
+        });
     </script>
 </body>
 
