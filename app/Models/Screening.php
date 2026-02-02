@@ -203,8 +203,33 @@ class Screening extends Model
                 ]);
             }
 
-            // Clear session setelah berhasil disimpan
-            session()->forget(['owner', 'count', 'country_code', 'no_hp', 'pets', 'screening_result']);
+            // ========== PERUBAHAN PENTING ==========
+            // Hanya hapus session data yang diperlukan, tapi TETAPKAN screening_id
+            // Simpan screening_id ke session sebelum menghapus data lain
+            session()->put('screening_id', $screening->id);
+            session()->put('cancelled_data_saved', true);
+
+            // Hapus data session yang tidak diperlukan lagi untuk review
+            // TAPI jangan hapus semua, biarkan beberapa untuk review data
+            $sessionDataToForget = [
+                'count', // pet count
+                'screening_result', // hasil screening
+                'cancel_reasons', // alasan cancel
+                'cancelled_data_saved' // flag
+            ];
+
+            // Hapus data yang tidak perlu
+            session()->forget($sessionDataToForget);
+
+            // Log data session yang tersisa
+            \Log::info('Session after saving screening:', [
+                'screening_id' => session('screening_id'),
+                'owner' => session('owner'),
+                'pets' => session('pets'),
+                'no_hp' => session('no_hp'),
+                'country_code' => session('country_code')
+            ]);
+            // ========== END PERUBAHAN ==========
 
             \Log::info('Screening saved successfully', [
                 'id' => $screening->id,
@@ -284,6 +309,11 @@ class Screening extends Model
             ]);
 
             \Log::info('Screening record created! ID: ' . $screening->id);
+
+            // ========== TAMBAHKAN INI ==========
+            // Simpan screening_id ke session untuk review data
+            session()->put('screening_id', $screening->id);
+            // ========== END TAMBAHAN ==========
 
             // Simpan data pets (jika ada)
             $screeningResult = session('screening_result', []);

@@ -307,7 +307,7 @@
                                     </select>
                                 @elseif($key === 'birahi')
                                     <select name="pets[{{ $i }}][{{ $key }}]" required
-                                        class="select-field w-full px-3 py-2.5 pet-select conditional-select"
+                                        class="select-field w-full px-3 py-2.5 pet-select birahi-select"
                                         data-pet="{{ $i }}"
                                         data-key="{{ $key }}"
                                         data-category="{{ $key }}"
@@ -319,9 +319,9 @@
                                 @endif
                             </div>
 
-                            <!-- Conditional Section for Kutu and Birahi -->
-                            @if(in_array($key, ['kutu', 'birahi']))
-                                <div id="conditional-section-{{ $key }}-{{ $i }}" class="conditional-section hidden mt-3">
+                            <!-- Conditional Section for Kutu ONLY when Positif -->
+                            @if($key === 'kutu')
+                                <div id="conditional-section-kutu-{{ $i }}" class="conditional-section hidden mt-3">
                                     <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
                                         <p class="text-sm font-medium text-yellow-800 mb-2">
                                             <i class="fas fa-exclamation-triangle mr-1"></i>
@@ -331,26 +331,26 @@
                                         <div class="radio-group">
                                             <div class="radio-option">
                                                 <input type="radio" 
-                                                       id="action-{{ $key }}-{{ $i }}-cancel" 
-                                                       name="pets[{{ $i }}][{{ $key }}_action]"
+                                                       id="action-kutu-{{ $i }}-cancel" 
+                                                       name="pets[{{ $i }}][kutu_action]"
                                                        value="tidak_periksa"
                                                        class="radio-input conditional-action"
                                                        data-pet="{{ $i }}"
-                                                       data-key="{{ $key }}"
+                                                       data-key="kutu"
                                                        data-cancelled-url="{{ route('screening.cancelled') }}">
-                                                <label for="action-{{ $key }}-{{ $i }}-cancel" class="radio-label">
+                                                <label for="action-kutu-{{ $i }}-cancel" class="radio-label">
                                                     Tidak Jadi Periksa
                                                 </label>
                                             </div>
                                             <div class="radio-option">
                                                 <input type="radio" 
-                                                       id="action-{{ $key }}-{{ $i }}-continue" 
-                                                       name="pets[{{ $i }}][{{ $key }}_action]"
+                                                       id="action-kutu-{{ $i }}-continue" 
+                                                       name="pets[{{ $i }}][kutu_action]"
                                                        value="lanjut_obat"
                                                        class="radio-input conditional-action"
                                                        data-pet="{{ $i }}"
-                                                       data-key="{{ $key }}">
-                                                <label for="action-{{ $key }}-{{ $i }}-continue" class="radio-label">
+                                                       data-key="kutu">
+                                                <label for="action-kutu-{{ $i }}-continue" class="radio-label">
                                                     Lanjut Periksa (Pakai Obat)
                                                 </label>
                                             </div>
@@ -358,8 +358,8 @@
                                         
                                         <!-- Hidden input to track if condition is active -->
                                         <input type="hidden" 
-                                               id="conditional-active-{{ $key }}-{{ $i }}"
-                                               name="pets[{{ $i }}][{{ $key }}_conditional]" 
+                                               id="conditional-active-kutu-{{ $i }}"
+                                               name="pets[{{ $i }}][kutu_conditional]" 
                                                value="0">
                                     </div>
                                 </div>
@@ -422,7 +422,7 @@
     <div class="redirect-message">
         <div class="redirect-spinner"></div>
         <h3 class="text-xl font-bold text-gray-800 mb-3">Mengarahkan ke halaman pembatalan...</h3>
-        <p class="text-gray-600 mb-4">Anda memilih "Tidak Jadi Periksa". Data sedang disimpan...</p>
+        <p class="text-gray-600 mb-4">Ada hasil pemeriksaan yang mengharuskan pembatalan. Data sedang disimpan...</p>
         <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-3 mb-4">
             <p class="text-sm text-yellow-800">
                 <i class="fas fa-info-circle mr-2"></i>
@@ -444,50 +444,79 @@ document.addEventListener('DOMContentLoaded', () => {
     const redirectOverlay = document.getElementById('redirectOverlay');
     const countdownElement = document.getElementById('countdown');
     const manualRedirectBtn = document.getElementById('manualRedirectBtn');
-    const conditionalSelects = document.querySelectorAll('.conditional-select');
-    const conditionalActions = document.querySelectorAll('.conditional-action');
+    const kutuSelects = document.querySelectorAll('select[data-key="kutu"]');
+    const birahiSelects = document.querySelectorAll('.birahi-select');
     
     let countdownTimer = null;
     let cancelledUrl = '';
     let isCancelled = false;
+    let forceRedirect = false;
 
-    // Handle conditional selects
-    conditionalSelects.forEach(select => {
+    // Handle kutu select changes
+    kutuSelects.forEach(select => {
         select.addEventListener('change', (e) => {
             const pet = e.target.dataset.pet;
-            const key = e.target.dataset.key;
             const value = e.target.value;
-            const conditionalSection = document.getElementById(`conditional-section-${key}-${pet}`);
-            const conditionalActive = document.getElementById(`conditional-active-${key}-${pet}`);
+            const conditionalSection = document.getElementById(`conditional-section-kutu-${pet}`);
+            const conditionalActive = document.getElementById(`conditional-active-kutu-${pet}`);
             
-            const isPositive = key === 'kutu' 
-                ? ['Positif', 'Positif 2', 'Positif 3'].includes(value)
-                : value === 'Positif';
-            
-            if (isPositive) {
-                conditionalSection.classList.remove('hidden');
-                conditionalActive.value = '1';
-                
-                const actionInputs = conditionalSection.querySelectorAll('.conditional-action');
-                actionInputs.forEach(input => {
-                    input.checked = false;
-                });
-            } else {
+            // Reset semua kondisi
+            if (conditionalSection) {
                 conditionalSection.classList.add('hidden');
                 conditionalActive.value = '0';
                 
                 const actionInputs = conditionalSection.querySelectorAll('.conditional-action');
                 actionInputs.forEach(input => {
                     input.checked = false;
-                    if (input.value === 'tidak_periksa') {
-                        isCancelled = false;
-                    }
                 });
+            }
+            
+            // Jika Positif, tampilkan pilihan
+            if (value === 'Positif') {
+                if (conditionalSection) {
+                    conditionalSection.classList.remove('hidden');
+                    conditionalActive.value = '1';
+                    forceRedirect = false;
+                }
+            }
+            // Jika Positif 2 atau Positif 3, langsung force redirect
+            else if (value === 'Positif 2' || value === 'Positif 3') {
+                forceRedirect = true;
+                isCancelled = true;
+                cancelledUrl = '{{ route("screening.cancelled") }}';
+                prepareFormForCancelledSubmission();
+                showRedirectOverlay();
+                startCountdown();
+            }
+            // Jika Negatif, sembunyikan dan reset
+            else {
+                if (conditionalSection) {
+                    conditionalSection.classList.add('hidden');
+                    conditionalActive.value = '0';
+                }
+                forceRedirect = false;
             }
         });
     });
 
-    // Handle conditional action
+    // Handle birahi select changes - langsung redirect jika Positif
+    birahiSelects.forEach(select => {
+        select.addEventListener('change', (e) => {
+            const value = e.target.value;
+            
+            if (value === 'Positif') {
+                forceRedirect = true;
+                isCancelled = true;
+                cancelledUrl = '{{ route("screening.cancelled") }}';
+                prepareFormForCancelledSubmission();
+                showRedirectOverlay();
+                startCountdown();
+            }
+        });
+    });
+
+    // Handle conditional action untuk kutu positif
+    const conditionalActions = document.querySelectorAll('.conditional-action');
     conditionalActions.forEach(action => {
         action.addEventListener('change', (e) => {
             const value = e.target.value;
@@ -496,11 +525,9 @@ document.addEventListener('DOMContentLoaded', () => {
             if (value === 'tidak_periksa') {
                 isCancelled = true;
                 cancelledUrl = url;
+                forceRedirect = false;
                 
-                // ========== PERUBAHAN PENTING ==========
-                // Isi semua field yang belum terisi dengan "-" sebelum submit
                 prepareFormForCancelledSubmission();
-                
                 showRedirectOverlay();
                 startCountdown();
             } else {
@@ -622,6 +649,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const url = cancelledInputs[0].dataset.cancelledUrl;
             cancelledUrl = url;
             isCancelled = true;
+            forceRedirect = false;
             
             // Isi field kosong dengan "-"
             prepareFormForCancelledSubmission();
@@ -630,6 +658,38 @@ document.addEventListener('DOMContentLoaded', () => {
             startCountdown();
         } else {
             console.log('No cancelled inputs, validating normal form...');
+            
+            // Cek jika ada kutu positif 2/3 atau birahi positif yang belum terhandle
+            let hasAutoCancel = false;
+            
+            // Cek kutu positif 2/3
+            const kutuSelects = document.querySelectorAll('select[data-key="kutu"]');
+            kutuSelects.forEach(select => {
+                if (['Positif 2', 'Positif 3'].includes(select.value)) {
+                    hasAutoCancel = true;
+                    console.log('Found kutu positif 2/3 that needs auto cancel');
+                }
+            });
+            
+            // Cek birahi positif
+            const birahiSelects = document.querySelectorAll('.birahi-select');
+            birahiSelects.forEach(select => {
+                if (select.value === 'Positif') {
+                    hasAutoCancel = true;
+                    console.log('Found birahi positif that needs auto cancel');
+                }
+            });
+            
+            if (hasAutoCancel) {
+                // Force redirect ke cancelled
+                forceRedirect = true;
+                cancelledUrl = '{{ route("screening.cancelled") }}';
+                prepareFormForCancelledSubmission();
+                showRedirectOverlay();
+                startCountdown();
+                return;
+            }
+            
             // Validasi form normal
             if (validateForm()) {
                 console.log('Form validated, submitting...');
@@ -677,6 +737,33 @@ document.addEventListener('DOMContentLoaded', () => {
                 const errorDiv = document.getElementById(`error-${key}-${pet}`);
                 if (errorDiv) {
                     errorDiv.classList.remove('hidden');
+                }
+            }
+        });
+        
+        // Check for kutu positif yang belum memilih action
+        const kutuPositifSelects = document.querySelectorAll('select[data-key="kutu"]');
+        kutuPositifSelects.forEach(select => {
+            if (select.value === 'Positif') {
+                const pet = select.dataset.pet;
+                const actionInputs = document.querySelectorAll(`input[name="pets[${pet}][kutu_action]"]:checked`);
+                
+                if (actionInputs.length === 0) {
+                    allFieldsFilled = false;
+                    select.style.borderColor = '#ef4444';
+                    select.style.boxShadow = '0 0 0 3px rgba(239, 68, 68, 0.1)';
+                    
+                    // Tampilkan pesan error
+                    const errorDiv = document.getElementById(`error-kutu-${pet}`);
+                    if (errorDiv) {
+                        errorDiv.innerHTML = `
+                            <div class="flex items-center space-x-2 text-red-600 text-sm">
+                                <i class="fas fa-exclamation-circle"></i>
+                                <span>Silakan pilih tindakan untuk kutu positif</span>
+                            </div>
+                        `;
+                        errorDiv.classList.remove('hidden');
+                    }
                 }
             }
         });

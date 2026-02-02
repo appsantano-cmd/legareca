@@ -148,17 +148,29 @@ class ScreeningController extends Controller
         // 1. Ambil data dari request
         $petsData = $request->input('pets', []);
 
-        // 2. Cek apakah ada pet yang memilih "Tidak Jadi Periksa"
+        // 2. Cek apakah ada pet yang memilih "Tidak Jadi Periksa" atau Positif 2/3 untuk kutu atau Positif untuk birahi
         $cancelReasons = [];
         $hasCancelled = false;
+        $forceCancelled = false;
 
         if ($request->has('pets')) {
             \Log::info('Checking for cancelled selections...');
             foreach ($request->pets as $petIndex => $petData) {
                 \Log::info("Pet {$petIndex} data:", $petData);
 
-                // Cek kutu
-                if (isset($petData['kutu_action']) && $petData['kutu_action'] === 'tidak_periksa') {
+                // Cek kutu: Positif 2 atau Positif 3 -> langsung cancel
+                if (isset($petData['kutu']) && in_array($petData['kutu'], ['Positif 2', 'Positif 3'])) {
+                    \Log::info("Pet {$petIndex}: Kutu Positif 2/3 found! Auto cancelled.");
+                    $hasCancelled = true;
+                    $forceCancelled = true;
+                    $cancelReasons[] = [
+                        'pet_index' => $petIndex,
+                        'pet_name' => session('pets')[$petIndex]['name'] ?? 'Anabul ' . ($petIndex + 1),
+                        'reason' => 'Kutu ' . $petData['kutu'] . ' (langsung dibatalkan)'
+                    ];
+                }
+                // Cek kutu: Positif dengan pilihan tidak_periksa
+                elseif (isset($petData['kutu_action']) && $petData['kutu_action'] === 'tidak_periksa') {
                     \Log::info("Pet {$petIndex}: Kutu tidak_periksa found!");
                     $hasCancelled = true;
                     $cancelReasons[] = [
@@ -168,23 +180,25 @@ class ScreeningController extends Controller
                     ];
                 }
 
-                // Cek birahi
-                if (isset($petData['birahi_action']) && $petData['birahi_action'] === 'tidak_periksa') {
-                    \Log::info("Pet {$petIndex}: Birahi tidak_periksa found!");
+                // Cek birahi: Positif -> langsung cancel (tidak ada pilihan)
+                if (isset($petData['birahi']) && $petData['birahi'] === 'Positif') {
+                    \Log::info("Pet {$petIndex}: Birahi positif found! Auto cancelled.");
                     $hasCancelled = true;
+                    $forceCancelled = true;
                     $cancelReasons[] = [
                         'pet_index' => $petIndex,
                         'pet_name' => session('pets')[$petIndex]['name'] ?? 'Anabul ' . ($petIndex + 1),
-                        'reason' => 'Birahi positif'
+                        'reason' => 'Birahi positif (langsung dibatalkan)'
                     ];
                 }
             }
         }
 
         \Log::info('Has cancelled: ' . ($hasCancelled ? 'YES' : 'NO'));
+        \Log::info('Force cancelled: ' . ($forceCancelled ? 'YES' : 'NO'));
 
         // ========== CEK APAKAH ADA FORCE CANCELLED ==========
-        if ($request->has('force_cancelled') && $request->force_cancelled === 'true') {
+        if ($forceCancelled || ($request->has('force_cancelled') && $request->force_cancelled === 'true')) {
             \Log::info('=== FORCE CANCELLED DETECTED ===');
 
             // Simpan semua data yang ada ke session TANPA NORMALISASI
@@ -221,9 +235,9 @@ class ScreeningController extends Controller
             return redirect()->route('screening.cancelled');
         }
 
-        // 3. Jika ada yang dibatalkan (normal flow - ketika user klik NEXT)
+        // 3. Jika ada yang dibatalkan (normal flow - ketika user klik NEXT untuk kutu positif pilihan tidak_periksa)
         if ($hasCancelled) {
-            \Log::info('=== NORMAL CANCELLED FLOW ===');
+            \Log::info('=== NORMAL CANCELLED FLOW (kutu positif pilihan tidak_periksa) ===');
 
             // Simpan data ke session TANPA NORMALISASI
             $screeningData = $request->all();
@@ -358,8 +372,9 @@ class ScreeningController extends Controller
             // Kirim email notifikasi
             $this->sendCancelledEmailNotification($cancelReasons);
 
-            // Clear session flag
-            session()->forget(['cancelled_data_saved', 'screening_id']);
+            // Jangan hapus screening_id, tapi hapus hanya flag cancelled_data_saved
+            session()->forget(['cancelled_data_saved']);
+            // screening_id tetap disimpan untuk review data
         }
 
         return view('screening.cancelled', [
@@ -368,6 +383,54 @@ class ScreeningController extends Controller
             'pets' => session('pets', []),
             'screening' => $screening
         ]);
+    }
+
+    public function reviewData()
+    {
+        try {
+            // Cek apakah ada screening_id di session
+            $screeningId = session('screening_id');
+
+            if (!$screeningId) {
+                \Log::warning('No screening_id in session. Current session:', [
+                    'screening_id' => session('screening_id'),
+                    'owner' => session('owner'),
+                    'has_no_hp' => session()->has('no_hp')
+                ]);
+
+                // Jika user baru saja submit dari thankyou page, coba ambil screening terakhir
+                $screening = Screening::with('pets')
+                    ->where('owner_name', session('owner'))
+                    ->when(session('no_hp'), function ($query) {
+                        return $query->where('phone_number', session('no_hp'));
+                    })
+                    ->latest()
+                    ->first();
+
+                if ($screening) {
+                    // Simpan screening_id ke session untuk next time
+                    session()->put('screening_id', $screening->id);
+                }
+            } else {
+                $screening = Screening::with('pets')->find($screeningId);
+            }
+
+            if (!$screening) {
+                \Log::error('Screening not found. ID: ' . $screeningId);
+                return redirect()->route('screening.thankyou')
+                    ->with('error', 'Data screening tidak ditemukan. Silakan lakukan screening baru.');
+            }
+
+            // Ambil cancel reasons dari session jika ada
+            $cancelReasons = session('cancel_reasons', []);
+
+            return view('screening.review-data', compact('screening', 'cancelReasons'));
+
+        } catch (\Exception $e) {
+            Log::error('Review data error: ' . $e->getMessage());
+            return redirect()->route('screening.thankyou')
+                ->with('error', 'Terjadi kesalahan saat memuat data review: ' . $e->getMessage());
+        }
     }
 
     public function noHp()
@@ -401,6 +464,12 @@ class ScreeningController extends Controller
             if (!$screening) {
                 throw new \Exception('Gagal menyimpan data screening');
             }
+
+            // ========== TAMBAHKAN INI ==========
+            // Simpan screening_id ke session untuk review data
+            session()->put('screening_id', $screening->id);
+            session()->put('cancelled_data_saved', true);
+            // ========== END TAMBAHAN ==========
 
             // Ambil data dari DB untuk email
             $screening = Screening::with('pets')->find($screening->id);

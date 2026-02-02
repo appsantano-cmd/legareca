@@ -60,6 +60,7 @@ Route::prefix('screening')->name('screening.')->group(function () {
     Route::get('/no-hp', [ScreeningController::class, 'noHp'])->name('noHp');
     Route::post('/no-hp/submit', [ScreeningController::class, 'submitNoHp'])->name('submitNoHp');
     Route::get('/thankyou', [ScreeningController::class, 'thankyou'])->name('thankyou');
+    Route::get('/review-data', [ScreeningController::class, 'reviewData'])->name('review-data');
     Route::get('/cancelled', [ScreeningController::class, 'cancelled'])->name('cancelled');
     Route::get('/export-sheets', [ScreeningController::class, 'exportToSheets'])
         ->name('export-sheets');
