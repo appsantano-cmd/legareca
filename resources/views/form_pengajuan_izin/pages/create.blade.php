@@ -1,16 +1,13 @@
-@extends('layouts.app')
-
-@section('hide-navbar')
-@endsection
-
-@section('hide-footer')
-@endsection
-
-@section('body-class', 'bg-gradient-to-br from-[#0f8adb] via-[#5b8fdc] to-[#9aa7e0]')
-
-@section('title', 'Ajukan Izin')
-
-@section('content')
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Form Pengajuan Izin</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-gradient-to-br from-blue-500 to-purple-600">
 
 <div class="min-h-screen flex items-center px-4 py-8 md:py-12">
     <div class="max-w-6xl w-full mx-auto">
@@ -1022,4 +1019,5 @@ style.textContent = `
 document.head.appendChild(style);
 </script>
 
-@endsection
+</body>
+</html>

@@ -1,61 +1,48 @@
-@extends('layouts.app')
+@extends('layouts.layout_main')
 
 @section('title', 'Art Gallery')
-
-@section('body-class', 'bg-gray-100')
-
-@push('styles')
-    @include('partials.navbar-style')
-@endpush
-
-@push('scripts')
-    @include('partials.navbar-script')
-@endpush
 
 @section('content')
 <div class="max-w-7xl mx-auto px-4 py-8">
 
     <h1 class="text-3xl font-bold mb-6">🎨 Art Gallery</h1>
 
-    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+    <div class="gallery-grid">
 
         @forelse ($galleries as $gallery)
-            <div class="bg-white rounded-xl shadow hover:shadow-lg transition overflow-hidden">
+        <a href="{{ route('gallery.show', $gallery->id) }}" class="block">
+            <div class="gallery-card">
 
-                {{-- IMAGE --}}
-                <img 
-                    src="{{ asset('storage/' . $gallery->image_path) }}"
-                    alt="{{ $gallery->title }}"
-                    class="w-full h-56 object-cover"
-                >
+                <div class="gallery-image-wrapper">
+                    <img 
+                        src="{{ asset('storage/' . $gallery->image_path) }}"
+                        class="gallery-image"
+                        alt="{{ $gallery->title }}"
+                    >
+                </div>
 
-                {{-- CONTENT --}}
-                <div class="p-4 space-y-2">
-                    <h2 class="font-semibold text-lg">
-                        {{ $gallery->title }}
-                    </h2>
+                <div class="gallery-content">
+                    <h2 class="gallery-title">{{ $gallery->title }}</h2>
 
                     @if($gallery->artist)
-                        <p class="text-sm text-gray-500">
-                            🎨 {{ $gallery->artist }}
+                        <p class="gallery-artist">🎨 {{ $gallery->artist }}</p>
+                    @endif
+
+                    @if($gallery->short_description)
+                        <p class="gallery-description">
+                            {{ Str::limit($gallery->short_description, 80) }}
                         </p>
                     @endif
 
-                    @if($gallery->description)
-                        <p class="text-sm text-gray-700 line-clamp-2">
-                            {{ $gallery->description }}
-                        </p>
-                    @endif
-
-                    <div class="flex justify-between items-center pt-2">
+                    <div class="gallery-meta">
                         @if($gallery->price)
-                            <span class="font-bold text-orange-600">
+                            <span class="gallery-price">
                                 Rp {{ number_format($gallery->price) }}
                             </span>
                         @endif
 
                         @if($gallery->creation_date)
-                            <span class="text-xs text-gray-400">
+                            <span class="gallery-year">
                                 {{ \Carbon\Carbon::parse($gallery->creation_date)->format('Y') }}
                             </span>
                         @endif
@@ -63,6 +50,7 @@
                 </div>
 
             </div>
+        </a>
         @empty
             <p class="text-gray-500">Belum ada data gallery.</p>
         @endforelse

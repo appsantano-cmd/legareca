@@ -10,10 +10,10 @@ class ArtGallery extends Model
 
     protected $fillable = [
         'title',
+        'short_description',
         'description',
         'artist',
         'creation_date',
-        'price',
         'image_path',
     ];
 }

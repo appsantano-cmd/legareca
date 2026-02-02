@@ -1,0 +1,10 @@
+body {
+  font-family: var(--font-sans);
+  line-height: 1.5;
+  color: #1b1b18;
+  background-color: #fdfdfc;
+
+  /* ✅ kompensasi navbar & footer */
+  padding-top: 74px;     /* sesuaikan tinggi navbar */
+  padding-bottom: 50px; /* sesuaikan tinggi footer */
+}

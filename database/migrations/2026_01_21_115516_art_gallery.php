@@ -14,10 +14,10 @@ return new class extends Migration
         Schema::create('art_galleries', function (Blueprint $table) {
             $table->id();
             $table->string('title');
+            $table->string('short_description')->nullable();
             $table->text('description')->nullable();
             $table->string('artist')->nullable();
             $table->date('creation_date')->nullable();
-            $table->integer('price')->nullable();
             $table->string('image_path')->nullable();
             $table->timestamps();
         });

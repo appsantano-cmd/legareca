@@ -12,4 +12,10 @@ class ArtGalleryController extends Controller
 
         return view('art_gallery.pages.index', compact('galleries'));
     }
+
+    public function show(\App\Models\ArtGallery $art)
+{
+    return view('art_gallery.pages.show', compact('art'));
+}
+
 }

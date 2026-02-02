@@ -19,11 +19,14 @@ use App\Http\Controllers\VenueBookingController;
 
 // Public Routes
 Route::get('/', function () {
-    return view('welcome');
+    return view('welcome.welcome');
 });
 
 Route::get('/art-gallery', [ArtGalleryController::class, 'index'])
     ->name('gallery.index');
+
+Route::get('/art-gallery/{art}', [ArtGalleryController::class, 'show'])
+    ->name('gallery.show');
 
 // Authentication Routes
 Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
