@@ -186,30 +186,6 @@
             position: relative;
         }
 
-        .supplier-suggestion-list {
-            position: absolute;
-            top: 100%;
-            left: 0;
-            right: 0;
-            background-color: white;
-            border: 1px solid #dee2e6;
-            border-radius: 0 0 5px 5px;
-            max-height: 200px;
-            overflow-y: auto;
-            z-index: 1000;
-            display: none;
-        }
-
-        .supplier-suggestion-item {
-            padding: 8px 12px;
-            cursor: pointer;
-            transition: background-color 0.2s;
-        }
-
-        .supplier-suggestion-item:hover {
-            background-color: #f8f9fa;
-        }
-
         .field-group {
             margin-top: 15px;
         }
@@ -318,19 +294,6 @@
             border-left: 4px solid #4CAF50;
         }
 
-        .departemen-select-btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-            cursor: pointer;
-            color: #4CAF50;
-            font-weight: 500;
-        }
-
-        .departemen-select-btn:hover {
-            text-decoration: underline;
-        }
-
         .btn:disabled,
         .btn.disabled {
             opacity: 0.5;
@@ -371,6 +334,102 @@
             border-color: #dee2e6 !important;
             background-color: #f8f9fa !important;
         }
+
+        /* Styling untuk informasi departemen */
+        .departemen-info-box {
+            background-color: #e8f5e9;
+            border: 1px solid #4CAF50;
+            border-radius: 5px;
+            padding: 10px 15px;
+            margin-bottom: 15px;
+        }
+
+        .departemen-info-title {
+            font-weight: bold;
+            color: #2E7D32;
+            margin-bottom: 5px;
+        }
+
+        .departemen-info-content {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn-change-departemen {
+            margin-left: auto;
+        }
+
+        /* Warning ketika departemen belum dipilih */
+        .departemen-warning {
+            background-color: #fff3cd;
+            border: 1px solid #ffc107;
+            border-radius: 5px;
+            padding: 10px 15px;
+            margin-bottom: 15px;
+        }
+
+        /* Step indicator */
+        .step-indicator {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .step {
+            display: flex;
+            align-items: center;
+            flex: 1;
+        }
+
+        .step-number {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background-color: #e9ecef;
+            color: #6c757d;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 10px;
+            font-weight: bold;
+        }
+
+        .step.active .step-number {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .step.completed .step-number {
+            background-color: #2E7D32;
+            color: white;
+        }
+
+        .step-label {
+            font-size: 0.9rem;
+            color: #6c757d;
+        }
+
+        .step.active .step-label {
+            color: #4CAF50;
+            font-weight: 500;
+        }
+
+        .step-line {
+            flex-grow: 1;
+            height: 2px;
+            background-color: #e9ecef;
+            margin: 0 10px;
+        }
+
+        .step.completed .step-line {
+            background-color: #2E7D32;
+        }
+
+        /* Keperluan global container */
+        .keperluan-global-container {
+            margin-top: 10px;
+        }
     </style>
 </head>
 
@@ -404,15 +463,59 @@
                     @endif
 
                     <div class="card-body">
+                        <!-- Step Indicator -->
+                        <div class="step-indicator">
+                            <div class="step active" id="step1">
+                                <div class="step-number">1</div>
+                                <div class="step-label">Pilih Departemen</div>
+                            </div>
+                            <div class="step-line"></div>
+                            <div class="step" id="step2">
+                                <div class="step-number">2</div>
+                                <div class="step-label">Pilih Tipe Transaksi</div>
+                            </div>
+                            <div class="step-line"></div>
+                            <div class="step" id="step3">
+                                <div class="step-number">3</div>
+                                <div class="step-label">Tambah Barang</div>
+                            </div>
+                        </div>
+
+                        <!-- Departemen Info Box -->
+                        <div id="departemenInfoBox" class="departemen-info-box" style="display: none;">
+                            <div class="departemen-info-title">
+                                <i class="bi bi-building me-2"></i>Departemen Terpilih
+                            </div>
+                            <div class="departemen-info-content">
+                                <span id="selectedDepartemenName">-</span>
+                                <button type="button" class="btn btn-sm btn-outline-primary btn-change-departemen"
+                                    id="btnChangeDepartemen">
+                                    <i class="bi bi-pencil me-1"></i>Ubah
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Warning jika departemen belum dipilih -->
+                        <div id="departemenWarning" class="departemen-warning">
+                            <i class="bi bi-exclamation-triangle me-2"></i>
+                            Silakan pilih departemen terlebih dahulu untuk melanjutkan
+                            <button type="button" class="btn btn-sm btn-warning ms-2" id="btnSelectDepartemen">
+                                <i class="bi bi-building me-1"></i>Pilih Departemen
+                            </button>
+                        </div>
+
                         <form action="{{ route('transactions.store') }}" method="POST" id="transactionForm">
                             @csrf
+
+                            <!-- Hidden input untuk menyimpan data departemen -->
+                            <input type="hidden" name="departemen" id="departemenInput" value="">
 
                             <div class="row">
                                 <div class="col-md-6">
                                     <h5 class="border-bottom pb-2 mb-3">
                                         <i class="bi bi-clipboard-data me-2"></i>Informasi Transaksi
                                     </h5>
-                                    
+
                                     <!-- MODIFIKASI DI SINI: Input tanggal diubah menjadi readonly -->
                                     <div class="mb-3">
                                         <label class="form-label required">Tanggal Transaksi</label>
@@ -424,20 +527,21 @@
                                             Tanggal transaksi ditetapkan otomatis sebagai hari ini
                                         </small>
                                     </div>
-                                    
+
+                                    <!-- Tipe Transaksi (akan diaktifkan setelah departemen dipilih) -->
                                     <div class="mb-3">
                                         <label class="form-label required">Tipe Transaksi</label>
-                                        <div class="radio-group">
+                                        <div class="radio-group" id="tipeRadioGroup">
                                             <div class="form-check">
                                                 <input class="form-check-input" type="radio" name="tipe"
-                                                    id="tipe_masuk" value="masuk">
+                                                    id="tipe_masuk" value="masuk" disabled>
                                                 <label class="form-check-label text-success" for="tipe_masuk">
                                                     <i class="bi bi-box-arrow-in-down me-1"></i>Stok Masuk
                                                 </label>
                                             </div>
                                             <div class="form-check mt-2">
                                                 <input class="form-check-input" type="radio" name="tipe"
-                                                    id="tipe_keluar" value="keluar">
+                                                    id="tipe_keluar" value="keluar" disabled>
                                                 <label class="form-check-label text-danger" for="tipe_keluar">
                                                     <i class="bi bi-box-arrow-up me-1"></i>Stok Keluar
                                                 </label>
@@ -446,114 +550,24 @@
                                         <div class="text-danger small mt-1 d-none" id="tipeError">
                                             Silakan pilih tipe transaksi
                                         </div>
+                                        <div id="tipeDisabledMessage" class="text-muted small mt-1">
+                                            Pilih departemen terlebih dahulu untuk mengaktifkan opsi ini
+                                        </div>
                                     </div>
 
-                                    <!-- Supplier untuk Stok Masuk -->
+                                    <!-- Supplier untuk Stok Masuk (DIHAPUS karena supplier diambil dari data barang) -->
                                     <div id="masukFields" class="conditional-field">
                                         <div class="mb-3">
-                                            <label class="form-label">Supplier</label>
-                                            <div class="field-options-container">
-                                                <div class="field-option-item" id="supplierOptionGlobal">
-                                                    <div class="form-check">
-                                                        <input class="form-check-input" type="radio"
-                                                            name="supplier_mode" id="supplier_mode_global"
-                                                            value="global" checked>
-                                                        <label class="form-check-label" for="supplier_mode_global">
-                                                            <strong>Supplier Global</strong> - Sama untuk semua barang
-                                                        </label>
-                                                    </div>
-                                                </div>
-                                                <div class="field-option-item" id="supplierOptionPerBarang">
-                                                    <div class="form-check">
-                                                        <input class="form-check-input" type="radio"
-                                                            name="supplier_mode" id="supplier_mode_perbarang"
-                                                            value="perbarang">
-                                                        <label class="form-check-label" for="supplier_mode_perbarang">
-                                                            <strong>Supplier Per Barang</strong> - Berbeda untuk setiap
-                                                            barang
-                                                        </label>
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            <!-- Input Supplier Global -->
-                                            <div id="supplierGlobalContainer" class="global-field-container mt-2">
-                                                <label for="supplier_global" class="form-label">
-                                                    <span id="supplierGlobalLabel">Supplier Global</span>
-                                                    <span class="text-danger">*</span>
-                                                </label>
-                                                <div class="supplier-input-group">
-                                                    <input type="text" name="supplier_global" id="supplier_global"
-                                                        class="form-control" placeholder="Masukkan nama supplier"
-                                                        required>
-                                                    <div id="supplierGlobalSuggestions"
-                                                        class="supplier-suggestion-list"></div>
-                                                </div>
-                                                <div class="supplier-info mt-2">
-                                                    <i class="bi bi-info-circle me-1"></i>
-                                                    <small class="text-muted">
-                                                        <span id="supplierModeDescription">
-                                                            Supplier global akan digunakan untuk semua barang dalam
-                                                            transaksi ini.
-                                                        </span>
-                                                    </small>
-                                                </div>
+                                            <div class="alert alert-info">
+                                                <i class="bi bi-info-circle me-2"></i>
+                                                <strong>Informasi Supplier:</strong> Supplier akan otomatis diambil dari
+                                                data barang yang dipilih
                                             </div>
                                         </div>
                                     </div>
 
                                     <!-- Field khusus Stok Keluar -->
                                     <div id="keluarFields" class="conditional-field">
-                                        <!-- Departemen dengan radio button -->
-                                        <div class="mb-3">
-                                            <label class="form-label required">Departemen</label>
-                                            <div class="field-options-container">
-                                                <div class="field-option-item" id="departemenOptionGlobal">
-                                                    <div class="form-check">
-                                                        <input class="form-check-input" type="radio"
-                                                            name="departemen_mode" id="departemen_mode_global"
-                                                            value="global" checked>
-                                                        <label class="form-check-label" for="departemen_mode_global">
-                                                            <strong>Departemen Global</strong> - Sama untuk semua barang
-                                                        </label>
-                                                    </div>
-                                                </div>
-                                                <div class="field-option-item" id="departemenOptionPerBarang">
-                                                    <div class="form-check">
-                                                        <input class="form-check-input" type="radio"
-                                                            name="departemen_mode" id="departemen_mode_perbarang"
-                                                            value="perbarang">
-                                                        <label class="form-check-label"
-                                                            for="departemen_mode_perbarang">
-                                                            <strong>Departemen Per Barang</strong> - Berbeda untuk
-                                                            setiap barang
-                                                        </label>
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            <!-- Input Departemen Global -->
-                                            <div id="departemenGlobalContainer" class="global-field-container mt-2">
-                                                <div class="d-flex gap-2">
-                                                    <input type="text" name="departemen_global"
-                                                        id="departemen_global" class="form-control"
-                                                        placeholder="Pilih departemen" readonly required>
-                                                    <button type="button" class="btn btn-outline-primary"
-                                                        id="btnPilihDepartemenGlobal"
-                                                        data-target="#departemen_global">
-                                                        <i class="bi bi-search"></i> Pilih
-                                                    </button>
-                                                </div>
-                                                <div class="supplier-info mt-2">
-                                                    <i class="bi bi-info-circle me-1"></i>
-                                                    <small class="text-muted">
-                                                        Departemen global akan digunakan untuk semua barang dalam
-                                                        transaksi ini.
-                                                    </small>
-                                                </div>
-                                            </div>
-                                        </div>
-
                                         <!-- Keperluan dengan radio button -->
                                         <div class="mb-3">
                                             <label class="form-label required">Keperluan</label>
@@ -562,7 +576,7 @@
                                                     <div class="form-check">
                                                         <input class="form-check-input" type="radio"
                                                             name="keperluan_mode" id="keperluan_mode_global"
-                                                            value="global" checked>
+                                                            value="global" disabled>
                                                         <label class="form-check-label" for="keperluan_mode_global">
                                                             <strong>Keperluan Global</strong> - Sama untuk semua barang
                                                         </label>
@@ -572,7 +586,7 @@
                                                     <div class="form-check">
                                                         <input class="form-check-input" type="radio"
                                                             name="keperluan_mode" id="keperluan_mode_perbarang"
-                                                            value="perbarang">
+                                                            value="perbarang" disabled>
                                                         <label class="form-check-label"
                                                             for="keperluan_mode_perbarang">
                                                             <strong>Keperluan Per Barang</strong> - Berbeda untuk setiap
@@ -583,15 +597,14 @@
                                             </div>
 
                                             <!-- Input Keperluan Global -->
-                                            <div id="keperluanGlobalContainer" class="global-field-container mt-2">
+                                            <div id="keperluanGlobalContainer" class="global-field-container keperluan-global-container" style="display: none;">
                                                 <input type="text" name="keperluan_global" id="keperluan_global"
-                                                    class="form-control" required
+                                                    class="form-control" disabled
                                                     placeholder="Masukkan keperluan global">
                                                 <div class="supplier-info mt-2">
                                                     <i class="bi bi-info-circle me-1"></i>
                                                     <small class="text-muted">
-                                                        Keperluan global akan digunakan untuk semua barang dalam
-                                                        transaksi ini.
+                                                        Keperluan global akan digunakan untuk semua barang dalam transaksi ini.
                                                     </small>
                                                 </div>
                                             </div>
@@ -606,7 +619,7 @@
                                                 <div class="form-check">
                                                     <input class="form-check-input" type="radio"
                                                         name="nama_penerima_mode" id="nama_penerima_mode_global"
-                                                        value="global" checked>
+                                                        value="global" disabled>
                                                     <label class="form-check-label" for="nama_penerima_mode_global">
                                                         <strong>Nama Penerima Global</strong> - Sama untuk semua barang
                                                     </label>
@@ -616,7 +629,7 @@
                                                 <div class="form-check">
                                                     <input class="form-check-input" type="radio"
                                                         name="nama_penerima_mode" id="nama_penerima_mode_perbarang"
-                                                        value="perbarang">
+                                                        value="perbarang" disabled>
                                                     <label class="form-check-label"
                                                         for="nama_penerima_mode_perbarang">
                                                         <strong>Nama Penerima Per Barang</strong> - Berbeda untuk setiap
@@ -627,10 +640,10 @@
                                         </div>
 
                                         <!-- Input Nama Penerima Global -->
-                                        <div id="namaPenerimaGlobalContainer" class="global-field-container mt-2">
+                                        <div id="namaPenerimaGlobalContainer" class="global-field-container mt-2" style="display: none;">
                                             <input type="text" name="nama_penerima_global"
                                                 id="nama_penerima_global" class="form-control"
-                                                value="{{ old('nama_penerima_global') }}" required
+                                                value="{{ old('nama_penerima_global') }}" disabled
                                                 placeholder="Masukkan nama penerima barang global">
                                             <div class="supplier-info mt-2">
                                                 <i class="bi bi-info-circle me-1"></i>
@@ -650,7 +663,7 @@
                                                 <div class="form-check">
                                                     <input class="form-check-input" type="radio"
                                                         name="keterangan_mode" id="keterangan_mode_global"
-                                                        value="global" checked>
+                                                        value="global" disabled>
                                                     <label class="form-check-label" for="keterangan_mode_global">
                                                         <strong>Keterangan Global</strong> - Sama untuk semua barang
                                                     </label>
@@ -660,7 +673,7 @@
                                                 <div class="form-check">
                                                     <input class="form-check-input" type="radio"
                                                         name="keterangan_mode" id="keterangan_mode_perbarang"
-                                                        value="perbarang">
+                                                        value="perbarang" disabled>
                                                     <label class="form-check-label" for="keterangan_mode_perbarang">
                                                         <strong>Keterangan Per Barang</strong> - Berbeda untuk setiap
                                                         barang
@@ -670,14 +683,14 @@
                                         </div>
 
                                         <!-- Input Keterangan Global -->
-                                        <div id="keteranganGlobalContainer" class="global-field-container mt-2">
-                                            <textarea name="keterangan_global" id="keterangan_global" rows="4" class="form-control"
+                                        <div id="keteranganGlobalContainer" class="global-field-container mt-2" style="display: none;">
+                                            <textarea name="keterangan_global" id="keterangan_global" rows="4" 
+                                                class="form-control" disabled 
                                                 placeholder="Tambahkan keterangan transaksi global (opsional)">{{ old('keterangan_global') }}</textarea>
                                             <div class="supplier-info mt-2">
                                                 <i class="bi bi-info-circle me-1"></i>
                                                 <small class="text-muted">
-                                                    Keterangan global akan digunakan untuk semua barang dalam transaksi
-                                                    ini.
+                                                    Keterangan global akan digunakan untuk semua barang dalam transaksi ini.
                                                 </small>
                                             </div>
                                         </div>
@@ -693,7 +706,8 @@
                                         <div class="d-flex justify-content-between align-items-center mb-3">
                                             <h6 class="mb-0">Barang yang Dipilih</h6>
                                             <button type="button" class="btn btn-sm btn-outline-primary"
-                                                data-bs-toggle="modal" data-bs-target="#barangModal">
+                                                data-bs-toggle="modal" data-bs-target="#barangModal"
+                                                id="btnTambahBarang" disabled>
                                                 <i class="bi bi-plus-circle me-1"></i>Tambah Barang
                                             </button>
                                         </div>
@@ -702,8 +716,8 @@
                                             <div class="no-barang-message" id="noBarangMessage">
                                                 <i class="bi bi-inbox display-4 d-block mb-2"></i>
                                                 <p class="mb-0">Belum ada barang dipilih</p>
-                                                <small class="text-muted">Klik tombol "Tambah Barang" untuk
-                                                    memulai</small>
+                                                <small class="text-muted">Pilih departemen dan tipe transaksi terlebih
+                                                    dahulu</small>
                                             </div>
                                         </div>
 
@@ -722,30 +736,15 @@
                                     <div class="alert alert-info">
                                         <h6><i class="bi bi-info-circle me-2"></i>Informasi</h6>
                                         <ul class="mb-0 small">
-                                            <li><strong>Tanggal:</strong> Otomatis ditetapkan sebagai hari ini dan tidak dapat diubah</li>
-                                            <li><strong>Pilih Tipe:</strong> Pilih Stok Masuk atau Stok Keluar terlebih
-                                                dahulu</li>
-                                            <li><strong>Supplier Options:</strong>
-                                                <ul class="mt-1">
-                                                    <li><strong>Global:</strong> Satu supplier untuk semua barang (WAJIB
-                                                        diisi untuk Stok Masuk)</li>
-                                                    <li><strong>Per Barang:</strong> Input supplier berbeda untuk setiap
-                                                        barang (WAJIB diisi untuk Stok Masuk)</li>
-                                                </ul>
+                                            <li><strong>Langkah 1:</strong> Pilih departemen terlebih dahulu</li>
+                                            <li><strong>Langkah 2:</strong> Pilih tipe transaksi (Stok Masuk/Keluar)
                                             </li>
-                                            <li><strong>Departemen & Keperluan:</strong>
-                                                <ul class="mt-1">
-                                                    <li><strong>Global:</strong> Sama untuk semua barang (WAJIB diisi
-                                                        untuk Stok Keluar)</li>
-                                                    <li><strong>Per Barang:</strong> Berbeda untuk setiap barang (WAJIB
-                                                        diisi untuk Stok Keluar)</li>
-                                                </ul>
-                                            </li>
-                                            <li><strong>Nama Penerima & Keterangan:</strong> Bisa global atau per barang
-                                            </li>
+                                            <li><strong>Langkah 3:</strong> Tambahkan barang ke daftar</li>
+                                            <li><strong>Supplier:</strong> Otomatis diambil dari data barang</li>
+                                            <li><strong>Departemen:</strong> Sudah ditentukan di awal</li>
+                                            <li><strong>Keperluan:</strong> Hanya untuk stok keluar</li>
+                                            <li><strong>Tanggal:</strong> Otomatis hari ini</li>
                                             <li>Stok akan langsung diperbarui setelah transaksi disimpan</li>
-                                            <li><strong>Multiple Items:</strong> Anda bisa menambahkan banyak barang
-                                                dalam satu transaksi</li>
                                         </ul>
                                     </div>
                                 </div>
@@ -758,7 +757,8 @@
                                     <i class="bi bi-arrow-left me-2"></i>Kembali
                                 </a>
                                 <div>
-                                    <button type="submit" name="action" value="save" class="btn btn-primary">
+                                    <button type="submit" name="action" value="save" class="btn btn-primary"
+                                        id="btnSimpan" disabled>
                                         <i class="bi bi-save me-2"></i>Simpan Transaksi
                                     </button>
                                 </div>
@@ -771,107 +771,19 @@
                 <div class="alert alert-info mt-3">
                     <h6><i class="bi bi-info-circle me-2"></i>Informasi Penting</h6>
                     <ul class="mb-0">
-                        <li><strong>Tanggal Transaksi:</strong> Otomatis menggunakan tanggal hari ini dan tidak dapat diubah</li>
-                        <li>Transaksi <strong>Stok Masuk</strong> akan menambah stok barang</li>
-                        <li>Transaksi <strong>Stok Keluar</strong> akan mengurangi stok barang</li>
-                        <li>Pastikan jumlah stok keluar tidak melebihi stok tersedia</li>
+                        <li><strong>Urutan Proses:</strong> Departemen → Tipe Transaksi → Barang</li>
+                        <li><strong>Tanggal Transaksi:</strong> Otomatis menggunakan tanggal hari ini</li>
+                        <li><strong>Supplier:</strong> Otomatis diambil dari data master barang</li>
+                        <li><strong>Departemen:</strong> Ditentukan di awal dan berlaku untuk semua barang</li>
                         <li>Transaksi akan langsung mempengaruhi stok barang</li>
-                        <li>Klik tombol "Tambah Barang" untuk menambah barang ke daftar transaksi</li>
-                        <li>Anda bisa menambahkan <strong>banyak barang</strong> dalam satu transaksi</li>
-                        <li><strong>Semua Field bisa Global atau Per Barang:</strong>
-                            <ul class="mt-1">
-                                <li><strong>Stok Masuk:</strong> Supplier (WAJIB), Nama Penerima (WAJIB), Keterangan
-                                    (Opsional)</li>
-                                <li><strong>Stok Keluar:</strong> Departemen (WAJIB), Keperluan (WAJIB), Nama Penerima
-                                    (WAJIB), Keterangan (Opsional)</li>
-                            </ul>
-                        </li>
+                        <li>Pastikan jumlah stok keluar tidak melebihi stok tersedia</li>
                     </ul>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Modal Barang -->
-    <div class="modal fade" id="barangModal" tabindex="-1" aria-labelledby="barangModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header bg-primary text-white">
-                    <h5 class="modal-title" id="barangModalLabel">
-                        <i class="bi bi-box-seam me-2"></i>Tambah Barang ke Transaksi
-                    </h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
-                        aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="search-container">
-                        <i class="bi bi-search search-icon"></i>
-                        <input type="text" id="searchBarang" class="form-control search-input"
-                            placeholder="Cari barang berdasarkan kode, nama, atau satuan...">
-                    </div>
-
-                    <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
-                        <table class="table table-hover table-sm">
-                            <thead class="table-light sticky-top">
-                                <tr>
-                                    <th width="30"></th>
-                                    <th width="120">Kode Barang</th>
-                                    <th>Nama Barang</th>
-                                    <th width="100">Satuan</th>
-                                    <th width="120" class="text-end">Stok Tersedia</th>
-                                </tr>
-                            </thead>
-                            <tbody id="barangTableBody">
-                                @foreach ($barangList as $index => $barang)
-                                    <tr class="barang-item" data-kode="{{ $barang->kode_barang }}"
-                                        data-nama="{{ $barang->nama_barang }}" data-satuan="{{ $barang->satuan }}"
-                                        data-stok="{{ $barang->stok_akhir }}">
-                                        <td class="text-center">
-                                            <div class="form-check">
-                                                <input class="form-check-input barang-checkbox" type="checkbox"
-                                                    id="barang_{{ $barang->kode_barang }}"
-                                                    value="{{ $barang->kode_barang }}">
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <label class="form-check-label" for="barang_{{ $barang->kode_barang }}">
-                                                <strong>{{ $barang->kode_barang }}</strong>
-                                            </label>
-                                        </td>
-                                        <td>{{ $barang->nama_barang }}</td>
-                                        <td>{{ $barang->satuan }}</td>
-                                        <td class="text-end">
-                                            <span
-                                                class="badge bg-{{ $barang->stok_akhir > 0 ? 'success' : 'danger' }}">
-                                                {{ number_format($barang->stok_akhir, 2) }}
-                                            </span>
-                                        </td>
-                                    </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
-                    </div>
-
-                    <div class="mt-3 text-muted">
-                        <small>
-                            <i class="bi bi-info-circle me-1"></i>
-                            Menampilkan <span id="itemCount">{{ count($barangList) }}</span> barang
-                        </small>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                        <i class="bi bi-x-circle me-1"></i>Batal
-                    </button>
-                    <button type="button" class="btn btn-primary" id="addBarangBtn">
-                        <i class="bi bi-plus-circle me-1"></i>Tambah ke Daftar
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal Departemen -->
+    <!-- Modal Departemen (TAMPIL PERTAMA) -->
     <div class="modal fade" id="departemenModal" tabindex="-1" aria-labelledby="departemenModalLabel"
         aria-hidden="true">
         <div class="modal-dialog modal-lg">
@@ -921,12 +833,77 @@
         </div>
     </div>
 
+    <!-- Modal Barang -->
+    <div class="modal fade" id="barangModal" tabindex="-1" aria-labelledby="barangModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="barangModalLabel">
+                        <i class="bi bi-box-seam me-2"></i>Tambah Barang ke Transaksi
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="alert alert-info mb-3">
+                        <i class="bi bi-info-circle me-2"></i>
+                        Menampilkan barang untuk departemen: <strong id="modalDepartemenInfo">-</strong>
+                    </div>
+
+                    <div class="search-container">
+                        <i class="bi bi-search search-icon"></i>
+                        <input type="text" id="searchBarang" class="form-control search-input"
+                            placeholder="Cari barang berdasarkan kode, nama, atau satuan...">
+                    </div>
+
+                    <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
+                        <table class="table table-hover table-sm">
+                            <thead class="table-light sticky-top">
+                                <tr>
+                                    <th width="30"></th>
+                                    <th width="120">Kode Barang</th>
+                                    <th>Nama Barang</th>
+                                    <th width="100">Satuan</th>
+                                    <th width="120" class="text-end">Stok Tersedia</th>
+                                    <th width="150">Supplier</th>
+                                </tr>
+                            </thead>
+                            <tbody id="barangTableBody">
+                                <!-- Data akan diisi via JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="mt-3 text-muted">
+                        <small>
+                            <i class="bi bi-info-circle me-1"></i>
+                            Menampilkan <span id="itemCount">0</span> barang
+                        </small>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="bi bi-x-circle me-1"></i>Batal
+                    </button>
+                    <button type="button" class="btn btn-primary" id="addBarangBtn">
+                        <i class="bi bi-plus-circle me-1"></i>Tambah ke Daftar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <template id="barangItemTemplate">
         <div class="barang-item-card" data-kode="KODE_BARANG">
             <div class="barang-header">
                 <div>
                     <h6 class="mb-0 fw-bold">NAMA_BARANG</h6>
                     <small class="text-muted">Kode: KODE_BARANG</small>
+                    <div class="mt-1">
+                        <small class="text-primary">
+                            <i class="bi bi-truck me-1"></i>Supplier: <span class="supplier-display">SUPPLIER_NAME</span>
+                        </small>
+                    </div>
                 </div>
                 <button type="button" class="remove-barang-btn" title="Hapus">
                     <i class="bi bi-trash"></i>
@@ -934,13 +911,13 @@
             </div>
 
             <div class="row">
-                <div class="col-md-6">
+                <div class="col-md-4">
                     <div class="product-info-item">
                         <div class="product-info-label">Satuan</div>
                         <div class="product-info-value">SATUAN</div>
                     </div>
                 </div>
-                <div class="col-md-6">
+                <div class="col-md-4">
                     <div class="product-info-item">
                         <div class="product-info-label">Stok Tersedia</div>
                         <div class="product-info-value">
@@ -948,39 +925,16 @@
                         </div>
                     </div>
                 </div>
+                <div class="col-md-4">
+                    <div class="product-info-item">
+                        <div class="product-info-label">Departemen</div>
+                        <div class="product-info-value">DEPARTEMEN_NAME</div>
+                    </div>
+                </div>
             </div>
 
             <!-- Field per Barang (ditampilkan jika mode Per Barang dipilih) -->
             <div class="field-group">
-
-                <!-- Supplier per Barang (hanya untuk Stok Masuk - Mode Per Barang) -->
-                <div class="barang-item-field supplier-field conditional-supplier-field" style="display: none;">
-                    <label class="form-label">
-                        <span>Supplier</span>
-                        <span class="text-danger">*</span>
-                    </label>
-                    <div class="supplier-input-group">
-                        <input type="text" class="form-control supplier-per-barang"
-                            placeholder="Supplier untuk barang ini" required>
-                        <div class="supplier-suggestion-list"></div>
-                    </div>
-                </div>
-
-                <!-- Departemen per Barang (hanya untuk Stok Keluar - Mode Per Barang) -->
-                <div class="barang-item-field departemen-field conditional-departemen-field" style="display: none;">
-                    <label class="form-label">
-                        <span>Departemen</span>
-                        <span class="text-danger">*</span>
-                    </label>
-                    <div class="d-flex gap-2">
-                        <input type="text" class="form-control departemen-per-barang"
-                            placeholder="Pilih departemen untuk barang ini" readonly required>
-                        <button type="button" class="btn btn-outline-primary btn-sm btn-pilih-departemen-perbarang">
-                            <i class="bi bi-search"></i> Pilih
-                        </button>
-                    </div>
-                </div>
-
                 <!-- Keperluan per Barang (hanya untuk Stok Keluar - Mode Per Barang) -->
                 <div class="barang-item-field keperluan-field conditional-keperluan-field" style="display: none;">
                     <label class="form-label">
@@ -988,7 +942,7 @@
                         <span class="text-danger">*</span>
                     </label>
                     <input type="text" class="form-control keperluan-per-barang"
-                        placeholder="Keperluan untuk barang ini" required>
+                        placeholder="Keperluan untuk barang ini">
                 </div>
 
                 <!-- Nama Penerima per Barang -->
@@ -999,7 +953,7 @@
                         <span class="text-danger">*</span>
                     </label>
                     <input type="text" class="form-control nama-penerima-per-barang"
-                        placeholder="Nama penerima untuk barang ini" required>
+                        placeholder="Nama penerima untuk barang ini">
                 </div>
 
                 <!-- Keterangan per Barang -->
@@ -1011,7 +965,6 @@
                     <textarea class="form-control keterangan-per-barang" rows="2"
                         placeholder="Keterangan untuk barang ini (opsional)"></textarea>
                 </div>
-
             </div>
 
             <div class="mt-3">
@@ -1039,417 +992,391 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        const tipeRadios = document.querySelectorAll('input[name="tipe"]');
-        const stockWarning = document.getElementById('stockWarning');
-        const stockWarningMessage = document.getElementById('stockWarningMessage');
-        const searchBarangInput = document.getElementById('searchBarang');
-        const barangTableBody = document.getElementById('barangTableBody');
-        const itemCountSpan = document.getElementById('itemCount');
-        const addBarangBtn = document.getElementById('addBarangBtn');
-        const masukFields = document.getElementById('masukFields');
-        const keluarFields = document.getElementById('keluarFields');
-        const tipeError = document.getElementById('tipeError');
-        const barangListContainer = document.getElementById('barangListContainer');
-        const noBarangMessage = document.getElementById('noBarangMessage');
-        const totalBarangSpan = document.getElementById('totalBarang');
-        const barangDataContainer = document.getElementById('barangDataContainer');
-        const barangItemTemplate = document.getElementById('barangItemTemplate');
-        const departemenRowTemplate = document.getElementById('departemenRowTemplate');
-
-        // Supplier mode elements
-        const supplierModeRadios = document.querySelectorAll('input[name="supplier_mode"]');
-        const supplierGlobalInput = document.getElementById('supplier_global');
-        const supplierGlobalSuggestions = document.getElementById('supplierGlobalSuggestions');
-        const supplierOptionGlobal = document.getElementById('supplierOptionGlobal');
-        const supplierOptionPerBarang = document.getElementById('supplierOptionPerBarang');
-
-        // Departemen mode elements
-        const departemenModeRadios = document.querySelectorAll('input[name="departemen_mode"]');
-        const departemenGlobalInput = document.getElementById('departemen_global');
-        const departemenOptionGlobal = document.getElementById('departemenOptionGlobal');
-        const departemenOptionPerBarang = document.getElementById('departemenOptionPerBarang');
-
-        // Keperluan mode elements
-        const keperluanModeRadios = document.querySelectorAll('input[name="keperluan_mode"]');
-        const keperluanGlobalInput = document.getElementById('keperluan_global');
-        const keperluanOptionGlobal = document.getElementById('keperluanOptionGlobal');
-        const keperluanOptionPerBarang = document.getElementById('keperluanOptionPerBarang');
-
-        // Nama Penerima mode elements
-        const namaPenerimaModeRadios = document.querySelectorAll('input[name="nama_penerima_mode"]');
-        const namaPenerimaGlobalInput = document.getElementById('nama_penerima_global');
-        const namaPenerimaOptionGlobal = document.getElementById('namaPenerimaOptionGlobal');
-        const namaPenerimaOptionPerBarang = document.getElementById('namaPenerimaOptionPerBarang');
-
-        // Keterangan mode elements
-        const keteranganModeRadios = document.querySelectorAll('input[name="keterangan_mode"]');
-        const keteranganGlobalInput = document.getElementById('keterangan_global');
-        const keteranganOptionGlobal = document.getElementById('keteranganOptionGlobal');
-        const keteranganOptionPerBarang = document.getElementById('keteranganOptionPerBarang');
-
-        // Modal elements
-        const departemenModal = new bootstrap.Modal(document.getElementById('departemenModal'));
-        const departemenTableBody = document.getElementById('departemenTableBody');
-        const departemenCountSpan = document.getElementById('departemenCount');
-        const searchDepartemenInput = document.getElementById('searchDepartemen');
-        const btnPilihDepartemenGlobal = document.getElementById('btnPilihDepartemenGlobal');
-
+        // Inisialisasi variabel global
+        let selectedDepartemen = null;
         let selectedTipe = null;
         let selectedBarangList = [];
-        let currentSupplierMode = 'global';
-        let currentDepartemenMode = 'global';
         let currentKeperluanMode = 'global';
         let currentNamaPenerimaMode = 'global';
         let currentKeteranganMode = 'global';
-        let targetDepartemenInput = null;
-        let currentBarangIndex = null;
 
-        let supplierHistory = @json($supplierList ?? []);
+        // Data dari backend
         let departemenList = @json($departemenList ?? []);
 
-        function resetFormState() {
-            tipeRadios.forEach(radio => radio.checked = false);
+        // Elemen DOM
+        const departemenWarning = document.getElementById('departemenWarning');
+        const departemenInfoBox = document.getElementById('departemenInfoBox');
+        const selectedDepartemenName = document.getElementById('selectedDepartemenName');
+        const departemenInput = document.getElementById('departemenInput');
+        const btnSelectDepartemen = document.getElementById('btnSelectDepartemen');
+        const btnChangeDepartemen = document.getElementById('btnChangeDepartemen');
+        const tipeRadios = document.querySelectorAll('input[name="tipe"]');
+        const tipeDisabledMessage = document.getElementById('tipeDisabledMessage');
+        const btnTambahBarang = document.getElementById('btnTambahBarang');
+        const btnSimpan = document.getElementById('btnSimpan');
+        const modalDepartemenInfo = document.getElementById('modalDepartemenInfo');
+        const barangTableBody = document.getElementById('barangTableBody');
+        const itemCountSpan = document.getElementById('itemCount');
+        const searchBarangInput = document.getElementById('searchBarang');
+        const addBarangBtn = document.getElementById('addBarangBtn');
+        const barangListContainer = document.getElementById('barangListContainer');
+        const noBarangMessage = document.getElementById('noBarangMessage');
+        const totalBarangSpan = document.getElementById('totalBarang');
+        const stockWarning = document.getElementById('stockWarning');
+        const stockWarningMessage = document.getElementById('stockWarningMessage');
+        const barangDataContainer = document.getElementById('barangDataContainer');
+
+        // Step indicators
+        const step1 = document.getElementById('step1');
+        const step2 = document.getElementById('step2');
+        const step3 = document.getElementById('step3');
+
+        // Load departemen list saat modal dibuka
+        document.getElementById('departemenModal').addEventListener('show.bs.modal', function() {
+            loadDepartemenList();
+        });
+
+        // Load barang list saat modal barang dibuka
+        document.getElementById('barangModal').addEventListener('show.bs.modal', function() {
+            if (selectedDepartemen) {
+                loadBarangListByDepartemen(selectedDepartemen);
+                modalDepartemenInfo.textContent = selectedDepartemen;
+            }
+        });
+
+        function loadDepartemenList() {
+            const departemenTableBody = document.getElementById('departemenTableBody');
+            const searchDepartemenInput = document.getElementById('searchDepartemen');
+            const departemenCountSpan = document.getElementById('departemenCount');
+
+            departemenTableBody.innerHTML = '';
+            let count = 0;
+
+            departemenList.forEach((departemen, index) => {
+                const row = document.createElement('tr');
+                row.className = 'departemen-item';
+                row.innerHTML = `
+            <td class="text-center">${index + 1}</td>
+            <td class="departemen-nama">${departemen}</td>
+            <td class="text-center">
+                <button type="button" class="btn btn-sm btn-outline-primary btn-pilih-departemen" data-departemen="${departemen}">
+                    <i class="bi bi-check-circle me-1"></i>Pilih
+                </button>
+            </td>
+        `;
+
+                departemenTableBody.appendChild(row);
+                count++;
+            });
+
+            departemenCountSpan.textContent = count;
+
+            // Event listener untuk tombol pilih departemen
+            document.querySelectorAll('.btn-pilih-departemen').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const departemen = this.getAttribute('data-departemen');
+                    selectDepartemen(departemen);
+                });
+            });
+
+            // Event listener untuk pencarian departemen
+            searchDepartemenInput.addEventListener('input', function() {
+                const searchTerm = this.value.toLowerCase();
+                const rows = departemenTableBody.getElementsByClassName('departemen-item');
+                let visibleCount = 0;
+
+                Array.from(rows).forEach(row => {
+                    const departemenNama = row.querySelector('.departemen-nama').textContent.toLowerCase();
+                    const isVisible = departemenNama.includes(searchTerm);
+
+                    row.style.display = isVisible ? '' : 'none';
+                    if (isVisible) visibleCount++;
+                });
+
+                departemenCountSpan.textContent = visibleCount;
+            });
+        }
+
+        function selectDepartemen(departemen) {
+            selectedDepartemen = departemen;
+            selectedDepartemenName.textContent = departemen;
+            departemenInput.value = departemen;
+
+            // Update UI
+            departemenWarning.style.display = 'none';
+            departemenInfoBox.style.display = 'block';
+
+            // Aktifkan step 2
+            step1.classList.add('completed');
+            step2.classList.add('active');
+
+            // Aktifkan tipe transaksi
+            document.querySelectorAll('input[name="tipe"]').forEach(radio => {
+                radio.disabled = false;
+            });
+            tipeDisabledMessage.style.display = 'none';
+
+            // Nonaktifkan tombol simpan sampai tipe transaksi dipilih
+            btnSimpan.disabled = true;
+
+            // Tutup modal
+            const departemenModalEl = document.getElementById('departemenModal');
+            const departemenModal = bootstrap.Modal.getInstance(departemenModalEl);
+            if (departemenModal) {
+                departemenModal.hide();
+            }
+
+            // Reset tipe transaksi
+            resetTipeTransaksi();
+        }
+
+        function resetTipeTransaksi() {
+            // Reset pilihan tipe transaksi
+            document.querySelectorAll('input[name="tipe"]').forEach(radio => {
+                radio.checked = false;
+            });
             selectedTipe = null;
-            tipeError.classList.add('d-none');
 
-            masukFields.style.display = 'none';
-            keluarFields.style.display = 'none';
+            // Reset semua field conditional
+            const masukFields = document.getElementById('masukFields');
+            const keluarFields = document.getElementById('keluarFields');
+            if (masukFields) masukFields.style.display = 'none';
+            if (keluarFields) keluarFields.style.display = 'none';
 
-            // Reset semua input global
-            supplierGlobalInput.value = '';
-            departemenGlobalInput.value = '';
-            keperluanGlobalInput.value = '';
-            namaPenerimaGlobalInput.value = '';
-            keteranganGlobalInput.value = '';
+            // Nonaktifkan semua radio button mode
+            document.querySelectorAll('input[name="keperluan_mode"]').forEach(radio => {
+                radio.disabled = true;
+                radio.checked = false;
+            });
+            document.querySelectorAll('input[name="nama_penerima_mode"]').forEach(radio => {
+                radio.disabled = true;
+                radio.checked = false;
+            });
+            document.querySelectorAll('input[name="keterangan_mode"]').forEach(radio => {
+                radio.disabled = true;
+                radio.checked = false;
+            });
 
-            // Reset semua modes ke Global
-            currentSupplierMode = 'global';
-            currentDepartemenMode = 'global';
+            // Sembunyikan semua container input global
+            const keperluanGlobalContainer = document.getElementById('keperluanGlobalContainer');
+            const namaPenerimaGlobalContainer = document.getElementById('namaPenerimaGlobalContainer');
+            const keteranganGlobalContainer = document.getElementById('keteranganGlobalContainer');
+            
+            if (keperluanGlobalContainer) keperluanGlobalContainer.style.display = 'none';
+            if (namaPenerimaGlobalContainer) namaPenerimaGlobalContainer.style.display = 'none';
+            if (keteranganGlobalContainer) keteranganGlobalContainer.style.display = 'none';
+
+            // Nonaktifkan tombol tambah barang
+            if (btnTambahBarang) btnTambahBarang.disabled = true;
+
+            // Reset barang list
+            selectedBarangList = [];
+            updateBarangListDisplay();
+        }
+
+        function updateTipeTransaksi() {
+            if (!selectedTipe) {
+                const masukFields = document.getElementById('masukFields');
+                const keluarFields = document.getElementById('keluarFields');
+                if (masukFields) masukFields.style.display = 'none';
+                if (keluarFields) keluarFields.style.display = 'none';
+                if (btnTambahBarang) btnTambahBarang.disabled = true;
+                if (btnSimpan) btnSimpan.disabled = true;
+                if (step3) step3.classList.remove('active');
+                return;
+            }
+
+            // Aktifkan step 3
+            if (step2) step2.classList.add('completed');
+            if (step3) step3.classList.add('active');
+
+            // Tampilkan field sesuai tipe
+            if (selectedTipe === 'masuk') {
+                const masukFields = document.getElementById('masukFields');
+                const keluarFields = document.getElementById('keluarFields');
+                if (masukFields) masukFields.style.display = 'block';
+                if (keluarFields) keluarFields.style.display = 'none';
+
+            } else if (selectedTipe === 'keluar') {
+                const masukFields = document.getElementById('masukFields');
+                const keluarFields = document.getElementById('keluarFields');
+                if (masukFields) masukFields.style.display = 'none';
+                if (keluarFields) keluarFields.style.display = 'block';
+            }
+
+            // Aktifkan semua radio button mode
+            document.querySelectorAll('input[name="keperluan_mode"]').forEach(radio => {
+                radio.disabled = false;
+            });
+            document.querySelectorAll('input[name="nama_penerima_mode"]').forEach(radio => {
+                radio.disabled = false;
+            });
+            document.querySelectorAll('input[name="keterangan_mode"]').forEach(radio => {
+                radio.disabled = false;
+            });
+
+            // Set default ke global untuk semua mode
+            document.getElementById('keperluan_mode_global').checked = true;
+            document.getElementById('nama_penerima_mode_global').checked = true;
+            document.getElementById('keterangan_mode_global').checked = true;
+
+            // Update mode variables
             currentKeperluanMode = 'global';
             currentNamaPenerimaMode = 'global';
             currentKeteranganMode = 'global';
 
-            // Update UI untuk semua modes
+            // Tampilkan input global
+            updateGlobalInputsVisibility();
+
+            // Aktifkan tombol tambah barang
+            if (btnTambahBarang) btnTambahBarang.disabled = false;
+
+            // Aktifkan tombol simpan (meski belum ada barang)
+            if (btnSimpan) btnSimpan.disabled = false;
+
+            // Update field modes
             updateAllModes();
-
-            selectedBarangList = [];
-            updateBarangListDisplay();
-
-            document.querySelectorAll('.barang-checkbox').forEach(checkbox => {
-                checkbox.checked = false;
-            });
         }
 
-        function updateAllModes() {
-            updateSupplierMode();
-            updateDepartemenMode();
-            updateKeperluanMode();
-            updateNamaPenerimaMode();
-            updateKeteranganMode();
-        }
-
-        function updateSupplierMode() {
-            // Update UI based on supplier mode
-            const modeRadios = document.querySelectorAll('input[name="supplier_mode"]:checked');
-            if (modeRadios.length > 0) {
-                currentSupplierMode = modeRadios[0].value;
-            }
-
-            // Update active class for options
-            [supplierOptionGlobal, supplierOptionPerBarang].forEach(option => {
-                option.classList.remove('active');
-            });
-
-            if (currentSupplierMode === 'global') {
-                supplierOptionGlobal.classList.add('active');
-            } else if (currentSupplierMode === 'perbarang') {
-                supplierOptionPerBarang.classList.add('active');
-            }
-
-            // Update input status based on tipe transaksi
-            if (selectedTipe === 'masuk') {
-                if (currentSupplierMode === 'global') {
-                    supplierGlobalInput.disabled = false;
-                    supplierGlobalInput.required = true;
-                } else {
-                    supplierGlobalInput.disabled = true;
-                    supplierGlobalInput.required = false;
-                    supplierGlobalInput.value = '';
+        function updateGlobalInputsVisibility() {
+            const keperluanGlobalContainer = document.getElementById('keperluanGlobalContainer');
+            const namaPenerimaGlobalContainer = document.getElementById('namaPenerimaGlobalContainer');
+            const keteranganGlobalContainer = document.getElementById('keteranganGlobalContainer');
+            
+            if (selectedTipe === 'keluar' && currentKeperluanMode === 'global') {
+                if (keperluanGlobalContainer) {
+                    keperluanGlobalContainer.style.display = 'block';
+                    document.getElementById('keperluan_global').disabled = false;
                 }
             } else {
-                // Untuk stok keluar, supplier tidak diperlukan
-                supplierGlobalInput.disabled = true;
-                supplierGlobalInput.required = false;
-                supplierGlobalInput.value = '';
-            }
-
-            // Update field visibility
-            updateBarangListDisplay();
-        }
-
-        function updateDepartemenMode() {
-            // Update UI based on departemen mode
-            const modeRadios = document.querySelectorAll('input[name="departemen_mode"]:checked');
-            if (modeRadios.length > 0) {
-                currentDepartemenMode = modeRadios[0].value;
-            }
-
-            // Update active class for options
-            [departemenOptionGlobal, departemenOptionPerBarang].forEach(option => {
-                option.classList.remove('active');
-            });
-
-            if (currentDepartemenMode === 'global') {
-                departemenOptionGlobal.classList.add('active');
-
-                // Nonaktifkan tombol pilih departemen di bagian informasi transaksi
-                if (btnPilihDepartemenGlobal) {
-                    btnPilihDepartemenGlobal.disabled = false;
-                    btnPilihDepartemenGlobal.classList.remove('disabled');
-                }
-            } else if (currentDepartemenMode === 'perbarang') {
-                departemenOptionPerBarang.classList.add('active');
-
-                // Nonaktifkan tombol pilih departemen di bagian informasi transaksi
-                if (btnPilihDepartemenGlobal) {
-                    btnPilihDepartemenGlobal.disabled = true;
-                    btnPilihDepartemenGlobal.classList.add('disabled');
-                    btnPilihDepartemenGlobal.setAttribute('title',
-                        'Tombol dinonaktifkan karena menggunakan mode Per Barang');
+                if (keperluanGlobalContainer) {
+                    keperluanGlobalContainer.style.display = 'none';
+                    document.getElementById('keperluan_global').disabled = true;
                 }
             }
-
-            // Update input status based on tipe transaksi
-            if (selectedTipe === 'keluar') {
-                if (currentDepartemenMode === 'global') {
-                    departemenGlobalInput.disabled = false;
-                    departemenGlobalInput.required = true;
-                    // Juga nonaktifkan input jika tombol dinonaktifkan
-                    if (btnPilihDepartemenGlobal) {
-                        departemenGlobalInput.readOnly = true; // Read only karena pilih via modal
-                    }
-                } else {
-                    departemenGlobalInput.disabled = true;
-                    departemenGlobalInput.required = false;
-                    departemenGlobalInput.value = '';
-                    departemenGlobalInput.readOnly = false; // Bukan read only
-                }
-            } else {
-                // Untuk stok masuk, departemen tidak diperlukan
-                departemenGlobalInput.disabled = true;
-                departemenGlobalInput.required = false;
-                departemenGlobalInput.value = '';
-                departemenGlobalInput.readOnly = false;
-
-                // Pastikan tombol dinonaktifkan untuk stok masuk
-                if (btnPilihDepartemenGlobal) {
-                    btnPilihDepartemenGlobal.disabled = true;
-                    btnPilihDepartemenGlobal.classList.add('disabled');
-                }
-            }
-
-            // Update field visibility
-            updateBarangListDisplay();
-        }
-
-        function updateKeperluanMode() {
-            // Update UI based on keperluan mode
-            const modeRadios = document.querySelectorAll('input[name="keperluan_mode"]:checked');
-            if (modeRadios.length > 0) {
-                currentKeperluanMode = modeRadios[0].value;
-            }
-
-            // Update active class for options
-            [keperluanOptionGlobal, keperluanOptionPerBarang].forEach(option => {
-                option.classList.remove('active');
-            });
-
-            if (currentKeperluanMode === 'global') {
-                keperluanOptionGlobal.classList.add('active');
-            } else if (currentKeperluanMode === 'perbarang') {
-                keperluanOptionPerBarang.classList.add('active');
-            }
-
-            // Update input status based on tipe transaksi
-            if (selectedTipe === 'keluar') {
-                if (currentKeperluanMode === 'global') {
-                    keperluanGlobalInput.disabled = false;
-                    keperluanGlobalInput.required = true;
-                } else {
-                    keperluanGlobalInput.disabled = true;
-                    keperluanGlobalInput.required = false;
-                    keperluanGlobalInput.value = '';
-                }
-            } else {
-                // Untuk stok masuk, keperluan tidak diperlukan
-                keperluanGlobalInput.disabled = true;
-                keperluanGlobalInput.required = false;
-                keperluanGlobalInput.value = '';
-            }
-
-            // Update field visibility
-            updateBarangListDisplay();
-        }
-
-        function updateNamaPenerimaMode() {
-            // Update UI based on nama penerima mode
-            const modeRadios = document.querySelectorAll('input[name="nama_penerima_mode"]:checked');
-            if (modeRadios.length > 0) {
-                currentNamaPenerimaMode = modeRadios[0].value;
-            }
-
-            // Update active class for options
-            [namaPenerimaOptionGlobal, namaPenerimaOptionPerBarang].forEach(option => {
-                option.classList.remove('active');
-            });
-
+            
             if (currentNamaPenerimaMode === 'global') {
-                namaPenerimaOptionGlobal.classList.add('active');
-            } else if (currentNamaPenerimaMode === 'perbarang') {
-                namaPenerimaOptionPerBarang.classList.add('active');
-            }
-
-            // Update input status
-            if (currentNamaPenerimaMode === 'global') {
-                namaPenerimaGlobalInput.disabled = false;
-                namaPenerimaGlobalInput.required = true;
+                if (namaPenerimaGlobalContainer) {
+                    namaPenerimaGlobalContainer.style.display = 'block';
+                    document.getElementById('nama_penerima_global').disabled = false;
+                }
             } else {
-                namaPenerimaGlobalInput.disabled = true;
-                namaPenerimaGlobalInput.required = false;
-                namaPenerimaGlobalInput.value = '';
+                if (namaPenerimaGlobalContainer) {
+                    namaPenerimaGlobalContainer.style.display = 'none';
+                    document.getElementById('nama_penerima_global').disabled = true;
+                }
             }
-
-            // Update field visibility
-            updateBarangListDisplay();
+            
+            if (currentKeteranganMode === 'global') {
+                if (keteranganGlobalContainer) {
+                    keteranganGlobalContainer.style.display = 'block';
+                    document.getElementById('keterangan_global').disabled = false;
+                }
+            } else {
+                if (keteranganGlobalContainer) {
+                    keteranganGlobalContainer.style.display = 'none';
+                    document.getElementById('keterangan_global').disabled = true;
+                }
+            }
         }
 
-        function updateKeteranganMode() {
-            // Update UI based on keterangan mode
-            const modeRadios = document.querySelectorAll('input[name="keterangan_mode"]:checked');
-            if (modeRadios.length > 0) {
-                currentKeteranganMode = modeRadios[0].value;
-            }
+        function loadBarangListByDepartemen(departemen) {
+            if (!barangTableBody) return;
 
-            // Update active class for options
-            [keteranganOptionGlobal, keteranganOptionPerBarang].forEach(option => {
-                option.classList.remove('active');
-            });
+            // Tampilkan loading
+            barangTableBody.innerHTML = '<tr><td colspan="6" class="text-center">Memuat data...</td></tr>';
 
-            if (currentKeteranganMode === 'global') {
-                keteranganOptionGlobal.classList.add('active');
-            } else if (currentKeteranganMode === 'perbarang') {
-                keteranganOptionPerBarang.classList.add('active');
-            }
-
-            // Update input status
-            if (currentKeteranganMode === 'global') {
-                keteranganGlobalInput.disabled = false;
-                keteranganGlobalInput.required = false; // Keterangan opsional
-            } else {
-                keteranganGlobalInput.disabled = true;
-                keteranganGlobalInput.required = false;
-                keteranganGlobalInput.value = '';
-            }
-
-            // Update field visibility
-            updateBarangListDisplay();
-        }
-
-        function showSupplierSuggestions(inputElement, suggestionsContainer) {
-            const searchTerm = inputElement.value.toLowerCase();
-
-            if (searchTerm.length < 2) {
-                suggestionsContainer.style.display = 'none';
-                return;
-            }
-
-            const filteredSuppliers = supplierHistory.filter(supplier =>
-                supplier.toLowerCase().includes(searchTerm)
-            );
-
-            if (filteredSuppliers.length === 0) {
-                suggestionsContainer.style.display = 'none';
-                return;
-            }
-
-            suggestionsContainer.innerHTML = '';
-            filteredSuppliers.forEach(supplier => {
-                const item = document.createElement('div');
-                item.className = 'supplier-suggestion-item';
-                item.textContent = supplier;
-                item.addEventListener('click', function() {
-                    inputElement.value = supplier;
-                    suggestionsContainer.style.display = 'none';
-
-                    // Update corresponding barang object if applicable
-                    if (inputElement.classList.contains('supplier-per-barang')) {
-                        const kode = inputElement.closest('.barang-item-card').getAttribute('data-kode');
-                        const barang = selectedBarangList.find(b => b.kode === kode);
-                        if (barang) {
-                            barang.supplier = supplier;
-                        }
+            // AJAX request untuk mendapatkan barang berdasarkan departemen
+            fetch(`{{ route('transactions.getBarangByDepartemen') }}?departemen=${encodeURIComponent(departemen)}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
                     }
+                    return response.json();
+                })
+                .then(data => {
+                    if (!barangTableBody) return;
+
+                    barangTableBody.innerHTML = '';
+
+                    if (!data || data.length === 0) {
+                        barangTableBody.innerHTML =
+                            '<tr><td colspan="6" class="text-center">Tidak ada barang untuk departemen ini</td></tr>';
+                        if (itemCountSpan) itemCountSpan.textContent = '0';
+                        return;
+                    }
+
+                    data.forEach((barang, index) => {
+                        const row = document.createElement('tr');
+                        row.className = 'barang-item';
+                        row.setAttribute('data-kode', barang.kode_barang);
+                        row.setAttribute('data-nama', barang.nama_barang);
+                        row.setAttribute('data-satuan', barang.satuan);
+                        row.setAttribute('data-stok', barang.stok_akhir);
+                        row.setAttribute('data-supplier', barang.supplier || 'Tidak ada supplier');
+
+                        const stokColor = barang.stok_akhir > 0 ? 'success' : 'danger';
+
+                        row.innerHTML = `
+                    <td class="text-center">
+                        <div class="form-check">
+                            <input class="form-check-input barang-checkbox" type="checkbox"
+                                id="barang_${barang.kode_barang}" value="${barang.kode_barang}">
+                        </div>
+                    </td>
+                    <td>
+                        <label class="form-check-label" for="barang_${barang.kode_barang}">
+                            <strong>${barang.kode_barang}</strong>
+                        </label>
+                    </td>
+                    <td>${barang.nama_barang}</td>
+                    <td>${barang.satuan}</td>
+                    <td class="text-end">
+                        <span class="badge bg-${stokColor}">
+                            ${parseFloat(barang.stok_akhir).toFixed(2)}
+                        </span>
+                    </td>
+                    <td>${barang.supplier || 'Tidak ada supplier'}</td>
+                `;
+
+                        barangTableBody.appendChild(row);
+                    });
+
+                    if (itemCountSpan) itemCountSpan.textContent = data.length;
+
+                    // Setup search functionality
+                    if (searchBarangInput) {
+                        searchBarangInput.addEventListener('input', searchBarang);
+                        searchBarang();
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading barang:', error);
+                    if (barangTableBody) {
+                        barangTableBody.innerHTML =
+                            '<tr><td colspan="6" class="text-center text-danger">Gagal memuat data</td></tr>';
+                    }
+                    if (itemCountSpan) itemCountSpan.textContent = '0';
                 });
-                suggestionsContainer.appendChild(item);
-            });
-
-            suggestionsContainer.style.display = 'block';
-        }
-
-        function toggleFields() {
-            if (!selectedTipe) {
-                masukFields.style.display = 'none';
-                keluarFields.style.display = 'none';
-
-                // Nonaktifkan semua tombol pilih departemen
-                if (btnPilihDepartemenGlobal) {
-                    btnPilihDepartemenGlobal.disabled = true;
-                    btnPilihDepartemenGlobal.classList.add('disabled');
-                }
-                return;
-            }
-
-            masukFields.style.display = 'none';
-            keluarFields.style.display = 'none';
-
-            if (selectedTipe === 'masuk') {
-                masukFields.style.display = 'block';
-                keluarFields.style.display = 'none';
-
-                // Nonaktifkan tombol pilih departemen untuk stok masuk
-                if (btnPilihDepartemenGlobal) {
-                    btnPilihDepartemenGlobal.disabled = true;
-                    btnPilihDepartemenGlobal.classList.add('disabled');
-                    btnPilihDepartemenGlobal.setAttribute('title', 'Hanya untuk stok keluar');
-                }
-            } else {
-                masukFields.style.display = 'none';
-                keluarFields.style.display = 'block';
-
-                // Aktifkan/nonaktifkan tombol berdasarkan mode
-                updateDepartemenMode(); // Ini akan mengatur status tombol
-            }
-
-            // Update all modes untuk mengatur required yang benar
-            updateAllModes();
-
-            // Update field visibility
-            updateBarangListDisplay();
         }
 
         function searchBarang() {
+            if (!searchBarangInput || !barangTableBody || !itemCountSpan) return;
+
             const searchTerm = searchBarangInput.value.toLowerCase();
             const rows = barangTableBody.getElementsByClassName('barang-item');
             let visibleCount = 0;
 
             Array.from(rows).forEach(row => {
-                const kode = row.getAttribute('data-kode').toLowerCase();
-                const nama = row.getAttribute('data-nama').toLowerCase();
-                const satuan = row.getAttribute('data-satuan').toLowerCase();
+                const kode = row.getAttribute('data-kode')?.toLowerCase() || '';
+                const nama = row.getAttribute('data-nama')?.toLowerCase() || '';
+                const satuan = row.getAttribute('data-satuan')?.toLowerCase() || '';
+                const supplier = row.getAttribute('data-supplier')?.toLowerCase() || '';
 
                 const isVisible = kode.includes(searchTerm) ||
                     nama.includes(searchTerm) ||
-                    satuan.includes(searchTerm);
+                    satuan.includes(searchTerm) ||
+                    supplier.includes(searchTerm);
 
                 row.style.display = isVisible ? '' : 'none';
                 if (isVisible) visibleCount++;
@@ -1459,6 +1386,8 @@
         }
 
         function addBarangToList() {
+            if (!barangTableBody) return;
+
             const selectedCheckboxes = document.querySelectorAll('.barang-checkbox:checked');
 
             if (selectedCheckboxes.length === 0) {
@@ -1468,10 +1397,13 @@
 
             selectedCheckboxes.forEach(checkbox => {
                 const row = checkbox.closest('.barang-item');
+                if (!row) return;
+
                 const kode = row.getAttribute('data-kode');
                 const nama = row.getAttribute('data-nama');
                 const satuan = row.getAttribute('data-satuan');
-                const stok = parseFloat(row.getAttribute('data-stok'));
+                const stok = parseFloat(row.getAttribute('data-stok')) || 0;
+                const supplier = row.getAttribute('data-supplier') || 'Tidak ada supplier';
 
                 const existingIndex = selectedBarangList.findIndex(item => item.kode === kode);
                 if (existingIndex === -1) {
@@ -1480,9 +1412,9 @@
                         nama: nama,
                         satuan: satuan,
                         stok: stok,
+                        supplier: supplier,
+                        departemen: selectedDepartemen,
                         jumlah: '',
-                        supplier: '',
-                        departemen: '',
                         keperluan: '',
                         nama_penerima: '',
                         keterangan: ''
@@ -1494,208 +1426,169 @@
 
             updateBarangListDisplay();
 
-            const modal = bootstrap.Modal.getInstance(document.getElementById('barangModal'));
-            modal.hide();
+            const barangModalEl = document.getElementById('barangModal');
+            const barangModal = bootstrap.Modal.getInstance(barangModalEl);
+            if (barangModal) {
+                barangModal.hide();
+            }
 
-            searchBarangInput.value = '';
-            searchBarang();
+            if (searchBarangInput) {
+                searchBarangInput.value = '';
+                searchBarang();
+            }
         }
 
         function updateBarangListDisplay() {
+            if (!barangListContainer) return;
+
             barangListContainer.innerHTML = '';
 
             if (selectedBarangList.length === 0) {
-                barangListContainer.appendChild(noBarangMessage);
-                noBarangMessage.classList.remove('d-none');
+                if (noBarangMessage) {
+                    const noBarangClone = noBarangMessage.cloneNode(true);
+                    barangListContainer.appendChild(noBarangClone);
+                    noBarangClone.classList.remove('d-none');
+                }
             } else {
-                noBarangMessage.classList.add('d-none');
+                if (noBarangMessage) noBarangMessage.classList.add('d-none');
+
+                const barangItemTemplate = document.getElementById('barangItemTemplate');
+                if (!barangItemTemplate) return;
 
                 selectedBarangList.forEach((barang, index) => {
                     const template = barangItemTemplate.content.cloneNode(true);
                     const itemCard = template.querySelector('.barang-item-card');
 
-                    itemCard.setAttribute('data-kode', barang.kode);
-                    itemCard.setAttribute('data-index', index);
+                    if (!itemCard) return;
 
-                    itemCard.querySelector('h6').textContent = barang.nama;
-                    itemCard.querySelector('small').textContent = `Kode: ${barang.kode}`;
-
-                    itemCard.querySelectorAll('.product-info-value')[0].textContent = barang.satuan;
-
-                    const stokColor = barang.stok > 0 ? 'success' : 'danger';
-                    const stokBadge = itemCard.querySelector('.badge');
-                    stokBadge.className = `badge bg-${stokColor}`;
-                    stokBadge.textContent = `${barang.stok.toFixed(2)} ${barang.satuan}`;
-
-                    // Update template placeholders
-                    itemCard.innerHTML = itemCard.innerHTML
+                    // Update konten dengan replace string
+                    let itemHTML = itemCard.outerHTML;
+                    itemHTML = itemHTML
                         .replace(/KODE_BARANG/g, barang.kode)
                         .replace(/NAMA_BARANG/g, barang.nama)
                         .replace(/SATUAN/g, barang.satuan)
-                        .replace(/STOK_COLOR/g, stokColor)
+                        .replace(/SUPPLIER_NAME/g, barang.supplier || 'Tidak ada supplier')
+                        .replace(/DEPARTEMEN_NAME/g, barang.departemen)
+                        .replace(/STOK_COLOR/g, barang.stok > 0 ? 'success' : 'danger')
                         .replace(/STOK_TOTAL/g, barang.stok.toFixed(2))
                         .replace(/STOK_NUMBER/g, barang.stok);
 
-                    // Supplier per barang (hanya untuk Stok Masuk - Mode Per Barang)
-                    const supplierField = itemCard.querySelector('.supplier-per-barang');
-                    supplierField.id = `supplier_${barang.kode}`;
-                    supplierField.setAttribute('data-index', index);
-                    supplierField.value = barang.supplier || '';
+                    const tempDiv = document.createElement('div');
+                    tempDiv.innerHTML = itemHTML;
+                    const newItemCard = tempDiv.firstElementChild;
 
-                    // Setup autocomplete for supplier per barang
-                    const suggestionsContainer = supplierField.parentElement.querySelector(
-                        '.supplier-suggestion-list');
-                    supplierField.addEventListener('input', function() {
-                        barang.supplier = this.value;
-                        showSupplierSuggestions(this, suggestionsContainer);
-                    });
+                    // Set atribut data
+                    newItemCard.setAttribute('data-kode', barang.kode);
+                    newItemCard.setAttribute('data-index', index);
 
-                    supplierField.addEventListener('focus', function() {
-                        showSupplierSuggestions(this, suggestionsContainer);
-                    });
+                    // Field per barang
+                    const keperluanField = newItemCard.querySelector('.keperluan-per-barang');
+                    if (keperluanField) {
+                        keperluanField.setAttribute('data-index', index);
+                        keperluanField.value = barang.keperluan || '';
+                        keperluanField.addEventListener('input', function() {
+                            barang.keperluan = this.value;
+                        });
 
-                    supplierField.addEventListener('blur', function() {
-                        setTimeout(() => {
-                            suggestionsContainer.style.display = 'none';
-                        }, 200);
-                    });
-
-                    // Supplier visibility
-                    const supplierContainer = itemCard.querySelector('.conditional-supplier-field');
-                    if (selectedTipe === 'masuk' && currentSupplierMode === 'perbarang') {
-                        supplierContainer.style.display = 'block';
-                        supplierField.setAttribute('required', 'required');
-                    } else {
-                        supplierContainer.style.display = 'none';
-                        supplierField.removeAttribute('required');
-                    }
-
-                    // Departemen per barang (hanya untuk Stok Keluar)
-                    const departemenField = itemCard.querySelector('.departemen-per-barang');
-                    departemenField.setAttribute('data-index', index);
-                    departemenField.value = barang.departemen || '';
-
-                    // KEPERLUAN PER BARANG - MODIFIKASI DI SINI
-                    const departemenContainer = itemCard.querySelector('.conditional-departemen-field');
-                    if (selectedTipe === 'keluar' && currentDepartemenMode === 'perbarang') {
-                        departemenContainer.style.display = 'block';
-                        departemenField.setAttribute('required', 'required');
-
-                        // Aktifkan tombol pilih departemen per barang
-                        const btnPilihDepartemenPerbarang = itemCard.querySelector(
-                            '.btn-pilih-departemen-perbarang');
-                        if (btnPilihDepartemenPerbarang) {
-                            btnPilihDepartemenPerbarang.disabled = false;
-                            btnPilihDepartemenPerbarang.classList.remove('disabled');
-                            btnPilihDepartemenPerbarang.removeAttribute('title');
+                        const keperluanContainer = newItemCard.querySelector('.conditional-keperluan-field');
+                        if (keperluanContainer) {
+                            if (selectedTipe === 'keluar' && currentKeperluanMode === 'perbarang') {
+                                keperluanContainer.style.display = 'block';
+                                keperluanField.disabled = false;
+                                keperluanField.required = true;
+                            } else {
+                                keperluanContainer.style.display = 'none';
+                                keperluanField.disabled = true;
+                                keperluanField.removeAttribute('required');
+                            }
                         }
-                    } else {
-                        departemenContainer.style.display = 'none';
-                        departemenField.removeAttribute('required');
-
-                        // Nonaktifkan tombol pilih departemen per barang
-                        const btnPilihDepartemenPerbarang = itemCard.querySelector(
-                            '.btn-pilih-departemen-perbarang');
-                        if (btnPilihDepartemenPerbarang) {
-                            btnPilihDepartemenPerbarang.disabled = true;
-                            btnPilihDepartemenPerbarang.classList.add('disabled');
-                            btnPilihDepartemenPerbarang.setAttribute('title', 'Mode Global dipilih');
-                        }
-                    }
-
-                    // Keperluan per barang (hanya untuk Stok Keluar)
-                    const keperluanField = itemCard.querySelector('.keperluan-per-barang');
-                    keperluanField.setAttribute('data-index', index);
-                    keperluanField.value = barang.keperluan || '';
-                    keperluanField.addEventListener('input', function() {
-                        barang.keperluan = this.value;
-                    });
-
-                    const keperluanContainer = itemCard.querySelector('.conditional-keperluan-field');
-                    if (selectedTipe === 'keluar' && currentKeperluanMode === 'perbarang') {
-                        keperluanContainer.style.display = 'block';
-                        keperluanField.setAttribute('required', 'required');
-                    } else {
-                        keperluanContainer.style.display = 'none';
-                        keperluanField.removeAttribute('required');
                     }
 
                     // Nama Penerima per barang
-                    const namaPenerimaField = itemCard.querySelector('.nama-penerima-per-barang');
-                    namaPenerimaField.setAttribute('data-index', index);
-                    namaPenerimaField.value = barang.nama_penerima || '';
-                    namaPenerimaField.addEventListener('input', function() {
-                        barang.nama_penerima = this.value;
-                    });
+                    const namaPenerimaField = newItemCard.querySelector('.nama-penerima-per-barang');
+                    if (namaPenerimaField) {
+                        namaPenerimaField.setAttribute('data-index', index);
+                        namaPenerimaField.value = barang.nama_penerima || '';
+                        namaPenerimaField.addEventListener('input', function() {
+                            barang.nama_penerima = this.value;
+                        });
 
-                    const namaPenerimaContainer = itemCard.querySelector('.conditional-nama-penerima-field');
-                    if (currentNamaPenerimaMode === 'perbarang') {
-                        namaPenerimaContainer.style.display = 'block';
-                        namaPenerimaField.setAttribute('required', 'required');
-                    } else {
-                        namaPenerimaContainer.style.display = 'none';
-                        namaPenerimaField.removeAttribute('required');
-                    }
-
-                    // Keterangan per barang
-                    const keteranganField = itemCard.querySelector('.keterangan-per-barang');
-                    keteranganField.setAttribute('data-index', index);
-                    keteranganField.value = barang.keterangan || '';
-                    keteranganField.addEventListener('input', function() {
-                        barang.keterangan = this.value;
-                    });
-
-                    const keteranganContainer = itemCard.querySelector('.conditional-keterangan-field');
-                    if (currentKeteranganMode === 'perbarang') {
-                        keteranganContainer.style.display = 'block';
-                    } else {
-                        keteranganContainer.style.display = 'none';
-                    }
-
-                    // Input jumlah
-                    const jumlahInput = itemCard.querySelector('.jumlah-input');
-                    jumlahInput.setAttribute('data-max', barang.stok);
-                    jumlahInput.setAttribute('data-index', index);
-                    jumlahInput.value = barang.jumlah || '';
-
-                    const jumlahError = itemCard.querySelector('.jumlah-error');
-
-                    jumlahInput.addEventListener('input', function() {
-                        validateBarangJumlah(this);
-                        validateBarangStock(this);
-                        barang.jumlah = this.value;
-                    });
-
-                    // Setup event listener for departemen per barang button
-                    const btnPilihDepartemenPerbarang = itemCard.querySelector('.btn-pilih-departemen-perbarang');
-                    if (btnPilihDepartemenPerbarang) {
-                        // Hanya tambahkan event listener jika tombol tidak disabled
-                        if (!btnPilihDepartemenPerbarang.disabled) {
-                            btnPilihDepartemenPerbarang.addEventListener('click', function() {
-                                currentBarangIndex = index;
-                                targetDepartemenInput = departemenField;
-                                loadDepartemenList();
-                                departemenModal.show();
-                            });
+                        const namaPenerimaContainer = newItemCard.querySelector('.conditional-nama-penerima-field');
+                        if (namaPenerimaContainer) {
+                            if (currentNamaPenerimaMode === 'perbarang') {
+                                namaPenerimaContainer.style.display = 'block';
+                                namaPenerimaField.disabled = false;
+                                namaPenerimaField.required = true;
+                            } else {
+                                namaPenerimaContainer.style.display = 'none';
+                                namaPenerimaField.disabled = true;
+                                namaPenerimaField.removeAttribute('required');
+                            }
                         }
                     }
 
-                    const removeBtn = itemCard.querySelector('.remove-barang-btn');
-                    removeBtn.addEventListener('click', function() {
-                        removeBarangFromList(index);
-                    });
+                    // Keterangan per barang
+                    const keteranganField = newItemCard.querySelector('.keterangan-per-barang');
+                    if (keteranganField) {
+                        keteranganField.setAttribute('data-index', index);
+                        keteranganField.value = barang.keterangan || '';
+                        keteranganField.addEventListener('input', function() {
+                            barang.keterangan = this.value;
+                        });
 
-                    barangListContainer.appendChild(itemCard);
+                        const keteranganContainer = newItemCard.querySelector('.conditional-keterangan-field');
+                        if (keteranganContainer) {
+                            if (currentKeteranganMode === 'perbarang') {
+                                keteranganContainer.style.display = 'block';
+                                keteranganField.disabled = false;
+                            } else {
+                                keteranganContainer.style.display = 'none';
+                                keteranganField.disabled = true;
+                            }
+                        }
+                    }
+
+                    // Input jumlah
+                    const jumlahInput = newItemCard.querySelector('.jumlah-input');
+                    if (jumlahInput) {
+                        jumlahInput.setAttribute('data-max', barang.stok);
+                        jumlahInput.setAttribute('data-index', index);
+                        jumlahInput.value = barang.jumlah || '';
+
+                        const jumlahError = newItemCard.querySelector('.jumlah-error');
+
+                        jumlahInput.addEventListener('input', function() {
+                            validateBarangJumlah(this);
+                            validateBarangStock(this);
+                            barang.jumlah = this.value;
+                        });
+
+                        // Tambahkan event listener untuk validasi saat halaman load
+                        validateBarangJumlah(jumlahInput);
+                        validateBarangStock(jumlahInput);
+                    }
+
+                    // Tombol hapus
+                    const removeBtn = newItemCard.querySelector('.remove-barang-btn');
+                    if (removeBtn) {
+                        removeBtn.addEventListener('click', function() {
+                            removeBarangFromList(index);
+                        });
+                    }
+
+                    barangListContainer.appendChild(newItemCard);
                 });
             }
 
-            totalBarangSpan.textContent = selectedBarangList.length;
+            if (totalBarangSpan) totalBarangSpan.textContent = selectedBarangList.length;
             validateAllStock();
         }
 
         function validateBarangJumlah(inputElement) {
+            if (!inputElement) return false;
+
             const jumlah = parseFloat(inputElement.value) || 0;
-            const errorElement = inputElement.closest('.barang-item-card').querySelector('.jumlah-error');
+            const errorElement = inputElement.closest('.barang-item-card')?.querySelector('.jumlah-error');
 
             if (jumlah <= 0) {
                 inputElement.classList.add('is-invalid');
@@ -1716,9 +1609,11 @@
         }
 
         function validateBarangStock(inputElement) {
+            if (!inputElement) return true;
+
             const index = inputElement.getAttribute('data-index');
             const jumlah = parseFloat(inputElement.value) || 0;
-            const maxStok = parseFloat(inputElement.getAttribute('data-max'));
+            const maxStok = parseFloat(inputElement.getAttribute('data-max')) || 0;
             const barang = selectedBarangList[index];
 
             if (!barang) return true;
@@ -1733,6 +1628,8 @@
         }
 
         function validateAllStock() {
+            if (!stockWarning || !stockWarningMessage) return true;
+
             if (selectedTipe !== 'keluar') {
                 stockWarning.classList.add('d-none');
                 return true;
@@ -1752,9 +1649,9 @@
             if (hasError) {
                 stockWarning.classList.remove('d-none');
                 stockWarningMessage.innerHTML = `
-                    <strong>Stok tidak mencukupi untuk beberapa barang!</strong><br>
-                    ${errorMessages.join('<br>')}
-                `;
+            <strong>Stok tidak mencukupi untuk beberapa barang!</strong><br>
+            ${errorMessages.join('<br>')}
+        `;
                 return false;
             } else {
                 stockWarning.classList.add('d-none');
@@ -1762,12 +1659,64 @@
             }
         }
 
+        function updateAllModes() {
+            // Update mode dari radio buttons
+            const keperluanModeRadios = document.querySelectorAll('input[name="keperluan_mode"]:checked');
+            if (keperluanModeRadios.length > 0) {
+                currentKeperluanMode = keperluanModeRadios[0].value;
+            }
+
+            const namaPenerimaModeRadios = document.querySelectorAll('input[name="nama_penerima_mode"]:checked');
+            if (namaPenerimaModeRadios.length > 0) {
+                currentNamaPenerimaMode = namaPenerimaModeRadios[0].value;
+            }
+
+            const keteranganModeRadios = document.querySelectorAll('input[name="keterangan_mode"]:checked');
+            if (keteranganModeRadios.length > 0) {
+                currentKeteranganMode = keteranganModeRadios[0].value;
+            }
+
+            // Update active class untuk semua options
+            updateOptionActiveClass('keperluan', currentKeperluanMode);
+            updateOptionActiveClass('nama_penerima', currentNamaPenerimaMode);
+            updateOptionActiveClass('keterangan', currentKeteranganMode);
+
+            // Update global inputs visibility
+            updateGlobalInputsVisibility();
+
+            // Update field visibility di barang list
+            updateBarangListDisplay();
+        }
+
+        function updateOptionActiveClass(field, mode) {
+            const globalOption = document.getElementById(`${field}OptionGlobal`);
+            const perbarangOption = document.getElementById(`${field}OptionPerBarang`);
+
+            if (globalOption) globalOption.classList.remove('active');
+            if (perbarangOption) perbarangOption.classList.remove('active');
+
+            if (mode === 'global' && globalOption) {
+                globalOption.classList.add('active');
+            } else if (mode === 'perbarang' && perbarangOption) {
+                perbarangOption.classList.add('active');
+            }
+        }
+
         function validateForm() {
-            if (selectedTipe !== 'masuk' && selectedTipe !== 'keluar') {
+            // Validasi departemen
+            if (!selectedDepartemen) {
+                alert('Silakan pilih departemen terlebih dahulu!');
+                if (btnSelectDepartemen) btnSelectDepartemen.focus();
+                return false;
+            }
+
+            // Validasi tipe transaksi
+            if (!selectedTipe) {
                 alert('Silakan pilih tipe transaksi!');
                 return false;
             }
 
+            // Validasi barang
             if (selectedBarangList.length === 0) {
                 alert('Silakan tambahkan minimal satu barang ke daftar!');
                 return false;
@@ -1785,54 +1734,14 @@
                 }
             }
 
-            // Validasi berdasarkan tipe transaksi
-            if (selectedTipe === 'masuk') {
-                if (currentSupplierMode === 'global') {
-                    if (!supplierGlobalInput.value.trim()) {
-                        alert('Supplier global wajib diisi untuk stok masuk!');
-                        supplierGlobalInput.focus();
-                        return false;
-                    }
-                } else if (currentSupplierMode === 'perbarang') {
-                    for (let i = 0; i < selectedBarangList.length; i++) {
-                        const barang = selectedBarangList[i];
-                        if (!barang.supplier || !barang.supplier.trim()) {
-                            alert(`Supplier wajib diisi untuk barang "${barang.nama}"!`);
-                            const supplierInput = document.querySelector(
-                                `.barang-item-card[data-index="${i}"] .supplier-per-barang`);
-                            if (supplierInput) supplierInput.focus();
-                            return false;
-                        }
-                    }
-                }
-                // Untuk stok masuk, tidak perlu validasi departemen dan keperluan
-
-            } else if (selectedTipe === 'keluar') {
-                // Validasi departemen untuk stok keluar
-                if (currentDepartemenMode === 'global') {
-                    if (!departemenGlobalInput.value) {
-                        alert('Departemen wajib dipilih untuk stok keluar!');
-                        departemenGlobalInput.focus();
-                        return false;
-                    }
-                } else if (currentDepartemenMode === 'perbarang') {
-                    for (let i = 0; i < selectedBarangList.length; i++) {
-                        const barang = selectedBarangList[i];
-                        if (!barang.departemen) {
-                            alert(`Departemen wajib dipilih untuk barang "${barang.nama}"!`);
-                            const departemenSelect = document.querySelector(
-                                `.barang-item-card[data-index="${i}"] .departemen-per-barang`);
-                            if (departemenSelect) departemenSelect.focus();
-                            return false;
-                        }
-                    }
-                }
-
-                // Validasi keperluan untuk stok keluar
+            // Validasi untuk stok keluar
+            if (selectedTipe === 'keluar') {
+                // Validasi keperluan
                 if (currentKeperluanMode === 'global') {
-                    if (!keperluanGlobalInput.value.trim()) {
+                    const keperluanGlobal = document.getElementById('keperluan_global');
+                    if (keperluanGlobal && !keperluanGlobal.value.trim()) {
                         alert('Keperluan wajib diisi untuk stok keluar!');
-                        keperluanGlobalInput.focus();
+                        keperluanGlobal.focus();
                         return false;
                     }
                 } else if (currentKeperluanMode === 'perbarang') {
@@ -1847,13 +1756,20 @@
                         }
                     }
                 }
+
+                // Validasi stok
+                if (!validateAllStock()) {
+                    alert('Ada masalah dengan jumlah stok keluar! Periksa kembali jumlah barang.');
+                    return false;
+                }
             }
 
-            // Validasi Nama Penerima (selalu wajib)
+            // Validasi Nama Penerima
             if (currentNamaPenerimaMode === 'global') {
-                if (!namaPenerimaGlobalInput.value.trim()) {
+                const namaPenerimaGlobal = document.getElementById('nama_penerima_global');
+                if (namaPenerimaGlobal && !namaPenerimaGlobal.value.trim()) {
                     alert('Nama penerima wajib diisi!');
-                    namaPenerimaGlobalInput.focus();
+                    namaPenerimaGlobal.focus();
                     return false;
                 }
             } else if (currentNamaPenerimaMode === 'perbarang') {
@@ -1869,142 +1785,144 @@
                 }
             }
 
-            // Validasi stok untuk keluar
-            if (selectedTipe === 'keluar' && !validateAllStock()) {
-                alert('Ada masalah dengan jumlah stok keluar! Periksa kembali jumlah barang.');
-                return false;
-            }
-
             return true;
         }
 
-        function loadDepartemenList() {
-            departemenTableBody.innerHTML = '';
-            let count = 0;
+        function prepareFormData() {
+            if (!barangDataContainer) return;
 
-            departemenList.forEach((departemen, index) => {
-                const template = departemenRowTemplate.content.cloneNode(true);
-                const row = template.querySelector('.departemen-item');
+            // Clear existing hidden inputs
+            barangDataContainer.innerHTML = '';
 
-                row.querySelector('td:first-child').textContent = index + 1;
-                row.querySelector('.departemen-nama').textContent = departemen;
+            // Add mode data
+            addHiddenInput('departemen', selectedDepartemen);
+            addHiddenInput('keperluan_mode', currentKeperluanMode);
+            addHiddenInput('nama_penerima_mode', currentNamaPenerimaMode);
+            addHiddenInput('keterangan_mode', currentKeteranganMode);
 
-                const selectBtn = row.querySelector('.btn-pilih-departemen');
-                selectBtn.addEventListener('click', function() {
-                    selectDepartemen(departemen);
-                });
-
-                departemenTableBody.appendChild(row);
-                count++;
-            });
-
-            departemenCountSpan.textContent = count;
-            searchDepartemen();
-        }
-
-        function searchDepartemen() {
-            const searchTerm = searchDepartemenInput.value.toLowerCase();
-            const rows = departemenTableBody.getElementsByClassName('departemen-item');
-            let visibleCount = 0;
-
-            Array.from(rows).forEach(row => {
-                const departemenNama = row.querySelector('.departemen-nama').textContent.toLowerCase();
-                const isVisible = departemenNama.includes(searchTerm);
-
-                row.style.display = isVisible ? '' : 'none';
-                if (isVisible) visibleCount++;
-            });
-
-            departemenCountSpan.textContent = visibleCount;
-        }
-
-        function selectDepartemen(departemen) {
-            if (targetDepartemenInput) {
-                targetDepartemenInput.value = departemen;
-
-                // Update data barang jika mode per barang
-                if (currentBarangIndex !== null && selectedBarangList[currentBarangIndex]) {
-                    selectedBarangList[currentBarangIndex].departemen = departemen;
+            // Add global data jika mode global
+            if (selectedTipe === 'keluar' && currentKeperluanMode === 'global') {
+                const keperluanGlobal = document.getElementById('keperluan_global');
+                if (keperluanGlobal && keperluanGlobal.value.trim()) {
+                    addHiddenInput('keperluan_global', keperluanGlobal.value);
                 }
             }
 
-            departemenModal.hide();
-            targetDepartemenInput = null;
-            currentBarangIndex = null;
+            if (currentNamaPenerimaMode === 'global') {
+                const namaPenerimaGlobal = document.getElementById('nama_penerima_global');
+                if (namaPenerimaGlobal && namaPenerimaGlobal.value.trim()) {
+                    addHiddenInput('nama_penerima_global', namaPenerimaGlobal.value);
+                }
+            }
+
+            if (currentKeteranganMode === 'global') {
+                const keteranganGlobal = document.getElementById('keterangan_global');
+                if (keteranganGlobal) {
+                    addHiddenInput('keterangan_global', keteranganGlobal.value);
+                }
+            }
+
+            // Add tanggal and tipe
+            const tanggalInput = document.querySelector('input[name="tanggal"]');
+            if (tanggalInput) {
+                addHiddenInput('tanggal', tanggalInput.value);
+            }
+            addHiddenInput('tipe', selectedTipe);
+
+            // Add barang data
+            selectedBarangList.forEach((barang, index) => {
+                addHiddenInput(`barang[${index}][kode_barang]`, barang.kode);
+                addHiddenInput(`barang[${index}][jumlah]`, barang.jumlah);
+                addHiddenInput(`barang[${index}][supplier]`, barang.supplier || '');
+                addHiddenInput(`barang[${index}][departemen]`, barang.departemen);
+
+                // Add per-barang fields jika mode perbarang
+                if (selectedTipe === 'keluar' && currentKeperluanMode === 'perbarang') {
+                    addHiddenInput(`barang[${index}][keperluan]`, barang.keperluan || '');
+                }
+
+                if (currentNamaPenerimaMode === 'perbarang') {
+                    addHiddenInput(`barang[${index}][nama_penerima]`, barang.nama_penerima || '');
+                }
+
+                if (currentKeteranganMode === 'perbarang') {
+                    addHiddenInput(`barang[${index}][keterangan]`, barang.keterangan || '');
+                }
+            });
         }
 
-        // Setup autocomplete for global supplier
-        supplierGlobalInput.addEventListener('input', function() {
-            showSupplierSuggestions(this, supplierGlobalSuggestions);
-        });
+        function addHiddenInput(name, value) {
+            if (!barangDataContainer) return;
 
-        supplierGlobalInput.addEventListener('focus', function() {
-            showSupplierSuggestions(this, supplierGlobalSuggestions);
-        });
-
-        supplierGlobalInput.addEventListener('blur', function() {
-            setTimeout(() => {
-                supplierGlobalSuggestions.style.display = 'none';
-            }, 200);
-        });
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = name;
+            input.value = value || '';
+            barangDataContainer.appendChild(input);
+        }
 
         // Event Listeners
+        if (btnSelectDepartemen) {
+            btnSelectDepartemen.addEventListener('click', function() {
+                const departemenModal = new bootstrap.Modal(document.getElementById('departemenModal'));
+                departemenModal.show();
+            });
+        }
+
+        if (btnChangeDepartemen) {
+            btnChangeDepartemen.addEventListener('click', function() {
+                const departemenModal = new bootstrap.Modal(document.getElementById('departemenModal'));
+                departemenModal.show();
+            });
+        }
+
+        // Event listener untuk tipe transaksi
         tipeRadios.forEach(radio => {
             radio.addEventListener('change', function() {
                 selectedTipe = this.value;
-                tipeError.classList.add('d-none');
-                toggleFields();
-                validateAllStock();
+                updateTipeTransaksi();
             });
         });
 
-        // Event listeners untuk semua mode radio buttons
-        supplierModeRadios.forEach(radio => {
-            radio.addEventListener('change', function() {
-                updateSupplierMode();
+        // Event listener untuk mode radio buttons
+        document.querySelectorAll('input[name="keperluan_mode"]').forEach(radio => {
+            radio.addEventListener('change', updateAllModes);
+        });
+
+        document.querySelectorAll('input[name="nama_penerima_mode"]').forEach(radio => {
+            radio.addEventListener('change', updateAllModes);
+        });
+
+        document.querySelectorAll('input[name="keterangan_mode"]').forEach(radio => {
+            radio.addEventListener('change', updateAllModes);
+        });
+
+        // Event listener untuk tombol tambah barang
+        if (addBarangBtn) {
+            addBarangBtn.addEventListener('click', addBarangToList);
+        }
+
+        // Event listener untuk form submission
+        const transactionForm = document.getElementById('transactionForm');
+        if (transactionForm) {
+            transactionForm.addEventListener('submit', function(e) {
+                if (!validateForm()) {
+                    e.preventDefault();
+                    return false;
+                }
+
+                prepareFormData();
+                return true;
             });
-        });
+        }
 
-        departemenModeRadios.forEach(radio => {
-            radio.addEventListener('change', function() {
-                updateDepartemenMode();
-            });
-        });
-
-        keperluanModeRadios.forEach(radio => {
-            radio.addEventListener('change', function() {
-                updateKeperluanMode();
-            });
-        });
-
-        namaPenerimaModeRadios.forEach(radio => {
-            radio.addEventListener('change', function() {
-                updateNamaPenerimaMode();
-            });
-        });
-
-        keteranganModeRadios.forEach(radio => {
-            radio.addEventListener('change', function() {
-                updateKeteranganMode();
-            });
-        });
-
-        // Event listener untuk tombol pilih departemen global
-        btnPilihDepartemenGlobal.addEventListener('click', function() {
-            targetDepartemenInput = departemenGlobalInput;
-            currentBarangIndex = null;
-            loadDepartemenList();
-            departemenModal.show();
-        });
-
-        // Event listener untuk pencarian departemen
-        searchDepartemenInput.addEventListener('input', searchDepartemen);
-
-        // Click handlers untuk semua option items
+        // Setup click handlers untuk semua option items
         function setupOptionClickHandler(optionElement) {
+            if (!optionElement) return;
+
             optionElement.addEventListener('click', function() {
                 const radio = this.querySelector('input[type="radio"]');
-                if (radio) {
+                if (radio && !radio.disabled) {
                     radio.checked = true;
                     radio.dispatchEvent(new Event('change'));
                 }
@@ -2013,114 +1931,23 @@
 
         // Setup click handlers untuk semua option containers
         [
-            supplierOptionGlobal, supplierOptionPerBarang,
-            departemenOptionGlobal, departemenOptionPerBarang,
-            keperluanOptionGlobal, keperluanOptionPerBarang,
-            namaPenerimaOptionGlobal, namaPenerimaOptionPerBarang,
-            keteranganOptionGlobal, keteranganOptionPerBarang
-        ].forEach(setupOptionClickHandler);
-
-        addBarangBtn.addEventListener('click', addBarangToList);
-        searchBarangInput.addEventListener('input', searchBarang);
-
-        document.getElementById('transactionForm').addEventListener('submit', function(e) {
-            if (!validateForm()) {
-                e.preventDefault();
-                return false;
-            }
-
-            // Collect all data and prepare for submission
-            prepareFormData();
-
-            return true;
+            'keperluanOptionGlobal', 'keperluanOptionPerBarang',
+            'namaPenerimaOptionGlobal', 'namaPenerimaOptionPerBarang',
+            'keteranganOptionGlobal', 'keteranganOptionPerBarang'
+        ].forEach(id => {
+            const element = document.getElementById(id);
+            if (element) setupOptionClickHandler(element);
         });
-
-        function prepareFormData() {
-            // Clear existing hidden inputs
-            barangDataContainer.innerHTML = '';
-
-            // Add mode data
-            addHiddenInput('supplier_mode', currentSupplierMode);
-            addHiddenInput('departemen_mode', currentDepartemenMode);
-            addHiddenInput('keperluan_mode', currentKeperluanMode);
-            addHiddenInput('nama_penerima_mode', currentNamaPenerimaMode);
-            addHiddenInput('keterangan_mode', currentKeteranganMode);
-
-            // Add global data sesuai tipe transaksi
-            if (selectedTipe === 'masuk') {
-                if (currentSupplierMode === 'global') {
-                    addHiddenInput('supplier_global', supplierGlobalInput.value);
-                }
-            } else if (selectedTipe === 'keluar') {
-                if (currentDepartemenMode === 'global') {
-                    addHiddenInput('departemen_global', departemenGlobalInput.value);
-                }
-                if (currentKeperluanMode === 'global') {
-                    addHiddenInput('keperluan_global', keperluanGlobalInput.value);
-                }
-            }
-
-            // Nama penerima dan keterangan selalu dikirim jika mode global
-            if (currentNamaPenerimaMode === 'global') {
-                addHiddenInput('nama_penerima_global', namaPenerimaGlobalInput.value);
-            }
-
-            if (currentKeteranganMode === 'global') {
-                addHiddenInput('keterangan_global', keteranganGlobalInput.value);
-            }
-
-            // Add tanggal and tipe
-            addHiddenInput('tanggal', document.querySelector('input[name="tanggal"]').value);
-            addHiddenInput('tipe', selectedTipe);
-
-            // Add barang data
-            selectedBarangList.forEach((barang, index) => {
-                addHiddenInput(`barang[${index}][kode_barang]`, barang.kode);
-                addHiddenInput(`barang[${index}][jumlah]`, barang.jumlah);
-
-                // Add per-barang fields sesuai tipe transaksi
-                if (selectedTipe === 'masuk' && currentSupplierMode === 'perbarang') {
-                    addHiddenInput(`barang[${index}][supplier]`, barang.supplier);
-                }
-
-                if (selectedTipe === 'keluar') {
-                    if (currentDepartemenMode === 'perbarang') {
-                        addHiddenInput(`barang[${index}][departemen]`, barang.departemen);
-                    }
-
-                    if (currentKeperluanMode === 'perbarang') {
-                        addHiddenInput(`barang[${index}][keperluan]`, barang.keperluan);
-                    }
-                }
-
-                if (currentNamaPenerimaMode === 'perbarang') {
-                    addHiddenInput(`barang[${index}][nama_penerima]`, barang.nama_penerima);
-                }
-
-                if (currentKeteranganMode === 'perbarang') {
-                    addHiddenInput(`barang[${index}][keterangan]`, barang.keterangan);
-                }
-            });
-        }
-
-        function addHiddenInput(name, value) {
-            const input = document.createElement('input');
-            input.type = 'hidden';
-            input.name = name;
-            input.value = value;
-            barangDataContainer.appendChild(input);
-        }
 
         // Initialize
         document.addEventListener('DOMContentLoaded', function() {
-            resetFormState();
-            updateAllModes();
+            // Nonaktifkan semua input sampai departemen dipilih
+            resetTipeTransaksi();
 
-            // Nonaktifkan tombol pilih departemen global secara default
-            if (btnPilihDepartemenGlobal) {
-                btnPilihDepartemenGlobal.disabled = true;
-                btnPilihDepartemenGlobal.classList.add('disabled');
-                btnPilihDepartemenGlobal.setAttribute('title', 'Pilih tipe transaksi terlebih dahulu');
+            // Jika ada departemen yang sudah dipilih (misal dari session), set otomatis
+            const savedDepartemen = "{{ old('departemen') }}";
+            if (savedDepartemen && departemenList.includes(savedDepartemen)) {
+                selectDepartemen(savedDepartemen);
             }
         });
     </script>

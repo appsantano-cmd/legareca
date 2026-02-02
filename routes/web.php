@@ -33,7 +33,7 @@ Route::get('/art-gallery/{art}', [ArtGalleryController::class, 'show'])
 Route::middleware(['auth'])->group(function () {
     Route::get('/art-gallery/pages/create', [ArtGalleryController::class, 'create']) // TANPA /pages
         ->name('gallery.create');
-    
+
     Route::post('/art-gallery', [ArtGalleryController::class, 'store'])
         ->name('gallery.store');
 });
@@ -97,6 +97,8 @@ Route::middleware('auth')->prefix('stok-gudang')->name('stok.')->group(function 
 Route::prefix('transactions')->name('transactions.')->group(function () {
     Route::get('/create', [StokTransactionController::class, 'create'])->name('create');
     Route::post('/', [StokTransactionController::class, 'store'])->name('store');
+
+    Route::get('/get-barang-by-departemen', [StokTransactionController::class, 'getBarangByDepartemen'])->name('getBarangByDepartemen');
 });
 
 // =======================

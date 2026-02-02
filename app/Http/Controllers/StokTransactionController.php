@@ -73,12 +73,7 @@ class StokTransactionController extends Controller
 
     public function create()
     {
-        $barangList = StokGudang::where('bulan', now()->month)
-            ->where('tahun', now()->year)
-            ->orderBy('nama_barang')
-            ->get(['id', 'kode_barang', 'nama_barang', 'satuan', 'stok_akhir']);
-
-        // Data untuk dropdown - Ambil dari database Departemen
+        // Ambil semua departemen
         $departemenList = Departemen::orderBy('nama_departemen')
             ->pluck('nama_departemen')
             ->toArray();
@@ -98,6 +93,14 @@ class StokTransactionController extends Controller
             ];
         }
 
+        // Ambil semua barang tanpa filter departemen dulu
+        // Ini akan ditampilkan setelah user memilih departemen
+        $barangList = StokGudang::where('bulan', now()->month)
+            ->where('tahun', now()->year)
+            ->orderBy('nama_barang')
+            ->get(['id', 'kode_barang', 'nama_barang', 'satuan', 'stok_akhir', 'departemen'])
+            ->groupBy('departemen'); // Kelompokkan berdasarkan departemen
+
         $keperluanList = [
             'Produksi',
             'Maintenance',
@@ -107,9 +110,8 @@ class StokTransactionController extends Controller
             'Lainnya'
         ];
 
-        // Get distinct suppliers from transactions
-        $supplierList = StokTransaction::where('tipe', 'masuk')
-            ->whereNotNull('supplier')
+        // Get distinct suppliers from StokGudang table (bukan dari transactions)
+        $supplierList = StokGudang::whereNotNull('supplier')
             ->distinct()
             ->pluck('supplier')
             ->toArray();
@@ -127,8 +129,12 @@ class StokTransactionController extends Controller
 
     public function store(Request $request)
     {
+        // Debug: Log semua request data
+        \Log::info('Transaction Store Request:', $request->all());
+
         // Validasi dasar
         $rules = [
+            'departemen' => 'required', // Departemen dari hidden input
             'tipe' => 'required|in:masuk,keluar',
             'tanggal' => 'required|date',
             'barang' => 'required|array|min:1',
@@ -136,54 +142,26 @@ class StokTransactionController extends Controller
             'barang.*.jumlah' => 'required|numeric|min:0.01',
 
             // Mode validation
-            'supplier_mode' => 'required|in:global,perbarang',
-            'departemen_mode' => 'required|in:global,perbarang',
             'keperluan_mode' => 'required|in:global,perbarang',
             'nama_penerima_mode' => 'required|in:global,perbarang',
             'keterangan_mode' => 'required|in:global,perbarang',
         ];
 
-        // Validasi berdasarkan tipe dan mode
-        if ($request->tipe == 'masuk') {
-            if ($request->supplier_mode == 'global') {
-                $rules['supplier_global'] = 'required';
-            } else {
-                // Validasi supplier per barang
-                foreach ($request->barang as $index => $barang) {
-                    $rules["barang.{$index}.supplier"] = 'required';
-                }
-            }
-        } else {
-            if ($request->departemen_mode == 'global') {
-                $rules['departemen_global'] = 'required';
-            } else {
-                // Validasi departemen per barang
-                foreach ($request->barang as $index => $barang) {
-                    $rules["barang.{$index}.departemen"] = 'required';
-                }
-            }
-
+        // Validasi keperluan hanya untuk stok keluar
+        if ($request->tipe == 'keluar') {
             if ($request->keperluan_mode == 'global') {
                 $rules['keperluan_global'] = 'required';
-            } else {
-                // Validasi keperluan per barang
-                foreach ($request->barang as $index => $barang) {
-                    $rules["barang.{$index}.keperluan"] = 'required';
-                }
             }
         }
 
         // Validasi nama penerima
         if ($request->nama_penerima_mode == 'global') {
             $rules['nama_penerima_global'] = 'required';
-        } else {
-            // Validasi nama penerima per barang
-            foreach ($request->barang as $index => $barang) {
-                $rules["barang.{$index}.nama_penerima"] = 'required';
-            }
         }
 
         $request->validate($rules);
+
+        \Log::info('Validation passed');
 
         DB::beginTransaction();
 
@@ -195,14 +173,19 @@ class StokTransactionController extends Controller
             $errors = [];
             $transactions = [];
 
+            \Log::info('Processing ' . count($request->barang) . ' barang items');
+
             // Proses setiap barang
             foreach ($request->barang as $index => $barangData) {
+                \Log::info("Processing barang index {$index}:", $barangData);
+
                 $barang = StokGudang::where('kode_barang', $barangData['kode_barang'])
                     ->where('bulan', $bulan)
                     ->where('tahun', $tahun)
                     ->first();
 
                 if (!$barang) {
+                    \Log::warning("Barang {$barangData['kode_barang']} not found for period {$bulan}-{$tahun}");
                     // Cari data bulan sebelumnya untuk rollover atau buat baru
                     $barang = $this->findOrCreateStokForPeriod($barangData['kode_barang'], $bulan, $tahun);
                 }
@@ -212,6 +195,7 @@ class StokTransactionController extends Controller
                     $currentStock = $barang->stok_akhir;
                     if ($currentStock < $barangData['jumlah']) {
                         $errors[] = "Stok tidak mencukupi untuk {$barang->nama_barang}! Stok tersedia: {$currentStock} {$barang->satuan}";
+                        \Log::warning("Insufficient stock for {$barang->nama_barang}: {$barangData['jumlah']} > {$currentStock}");
                     }
                 }
 
@@ -224,27 +208,12 @@ class StokTransactionController extends Controller
                     'jumlah' => $barangData['jumlah'],
                     'satuan' => $barang->satuan,
                     'tanggal' => $request->tanggal,
+                    'departemen' => $request->departemen, // Departemen dari input
+                    'supplier' => $barangData['supplier'] ?? null, // Supplier dari barang
                 ];
 
-                // Supplier (hanya untuk Stok Masuk)
-                if ($request->tipe == 'masuk') {
-                    if ($request->supplier_mode == 'global') {
-                        // Mode Global: Gunakan supplier global
-                        $transactionData['supplier'] = $request->supplier_global;
-                    } else {
-                        // Mode Per Barang: Gunakan supplier per barang
-                        $transactionData['supplier'] = $barangData['supplier'] ?? null;
-                    }
-                }
-
-                // Departemen dan Keperluan (hanya untuk Stok Keluar)
+                // Keperluan (hanya untuk Stok Keluar)
                 if ($request->tipe == 'keluar') {
-                    if ($request->departemen_mode == 'global') {
-                        $transactionData['departemen'] = $request->departemen_global;
-                    } else {
-                        $transactionData['departemen'] = $barangData['departemen'] ?? null;
-                    }
-
                     if ($request->keperluan_mode == 'global') {
                         $transactionData['keperluan'] = $request->keperluan_global;
                     } else {
@@ -266,18 +235,24 @@ class StokTransactionController extends Controller
                     $transactionData['keterangan'] = $barangData['keterangan'] ?? null;
                 }
 
+                \Log::info("Transaction data for index {$index}:", $transactionData);
                 $transactions[] = $transactionData;
             }
 
             // Jika ada error, kembalikan error
             if (!empty($errors)) {
+                \Log::error('Validation errors:', $errors);
                 DB::rollBack();
                 return back()->withErrors(['stok' => $errors])->withInput();
             }
 
+            \Log::info('Saving ' . count($transactions) . ' transactions');
+
             // Simpan semua transaksi
+            $savedCount = 0;
             foreach ($transactions as $transactionData) {
                 $transaction = StokTransaction::create($transactionData);
+                \Log::info("Created transaction ID: {$transaction->id}");
 
                 // Update stok langsung
                 $barangForUpdate = StokGudang::where('kode_barang', $transactionData['kode_barang'])
@@ -285,14 +260,23 @@ class StokTransactionController extends Controller
                     ->where('tahun', $tahun)
                     ->first();
 
-                $this->updateStokGudangFromTransaction($transaction, $barangForUpdate);
+                if ($barangForUpdate) {
+                    $this->updateStokGudangFromTransaction($transaction, $barangForUpdate);
+                    $savedCount++;
+                } else {
+                    \Log::error("StokGudang not found for kode_barang: {$transactionData['kode_barang']}");
+                }
             }
 
             DB::commit();
 
+            \Log::info("Successfully saved {$savedCount} transactions");
+
             return redirect()->route('transactions.create')
-                ->with('success', count($transactions) . ' transaksi berhasil ditambahkan dan stok telah diperbarui!');
+                ->with('success', $savedCount . ' transaksi berhasil ditambahkan dan stok telah diperbarui!');
         } catch (\Exception $e) {
+            \Log::error('Transaction store error: ' . $e->getMessage());
+            \Log::error('Stack trace: ' . $e->getTraceAsString());
             DB::rollBack();
             return back()->withErrors(['error' => 'Gagal menyimpan transaksi: ' . $e->getMessage()])->withInput();
         }
@@ -301,7 +285,7 @@ class StokTransactionController extends Controller
     public function edit($id)
     {
         $transaction = StokTransaction::findOrFail($id);
-        
+
         // Ambil data barang yang sama untuk dropdown
         $barangList = StokGudang::where('bulan', $transaction->created_at->month)
             ->where('tahun', $transaction->created_at->year)
@@ -359,7 +343,7 @@ class StokTransactionController extends Controller
     public function update(Request $request, $id)
     {
         $transaction = StokTransaction::findOrFail($id);
-        
+
         // Validasi
         $rules = [
             'tanggal' => 'required|date',
@@ -401,12 +385,12 @@ class StokTransactionController extends Controller
                 // Kembalikan stok lama dulu
                 $stokGudang->stok_keluar -= $transaction->jumlah;
                 $stokGudang->stok_akhir = $stokGudang->stok_awal + $stokGudang->stok_masuk - $stokGudang->stok_keluar;
-                
+
                 // Validasi stok baru
                 if ($stokGudang->stok_akhir < $request->jumlah) {
                     throw new \Exception("Stok tidak mencukupi! Stok tersedia: {$stokGudang->stok_akhir} {$stokGudang->satuan}");
                 }
-                
+
                 // Update dengan jumlah baru
                 $stokGudang->stok_keluar += $request->jumlah;
             } elseif ($transaction->tipe == 'masuk' && $request->jumlah != $transaction->jumlah) {
@@ -417,7 +401,7 @@ class StokTransactionController extends Controller
 
             // Update stok akhir
             $stokGudang->stok_akhir = $stokGudang->stok_awal + $stokGudang->stok_masuk - $stokGudang->stok_keluar;
-            
+
             // Validasi stok tidak boleh negatif
             if ($stokGudang->stok_akhir < 0) {
                 throw new \Exception('Stok tidak boleh negatif!');
@@ -454,16 +438,16 @@ class StokTransactionController extends Controller
     public function destroy($id)
     {
         $transaction = StokTransaction::findOrFail($id);
-        
+
         DB::beginTransaction();
-        
+
         try {
             // Dapatkan stok gudang terkait
             $stokGudang = StokGudang::where('kode_barang', $transaction->kode_barang)
                 ->where('bulan', $transaction->created_at->month)
                 ->where('tahun', $transaction->created_at->year)
                 ->first();
-            
+
             if ($stokGudang) {
                 // Kembalikan stok
                 if ($transaction->tipe == 'masuk') {
@@ -471,17 +455,17 @@ class StokTransactionController extends Controller
                 } else {
                     $stokGudang->stok_keluar -= $transaction->jumlah;
                 }
-                
+
                 // Update stok akhir
                 $stokGudang->stok_akhir = $stokGudang->stok_awal + $stokGudang->stok_masuk - $stokGudang->stok_keluar;
                 $stokGudang->save();
             }
-            
+
             // Hapus transaksi
             $transaction->delete();
-            
+
             DB::commit();
-            
+
             return redirect()->route('transactions.index')
                 ->with('success', 'Transaksi berhasil dihapus!');
         } catch (\Exception $e) {
@@ -497,14 +481,14 @@ class StokTransactionController extends Controller
     public function getDepartemenList(Request $request)
     {
         $search = $request->input('search', '');
-        
+
         $departemenList = Departemen::when($search, function ($query, $search) {
-                return $query->where('nama_departemen', 'like', "%{$search}%");
-            })
+            return $query->where('nama_departemen', 'like', "%{$search}%");
+        })
             ->orderBy('nama_departemen')
             ->pluck('nama_departemen')
             ->toArray();
-        
+
         // Jika tabel departemen kosong, gunakan data default
         if (empty($departemenList)) {
             $departemenList = [
@@ -519,8 +503,29 @@ class StokTransactionController extends Controller
                 'Lainnya'
             ];
         }
-        
+
         return response()->json($departemenList);
+    }
+
+    /**
+     * Get barang by departemen via AJAX
+     */
+    public function getBarangByDepartemen(Request $request)
+    {
+        $departemen = $request->input('departemen');
+
+        if (!$departemen) {
+            return response()->json([]);
+        }
+
+        // Cari barang berdasarkan departemen
+        $barangList = StokGudang::where('bulan', now()->month)
+            ->where('tahun', now()->year)
+            ->where('departemen', $departemen) // Filter by departemen
+            ->orderBy('nama_barang')
+            ->get(['id', 'kode_barang', 'nama_barang', 'satuan', 'stok_akhir', 'supplier']);
+
+        return response()->json($barangList);
     }
 
     /**
