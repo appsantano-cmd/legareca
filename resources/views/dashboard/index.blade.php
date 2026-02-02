@@ -353,6 +353,12 @@
                             <i class="fas fa-boxes-stacked text-lg w-6"></i>
                             <span class="ml-3 font-medium">Stok Gudang</span>
                         </a>
+                        <!-- Art Gallery Create -->
+                        <a href="{{ route('gallery.create') }}"
+                            class="flex items-center p-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition duration-200 {{ request()->is('art-galleries/create') ? 'active-menu' : '' }}">
+                            <i class="fas fa-paint-brush text-lg w-6"></i>
+                            <span class="ml-3 font-medium">Art Gallery Create</span>
+                        </a>
                 @endif
 
                 <!-- Staff Menu (Staff only) -->

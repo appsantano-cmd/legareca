@@ -22,11 +22,21 @@ Route::get('/', function () {
     return view('welcome.welcome');
 });
 
+// Route yang bisa diakses UMUM (tanpa login)
 Route::get('/art-gallery', [ArtGalleryController::class, 'index'])
     ->name('gallery.index');
 
 Route::get('/art-gallery/{art}', [ArtGalleryController::class, 'show'])
     ->name('gallery.show');
+
+// Route yang membutuhkan LOGIN (admin area)
+Route::middleware(['auth'])->group(function () {
+    Route::get('/art-gallery/pages/create', [ArtGalleryController::class, 'create']) // TANPA /pages
+        ->name('gallery.create');
+    
+    Route::post('/art-gallery', [ArtGalleryController::class, 'store'])
+        ->name('gallery.store');
+});
 
 // Authentication Routes
 Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
@@ -193,4 +203,5 @@ Route::middleware('auth')->group(function () {
     Route::get('/venue', [VenueBookingController::class, 'index'])->name('venue.index');
     Route::post('/venue/step', [VenueBookingController::class, 'handleStep'])->name('venue.step');
     Route::post('/venue/submit', [VenueBookingController::class, 'submitBooking'])->name('venue.submit');
+
 });
