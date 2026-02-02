@@ -222,6 +222,6 @@ Route::middleware('auth')->group(function () {
     Route::post('/venue/submit', [VenueBookingController::class, 'submitBooking'])->name('venue.submit');
 });
 
-/// Cafe & Resto Routes
-Route::get('/cafe-resto', [App\Http\Controllers\CafeRestoController::class, 'index'])->name('cafe-resto');
-Route::post('/cafe-resto/reservation', [App\Http\Controllers\CafeRestoController::class, 'store'])->name('cafe-resto.reservation.store');
+// Cafe & Resto Routes
+Route::get('/cafe-resto', [CafeRestoController::class, 'index'])->name('cafe-resto');
+Route::post('/cafe-resto/reservation', [CafeRestoController::class, 'store'])->name('cafe-resto.reservation.store');

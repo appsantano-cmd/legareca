@@ -208,17 +208,128 @@
         padding: 20px 30px;
     }
 
+    .cafe-modal .btn-close {
+        filter: brightness(0) invert(1);
+    }
+
     .cafe-modal .form-control,
     .cafe-modal .form-select {
         border: 2px solid #e9ecef;
         border-radius: 10px;
         padding: 12px 15px;
+        transition: all 0.3s ease;
     }
 
     .cafe-modal .form-control:focus,
     .cafe-modal .form-select:focus {
         border-color: #e17055;
         box-shadow: 0 0 0 0.25rem rgba(225, 112, 85, 0.25);
+    }
+
+    /* Form Styling */
+    .form-control-lg {
+        padding: 0.75rem 1rem;
+        font-size: 1.1rem;
+    }
+
+    .input-group-text {
+        background: linear-gradient(135deg, #e17055, #d63031);
+        border: none;
+        color: white;
+    }
+
+    .form-label {
+        color: #2d3436;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+    }
+
+    /* Alert Styling */
+    .alert {
+        border-radius: 10px;
+        border: none;
+    }
+
+    .alert-info {
+        background: linear-gradient(135deg, #74b9ff, #0984e3);
+        color: white;
+    }
+
+    .alert-warning {
+        background: linear-gradient(135deg, #ffeaa7, #fab1a0);
+        color: #2d3436;
+        border-left: 4px solid #e17055;
+    }
+
+    .alert-warning ul {
+        margin-bottom: 0;
+        padding-left: 1.2rem;
+    }
+
+    .alert-warning li {
+        margin-bottom: 0.3rem;
+    }
+
+    /* Button Styling */
+    .btn-success {
+        background: linear-gradient(135deg, #00b894, #00a085);
+        border: none;
+        padding: 1rem 2rem;
+        font-size: 1.1rem;
+        font-weight: 600;
+        border-radius: 10px;
+        transition: all 0.3s ease;
+    }
+
+    .btn-success:hover {
+        background: linear-gradient(135deg, #00a085, #008672);
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0, 184, 148, 0.4);
+    }
+
+    .btn-success:disabled {
+        background: #6c757d;
+        transform: none;
+        box-shadow: none;
+        cursor: not-allowed;
+    }
+
+    /* Invalid Feedback */
+    .is-invalid {
+        border-color: #dc3545 !important;
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23dc3545'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath stroke-linejoin='round' d='M5.8 3.6h.4L6 6.5z'/%3e%3ccircle cx='6' cy='8.2' r='.6' fill='%23dc3545' stroke='none'/%3e%3c/svg%3e");
+        background-repeat: no-repeat;
+        background-position: right calc(0.375em + 0.1875rem) center;
+        background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+        padding-right: calc(1.5em + 0.75rem);
+    }
+
+    .is-invalid:focus {
+        border-color: #dc3545 !important;
+        box-shadow: 0 0 0 0.25rem rgba(220, 53, 69, 0.25) !important;
+    }
+
+    .invalid-feedback {
+        display: none;
+        width: 100%;
+        margin-top: 0.25rem;
+        font-size: 0.875em;
+        color: #dc3545;
+    }
+
+    .is-invalid ~ .invalid-feedback {
+        display: block;
+    }
+
+    /* Modal Content */
+    .modal-content {
+        border-radius: 15px;
+        overflow: hidden;
+    }
+
+    .modal-body {
+        max-height: 70vh;
+        overflow-y: auto;
     }
 
     /* Responsive */
@@ -234,66 +345,20 @@
         .table-card {
             margin-bottom: 20px;
         }
-    }
-
-    /* Progress Steps Indicator */
-    .progress-steps {
-        padding: 20px 0;
-    }
-
-    .step-indicator {
-        flex: 1;
-        position: relative;
-    }
-
-    .step-circle {
-        width: 40px;
-        height: 40px;
-        background: #e9ecef;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-weight: bold;
-        color: #6c757d;
-        margin: 0 auto;
-        transition: all 0.3s ease;
-    }
-
-    .step-circle.active {
-        background: #e17055;
-        color: white;
-        transform: scale(1.1);
-    }
-
-    .step-line {
-        height: 2px;
-        background: #e9ecef;
-        margin-top: 20px;
-    }
-
-    .step-label {
-        font-size: 0.8rem;
-        color: #6c757d;
-        font-weight: 500;
-    }
-
-    .step-circle.active+.step-label {
-        color: #e17055;
-        font-weight: 600;
-    }
-
-    /* Invalid feedback styling */
-    .invalid-feedback {
-        display: none;
-        width: 100%;
-        margin-top: 0.25rem;
-        font-size: 0.875em;
-        color: #dc3545;
-    }
-
-    .is-invalid~.invalid-feedback {
-        display: block;
+        
+        .modal-body {
+            max-height: 80vh;
+        }
+        
+        .form-control-lg {
+            font-size: 1rem;
+            padding: 0.6rem 0.8rem;
+        }
+        
+        .btn-success {
+            padding: 0.8rem 1.5rem;
+            font-size: 1rem;
+        }
     }
 </style>
 @endsection
@@ -393,13 +458,13 @@
                 Legareca Cafe & Resto
             </h1>
             <p class="lead mb-4 animate__animated animate__fadeInUp" style="color: rgba(255,255,255,0.9);">
-                Pengalaman kuliner tak terlupakan di jantung Yogyakarta.
+                Pengalaman kuliner tak terlupakan di jantung Yogyakarta. 
                 Menyajikan berbagai hidangan lokal dan internasional dengan bahan-bahan terbaik.
             </p>
-            <button type="button"
-                class="btn btn-light btn-lg px-5 py-3 rounded-pill fw-bold shadow animate__animated animate__fadeInUp reserve-btn"
-                data-bs-toggle="modal"
-                data-bs-target="#reservationModal">
+            <button type="button" 
+                    class="btn btn-light btn-lg px-5 py-3 rounded-pill fw-bold shadow animate__animated animate__fadeInUp reserve-btn"
+                    data-bs-toggle="modal" 
+                    data-bs-target="#reservationModal">
                 <i class="fas fa-calendar-alt me-2"></i>Reservasi Meja Sekarang
             </button>
         </div>
@@ -429,19 +494,19 @@
                         <h3 class="h5 mb-3 fw-bold">Meja Indoor Regular</h3>
                         <div class="table-price">Rp 0</div>
                         <p class="text-muted small mb-3">Meja standar dengan suasana cozy di dalam ruangan ber-AC.</p>
-
+                        
                         <ul class="table-features mb-4">
                             <li><i class="fas fa-check"></i> Maksimal 4 orang</li>
                             <li><i class="fas fa-check"></i> Area ber-AC</li>
                             <li><i class="fas fa-check"></i> Dekat dengan live music</li>
                             <li><i class="fas fa-check"></i> Free WiFi</li>
                         </ul>
-
-                        <button type="button"
-                            class="reserve-btn"
-                            data-bs-toggle="modal"
-                            data-bs-target="#reservationModal"
-                            data-table-type="Indoor Regular">
+                        
+                        <button type="button" 
+                                class="reserve-btn"
+                                data-bs-toggle="modal" 
+                                data-bs-target="#reservationModal"
+                                data-table-type="Indoor Regular">
                             <i class="fas fa-chair me-2"></i>Pilih Meja Ini
                         </button>
                     </div>
@@ -460,7 +525,7 @@
                         <h3 class="h5 mb-3 fw-bold">Meja Indoor Premium</h3>
                         <div class="table-price">Rp 50.000</div>
                         <p class="text-muted small mb-3">Meja lebih luas dengan privasi tinggi dan view ke dapur terbuka.</p>
-
+                        
                         <ul class="table-features mb-4">
                             <li><i class="fas fa-check"></i> Maksimal 6 orang</li>
                             <li><i class="fas fa-check"></i> View ke dapur terbuka</li>
@@ -468,12 +533,12 @@
                             <li><i class="fas fa-check"></i> Dedicated waiter</li>
                             <li><i class="fas fa-check"></i> Complimentary appetizer</li>
                         </ul>
-
-                        <button type="button"
-                            class="reserve-btn"
-                            data-bs-toggle="modal"
-                            data-bs-target="#reservationModal"
-                            data-table-type="Indoor Premium">
+                        
+                        <button type="button" 
+                                class="reserve-btn"
+                                data-bs-toggle="modal" 
+                                data-bs-target="#reservationModal"
+                                data-table-type="Indoor Premium">
                             <i class="fas fa-chair me-2"></i>Pilih Meja Ini
                         </button>
                     </div>
@@ -492,7 +557,7 @@
                         <h3 class="h5 mb-3 fw-bold">Outdoor Garden</h3>
                         <div class="table-price">Rp 30.000</div>
                         <p class="text-muted small mb-3">Meja di taman dengan suasana alam dan udara segar.</p>
-
+                        
                         <ul class="table-features mb-4">
                             <li><i class="fas fa-check"></i> Maksimal 8 orang</li>
                             <li><i class="fas fa-check"></i> View taman</li>
@@ -500,12 +565,12 @@
                             <li><i class="fas fa-check"></i> Natural lighting</li>
                             <li><i class="fas fa-check"></i> Evening live acoustic</li>
                         </ul>
-
-                        <button type="button"
-                            class="reserve-btn"
-                            data-bs-toggle="modal"
-                            data-bs-target="#reservationModal"
-                            data-table-type="Outdoor Garden">
+                        
+                        <button type="button" 
+                                class="reserve-btn"
+                                data-bs-toggle="modal" 
+                                data-bs-target="#reservationModal"
+                                data-table-type="Outdoor Garden">
                             <i class="fas fa-chair me-2"></i>Pilih Meja Ini
                         </button>
                     </div>
@@ -524,7 +589,7 @@
                         <h3 class="h5 mb-3 fw-bold">Private Room</h3>
                         <div class="table-price">Rp 150.000</div>
                         <p class="text-muted small mb-3">Ruang privat untuk meeting, keluarga besar, atau acara khusus.</p>
-
+                        
                         <ul class="table-features mb-4">
                             <li><i class="fas fa-check"></i> Maksimal 20 orang</li>
                             <li><i class="fas fa-check"></i> Private sound system</li>
@@ -532,12 +597,12 @@
                             <li><i class="fas fa-check"></i> Dedicated chef service</li>
                             <li><i class="fas fa-check"></i> Minimum spending Rp 1.5jt</li>
                         </ul>
-
-                        <button type="button"
-                            class="reserve-btn"
-                            data-bs-toggle="modal"
-                            data-bs-target="#reservationModal"
-                            data-table-type="Private Room">
+                        
+                        <button type="button" 
+                                class="reserve-btn"
+                                data-bs-toggle="modal" 
+                                data-bs-target="#reservationModal"
+                                data-table-type="Private Room">
                             <i class="fas fa-chair me-2"></i>Pilih Meja Ini
                         </button>
                     </div>
@@ -559,10 +624,10 @@
 
         <div class="row">
             @foreach([
-            ['img' => 'https://images.unsplash.com/photo-1565958011703-44f9829ba187?ixlib=rb-4.0.3&auto=format&fit=crop&w=2065&q=80', 'name' => 'Legareca Signature Steak', 'desc' => 'Daging sapi premium dengan saus spesial', 'price' => '125.000'],
-            ['img' => 'https://images.unsplash.com/photo-1563379091339-03246963d9d6?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80', 'name' => 'Seafood Platter', 'desc' => 'Berbagai seafood segar dengan bumbu rempah', 'price' => '185.000'],
-            ['img' => 'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?ixlib=rb-4.0.3&auto=format&fit=crop&w=2067&q=80', 'name' => 'Grilled Chicken', 'desc' => 'Ayam panggang dengan sayuran organik', 'price' => '85.000'],
-            ['img' => 'https://images.unsplash.com/photo-1572802419224-296b0aeee0d9?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80', 'name' => 'Vegetarian Delight', 'desc' => 'Salad organik dengan dressing spesial', 'price' => '65.000']
+                ['img' => 'https://images.unsplash.com/photo-1565958011703-44f9829ba187?ixlib=rb-4.0.3&auto=format&fit=crop&w=2065&q=80', 'name' => 'Legareca Signature Steak', 'desc' => 'Daging sapi premium dengan saus spesial', 'price' => '125.000'],
+                ['img' => 'https://images.unsplash.com/photo-1563379091339-03246963d9d6?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80', 'name' => 'Seafood Platter', 'desc' => 'Berbagai seafood segar dengan bumbu rempah', 'price' => '185.000'],
+                ['img' => 'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?ixlib=rb-4.0.3&auto=format&fit=crop&w=2067&q=80', 'name' => 'Grilled Chicken', 'desc' => 'Ayam panggang dengan sayuran organik', 'price' => '85.000'],
+                ['img' => 'https://images.unsplash.com/photo-1572802419224-296b0aeee0d9?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80', 'name' => 'Vegetarian Delight', 'desc' => 'Salad organik dengan dressing spesial', 'price' => '65.000']
             ] as $item)
             <div class="col-lg-3 col-md-6 mb-4">
                 <div class="menu-card">
@@ -593,9 +658,9 @@
                     <h3 class="fw-bold mb-4">Jam Operasional</h3>
                     <div class="row">
                         @foreach([
-                        ['days' => 'Senin - Kamis', 'hours' => '10:00 - 22:00'],
-                        ['days' => 'Jumat - Sabtu', 'hours' => '10:00 - 23:00'],
-                        ['days' => 'Minggu & Hari Libur', 'hours' => '10:00 - 21:00']
+                            ['days' => 'Senin - Kamis', 'hours' => '10:00 - 22:00'],
+                            ['days' => 'Jumat - Sabtu', 'hours' => '10:00 - 23:00'],
+                            ['days' => 'Minggu & Hari Libur', 'hours' => '10:00 - 21:00']
                         ] as $schedule)
                         <div class="col-md-4 mb-3">
                             <div class="bg-white p-3 rounded text-center">
@@ -605,7 +670,7 @@
                         </div>
                         @endforeach
                     </div>
-
+                    
                     <div class="mt-4">
                         <div class="info-box-icon">
                             <i class="fas fa-phone-alt"></i>
@@ -620,7 +685,7 @@
                     </div>
                 </div>
             </div>
-
+            
             <div class="col-lg-4">
                 <div class="info-box" style="background: linear-gradient(135deg, #74b9ff, #0984e3);">
                     <div class="info-box-icon">
@@ -635,11 +700,11 @@
                         <li>Live music setiap Jumat & Sabtu</li>
                     </ul>
                 </div>
-
+                
                 <div class="text-center mt-4">
-                    <a href="https://wa.me/6281234567890"
-                        target="_blank"
-                        class="btn btn-success btn-lg w-100 py-3 fw-bold">
+                    <a href="https://wa.me/6281234567890" 
+                       target="_blank" 
+                       class="btn btn-success btn-lg w-100 py-3 fw-bold">
                         <i class="fab fa-whatsapp me-2"></i>Chat via WhatsApp
                     </a>
                 </div>
@@ -650,218 +715,20 @@
 
 <!-- Reservation Modal -->
 <div class="modal fade cafe-modal" id="reservationModal" tabindex="-1" aria-labelledby="reservationModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="reservationModalLabel">
                     <i class="fas fa-utensils me-2"></i>Form Reservasi Meja
                 </h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body p-4">
-                <!-- Progress Steps Indicator -->
-                <div class="progress-steps mb-4">
-                    <div class="d-flex justify-content-between align-items-center">
-                        @for($i = 1; $i <= 3; $i++)
-                            <div class="step-indicator text-center">
-                            <div class="step-circle {{ $i == 1 ? 'active' : '' }}">{{ $i }}</div>
-                            <div class="step-label mt-1">
-                                @if($i == 1) Pilih Meja
-                                @elseif($i == 2) Waktu & Tamu
-                                @else Data Diri
-                                @endif
-                            </div>
-                    </div>
-                    @if($i < 3)
-                        <div class="step-line flex-grow-1 mx-2">
-                </div>
-                @endif
-                @endfor
-            </div>
-        </div>
-
-        <form id="reservationForm" method="POST">
-            @csrf
-
-            <!-- Step 1: Table Selection -->
-            <div class="step step-1">
-                <div class="mb-4">
-                    <label for="tableType" class="form-label fw-bold">Pilih Tipe Meja</label>
-                    <select class="form-select form-select-lg" id="tableType" name="table_type" required>
-                        <option value="">-- Pilih Tipe Meja --</option>
-                        <option value="Indoor Regular">Meja Indoor Regular</option>
-                        <option value="Indoor Premium">Meja Indoor Premium (Rp 50.000)</option>
-                        <option value="Outdoor Garden">Outdoor Garden (Rp 30.000)</option>
-                        <option value="Private Room">Private Room (Rp 150.000)</option>
-                    </select>
-                    <div class="invalid-feedback">Silakan pilih tipe meja.</div>
-                </div>
-
-                <div class="alert alert-info">
-                    <i class="fas fa-info-circle me-2"></i>
-                    Harga meja akan ditambahkan ke total pembayaran Anda.
-                </div>
-
-                <button type="button" class="btn btn-primary w-100 py-3 next-step" data-step="1">
-                    Selanjutnya <i class="fas fa-arrow-right ms-2"></i>
-                </button>
-            </div>
-
-            <!-- Step 2: Date & Time -->
-            <div class="step step-2 d-none">
-                <div class="row mb-4">
-                    <div class="col-md-6 mb-3">
-                        <label for="date" class="form-label fw-bold">Tanggal Reservasi</label>
-                        <div class="input-group">
-                            <span class="input-group-text bg-primary text-white">
-                                <i class="fas fa-calendar-alt"></i>
-                            </span>
-                            <input type="date" class="form-control" id="date" name="date" required>
-                        </div>
-                        <div class="invalid-feedback">Silakan pilih tanggal.</div>
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <label for="time" class="form-label fw-bold">Waktu Reservasi</label>
-                        <div class="input-group">
-                            <span class="input-group-text bg-primary text-white">
-                                <i class="fas fa-clock"></i>
-                            </span>
-                            <select class="form-select" id="time" name="time" required>
-                                <option value="">-- Pilih Waktu --</option>
-                                @for($i = 10; $i <= 21; $i++)
-                                    <option value="{{ sprintf('%02d:00', $i) }}">{{ sprintf('%02d:00', $i) }} WIB</option>
-                                    @if($i < 21)
-                                        <option value="{{ sprintf('%02d:30', $i) }}">{{ sprintf('%02d:30', $i) }} WIB</option>
-                                        @endif
-                                        @endfor
-                            </select>
-                        </div>
-                        <div class="invalid-feedback">Silakan pilih waktu.</div>
-                    </div>
-                </div>
-
-                <div class="row mb-4">
-                    <div class="col-md-6">
-                        <label for="guests" class="form-label fw-bold">Jumlah Tamu</label>
-                        <select class="form-select" id="guests" name="guests" required>
-                            <option value="">-- Pilih Jumlah Tamu --</option>
-                            @for($i = 1; $i <= 20; $i++)
-                                <option value="{{ $i }}" {{ $i == 2 ? 'selected' : '' }}>{{ $i }} orang</option>
-                                @endfor
-                        </select>
-                        <div class="invalid-feedback">Silakan pilih jumlah tamu.</div>
-                    </div>
-                </div>
-
-                <div class="d-flex justify-content-between">
-                    <button type="button" class="btn btn-outline-secondary prev-step" data-step="2">
-                        <i class="fas fa-arrow-left me-2"></i>Kembali
-                    </button>
-                    <button type="button" class="btn btn-primary next-step" data-step="2">
-                        Selanjutnya <i class="fas fa-arrow-right ms-2"></i>
-                    </button>
-                </div>
-            </div>
-
-            <!-- Step 3: Personal Information -->
-            <div class="step step-3 d-none">
-                <div class="row mb-4">
-                    <div class="col-md-6 mb-3">
-                        <label for="name" class="form-label fw-bold">Nama Lengkap</label>
-                        <div class="input-group">
-                            <span class="input-group-text bg-primary text-white">
-                                <i class="fas fa-user"></i>
-                            </span>
-                            <input type="text" class="form-control" id="name" name="name" required
-                                placeholder="Nama sesuai KTP">
-                        </div>
-                        <div class="invalid-feedback">Silakan isi nama lengkap.</div>
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <label for="phone" class="form-label fw-bold">Nomor WhatsApp</label>
-                        <div class="input-group">
-                            <span class="input-group-text bg-success text-white">
-                                <i class="fab fa-whatsapp"></i>
-                            </span>
-                            <input type="tel" class="form-control" id="phone" name="phone" required
-                                placeholder="628xxxxxxxxxx" pattern="[0-9+\-\s]+">
-                        </div>
-                        <div class="invalid-feedback">Silakan isi nomor WhatsApp yang valid.</div>
-                    </div>
-                </div>
-
-                <div class="mb-4">
-                    <label for="email" class="form-label fw-bold">Email</label>
-                    <div class="input-group">
-                        <span class="input-group-text bg-primary text-white">
-                            <i class="fas fa-envelope"></i>
-                        </span>
-                        <input type="email" class="form-control" id="email" name="email" required
-                            placeholder="email@anda.com">
-                    </div>
-                    <div class="invalid-feedback">Silakan isi email yang valid.</div>
-                </div>
-
-                <div class="mb-4">
-                    <label for="special_request" class="form-label fw-bold">Permintaan Khusus (Opsional)</label>
-                    <textarea class="form-control" id="special_request" name="special_request"
-                        rows="3"
-                        placeholder="Contoh: Perayaan ulang tahun, alergi makanan tertentu, kursi bayi, dll."></textarea>
-                </div>
-
-                <div class="alert alert-warning">
-                    <i class="fas fa-exclamation-triangle me-2"></i>
-                    Pastikan data yang Anda masukkan benar. Reservasi akan dikonfirmasi via WhatsApp.
-                </div>
-
-                <div class="d-flex justify-content-between">
-                    <button type="button" class="btn btn-outline-secondary prev-step" data-step="3">
-                        <i class="fas fa-arrow-left me-2"></i>Kembali
-                    </button>
-                    <button type="submit" class="btn btn-success">
-                        <i class="fas fa-paper-plane me-2"></i>Kirim Reservasi
-                    </button>
-                </div>
-            </div>
-        </form>
-
-        <!-- Loading Indicator -->
-        <div id="loading" class="text-center d-none mt-4">
-            <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
-                <span class="visually-hidden">Loading...</span>
-            </div>
-            <p class="mt-3 text-muted">Mengirim reservasi...</p>
-        </div>
-
-        <!-- Success Message -->
-        <div id="successMessage" class="alert alert-success d-none mt-4">
-            <i class="fas fa-check-circle me-2"></i>
-            <span id="successText"></span>
-        </div>
-
-        <!-- Error Message -->
-        <div id="errorMessage" class="alert alert-danger d-none mt-4">
-            <i class="fas fa-exclamation-circle me-2"></i>
-            <span id="errorText"></span>
-        </div>
-    </div>
-</div>
-</div>
-</div>
-<div class="modal-dialog modal-lg">
-    <div class="modal-content">
-        <div class="modal-header">
-            <h5 class="modal-title" id="reservationModalLabel">
-                <i class="fas fa-utensils me-2"></i>Form Reservasi Meja
-            </h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body p-4">
-            <form id="reservationForm">
-                @csrf
-
-                <!-- Step 1: Table Selection -->
-                <div class="step step-1">
+                <!-- FORM TANPA ACTION DAN METHOD -->
+                <form id="reservationForm">
+                    @csrf
+                    
+                    <!-- Table Selection -->
                     <div class="mb-4">
                         <label for="tableType" class="form-label fw-bold">Pilih Tipe Meja</label>
                         <select class="form-select form-select-lg" id="tableType" name="table_type" required>
@@ -871,32 +738,23 @@
                             <option value="Outdoor Garden">Outdoor Garden (Rp 30.000)</option>
                             <option value="Private Room">Private Room (Rp 150.000)</option>
                         </select>
+                        <div class="invalid-feedback">Silakan pilih tipe meja.</div>
                     </div>
-
-                    <div class="alert alert-info">
-                        <i class="fas fa-info-circle me-2"></i>
-                        Harga meja akan ditambahkan ke total pembayaran Anda.
-                    </div>
-
-                    <button type="button" class="btn btn-primary w-100 py-3 next-step" data-step="1">
-                        Selanjutnya <i class="fas fa-arrow-right ms-2"></i>
-                    </button>
-                </div>
-
-                <!-- Step 2: Date & Time -->
-                <div class="step step-2 d-none">
+                    
+                    <!-- Date & Time -->
                     <div class="row mb-4">
-                        <div class="col-md-6">
+                        <div class="col-md-6 mb-3">
                             <label for="date" class="form-label fw-bold">Tanggal Reservasi</label>
                             <div class="input-group">
                                 <span class="input-group-text bg-primary text-white">
                                     <i class="fas fa-calendar-alt"></i>
                                 </span>
-                                <input type="date" class="form-control" id="date" name="date" required
-                                    min="{{ date('Y-m-d') }}">
+                                <input type="date" class="form-control" id="date" name="date" required 
+                                       min="{{ date('Y-m-d') }}">
                             </div>
+                            <div class="invalid-feedback">Silakan pilih tanggal.</div>
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-md-6 mb-3">
                             <label for="time" class="form-label fw-bold">Waktu Reservasi</label>
                             <div class="input-group">
                                 <span class="input-group-text bg-primary text-white">
@@ -907,117 +765,496 @@
                                     @for($i = 10; $i <= 21; $i++)
                                         <option value="{{ sprintf('%02d:00', $i) }}">{{ sprintf('%02d:00', $i) }} WIB</option>
                                         @if($i < 21)
-                                            <option value="{{ sprintf('%02d:30', $i) }}">{{ sprintf('%02d:30', $i) }} WIB</option>
-                                            @endif
-                                            @endfor
+                                        <option value="{{ sprintf('%02d:30', $i) }}">{{ sprintf('%02d:30', $i) }} WIB</option>
+                                        @endif
+                                    @endfor
                                 </select>
                             </div>
+                            <div class="invalid-feedback">Silakan pilih waktu.</div>
                         </div>
                     </div>
-
+                    
+                    <!-- Guests -->
                     <div class="row mb-4">
                         <div class="col-md-6">
                             <label for="guests" class="form-label fw-bold">Jumlah Tamu</label>
                             <select class="form-select" id="guests" name="guests" required>
                                 <option value="">-- Pilih Jumlah Tamu --</option>
                                 @for($i = 1; $i <= 20; $i++)
-                                    <option value="{{ $i }}">{{ $i }} orang</option>
-                                    @endfor
+                                    <option value="{{ $i }}" {{ $i == 2 ? 'selected' : '' }}>{{ $i }} orang</option>
+                                @endfor
                             </select>
+                            <div class="invalid-feedback">Silakan pilih jumlah tamu.</div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="alert alert-info mb-0 h-100 d-flex align-items-center">
+                                <i class="fas fa-info-circle me-2"></i>
+                                Harga meja akan ditambahkan ke total pembayaran.
+                            </div>
                         </div>
                     </div>
-
-                    <div class="d-flex justify-content-between">
-                        <button type="button" class="btn btn-outline-secondary prev-step" data-step="2">
-                            <i class="fas fa-arrow-left me-2"></i>Kembali
-                        </button>
-                        <button type="button" class="btn btn-primary next-step" data-step="2">
-                            Selanjutnya <i class="fas fa-arrow-right ms-2"></i>
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Step 3: Personal Information -->
-                <div class="step step-3 d-none">
+                    
+                    <!-- Personal Information -->
+                    <h5 class="fw-bold mb-3 border-bottom pb-2">Data Diri</h5>
+                    
                     <div class="row mb-4">
-                        <div class="col-md-6">
+                        <div class="col-md-6 mb-3">
                             <label for="name" class="form-label fw-bold">Nama Lengkap</label>
                             <div class="input-group">
                                 <span class="input-group-text bg-primary text-white">
                                     <i class="fas fa-user"></i>
                                 </span>
-                                <input type="text" class="form-control" id="name" name="name" required
-                                    placeholder="Nama sesuai KTP">
+                                <input type="text" class="form-control" id="name" name="name" required 
+                                       placeholder="Nama sesuai KTP">
                             </div>
+                            <div class="invalid-feedback">Silakan isi nama lengkap.</div>
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-md-6 mb-3">
                             <label for="phone" class="form-label fw-bold">Nomor WhatsApp</label>
                             <div class="input-group">
                                 <span class="input-group-text bg-success text-white">
                                     <i class="fab fa-whatsapp"></i>
                                 </span>
-                                <input type="tel" class="form-control" id="phone" name="phone" required
-                                    placeholder="628xxxxxxxxxx">
+                                <input type="tel" class="form-control" id="phone" name="phone" required 
+                                       placeholder="628xxxxxxxxxx">
                             </div>
+                            <div class="invalid-feedback">Silakan isi nomor WhatsApp yang valid.</div>
                         </div>
                     </div>
-
+                    
                     <div class="mb-4">
                         <label for="email" class="form-label fw-bold">Email</label>
                         <div class="input-group">
                             <span class="input-group-text bg-primary text-white">
                                 <i class="fas fa-envelope"></i>
                             </span>
-                            <input type="email" class="form-control" id="email" name="email" required
-                                placeholder="email@anda.com">
+                            <input type="email" class="form-control" id="email" name="email" required 
+                                   placeholder="email@anda.com">
+                        </div>
+                        <div class="invalid-feedback">Silakan isi email yang valid.</div>
+                    </div>
+                    
+                    <!-- Special Request -->
+                    <div class="mb-4">
+                        <label for="special_request" class="form-label fw-bold">Permintaan Khusus (Opsional)</label>
+                        <textarea class="form-control" id="special_request" name="special_request" 
+                                  rows="3" 
+                                  placeholder="Contoh: Perayaan ulang tahun, alergi makanan tertentu, kursi bayi, dll."></textarea>
+                    </div>
+                    
+                    <!-- Terms & Info -->
+                    <div class="alert alert-warning mb-4">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        <strong>Informasi Penting:</strong>
+                        <ul class="mb-0 mt-2">
+                            <li>Pastikan data yang Anda masukkan benar</li>
+                            <li>Reservasi akan dikonfirmasi via WhatsApp</li>
+                            <li>Meja hanya ditahan selama 15 menit</li>
+                            <li>Untuk pembatalan, harap hubungi kami minimal 2 jam sebelumnya</li>
+                        </ul>
+                    </div>
+                    
+                    <!-- Submit Button - GANTI TYPE DARI "submit" KE "button" -->
+                    <div class="text-center">
+                        <button type="button" id="submitReservationBtn" class="btn btn-success btn-lg px-5 py-3 w-100">
+                            <i class="fas fa-paper-plane me-2"></i>Kirim Reservasi Sekarang
+                        </button>
+                    </div>
+                </form>
+                
+                <!-- Loading Indicator -->
+                <div id="loading" class="text-center d-none mt-4">
+                    <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="mt-3 text-muted">Mengirim reservasi...</p>
+                </div>
+                
+                <!-- Success Message -->
+                <div id="successMessage" class="alert alert-success d-none mt-4">
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-check-circle fa-2x me-3"></i>
+                        <div>
+                            <h5 class="alert-heading mb-2">Reservasi Berhasil!</h5>
+                            <p class="mb-1" id="successText"></p>
+                            <p class="mb-0">Anda akan diarahkan ke WhatsApp untuk konfirmasi.</p>
                         </div>
                     </div>
-
-                    <div class="mb-4">
-                        <label for="special_request" class="form-label fw-bold">Permintaan Khusus</label>
-                        <textarea class="form-control" id="special_request" name="special_request"
-                            rows="3"
-                            placeholder="Contoh: Perayaan ulang tahun, alergi makanan tertentu, kursi bayi, dll."></textarea>
-                    </div>
-
-                    <div class="alert alert-warning">
-                        <i class="fas fa-exclamation-triangle me-2"></i>
-                        Pastikan data yang Anda masukkan benar. Reservasi akan dikonfirmasi via WhatsApp.
-                    </div>
-
-                    <div class="d-flex justify-content-between">
-                        <button type="button" class="btn btn-outline-secondary prev-step" data-step="3">
-                            <i class="fas fa-arrow-left me-2"></i>Kembali
-                        </button>
-                        <button type="submit" class="btn btn-success">
-                            <i class="fas fa-paper-plane me-2"></i>Kirim Reservasi
-                        </button>
+                </div>
+                
+                <!-- Error Message -->
+                <div id="errorMessage" class="alert alert-danger d-none mt-4">
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-exclamation-circle fa-2x me-3"></i>
+                        <div>
+                            <h5 class="alert-heading mb-2">Terjadi Kesalahan</h5>
+                            <p class="mb-0" id="errorText"></p>
+                        </div>
                     </div>
                 </div>
-            </form>
-
-            <!-- Loading Indicator -->
-            <div id="loading" class="text-center d-none">
-                <div class="spinner-border text-primary" role="status">
-                    <span class="visually-hidden">Loading...</span>
-                </div>
-                <p class="mt-3">Mengirim reservasi...</p>
-            </div>
-
-            <!-- Success Message -->
-            <div id="successMessage" class="alert alert-success d-none">
-                <i class="fas fa-check-circle me-2"></i>
-                <span id="successText"></span>
-            </div>
-
-            <!-- Error Message -->
-            <div id="errorMessage" class="alert alert-danger d-none">
-                <i class="fas fa-exclamation-circle me-2"></i>
-                <span id="errorText"></span>
             </div>
         </div>
     </div>
-</div>
+</div>    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="reservationModalLabel">
+                    <i class="fas fa-utensils me-2"></i>Form Reservasi Meja
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4">
+                <!-- FORM - HAPUS ACTION DAN METHOD -->
+                <form id="reservationForm">
+                    @csrf
+                    
+                    <!-- Table Selection -->
+                    <div class="mb-4">
+                        <label for="tableType" class="form-label fw-bold">Pilih Tipe Meja</label>
+                        <select class="form-select form-select-lg" id="tableType" name="table_type" required>
+                            <option value="">-- Pilih Tipe Meja --</option>
+                            <option value="Indoor Regular">Meja Indoor Regular</option>
+                            <option value="Indoor Premium">Meja Indoor Premium (Rp 50.000)</option>
+                            <option value="Outdoor Garden">Outdoor Garden (Rp 30.000)</option>
+                            <option value="Private Room">Private Room (Rp 150.000)</option>
+                        </select>
+                        <div class="invalid-feedback">Silakan pilih tipe meja.</div>
+                    </div>
+                    
+                    <!-- Date & Time -->
+                    <div class="row mb-4">
+                        <div class="col-md-6 mb-3">
+                            <label for="date" class="form-label fw-bold">Tanggal Reservasi</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-primary text-white">
+                                    <i class="fas fa-calendar-alt"></i>
+                                </span>
+                                <input type="date" class="form-control" id="date" name="date" required 
+                                       min="{{ date('Y-m-d') }}">
+                            </div>
+                            <div class="invalid-feedback">Silakan pilih tanggal.</div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="time" class="form-label fw-bold">Waktu Reservasi</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-primary text-white">
+                                    <i class="fas fa-clock"></i>
+                                </span>
+                                <select class="form-select" id="time" name="time" required>
+                                    <option value="">-- Pilih Waktu --</option>
+                                    @for($i = 10; $i <= 21; $i++)
+                                        <option value="{{ sprintf('%02d:00', $i) }}">{{ sprintf('%02d:00', $i) }} WIB</option>
+                                        @if($i < 21)
+                                        <option value="{{ sprintf('%02d:30', $i) }}">{{ sprintf('%02d:30', $i) }} WIB</option>
+                                        @endif
+                                    @endfor
+                                </select>
+                            </div>
+                            <div class="invalid-feedback">Silakan pilih waktu.</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Guests -->
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <label for="guests" class="form-label fw-bold">Jumlah Tamu</label>
+                            <select class="form-select" id="guests" name="guests" required>
+                                <option value="">-- Pilih Jumlah Tamu --</option>
+                                @for($i = 1; $i <= 20; $i++)
+                                    <option value="{{ $i }}" {{ $i == 2 ? 'selected' : '' }}>{{ $i }} orang</option>
+                                @endfor
+                            </select>
+                            <div class="invalid-feedback">Silakan pilih jumlah tamu.</div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="alert alert-info mb-0 h-100 d-flex align-items-center">
+                                <i class="fas fa-info-circle me-2"></i>
+                                Harga meja akan ditambahkan ke total pembayaran.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Personal Information -->
+                    <h5 class="fw-bold mb-3 border-bottom pb-2">Data Diri</h5>
+                    
+                    <div class="row mb-4">
+                        <div class="col-md-6 mb-3">
+                            <label for="name" class="form-label fw-bold">Nama Lengkap</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-primary text-white">
+                                    <i class="fas fa-user"></i>
+                                </span>
+                                <input type="text" class="form-control" id="name" name="name" required 
+                                       placeholder="Nama sesuai KTP">
+                            </div>
+                            <div class="invalid-feedback">Silakan isi nama lengkap.</div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="phone" class="form-label fw-bold">Nomor WhatsApp</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-success text-white">
+                                    <i class="fab fa-whatsapp"></i>
+                                </span>
+                                <input type="tel" class="form-control" id="phone" name="phone" required 
+                                       placeholder="628xxxxxxxxxx">
+                            </div>
+                            <div class="invalid-feedback">Silakan isi nomor WhatsApp yang valid.</div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label for="email" class="form-label fw-bold">Email</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-primary text-white">
+                                <i class="fas fa-envelope"></i>
+                            </span>
+                            <input type="email" class="form-control" id="email" name="email" required 
+                                   placeholder="email@anda.com">
+                        </div>
+                        <div class="invalid-feedback">Silakan isi email yang valid.</div>
+                    </div>
+                    
+                    <!-- Special Request -->
+                    <div class="mb-4">
+                        <label for="special_request" class="form-label fw-bold">Permintaan Khusus (Opsional)</label>
+                        <textarea class="form-control" id="special_request" name="special_request" 
+                                  rows="3" 
+                                  placeholder="Contoh: Perayaan ulang tahun, alergi makanan tertentu, kursi bayi, dll."></textarea>
+                    </div>
+                    
+                    <!-- Terms & Info -->
+                    <div class="alert alert-warning mb-4">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        <strong>Informasi Penting:</strong>
+                        <ul class="mb-0 mt-2">
+                            <li>Pastikan data yang Anda masukkan benar</li>
+                            <li>Reservasi akan dikonfirmasi via WhatsApp</li>
+                            <li>Meja hanya ditahan selama 15 menit</li>
+                            <li>Untuk pembatalan, harap hubungi kami minimal 2 jam sebelumnya</li>
+                        </ul>
+                    </div>
+                    
+                    <!-- Submit Button -->
+                    <div class="text-center">
+                        <button type="submit" class="btn btn-success btn-lg px-5 py-3 w-100">
+                            <i class="fas fa-paper-plane me-2"></i>Kirim Reservasi Sekarang
+                        </button>
+                    </div>
+                </form>
+                
+                <!-- Loading Indicator -->
+                <div id="loading" class="text-center d-none mt-4">
+                    <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="mt-3 text-muted">Mengirim reservasi...</p>
+                </div>
+                
+                <!-- Success Message -->
+                <div id="successMessage" class="alert alert-success d-none mt-4">
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-check-circle fa-2x me-3"></i>
+                        <div>
+                            <h5 class="alert-heading mb-2">Reservasi Berhasil!</h5>
+                            <p class="mb-1" id="successText"></p>
+                            <p class="mb-0">Anda akan diarahkan ke WhatsApp untuk konfirmasi.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Error Message -->
+                <div id="errorMessage" class="alert alert-danger d-none mt-4">
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-exclamation-circle fa-2x me-3"></i>
+                        <div>
+                            <h5 class="alert-heading mb-2">Terjadi Kesalahan</h5>
+                            <p class="mb-0" id="errorText"></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="reservationModalLabel">
+                    <i class="fas fa-utensils me-2"></i>Form Reservasi Meja
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4">
+                <!-- FORM -->
+                <form id="reservationForm" action="{{ route('cafe-resto.reservation.store') }}" method="POST">
+                    @csrf
+                    
+                    <!-- Table Selection -->
+                    <div class="mb-4">
+                        <label for="tableType" class="form-label fw-bold">Pilih Tipe Meja</label>
+                        <select class="form-select form-select-lg" id="tableType" name="table_type" required>
+                            <option value="">-- Pilih Tipe Meja --</option>
+                            <option value="Indoor Regular">Meja Indoor Regular</option>
+                            <option value="Indoor Premium">Meja Indoor Premium (Rp 50.000)</option>
+                            <option value="Outdoor Garden">Outdoor Garden (Rp 30.000)</option>
+                            <option value="Private Room">Private Room (Rp 150.000)</option>
+                        </select>
+                        <div class="invalid-feedback">Silakan pilih tipe meja.</div>
+                    </div>
+                    
+                    <!-- Date & Time -->
+                    <div class="row mb-4">
+                        <div class="col-md-6 mb-3">
+                            <label for="date" class="form-label fw-bold">Tanggal Reservasi</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-primary text-white">
+                                    <i class="fas fa-calendar-alt"></i>
+                                </span>
+                                <input type="date" class="form-control" id="date" name="date" required 
+                                       min="{{ date('Y-m-d') }}">
+                            </div>
+                            <div class="invalid-feedback">Silakan pilih tanggal.</div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="time" class="form-label fw-bold">Waktu Reservasi</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-primary text-white">
+                                    <i class="fas fa-clock"></i>
+                                </span>
+                                <select class="form-select" id="time" name="time" required>
+                                    <option value="">-- Pilih Waktu --</option>
+                                    @for($i = 10; $i <= 21; $i++)
+                                        <option value="{{ sprintf('%02d:00', $i) }}">{{ sprintf('%02d:00', $i) }} WIB</option>
+                                        @if($i < 21)
+                                        <option value="{{ sprintf('%02d:30', $i) }}">{{ sprintf('%02d:30', $i) }} WIB</option>
+                                        @endif
+                                    @endfor
+                                </select>
+                            </div>
+                            <div class="invalid-feedback">Silakan pilih waktu.</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Guests -->
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <label for="guests" class="form-label fw-bold">Jumlah Tamu</label>
+                            <select class="form-select" id="guests" name="guests" required>
+                                <option value="">-- Pilih Jumlah Tamu --</option>
+                                @for($i = 1; $i <= 20; $i++)
+                                    <option value="{{ $i }}" {{ $i == 2 ? 'selected' : '' }}>{{ $i }} orang</option>
+                                @endfor
+                            </select>
+                            <div class="invalid-feedback">Silakan pilih jumlah tamu.</div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="alert alert-info mb-0 h-100 d-flex align-items-center">
+                                <i class="fas fa-info-circle me-2"></i>
+                                Harga meja akan ditambahkan ke total pembayaran.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Personal Information -->
+                    <h5 class="fw-bold mb-3 border-bottom pb-2">Data Diri</h5>
+                    
+                    <div class="row mb-4">
+                        <div class="col-md-6 mb-3">
+                            <label for="name" class="form-label fw-bold">Nama Lengkap</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-primary text-white">
+                                    <i class="fas fa-user"></i>
+                                </span>
+                                <input type="text" class="form-control" id="name" name="name" required 
+                                       placeholder="Nama sesuai KTP">
+                            </div>
+                            <div class="invalid-feedback">Silakan isi nama lengkap.</div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="phone" class="form-label fw-bold">Nomor WhatsApp</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-success text-white">
+                                    <i class="fab fa-whatsapp"></i>
+                                </span>
+                                <input type="tel" class="form-control" id="phone" name="phone" required 
+                                       placeholder="628xxxxxxxxxx">
+                            </div>
+                            <div class="invalid-feedback">Silakan isi nomor WhatsApp yang valid.</div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label for="email" class="form-label fw-bold">Email</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-primary text-white">
+                                <i class="fas fa-envelope"></i>
+                            </span>
+                            <input type="email" class="form-control" id="email" name="email" required 
+                                   placeholder="email@anda.com">
+                        </div>
+                        <div class="invalid-feedback">Silakan isi email yang valid.</div>
+                    </div>
+                    
+                    <!-- Special Request -->
+                    <div class="mb-4">
+                        <label for="special_request" class="form-label fw-bold">Permintaan Khusus (Opsional)</label>
+                        <textarea class="form-control" id="special_request" name="special_request" 
+                                  rows="3" 
+                                  placeholder="Contoh: Perayaan ulang tahun, alergi makanan tertentu, kursi bayi, dll."></textarea>
+                    </div>
+                    
+                    <!-- Terms & Info -->
+                    <div class="alert alert-warning mb-4">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        <strong>Informasi Penting:</strong>
+                        <ul class="mb-0 mt-2">
+                            <li>Pastikan data yang Anda masukkan benar</li>
+                            <li>Reservasi akan dikonfirmasi via WhatsApp</li>
+                            <li>Meja hanya ditahan selama 15 menit</li>
+                            <li>Untuk pembatalan, harap hubungi kami minimal 2 jam sebelumnya</li>
+                        </ul>
+                    </div>
+                    
+                    <!-- Submit Button -->
+                    <div class="text-center">
+                        <button type="submit" class="btn btn-success btn-lg px-5 py-3 w-100">
+                            <i class="fas fa-paper-plane me-2"></i>Kirim Reservasi Sekarang
+                        </button>
+                    </div>
+                </form>
+                
+                <!-- Loading Indicator -->
+                <div id="loading" class="text-center d-none mt-4">
+                    <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="mt-3 text-muted">Mengirim reservasi...</p>
+                </div>
+                
+                <!-- Success Message -->
+                <div id="successMessage" class="alert alert-success d-none mt-4">
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-check-circle fa-2x me-3"></i>
+                        <div>
+                            <h5 class="alert-heading mb-2">Reservasi Berhasil!</h5>
+                            <p class="mb-1" id="successText"></p>
+                            <p class="mb-0">Anda akan diarahkan ke WhatsApp untuk konfirmasi.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Error Message -->
+                <div id="errorMessage" class="alert alert-danger d-none mt-4">
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-exclamation-circle fa-2x me-3"></i>
+                        <div>
+                            <h5 class="alert-heading mb-2">Terjadi Kesalahan</h5>
+                            <p class="mb-0" id="errorText"></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 @endsection
 
@@ -1025,309 +1262,314 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        console.log('DOM loaded - Cafe Resto page');
-
+        console.log('Cafe Resto page loaded');
+        
         // Mobile Menu Toggle
         const mobileMenuBtn = document.getElementById('mobileMenuBtn');
         const mobileMenu = document.getElementById('mobileMenu');
-
+        
         if (mobileMenuBtn && mobileMenu) {
             mobileMenuBtn.addEventListener('click', function() {
-                console.log('Mobile menu button clicked');
                 mobileMenu.classList.toggle('hidden');
             });
-
+            
             document.addEventListener('click', function(event) {
-                if (!mobileMenu.contains(event.target) &&
-                    !mobileMenuBtn.contains(event.target) &&
+                if (!mobileMenu.contains(event.target) && 
+                    !mobileMenuBtn.contains(event.target) && 
                     !mobileMenu.classList.contains('hidden')) {
                     mobileMenu.classList.add('hidden');
                 }
             });
         }
-
+        
         // Table Selection from Cards
         const tableButtons = document.querySelectorAll('[data-table-type]');
         const tableTypeSelect = document.getElementById('tableType');
-
+        
         if (tableButtons.length > 0 && tableTypeSelect) {
             tableButtons.forEach(button => {
                 button.addEventListener('click', function() {
-                    console.log('Table button clicked:', this.getAttribute('data-table-type'));
                     const tableType = this.getAttribute('data-table-type');
+                    console.log('Selected table:', tableType);
                     tableTypeSelect.value = tableType;
-
-                    // Auto-focus pada select
+                    
+                    const modal = new bootstrap.Modal(document.getElementById('reservationModal'));
+                    modal.show();
+                    
                     setTimeout(() => {
                         tableTypeSelect.focus();
-                    }, 300);
+                    }, 500);
                 });
             });
         }
-
-        // Multi-step Form System
-        let currentStep = 1;
-        const totalSteps = 3;
-
-        // Fungsi untuk berpindah step
-        function goToStep(step) {
-            console.log('Going to step:', step);
-
-            // Sembunyikan semua step
-            document.querySelectorAll('.step').forEach(el => {
-                el.classList.add('d-none');
-            });
-
-            // Tampilkan step yang dituju
-            const targetStep = document.querySelector(`.step-${step}`);
-            if (targetStep) {
-                targetStep.classList.remove('d-none');
-                currentStep = step;
-
-                // Set focus ke elemen pertama pada step
-                setTimeout(() => {
-                    const firstInput = targetStep.querySelector('input, select, textarea');
-                    if (firstInput) {
-                        firstInput.focus();
-                    }
-                }, 100);
+        
+        // Set default values for form
+        function setDefaultFormValues() {
+            // Set default date to tomorrow
+            const dateInput = document.getElementById('date');
+            if (dateInput) {
+                const today = new Date();
+                const tomorrow = new Date(today);
+                tomorrow.setDate(tomorrow.getDate() + 1);
+                const tomorrowFormatted = tomorrow.toISOString().split('T')[0];
+                dateInput.min = today.toISOString().split('T')[0];
+                dateInput.value = tomorrowFormatted;
             }
-
-            console.log('Current step:', currentStep);
+            
+            // Set default time to 18:00
+            const timeSelect = document.getElementById('time');
+            if (timeSelect) {
+                timeSelect.value = '18:00';
+            }
+            
+            // Set default guests to 2
+            const guestsSelect = document.getElementById('guests');
+            if (guestsSelect) {
+                guestsSelect.value = '2';
+            }
         }
-
-        // Event listener untuk tombol "Selanjutnya"
-        document.querySelectorAll('.next-step').forEach(button => {
-            button.addEventListener('click', function(e) {
-                e.preventDefault();
-                console.log('Next button clicked for step:', currentStep);
-
-                // Validasi step saat ini
-                const currentStepElement = document.querySelector(`.step-${currentStep}`);
-                if (!currentStepElement) {
-                    console.error('Current step element not found');
-                    return;
+        
+        // Form Validation
+        function validateForm() {
+            let isValid = true;
+            let firstInvalidElement = null;
+            
+            // Reset all invalid states
+            document.querySelectorAll('.is-invalid').forEach(el => {
+                el.classList.remove('is-invalid');
+            });
+            
+            // Check required fields
+            document.querySelectorAll('#reservationForm [required]').forEach(input => {
+                if (!input.value.trim()) {
+                    isValid = false;
+                    input.classList.add('is-invalid');
+                    if (!firstInvalidElement) firstInvalidElement = input;
                 }
-
-                const inputs = currentStepElement.querySelectorAll('[required]');
-                let isValid = true;
-                let firstInvalidInput = null;
-
-                inputs.forEach(input => {
-                    input.classList.remove('is-invalid');
-
-                    if (!input.value.trim()) {
+                
+                // Email validation
+                if (input.type === 'email' && input.value.trim()) {
+                    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                    if (!emailRegex.test(input.value.trim())) {
                         isValid = false;
                         input.classList.add('is-invalid');
-
-                        if (!firstInvalidInput) {
-                            firstInvalidInput = input;
-                        }
+                        if (!firstInvalidElement) firstInvalidElement = input;
                     }
-
-                    // Validasi khusus untuk email
-                    if (input.type === 'email' && input.value.trim()) {
-                        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-                        if (!emailRegex.test(input.value.trim())) {
-                            isValid = false;
-                            input.classList.add('is-invalid');
-                        }
+                }
+                
+                // Phone validation
+                if (input.name === 'phone' && input.value.trim()) {
+                    const phoneRegex = /^[0-9]{10,15}$/;
+                    if (!phoneRegex.test(input.value.trim())) {
+                        isValid = false;
+                        input.classList.add('is-invalid');
+                        if (!firstInvalidElement) firstInvalidElement = input;
                     }
-
-                    // Validasi khusus untuk telepon
-                    if (input.name === 'phone' && input.value.trim()) {
-                        const phoneRegex = /^[0-9+\-\s]+$/;
-                        if (!phoneRegex.test(input.value.trim())) {
-                            isValid = false;
-                            input.classList.add('is-invalid');
-                        }
+                }
+                
+                // Date validation (cannot be past date)
+                if (input.type === 'date' && input.value) {
+                    const selectedDate = new Date(input.value);
+                    const today = new Date();
+                    today.setHours(0, 0, 0, 0);
+                    
+                    if (selectedDate < today) {
+                        isValid = false;
+                        input.classList.add('is-invalid');
+                        if (!firstInvalidElement) firstInvalidElement = input;
                     }
+                }
+            });
+            
+            // Scroll to first invalid element
+            if (firstInvalidElement) {
+                firstInvalidElement.scrollIntoView({ 
+                    behavior: 'smooth', 
+                    block: 'center' 
                 });
-
-                if (isValid) {
-                    goToStep(currentStep + 1);
-                } else {
-                    // Tampilkan pesan error
+                firstInvalidElement.focus();
+            }
+            
+            return isValid;
+        }
+        
+        // Submit button click handler
+        const submitBtn = document.getElementById('submitReservationBtn');
+        
+        if (submitBtn) {
+            submitBtn.addEventListener('click', async function(e) {
+                e.preventDefault();
+                console.log('Submit button clicked');
+                
+                // Validate form
+                if (!validateForm()) {
                     Swal.fire({
-                        icon: 'warning',
-                        title: 'Data Belum Lengkap',
-                        text: 'Silakan lengkapi semua data yang diperlukan sebelum melanjutkan.',
-                        confirmButtonColor: '#e17055'
+                        icon: 'error',
+                        title: 'Data Tidak Valid',
+                        text: 'Mohon periksa kembali data yang Anda masukkan.',
+                        confirmButtonColor: '#e17055',
+                        confirmButtonText: 'Mengerti'
                     });
-
-                    // Focus ke input pertama yang invalid
-                    if (firstInvalidInput) {
-                        firstInvalidInput.focus();
-                    }
+                    return false;
                 }
-            });
-        });
-
-        // Event listener untuk tombol "Kembali"
-        document.querySelectorAll('.prev-step').forEach(button => {
-            button.addEventListener('click', function(e) {
-                e.preventDefault();
-                console.log('Prev button clicked for step:', currentStep);
-
-                if (currentStep > 1) {
-                    goToStep(currentStep - 1);
-                }
-            });
-        });
-
-        // Inisialisasi form - tampilkan step 1
-        goToStep(1);
-
-        // Form Submission Handler
-        const reservationForm = document.getElementById('reservationForm');
-
-        if (reservationForm) {
-            reservationForm.addEventListener('submit', async function(e) {
-                e.preventDefault();
-                console.log('Form submission started');
-
-                const submitButton = this.querySelector('button[type="submit"]');
+                
                 const loadingIndicator = document.getElementById('loading');
                 const successMessage = document.getElementById('successMessage');
                 const errorMessage = document.getElementById('errorMessage');
-
-                if (!submitButton || !loadingIndicator) {
-                    console.error('Required elements not found');
-                    return;
-                }
-
-                // Validasi final sebelum submit
-                const allInputs = this.querySelectorAll('[required]');
-                let finalIsValid = true;
-
-                allInputs.forEach(input => {
-                    if (!input.value.trim()) {
-                        finalIsValid = false;
-                        input.classList.add('is-invalid');
-                    }
-                });
-
-                if (!finalIsValid) {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Data Tidak Lengkap',
-                        text: 'Mohon lengkapi semua data yang diperlukan.',
-                        confirmButtonColor: '#e17055'
-                    });
-                    return;
-                }
-
-                // Show loading, hide buttons
-                submitButton.disabled = true;
+                
+                // Show loading, hide messages
+                this.disabled = true;
+                this.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Mengirim...';
                 loadingIndicator.classList.remove('d-none');
                 successMessage.classList.add('d-none');
                 errorMessage.classList.add('d-none');
-
+                
                 // Collect form data
-                const formData = new FormData(this);
-
-                // Log form data for debugging
-                console.log('Form data:');
-                for (let [key, value] of formData.entries()) {
-                    console.log(key + ': ' + value);
+                const formData = new FormData(document.getElementById('reservationForm'));
+                
+                // Add CSRF token
+                const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content;
+                if (csrfToken) {
+                    formData.append('_token', csrfToken);
                 }
-
+                
+                console.log('Form data collected');
+                
                 try {
-                    const response = await fetch('{{ route("cafe-resto.reservation.store") }}', {
+                    // Gunakan URL yang benar - HARUS /cafe-resto/reservation
+                    const postUrl = '/cafe-resto/reservation';
+                    console.log('Sending POST request to:', postUrl);
+                    
+                    // Send request to correct route
+                    const response = await fetch(postUrl, {
                         method: 'POST',
                         headers: {
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
                             'Accept': 'application/json',
-                            'Content-Type': 'application/x-www-form-urlencoded',
+                            'X-Requested-With': 'XMLHttpRequest'
                         },
-                        body: new URLSearchParams(formData)
+                        body: formData
                     });
-
+                    
+                    console.log('Response status:', response.status);
                     const data = await response.json();
-                    console.log('Response received:', data);
-
+                    console.log('Response data:', data);
+                    
+                    // Hide loading indicator
                     loadingIndicator.classList.add('d-none');
-
+                    this.disabled = false;
+                    this.innerHTML = '<i class="fas fa-paper-plane me-2"></i>Kirim Reservasi Sekarang';
+                    
                     if (data.success) {
                         // Show success message
                         document.getElementById('successText').textContent = data.message;
                         successMessage.classList.remove('d-none');
-
-                        // Reset form dan kembali ke step 1
-                        reservationForm.reset();
-                        goToStep(1);
-
-                        // Redirect to WhatsApp after 2 seconds
+                        
+                        // Scroll to success message
+                        successMessage.scrollIntoView({ behavior: 'smooth' });
+                        
+                        // Reset form
+                        document.getElementById('reservationForm').reset();
+                        setDefaultFormValues();
+                        
+                        // Redirect to WhatsApp after 3 seconds
                         setTimeout(() => {
                             if (data.whatsapp_url) {
+                                console.log('Redirecting to WhatsApp:', data.whatsapp_url);
                                 window.open(data.whatsapp_url, '_blank');
                             }
-
-                            // Close modal after 1 more second
+                            
+                            // Close modal after 2 more seconds
                             setTimeout(() => {
                                 const modal = bootstrap.Modal.getInstance(document.getElementById('reservationModal'));
                                 if (modal) {
                                     modal.hide();
                                 }
-                            }, 1000);
-                        }, 2000);
+                            }, 2000);
+                        }, 3000);
                     } else {
                         // Show error message
-                        let errorText = data.message || 'Terjadi kesalahan.';
+                        let errorText = data.message || 'Terjadi kesalahan. Silakan coba lagi.';
                         if (data.errors) {
-                            errorText = '';
+                            errorText = 'Periksa kesalahan berikut: ';
                             for (const [key, messages] of Object.entries(data.errors)) {
                                 errorText += messages.join(', ') + ' ';
                             }
                         }
                         document.getElementById('errorText').textContent = errorText;
                         errorMessage.classList.remove('d-none');
-                        submitButton.disabled = false;
+                        
+                        // Scroll to error message
+                        errorMessage.scrollIntoView({ behavior: 'smooth' });
                     }
                 } catch (error) {
                     console.error('Fetch error:', error);
                     loadingIndicator.classList.add('d-none');
-                    document.getElementById('errorText').textContent = 'Terjadi kesalahan jaringan. Silakan coba lagi.';
+                    this.disabled = false;
+                    this.innerHTML = '<i class="fas fa-paper-plane me-2"></i>Kirim Reservasi Sekarang';
+                    
+                    document.getElementById('errorText').textContent = 'Terjadi kesalahan jaringan. Silakan coba lagi atau hubungi kami via WhatsApp.';
                     errorMessage.classList.remove('d-none');
-                    submitButton.disabled = false;
+                    errorMessage.scrollIntoView({ behavior: 'smooth' });
                 }
+                
+                return false;
             });
         }
-
-        // Modal reset on close
+        
+        // Real-time validation for form fields
+        const reservationForm = document.getElementById('reservationForm');
+        if (reservationForm) {
+            reservationForm.querySelectorAll('input, select, textarea').forEach(input => {
+                input.addEventListener('blur', function() {
+                    if (this.hasAttribute('required') && !this.value.trim()) {
+                        this.classList.add('is-invalid');
+                    } else {
+                        this.classList.remove('is-invalid');
+                    }
+                    
+                    // Email validation
+                    if (this.type === 'email' && this.value.trim()) {
+                        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                        if (!emailRegex.test(this.value.trim())) {
+                            this.classList.add('is-invalid');
+                        } else {
+                            this.classList.remove('is-invalid');
+                        }
+                    }
+                    
+                    // Phone validation and formatting
+                    if (this.name === 'phone' && this.value.trim()) {
+                        // Format phone number
+                        let value = this.value.replace(/\D/g, '');
+                        if (value.startsWith('0')) {
+                            value = '62' + value.substring(1);
+                        }
+                        if (value.length > 0 && !value.startsWith('62')) {
+                            value = '62' + value;
+                        }
+                        value = value.substring(0, 15);
+                        this.value = value;
+                        
+                        const phoneRegex = /^[0-9]{10,15}$/;
+                        if (!phoneRegex.test(value)) {
+                            this.classList.add('is-invalid');
+                        } else {
+                            this.classList.remove('is-invalid');
+                        }
+                    }
+                });
+            });
+        }
+        
+        // Modal events
         const reservationModal = document.getElementById('reservationModal');
         if (reservationModal) {
-            reservationModal.addEventListener('hidden.bs.modal', function() {
-                console.log('Modal closed, resetting form');
-                if (reservationForm) {
-                    reservationForm.reset();
-                    goToStep(1);
-
-                    // Reset semua status
-                    document.getElementById('loading').classList.add('d-none');
-                    document.getElementById('successMessage').classList.add('d-none');
-                    document.getElementById('errorMessage').classList.add('d-none');
-
-                    // Enable submit button
-                    const submitButton = reservationForm.querySelector('button[type="submit"]');
-                    if (submitButton) {
-                        submitButton.disabled = false;
-                    }
-
-                    // Remove invalid classes
-                    reservationForm.querySelectorAll('.is-invalid').forEach(el => {
-                        el.classList.remove('is-invalid');
-                    });
-                }
-            });
-
-            // Modal show event
-            reservationModal.addEventListener('shown.bs.modal', function() {
+            // When modal is shown
+            reservationModal.addEventListener('shown.bs.modal', function () {
                 console.log('Modal shown');
-                // Reset ke step 1 ketika modal dibuka
-                goToStep(1);
-
-                // Auto-focus pada select pertama
+                setDefaultFormValues();
+                
+                // Auto-focus on first input
                 setTimeout(() => {
                     const firstInput = document.querySelector('#tableType');
                     if (firstInput) {
@@ -1335,53 +1577,42 @@
                     }
                 }, 300);
             });
-        }
-
-        // Date validation - set min date to today
-        const dateInput = document.getElementById('date');
-        if (dateInput) {
-            const today = new Date();
-            const todayFormatted = today.toISOString().split('T')[0];
-            dateInput.min = todayFormatted;
-            console.log('Min date set to:', todayFormatted);
-
-            // Set default date to tomorrow
-            const tomorrow = new Date(today);
-            tomorrow.setDate(tomorrow.getDate() + 1);
-            const tomorrowFormatted = tomorrow.toISOString().split('T')[0];
-            dateInput.value = tomorrowFormatted;
-        }
-
-        // Time validation - set default time
-        const timeSelect = document.getElementById('time');
-        if (timeSelect) {
-            // Set default time to 18:00
-            timeSelect.value = '18:00';
-        }
-
-        // Guests validation - set default guests
-        const guestsSelect = document.getElementById('guests');
-        if (guestsSelect) {
-            guestsSelect.value = '2';
-        }
-
-        // Add CSS for invalid inputs
-        const style = document.createElement('style');
-        style.textContent = `
-            .is-invalid {
-                border-color: #dc3545 !important;
-                background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23dc3545'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath stroke-linejoin='round' d='M5.8 3.6h.4L6 6.5z'/%3e%3ccircle cx='6' cy='8.2' r='.6' fill='%23dc3545' stroke='none'/%3e%3c/svg%3e");
-                background-repeat: no-repeat;
-                background-position: right calc(0.375em + 0.1875rem) center;
-                background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
-            }
             
-            .is-invalid:focus {
-                border-color: #dc3545 !important;
-                box-shadow: 0 0 0 0.25rem rgba(220, 53, 69, 0.25) !important;
-            }
-        `;
-        document.head.appendChild(style);
+            // When modal is hidden
+            reservationModal.addEventListener('hidden.bs.modal', function () {
+                console.log('Modal closed, resetting form');
+                
+                // Reset form
+                if (reservationForm) {
+                    reservationForm.reset();
+                    setDefaultFormValues();
+                }
+                
+                // Reset all states
+                document.getElementById('loading').classList.add('d-none');
+                document.getElementById('successMessage').classList.add('d-none');
+                document.getElementById('errorMessage').classList.add('d-none');
+                
+                // Reset submit button
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = '<i class="fas fa-paper-plane me-2"></i>Kirim Reservasi Sekarang';
+                }
+                
+                // Remove invalid classes
+                document.querySelectorAll('.is-invalid').forEach(el => {
+                    el.classList.remove('is-invalid');
+                });
+            });
+        }
+        
+        // Initialize form values
+        setDefaultFormValues();
+        
+        // Debug info
+        console.log('Submit button ID:', submitBtn ? 'found' : 'not found');
+        console.log('Form ID:', reservationForm ? 'found' : 'not found');
+        console.log('POST URL should be: /cafe-resto/reservation');
     });
 </script>
 @endsection
