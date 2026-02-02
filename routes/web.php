@@ -114,6 +114,8 @@ Route::middleware('auth')->prefix('transactions')->name('transactions.')->group(
     Route::get('/{id}', [StokTransactionController::class, 'show'])
         ->where('id', '[0-9]+')
         ->name('show');
+    Route::get('/export', [StokTransactionController::class, 'showExportForm'])->name('export.form');
+    Route::post('/export', [StokTransactionController::class, 'export'])->name('export');
 });
 
 // Authentication Protected Routes

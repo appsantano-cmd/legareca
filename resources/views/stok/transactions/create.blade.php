@@ -597,14 +597,17 @@
                                             </div>
 
                                             <!-- Input Keperluan Global -->
-                                            <div id="keperluanGlobalContainer" class="global-field-container keperluan-global-container" style="display: none;">
+                                            <div id="keperluanGlobalContainer"
+                                                class="global-field-container keperluan-global-container"
+                                                style="display: none;">
                                                 <input type="text" name="keperluan_global" id="keperluan_global"
                                                     class="form-control" disabled
                                                     placeholder="Masukkan keperluan global">
                                                 <div class="supplier-info mt-2">
                                                     <i class="bi bi-info-circle me-1"></i>
                                                     <small class="text-muted">
-                                                        Keperluan global akan digunakan untuk semua barang dalam transaksi ini.
+                                                        Keperluan global akan digunakan untuk semua barang dalam
+                                                        transaksi ini.
                                                     </small>
                                                 </div>
                                             </div>
@@ -640,7 +643,8 @@
                                         </div>
 
                                         <!-- Input Nama Penerima Global -->
-                                        <div id="namaPenerimaGlobalContainer" class="global-field-container mt-2" style="display: none;">
+                                        <div id="namaPenerimaGlobalContainer" class="global-field-container mt-2"
+                                            style="display: none;">
                                             <input type="text" name="nama_penerima_global"
                                                 id="nama_penerima_global" class="form-control"
                                                 value="{{ old('nama_penerima_global') }}" disabled
@@ -683,14 +687,15 @@
                                         </div>
 
                                         <!-- Input Keterangan Global -->
-                                        <div id="keteranganGlobalContainer" class="global-field-container mt-2" style="display: none;">
-                                            <textarea name="keterangan_global" id="keterangan_global" rows="4" 
-                                                class="form-control" disabled 
+                                        <div id="keteranganGlobalContainer" class="global-field-container mt-2"
+                                            style="display: none;">
+                                            <textarea name="keterangan_global" id="keterangan_global" rows="4" class="form-control" disabled
                                                 placeholder="Tambahkan keterangan transaksi global (opsional)">{{ old('keterangan_global') }}</textarea>
                                             <div class="supplier-info mt-2">
                                                 <i class="bi bi-info-circle me-1"></i>
                                                 <small class="text-muted">
-                                                    Keterangan global akan digunakan untuk semua barang dalam transaksi ini.
+                                                    Keterangan global akan digunakan untuk semua barang dalam transaksi
+                                                    ini.
                                                 </small>
                                             </div>
                                         </div>
@@ -753,9 +758,11 @@
                             <div id="barangDataContainer"></div>
 
                             <div class="d-flex justify-content-between mt-4">
-                                <a href="{{ route('transactions.index') }}" class="btn btn-secondary">
-                                    <i class="bi bi-arrow-left me-2"></i>Kembali
-                                </a>
+                                @auth
+                                    <a href="{{ route('transactions.index') }}" class="btn btn-secondary">
+                                        <i class="bi bi-arrow-left me-2"></i>Kembali
+                                    </a>
+                                @endauth
                                 <div>
                                     <button type="submit" name="action" value="save" class="btn btn-primary"
                                         id="btnSimpan" disabled>
@@ -901,7 +908,8 @@
                     <small class="text-muted">Kode: KODE_BARANG</small>
                     <div class="mt-1">
                         <small class="text-primary">
-                            <i class="bi bi-truck me-1"></i>Supplier: <span class="supplier-display">SUPPLIER_NAME</span>
+                            <i class="bi bi-truck me-1"></i>Supplier: <span
+                                class="supplier-display">SUPPLIER_NAME</span>
                         </small>
                     </div>
                 </div>
@@ -1161,7 +1169,7 @@
             const keperluanGlobalContainer = document.getElementById('keperluanGlobalContainer');
             const namaPenerimaGlobalContainer = document.getElementById('namaPenerimaGlobalContainer');
             const keteranganGlobalContainer = document.getElementById('keteranganGlobalContainer');
-            
+
             if (keperluanGlobalContainer) keperluanGlobalContainer.style.display = 'none';
             if (namaPenerimaGlobalContainer) namaPenerimaGlobalContainer.style.display = 'none';
             if (keteranganGlobalContainer) keteranganGlobalContainer.style.display = 'none';
@@ -1242,7 +1250,7 @@
             const keperluanGlobalContainer = document.getElementById('keperluanGlobalContainer');
             const namaPenerimaGlobalContainer = document.getElementById('namaPenerimaGlobalContainer');
             const keteranganGlobalContainer = document.getElementById('keteranganGlobalContainer');
-            
+
             if (selectedTipe === 'keluar' && currentKeperluanMode === 'global') {
                 if (keperluanGlobalContainer) {
                     keperluanGlobalContainer.style.display = 'block';
@@ -1254,7 +1262,7 @@
                     document.getElementById('keperluan_global').disabled = true;
                 }
             }
-            
+
             if (currentNamaPenerimaMode === 'global') {
                 if (namaPenerimaGlobalContainer) {
                     namaPenerimaGlobalContainer.style.display = 'block';
@@ -1266,7 +1274,7 @@
                     document.getElementById('nama_penerima_global').disabled = true;
                 }
             }
-            
+
             if (currentKeteranganMode === 'global') {
                 if (keteranganGlobalContainer) {
                     keteranganGlobalContainer.style.display = 'block';

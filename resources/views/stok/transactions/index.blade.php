@@ -12,6 +12,9 @@
                             <i class="bi bi-arrow-left-right me-2"></i>Transaksi Stok Harian
                         </h4>
                         <div>
+                            <a href="{{ route('transactions.export.form') }}" class="btn btn-success me-2">
+                                <i class="bi bi-file-earmark-excel me-1"></i> Export Excel
+                            </a>
                             <a href="{{ route('transactions.create') }}" class="btn btn-light">
                                 <i class="bi bi-plus-circle me-1"></i> Transaksi Baru
                             </a>
@@ -179,7 +182,7 @@
 
     <style>
         .card-header {
-            background: linear-gradient(135deg, #4CAF50 0%, #2E7D32 100%);
+            background: linear-gradient(135deg, #263238 0%, #37474F 100%);
             color: white;
         }
 
