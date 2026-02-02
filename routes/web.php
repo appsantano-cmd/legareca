@@ -14,17 +14,31 @@ use App\Http\Controllers\StokGudangController;
 use App\Http\Controllers\StokTransactionController;
 use App\Http\Controllers\SatuanController;
 use App\Http\Controllers\DepartemenController;
+use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\VenueBookingController;
 use App\Http\Controllers\ReservasiController;
 use App\Http\Controllers\CafeRestoController;
 
 // Public Routes
 Route::get('/', function () {
-    return view('welcome');
+    return view('welcome.welcome');
 });
 
+// Route yang bisa diakses UMUM (tanpa login)
 Route::get('/art-gallery', [ArtGalleryController::class, 'index'])
     ->name('gallery.index');
+
+Route::get('/art-gallery/{art}', [ArtGalleryController::class, 'show'])
+    ->name('gallery.show');
+
+// Route yang membutuhkan LOGIN (admin area)
+Route::middleware(['auth'])->group(function () {
+    Route::get('/art-gallery/pages/create', [ArtGalleryController::class, 'create']) // TANPA /pages
+        ->name('gallery.create');
+    
+    Route::post('/art-gallery', [ArtGalleryController::class, 'store'])
+        ->name('gallery.store');
+});
 
 // Authentication Routes
 Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
@@ -63,25 +77,12 @@ Route::prefix('notifications')->name('notifications.')->group(function () {
     Route::delete('/', [NotificationPageController::class, 'clearAll'])->name('clear-all');
 });
 
-Route::resource('departemen', DepartemenController::class)
-    ->parameters(['departemen' => 'departemen']);
-
-Route::resource('satuan', SatuanController::class);
-// Route API untuk mengambil data satuan dalam format JSON
-Route::get('/api/satuan', [SatuanController::class, 'indexApi'])->name('api.satuan.index');
-
-// =======================
-// STOK GUDANG - PUBLIC
-// =======================
-Route::prefix('stok-gudang')->name('stok.')->group(function () {
-    Route::get('/create', [StokGudangController::class, 'create'])->name('create');
-    Route::post('/', [StokGudangController::class, 'store'])->name('store');
-});
-
 // =======================
 // STOK GUDANG - AUTH
 // =======================
 Route::middleware('auth')->prefix('stok-gudang')->name('stok.')->group(function () {
+    Route::get('/create', [StokGudangController::class, 'create'])->name('create');
+    Route::post('/', [StokGudangController::class, 'store'])->name('store');
     Route::get('/', [StokGudangController::class, 'index'])->name('index');
     Route::get('/{id}/edit', [StokGudangController::class, 'edit'])->name('edit');
     Route::put('/{id}', [StokGudangController::class, 'update'])->name('update');
@@ -159,6 +160,29 @@ Route::prefix('reservasi')->name('reservasi.')->group(function () {
 
 // Authentication Protected Routes
 Route::middleware('auth')->group(function () {
+
+    // Departemen
+    Route::resource('departemen', DepartemenController::class)
+        ->parameters(['departemen' => 'departemen']);
+    Route::get('/api/departemen', [DepartemenController::class, 'indexApi'])->name('api.departemen.index');
+
+    // Satuan
+    Route::resource('satuan', SatuanController::class);
+    Route::get('/api/satuan', [SatuanController::class, 'indexApi'])->name('api.satuan.index');
+
+    // Supplier
+    Route::prefix('supplier')->name('supplier.')->group(function () {
+        Route::get('/', [SupplierController::class, 'index'])->name('index');
+        Route::get('/create', [SupplierController::class, 'create'])->name('create');
+        Route::post('/', [SupplierController::class, 'store'])->name('store');
+        Route::get('/{supplier}/edit', [SupplierController::class, 'edit'])->name('edit');
+        Route::put('/{supplier}', [SupplierController::class, 'update'])->name('update');
+        Route::delete('/{supplier}', [SupplierController::class, 'destroy'])->name('destroy');
+        Route::put('/{id}/restore', [SupplierController::class, 'restore'])->name('restore');
+
+        Route::get('/api/supplier', [SupplierController::class, 'indexApi'])->name('api.supplier.index');
+    });
+
     // Dashboard
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
@@ -173,6 +197,7 @@ Route::middleware('auth')->group(function () {
         // shifting Routes
         Route::prefix('shifting')->name('shifting.')->group(function () {
             Route::get('/', [ShiftingController::class, 'index'])->name('index');
+            Route::get('/create', [ShiftingController::class, 'create'])->name('create');
             Route::post('/submit', [ShiftingController::class, 'submit'])->name('submit');
         });
 
@@ -220,6 +245,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/venue', [VenueBookingController::class, 'index'])->name('venue.index');
     Route::post('/venue/step', [VenueBookingController::class, 'handleStep'])->name('venue.step');
     Route::post('/venue/submit', [VenueBookingController::class, 'submitBooking'])->name('venue.submit');
+
 });
 
 // Cafe & Resto Routes

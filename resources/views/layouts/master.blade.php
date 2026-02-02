@@ -24,6 +24,13 @@
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link {{ request()->is('dashboard') ? 'active' : '' }}"
+                            href="{{ route('dashboard') }}">
+                            <i class="bi bi-speedometer2 me-1"></i> Dashboard
+                        </a>
+                    </li>
+
                     <!-- Menu Stok Gudang -->
                     <li class="nav-item">
                         <a class="nav-link {{ request()->is('stok-gudang*') ? 'active' : '' }}"
@@ -32,7 +39,7 @@
                         </a>
                     </li>
 
-                    <!-- Menu Transaksi Harian (BARU) -->
+                    <!-- Menu Transaksi Harian -->
                     <li class="nav-item">
                         <a class="nav-link {{ request()->is('transactions*') ? 'active' : '' }}"
                             href="{{ route('transactions.index') }}">
@@ -54,6 +61,12 @@
                         </a>
                     </li>
 
+                    <li class="nav-item">
+                        <a class="nav-link {{ request()->is('supplier*') ? 'active' : '' }}"
+                            href="{{ route('supplier.index') }}">
+                            <i class="bi bi-box me-1"></i> Supplier
+                        </a>
+                    </li>
                 </ul>
 
                 <ul class="navbar-nav">

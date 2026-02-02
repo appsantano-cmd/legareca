@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\shifting;
+use App\Models\Shifting;
 use App\Services\GoogleSheetsService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -32,7 +32,22 @@ class shiftingController extends Controller
 
     public function index()
     {
-        return view('shifting.index');
+        try {
+            $shiftings = Shifting::orderBy('created_at', 'desc')->get();
+            return view('shifting.index', compact('shiftings'));
+        } catch (\Exception $e) {
+            // Fallback ke query builder jika ada error
+            $shiftings = \Illuminate\Support\Facades\DB::table('shift_requests')
+                ->orderBy('created_at', 'desc')
+                ->get();
+
+            return view('shifting.index', compact('shiftings'));
+        }
+    }
+
+    public function create()
+    {
+        return view('shifting.create');
     }
 
     public function submit(Request $request, GoogleSheetsService $sheets)
@@ -105,7 +120,7 @@ class shiftingController extends Controller
         $sheets->append($orderedRow, 'Tukar Shift!A2');
 
         return redirect()
-            ->route('shifting.index')
+            ->route('shifting.create')
             ->with('success', 'Pengajuan tukar shift berhasil dikirim & tunggu konfirmasi.');
     }
 }
