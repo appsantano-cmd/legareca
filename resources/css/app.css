@@ -1,5 +1,12 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import './base/variable.css';
+@import './base/reset.css';
+@import './base/base.css';
 
-@import "./public.css";
+@import './shared/utilities.css';
+@import './shared/navbar.css';
+@import './shared/footer.css';
+
+@import './pages/welcome.css';
+@import './pages/art-gallery.css';
+@import './pages/art-gallery-show.css';
+            
