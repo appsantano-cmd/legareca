@@ -18,7 +18,7 @@ class ArtGalleryController extends Controller
 
     public function create()
     {
-        return view('art_gallery.pages.create');
+        return view('art-gallery.create');
     }
 
     public function store(Request $request)
@@ -77,6 +77,6 @@ class ArtGalleryController extends Controller
 
     public function show(ArtGallery $art)
     {
-        return view('art_gallery.pages.show', compact('art'));
+        return view('art-gallery.show', compact('art'));
     }
 }
