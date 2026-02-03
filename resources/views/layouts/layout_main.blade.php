@@ -12,7 +12,7 @@
 
     {{-- Vite --}}
     @vite([
-        'resources/css/public.css',
+        'resources/css/app.css',
         'resources/js/public.js'
     ])
 </head>
