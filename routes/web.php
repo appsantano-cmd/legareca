@@ -197,6 +197,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/', [PengajuanIzinController::class, 'index'])->name('index');
         Route::get('/create', [PengajuanIzinController::class, 'create'])->name('create');
         Route::post('/', [PengajuanIzinController::class, 'store'])->name('store');
+        Route::get('/export', [PengajuanIzinController::class, 'export'])->name('export');
     });
 
     // shifting Routes

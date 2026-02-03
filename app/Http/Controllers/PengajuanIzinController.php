@@ -6,6 +6,9 @@ use Illuminate\Support\Facades\DB;
 use App\Repositories\PengajuanIzinSheetRepository;
 use Illuminate\Http\Request;
 use App\Models\PengajuanIzin;
+use App\Exports\PengajuanIzinExport;
+use Maatwebsite\Excel\Facades\Excel;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class PengajuanIzinController extends Controller
 {
@@ -13,49 +16,49 @@ class PengajuanIzinController extends Controller
      * Tampilkan daftar pengajuan izin
      */
     public function index(Request $request)
-{
-    $query = PengajuanIzin::query();
-    
-    // Filter status
-    if ($request->status) {
-        $query->where('status', $request->status);
+    {
+        $query = PengajuanIzin::query();
+
+        // Filter status
+        if ($request->status) {
+            $query->where('status', $request->status);
+        }
+
+        // Search
+        if ($request->search) {
+            $query->where(function ($q) use ($request) {
+                $q->where('nama', 'like', "%{$request->search}%")
+                    ->orWhere('jenis_izin', 'like', "%{$request->search}%")
+                    ->orWhere('divisi', 'like', "%{$request->search}%");
+            });
+        }
+
+        // Filter tanggal mulai
+        if ($request->start_date) {
+            $query->whereDate('tanggal_mulai', '>=', $request->start_date);
+        }
+
+        // Filter tanggal selesai
+        if ($request->end_date) {
+            $query->whereDate('tanggal_selesai', '<=', $request->end_date);
+        }
+
+        // Statistics
+        $stats = [
+            'total' => PengajuanIzin::count(),
+            'pending' => PengajuanIzin::where('status', 'Pending')->count(),
+            'approved' => PengajuanIzin::where('status', 'Disetujui')->count(),
+            'rejected' => PengajuanIzin::where('status', 'Ditolak')->count(),
+        ];
+
+        // Sorting
+        $query->latest();
+
+        // Pagination
+        $izin = $query->paginate(10)->withQueryString();
+
+        return view('form_pengajuan_izin.pages.index', compact('izin', 'stats'));
     }
-    
-    // Search
-    if ($request->search) {
-        $query->where(function($q) use ($request) {
-            $q->where('nama', 'like', "%{$request->search}%")
-              ->orWhere('jenis_izin', 'like', "%{$request->search}%")
-              ->orWhere('divisi', 'like', "%{$request->search}%");
-        });
-    }
-    
-    // Filter tanggal mulai
-    if ($request->start_date) {
-        $query->whereDate('tanggal_mulai', '>=', $request->start_date);
-    }
-    
-    // Filter tanggal selesai
-    if ($request->end_date) {
-        $query->whereDate('tanggal_selesai', '<=', $request->end_date);
-    }
-    
-    // Statistics
-    $stats = [
-        'total' => PengajuanIzin::count(),
-        'pending' => PengajuanIzin::where('status', 'Pending')->count(),
-        'approved' => PengajuanIzin::where('status', 'Disetujui')->count(),
-        'rejected' => PengajuanIzin::where('status', 'Ditolak')->count(),
-    ];
-    
-    // Sorting
-    $query->latest();
-    
-    // Pagination
-    $izin = $query->paginate(10)->withQueryString();
-    
-    return view('form_pengajuan_izin.pages.index', compact('izin', 'stats'));
-}
 
 
     /**
@@ -127,5 +130,22 @@ class PengajuanIzinController extends Controller
             ->with('success', 'Pengajuan izin berhasil dikirim');
     }
 
+    /**
+     * Export data pengajuan izin ke Excel
+     */
+    public function export(Request $request): BinaryFileResponse
+    {
+        $filename = 'Pengajuan-Izin-' . date('d-m-Y') . '.xlsx';
+
+        return Excel::download(
+            new PengajuanIzinExport(
+                $request->status,
+                $request->search,
+                $request->start_date,
+                $request->end_date
+            ),
+            $filename
+        );
+    }
 
 }
