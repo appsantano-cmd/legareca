@@ -2,7 +2,7 @@
 
 @section('title', 'Legareca Cafe & Resto - Reservasi')
 
-@section('styles')
+@push('styles')
 <style>
     /* Reset untuk navbar */
     body {
@@ -361,94 +361,14 @@
         }
     }
 </style>
-@endsection
+@endpush
 
 @section('content')
 
-<!-- NAVBAR -->
-<nav class="fixed top-0 left-0 w-full bg-black/90 backdrop-blur-md border-b-2 border-red-500 shadow-lg z-50">
-    <div class="container mx-auto px-4 h-16 flex items-center justify-between">
-        <!-- Logo -->
-        <div class="flex items-center gap-3">
-            <div class="h-12 w-12 flex items-center justify-center bg-white rounded-xl shadow">
-                <img
-                    src="{{ asset('logo.png') }}"
-                    alt="logo"
-                    class="h-8 w-auto object-contain">
-            </div>
-            <span class="text-white text-xl font-semibold tracking-wide">
-                Legareca Cafe & Resto
-            </span>
-        </div>
-
-        <!-- Desktop Menu -->
-        <div class="hidden md:flex items-center space-x-8">
-            <a href="/" class="text-white hover:text-red-400 font-medium relative group transition-colors duration-300">
-                Beranda
-                <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-red-500 group-hover:w-full transition-all duration-300"></span>
-            </a>
-            <a href="#venue" class="text-white hover:text-red-400 font-medium relative group transition-colors duration-300">
-                Venue
-                <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-red-500 group-hover:w-full transition-all duration-300"></span>
-            </a>
-            <a href="/reservasi" class="text-white hover:text-red-400 font-medium relative group transition-colors duration-300">
-                Legareca Inn
-                <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-red-500 group-hover:w-full transition-all duration-300"></span>
-            </a>
-            <a href="{{ route('cafe-resto') }}" class="text-red-400 font-medium relative group transition-colors duration-300">
-                Cafe & Resto
-                <span class="absolute bottom-0 left-0 w-full h-0.5 bg-red-500"></span>
-            </a>
-            <a href="#gallery" class="text-white hover:text-red-400 font-medium relative group transition-colors duration-300">
-                Legareca Art Gallery
-                <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-red-500 group-hover:w-full transition-all duration-300"></span>
-            </a>
-            <a href="#pet" class="text-white hover:text-red-400 font-medium relative group transition-colors duration-300">
-                Legareca Pet
-                <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-red-500 group-hover:w-full transition-all duration-300"></span>
-            </a>
-
-            <a href="#contact" class="bg-gradient-to-r from-red-500 to-orange-500 text-white font-semibold px-6 py-2 rounded-full hover:from-red-600 hover:to-orange-600 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1">
-                HUBUNGI KAMI
-            </a>
-        </div>
-
-        <!-- Mobile Menu Button -->
-        <button class="md:hidden text-white p-2 hover:bg-white/10 rounded-lg transition-colors duration-300" id="mobileMenuBtn">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
-            </svg>
-        </button>
-    </div>
-
-    <!-- Mobile Menu -->
-    <div class="md:hidden absolute top-full left-0 w-full bg-black/95 backdrop-blur-lg border-t border-red-500/30 hidden" id="mobileMenu">
-        <div class="container mx-auto px-4 py-6 space-y-4">
-            <a href="/" class="block text-white hover:text-red-400 py-3 px-4 hover:bg-white/5 rounded-lg transition-colors duration-300">
-                Beranda
-            </a>
-            <a href="#venue" class="block text-white hover:text-red-400 py-3 px-4 hover:bg-white/5 rounded-lg transition-colors duration-300">
-                Venue
-            </a>
-            <a href="/reservasi" class="block text-white hover:text-red-400 py-3 px-4 hover:bg-white/5 rounded-lg transition-colors duration-300">
-                Legareca Inn
-            </a>
-            <a href="{{ route('cafe-resto') }}" class="block text-red-400 py-3 px-4 bg-white/5 rounded-lg transition-colors duration-300">
-                Cafe & Resto
-            </a>
-            <a href="#gallery" class="block text-white hover:text-red-400 py-3 px-4 hover:bg-white/5 rounded-lg transition-colors duration-300">
-                Legareca Art Gallery
-            </a>
-            <a href="#pet" class="block text-white hover:text-red-400 py-3 px-4 hover:bg-white/5 rounded-lg transition-colors duration-300">
-                Legareca Pet
-            </a>
-
-            <a href="#contact" class="block bg-gradient-to-r from-red-500 to-orange-500 text-white font-semibold py-3 px-6 rounded-full hover:from-red-600 hover:to-orange-600 transition-all duration-300 text-center mt-4">
-                HUBUNGI KAMI
-            </a>
-        </div>
-    </div>
-</nav>
+<!-- NAVBAR - Menggunakan Partial -->
+@include('partials.navbar', [
+    'active_page' => 'cafe-resto'  // Kirim parameter untuk halaman aktif
+])
 
 <!-- Hero Section -->
 <section class="cafe-hero text-center">
@@ -724,7 +644,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body p-4">
-                <!-- FORM TANPA ACTION DAN METHOD -->
+                <!-- FORM -->
                 <form id="reservationForm">
                     @csrf
                     
@@ -854,369 +774,9 @@
                         </ul>
                     </div>
                     
-                    <!-- Submit Button - GANTI TYPE DARI "submit" KE "button" -->
+                    <!-- Submit Button -->
                     <div class="text-center">
                         <button type="button" id="submitReservationBtn" class="btn btn-success btn-lg px-5 py-3 w-100">
-                            <i class="fas fa-paper-plane me-2"></i>Kirim Reservasi Sekarang
-                        </button>
-                    </div>
-                </form>
-                
-                <!-- Loading Indicator -->
-                <div id="loading" class="text-center d-none mt-4">
-                    <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
-                        <span class="visually-hidden">Loading...</span>
-                    </div>
-                    <p class="mt-3 text-muted">Mengirim reservasi...</p>
-                </div>
-                
-                <!-- Success Message -->
-                <div id="successMessage" class="alert alert-success d-none mt-4">
-                    <div class="d-flex align-items-center">
-                        <i class="fas fa-check-circle fa-2x me-3"></i>
-                        <div>
-                            <h5 class="alert-heading mb-2">Reservasi Berhasil!</h5>
-                            <p class="mb-1" id="successText"></p>
-                            <p class="mb-0">Anda akan diarahkan ke WhatsApp untuk konfirmasi.</p>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Error Message -->
-                <div id="errorMessage" class="alert alert-danger d-none mt-4">
-                    <div class="d-flex align-items-center">
-                        <i class="fas fa-exclamation-circle fa-2x me-3"></i>
-                        <div>
-                            <h5 class="alert-heading mb-2">Terjadi Kesalahan</h5>
-                            <p class="mb-0" id="errorText"></p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="reservationModalLabel">
-                    <i class="fas fa-utensils me-2"></i>Form Reservasi Meja
-                </h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body p-4">
-                <!-- FORM - HAPUS ACTION DAN METHOD -->
-                <form id="reservationForm">
-                    @csrf
-                    
-                    <!-- Table Selection -->
-                    <div class="mb-4">
-                        <label for="tableType" class="form-label fw-bold">Pilih Tipe Meja</label>
-                        <select class="form-select form-select-lg" id="tableType" name="table_type" required>
-                            <option value="">-- Pilih Tipe Meja --</option>
-                            <option value="Indoor Regular">Meja Indoor Regular</option>
-                            <option value="Indoor Premium">Meja Indoor Premium (Rp 50.000)</option>
-                            <option value="Outdoor Garden">Outdoor Garden (Rp 30.000)</option>
-                            <option value="Private Room">Private Room (Rp 150.000)</option>
-                        </select>
-                        <div class="invalid-feedback">Silakan pilih tipe meja.</div>
-                    </div>
-                    
-                    <!-- Date & Time -->
-                    <div class="row mb-4">
-                        <div class="col-md-6 mb-3">
-                            <label for="date" class="form-label fw-bold">Tanggal Reservasi</label>
-                            <div class="input-group">
-                                <span class="input-group-text bg-primary text-white">
-                                    <i class="fas fa-calendar-alt"></i>
-                                </span>
-                                <input type="date" class="form-control" id="date" name="date" required 
-                                       min="{{ date('Y-m-d') }}">
-                            </div>
-                            <div class="invalid-feedback">Silakan pilih tanggal.</div>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label for="time" class="form-label fw-bold">Waktu Reservasi</label>
-                            <div class="input-group">
-                                <span class="input-group-text bg-primary text-white">
-                                    <i class="fas fa-clock"></i>
-                                </span>
-                                <select class="form-select" id="time" name="time" required>
-                                    <option value="">-- Pilih Waktu --</option>
-                                    @for($i = 10; $i <= 21; $i++)
-                                        <option value="{{ sprintf('%02d:00', $i) }}">{{ sprintf('%02d:00', $i) }} WIB</option>
-                                        @if($i < 21)
-                                        <option value="{{ sprintf('%02d:30', $i) }}">{{ sprintf('%02d:30', $i) }} WIB</option>
-                                        @endif
-                                    @endfor
-                                </select>
-                            </div>
-                            <div class="invalid-feedback">Silakan pilih waktu.</div>
-                        </div>
-                    </div>
-                    
-                    <!-- Guests -->
-                    <div class="row mb-4">
-                        <div class="col-md-6">
-                            <label for="guests" class="form-label fw-bold">Jumlah Tamu</label>
-                            <select class="form-select" id="guests" name="guests" required>
-                                <option value="">-- Pilih Jumlah Tamu --</option>
-                                @for($i = 1; $i <= 20; $i++)
-                                    <option value="{{ $i }}" {{ $i == 2 ? 'selected' : '' }}>{{ $i }} orang</option>
-                                @endfor
-                            </select>
-                            <div class="invalid-feedback">Silakan pilih jumlah tamu.</div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="alert alert-info mb-0 h-100 d-flex align-items-center">
-                                <i class="fas fa-info-circle me-2"></i>
-                                Harga meja akan ditambahkan ke total pembayaran.
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Personal Information -->
-                    <h5 class="fw-bold mb-3 border-bottom pb-2">Data Diri</h5>
-                    
-                    <div class="row mb-4">
-                        <div class="col-md-6 mb-3">
-                            <label for="name" class="form-label fw-bold">Nama Lengkap</label>
-                            <div class="input-group">
-                                <span class="input-group-text bg-primary text-white">
-                                    <i class="fas fa-user"></i>
-                                </span>
-                                <input type="text" class="form-control" id="name" name="name" required 
-                                       placeholder="Nama sesuai KTP">
-                            </div>
-                            <div class="invalid-feedback">Silakan isi nama lengkap.</div>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label for="phone" class="form-label fw-bold">Nomor WhatsApp</label>
-                            <div class="input-group">
-                                <span class="input-group-text bg-success text-white">
-                                    <i class="fab fa-whatsapp"></i>
-                                </span>
-                                <input type="tel" class="form-control" id="phone" name="phone" required 
-                                       placeholder="628xxxxxxxxxx">
-                            </div>
-                            <div class="invalid-feedback">Silakan isi nomor WhatsApp yang valid.</div>
-                        </div>
-                    </div>
-                    
-                    <div class="mb-4">
-                        <label for="email" class="form-label fw-bold">Email</label>
-                        <div class="input-group">
-                            <span class="input-group-text bg-primary text-white">
-                                <i class="fas fa-envelope"></i>
-                            </span>
-                            <input type="email" class="form-control" id="email" name="email" required 
-                                   placeholder="email@anda.com">
-                        </div>
-                        <div class="invalid-feedback">Silakan isi email yang valid.</div>
-                    </div>
-                    
-                    <!-- Special Request -->
-                    <div class="mb-4">
-                        <label for="special_request" class="form-label fw-bold">Permintaan Khusus (Opsional)</label>
-                        <textarea class="form-control" id="special_request" name="special_request" 
-                                  rows="3" 
-                                  placeholder="Contoh: Perayaan ulang tahun, alergi makanan tertentu, kursi bayi, dll."></textarea>
-                    </div>
-                    
-                    <!-- Terms & Info -->
-                    <div class="alert alert-warning mb-4">
-                        <i class="fas fa-exclamation-triangle me-2"></i>
-                        <strong>Informasi Penting:</strong>
-                        <ul class="mb-0 mt-2">
-                            <li>Pastikan data yang Anda masukkan benar</li>
-                            <li>Reservasi akan dikonfirmasi via WhatsApp</li>
-                            <li>Meja hanya ditahan selama 15 menit</li>
-                            <li>Untuk pembatalan, harap hubungi kami minimal 2 jam sebelumnya</li>
-                        </ul>
-                    </div>
-                    
-                    <!-- Submit Button -->
-                    <div class="text-center">
-                        <button type="submit" class="btn btn-success btn-lg px-5 py-3 w-100">
-                            <i class="fas fa-paper-plane me-2"></i>Kirim Reservasi Sekarang
-                        </button>
-                    </div>
-                </form>
-                
-                <!-- Loading Indicator -->
-                <div id="loading" class="text-center d-none mt-4">
-                    <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
-                        <span class="visually-hidden">Loading...</span>
-                    </div>
-                    <p class="mt-3 text-muted">Mengirim reservasi...</p>
-                </div>
-                
-                <!-- Success Message -->
-                <div id="successMessage" class="alert alert-success d-none mt-4">
-                    <div class="d-flex align-items-center">
-                        <i class="fas fa-check-circle fa-2x me-3"></i>
-                        <div>
-                            <h5 class="alert-heading mb-2">Reservasi Berhasil!</h5>
-                            <p class="mb-1" id="successText"></p>
-                            <p class="mb-0">Anda akan diarahkan ke WhatsApp untuk konfirmasi.</p>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Error Message -->
-                <div id="errorMessage" class="alert alert-danger d-none mt-4">
-                    <div class="d-flex align-items-center">
-                        <i class="fas fa-exclamation-circle fa-2x me-3"></i>
-                        <div>
-                            <h5 class="alert-heading mb-2">Terjadi Kesalahan</h5>
-                            <p class="mb-0" id="errorText"></p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="reservationModalLabel">
-                    <i class="fas fa-utensils me-2"></i>Form Reservasi Meja
-                </h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body p-4">
-                <!-- FORM -->
-                <form id="reservationForm" action="{{ route('cafe-resto.reservation.store') }}" method="POST">
-                    @csrf
-                    
-                    <!-- Table Selection -->
-                    <div class="mb-4">
-                        <label for="tableType" class="form-label fw-bold">Pilih Tipe Meja</label>
-                        <select class="form-select form-select-lg" id="tableType" name="table_type" required>
-                            <option value="">-- Pilih Tipe Meja --</option>
-                            <option value="Indoor Regular">Meja Indoor Regular</option>
-                            <option value="Indoor Premium">Meja Indoor Premium (Rp 50.000)</option>
-                            <option value="Outdoor Garden">Outdoor Garden (Rp 30.000)</option>
-                            <option value="Private Room">Private Room (Rp 150.000)</option>
-                        </select>
-                        <div class="invalid-feedback">Silakan pilih tipe meja.</div>
-                    </div>
-                    
-                    <!-- Date & Time -->
-                    <div class="row mb-4">
-                        <div class="col-md-6 mb-3">
-                            <label for="date" class="form-label fw-bold">Tanggal Reservasi</label>
-                            <div class="input-group">
-                                <span class="input-group-text bg-primary text-white">
-                                    <i class="fas fa-calendar-alt"></i>
-                                </span>
-                                <input type="date" class="form-control" id="date" name="date" required 
-                                       min="{{ date('Y-m-d') }}">
-                            </div>
-                            <div class="invalid-feedback">Silakan pilih tanggal.</div>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label for="time" class="form-label fw-bold">Waktu Reservasi</label>
-                            <div class="input-group">
-                                <span class="input-group-text bg-primary text-white">
-                                    <i class="fas fa-clock"></i>
-                                </span>
-                                <select class="form-select" id="time" name="time" required>
-                                    <option value="">-- Pilih Waktu --</option>
-                                    @for($i = 10; $i <= 21; $i++)
-                                        <option value="{{ sprintf('%02d:00', $i) }}">{{ sprintf('%02d:00', $i) }} WIB</option>
-                                        @if($i < 21)
-                                        <option value="{{ sprintf('%02d:30', $i) }}">{{ sprintf('%02d:30', $i) }} WIB</option>
-                                        @endif
-                                    @endfor
-                                </select>
-                            </div>
-                            <div class="invalid-feedback">Silakan pilih waktu.</div>
-                        </div>
-                    </div>
-                    
-                    <!-- Guests -->
-                    <div class="row mb-4">
-                        <div class="col-md-6">
-                            <label for="guests" class="form-label fw-bold">Jumlah Tamu</label>
-                            <select class="form-select" id="guests" name="guests" required>
-                                <option value="">-- Pilih Jumlah Tamu --</option>
-                                @for($i = 1; $i <= 20; $i++)
-                                    <option value="{{ $i }}" {{ $i == 2 ? 'selected' : '' }}>{{ $i }} orang</option>
-                                @endfor
-                            </select>
-                            <div class="invalid-feedback">Silakan pilih jumlah tamu.</div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="alert alert-info mb-0 h-100 d-flex align-items-center">
-                                <i class="fas fa-info-circle me-2"></i>
-                                Harga meja akan ditambahkan ke total pembayaran.
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Personal Information -->
-                    <h5 class="fw-bold mb-3 border-bottom pb-2">Data Diri</h5>
-                    
-                    <div class="row mb-4">
-                        <div class="col-md-6 mb-3">
-                            <label for="name" class="form-label fw-bold">Nama Lengkap</label>
-                            <div class="input-group">
-                                <span class="input-group-text bg-primary text-white">
-                                    <i class="fas fa-user"></i>
-                                </span>
-                                <input type="text" class="form-control" id="name" name="name" required 
-                                       placeholder="Nama sesuai KTP">
-                            </div>
-                            <div class="invalid-feedback">Silakan isi nama lengkap.</div>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label for="phone" class="form-label fw-bold">Nomor WhatsApp</label>
-                            <div class="input-group">
-                                <span class="input-group-text bg-success text-white">
-                                    <i class="fab fa-whatsapp"></i>
-                                </span>
-                                <input type="tel" class="form-control" id="phone" name="phone" required 
-                                       placeholder="628xxxxxxxxxx">
-                            </div>
-                            <div class="invalid-feedback">Silakan isi nomor WhatsApp yang valid.</div>
-                        </div>
-                    </div>
-                    
-                    <div class="mb-4">
-                        <label for="email" class="form-label fw-bold">Email</label>
-                        <div class="input-group">
-                            <span class="input-group-text bg-primary text-white">
-                                <i class="fas fa-envelope"></i>
-                            </span>
-                            <input type="email" class="form-control" id="email" name="email" required 
-                                   placeholder="email@anda.com">
-                        </div>
-                        <div class="invalid-feedback">Silakan isi email yang valid.</div>
-                    </div>
-                    
-                    <!-- Special Request -->
-                    <div class="mb-4">
-                        <label for="special_request" class="form-label fw-bold">Permintaan Khusus (Opsional)</label>
-                        <textarea class="form-control" id="special_request" name="special_request" 
-                                  rows="3" 
-                                  placeholder="Contoh: Perayaan ulang tahun, alergi makanan tertentu, kursi bayi, dll."></textarea>
-                    </div>
-                    
-                    <!-- Terms & Info -->
-                    <div class="alert alert-warning mb-4">
-                        <i class="fas fa-exclamation-triangle me-2"></i>
-                        <strong>Informasi Penting:</strong>
-                        <ul class="mb-0 mt-2">
-                            <li>Pastikan data yang Anda masukkan benar</li>
-                            <li>Reservasi akan dikonfirmasi via WhatsApp</li>
-                            <li>Meja hanya ditahan selama 15 menit</li>
-                            <li>Untuk pembatalan, harap hubungi kami minimal 2 jam sebelumnya</li>
-                        </ul>
-                    </div>
-                    
-                    <!-- Submit Button -->
-                    <div class="text-center">
-                        <button type="submit" class="btn btn-success btn-lg px-5 py-3 w-100">
                             <i class="fas fa-paper-plane me-2"></i>Kirim Reservasi Sekarang
                         </button>
                     </div>
@@ -1263,24 +823,6 @@
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         console.log('Cafe Resto page loaded');
-        
-        // Mobile Menu Toggle
-        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
-        const mobileMenu = document.getElementById('mobileMenu');
-        
-        if (mobileMenuBtn && mobileMenu) {
-            mobileMenuBtn.addEventListener('click', function() {
-                mobileMenu.classList.toggle('hidden');
-            });
-            
-            document.addEventListener('click', function(event) {
-                if (!mobileMenu.contains(event.target) && 
-                    !mobileMenuBtn.contains(event.target) && 
-                    !mobileMenu.classList.contains('hidden')) {
-                    mobileMenu.classList.add('hidden');
-                }
-            });
-        }
         
         // Table Selection from Cards
         const tableButtons = document.querySelectorAll('[data-table-type]');
@@ -1360,7 +902,8 @@
                 // Phone validation
                 if (input.name === 'phone' && input.value.trim()) {
                     const phoneRegex = /^[0-9]{10,15}$/;
-                    if (!phoneRegex.test(input.value.trim())) {
+                    const phoneValue = input.value.trim().replace(/\D/g, '');
+                    if (!phoneRegex.test(phoneValue)) {
                         isValid = false;
                         input.classList.add('is-invalid');
                         if (!firstInvalidElement) firstInvalidElement = input;
@@ -1395,11 +938,20 @@
         
         // Submit button click handler
         const submitBtn = document.getElementById('submitReservationBtn');
+        const reservationForm = document.getElementById('reservationForm');
         
-        if (submitBtn) {
+        if (submitBtn && reservationForm) {
             submitBtn.addEventListener('click', async function(e) {
                 e.preventDefault();
                 console.log('Submit button clicked');
+                
+                // Collect form data for debugging
+                const formData = new FormData(reservationForm);
+                const formDataObj = {};
+                formData.forEach((value, key) => {
+                    formDataObj[key] = value;
+                });
+                console.log('Form data to be submitted:', formDataObj);
                 
                 // Validate form
                 if (!validateForm()) {
@@ -1424,75 +976,98 @@
                 successMessage.classList.add('d-none');
                 errorMessage.classList.add('d-none');
                 
-                // Collect form data
-                const formData = new FormData(document.getElementById('reservationForm'));
-                
-                // Add CSRF token
+                // Get CSRF token
                 const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content;
-                if (csrfToken) {
-                    formData.append('_token', csrfToken);
+                console.log('CSRF Token:', csrfToken);
+                
+                if (!csrfToken) {
+                    console.error('CSRF token not found!');
+                    alert('CSRF token tidak ditemukan. Silakan refresh halaman.');
+                    return false;
                 }
                 
-                console.log('Form data collected');
+                // Prepare data for submission
+                const data = {
+                    _token: csrfToken,
+                    name: document.getElementById('name').value,
+                    phone: document.getElementById('phone').value,
+                    email: document.getElementById('email').value,
+                    date: document.getElementById('date').value,
+                    time: document.getElementById('time').value,
+                    guests: document.getElementById('guests').value,
+                    table_type: document.getElementById('tableType').value,
+                    special_request: document.getElementById('special_request').value
+                };
+                
+                console.log('Data to send:', data);
                 
                 try {
-                    // Gunakan URL yang benar - HARUS /cafe-resto/reservation
                     const postUrl = '/cafe-resto/reservation';
                     console.log('Sending POST request to:', postUrl);
                     
-                    // Send request to correct route
                     const response = await fetch(postUrl, {
                         method: 'POST',
                         headers: {
+                            'Content-Type': 'application/json',
                             'Accept': 'application/json',
-                            'X-Requested-With': 'XMLHttpRequest'
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'X-CSRF-TOKEN': csrfToken
                         },
-                        body: formData
+                        body: JSON.stringify(data)
                     });
                     
                     console.log('Response status:', response.status);
-                    const data = await response.json();
-                    console.log('Response data:', data);
+                    
+                    let responseData;
+                    try {
+                        responseData = await response.json();
+                        console.log('Response data:', responseData);
+                    } catch (jsonError) {
+                        console.error('JSON parse error:', jsonError);
+                        const text = await response.text();
+                        console.error('Response text:', text);
+                        throw new Error('Invalid JSON response from server');
+                    }
                     
                     // Hide loading indicator
                     loadingIndicator.classList.add('d-none');
                     this.disabled = false;
                     this.innerHTML = '<i class="fas fa-paper-plane me-2"></i>Kirim Reservasi Sekarang';
                     
-                    if (data.success) {
+                    if (responseData.success) {
                         // Show success message
-                        document.getElementById('successText').textContent = data.message;
+                        document.getElementById('successText').textContent = responseData.message;
                         successMessage.classList.remove('d-none');
                         
                         // Scroll to success message
                         successMessage.scrollIntoView({ behavior: 'smooth' });
                         
                         // Reset form
-                        document.getElementById('reservationForm').reset();
+                        reservationForm.reset();
                         setDefaultFormValues();
                         
-                        // Redirect to WhatsApp after 3 seconds
+                        // Redirect to WhatsApp after 2 seconds
                         setTimeout(() => {
-                            if (data.whatsapp_url) {
-                                console.log('Redirecting to WhatsApp:', data.whatsapp_url);
-                                window.open(data.whatsapp_url, '_blank');
+                            if (responseData.whatsapp_url) {
+                                console.log('Opening WhatsApp URL:', responseData.whatsapp_url);
+                                window.open(responseData.whatsapp_url, '_blank');
                             }
                             
-                            // Close modal after 2 more seconds
+                            // Close modal after 3 seconds
                             setTimeout(() => {
                                 const modal = bootstrap.Modal.getInstance(document.getElementById('reservationModal'));
                                 if (modal) {
                                     modal.hide();
                                 }
-                            }, 2000);
-                        }, 3000);
+                            }, 3000);
+                        }, 2000);
                     } else {
                         // Show error message
-                        let errorText = data.message || 'Terjadi kesalahan. Silakan coba lagi.';
-                        if (data.errors) {
-                            errorText = 'Periksa kesalahan berikut: ';
-                            for (const [key, messages] of Object.entries(data.errors)) {
-                                errorText += messages.join(', ') + ' ';
+                        let errorText = responseData.message || 'Terjadi kesalahan. Silakan coba lagi.';
+                        if (responseData.errors) {
+                            errorText = 'Periksa kesalahan berikut: \n';
+                            for (const [key, messages] of Object.entries(responseData.errors)) {
+                                errorText += `• ${messages.join(', ')}\n`;
                             }
                         }
                         document.getElementById('errorText').textContent = errorText;
@@ -1517,7 +1092,6 @@
         }
         
         // Real-time validation for form fields
-        const reservationForm = document.getElementById('reservationForm');
         if (reservationForm) {
             reservationForm.querySelectorAll('input, select, textarea').forEach(input => {
                 input.addEventListener('blur', function() {

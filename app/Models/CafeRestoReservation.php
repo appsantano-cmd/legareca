@@ -23,5 +23,10 @@ class CafeRestoReservation extends Model
 
     protected $casts = [
         'date' => 'date',
+        'guests' => 'integer'
+    ];
+
+    protected $attributes = [
+        'status' => 'pending'
     ];
 }

@@ -2,7 +2,7 @@
 
 @section('title', 'Reservasi Legareca Inn')
 
-@section('styles')
+@push('styles')
 <style>
     /* Reset untuk memastikan navbar bekerja */
     body {
@@ -335,89 +335,12 @@
         }
     }
 </style>
-@endsection
+@endpush
 
 @section('content')
 
-<!-- NAVBAR DENGAN TAILWIND MURNI -->
-<nav class="fixed top-0 left-0 w-full bg-black/90 backdrop-blur-md border-b-2 border-red-500 shadow-lg z-50">
-    <div class="container mx-auto px-4 h-16 flex items-center justify-between">
-        <!-- Logo -->
-        <div class="flex items-center gap-3">
-            <div class="h-12 w-12 flex items-center justify-center bg-white rounded-xl shadow">
-                <img
-                    src="{{ asset('logo.png') }}"
-                    alt="logo"
-                    class="h-8 w-auto object-contain">
-            </div>
-            <span class="text-white text-xl font-semibold tracking-wide">
-                Legareca Inn
-            </span>
-        </div>
-
-
-
-        <!-- Desktop Menu -->
-        <div class="hidden md:flex items-center space-x-8">
-            <a href="/" class="text-white hover:text-red-400 font-medium relative group transition-colors duration-300">
-                Beranda
-                <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-red-500 group-hover:w-full transition-all duration-300"></span>
-            </a>
-            <a href="#venue" class="text-white hover:text-red-400 font-medium relative group transition-colors duration-300">
-                Venue
-                <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-red-500 group-hover:w-full transition-all duration-300"></span>
-            </a>
-            <a href="/reservasi" class="text-red-400 font-medium relative group transition-colors duration-300">
-                Legareca Inn
-                <span class="absolute bottom-0 left-0 w-full h-0.5 bg-red-500"></span>
-            </a>
-            <a href="#gallery" class="text-white hover:text-red-400 font-medium relative group transition-colors duration-300">
-                Legareca Art Gallery
-                <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-red-500 group-hover:w-full transition-all duration-300"></span>
-            </a>
-            <a href="#pet" class="text-white hover:text-red-400 font-medium relative group transition-colors duration-300">
-                Legareca Pet
-                <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-red-500 group-hover:w-full transition-all duration-300"></span>
-            </a>
-
-            <a href="#contact" class="bg-gradient-to-r from-red-500 to-orange-500 text-white font-semibold px-6 py-2 rounded-full hover:from-red-600 hover:to-orange-600 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1">
-                HUBUNGI KAMI
-            </a>
-        </div>
-
-        <!-- Mobile Menu Button -->
-        <button class="md:hidden text-white p-2 hover:bg-white/10 rounded-lg transition-colors duration-300" id="mobileMenuBtn">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
-            </svg>
-        </button>
-    </div>
-
-    <!-- Mobile Menu -->
-    <div class="md:hidden absolute top-full left-0 w-full bg-black/95 backdrop-blur-lg border-t border-red-500/30 hidden" id="mobileMenu">
-        <div class="container mx-auto px-4 py-6 space-y-4">
-            <a href="/" class="block text-white hover:text-red-400 py-3 px-4 hover:bg-white/5 rounded-lg transition-colors duration-300">
-                Beranda
-            </a>
-            <a href="#venue" class="block text-white hover:text-red-400 py-3 px-4 hover:bg-white/5 rounded-lg transition-colors duration-300">
-                Venue
-            </a>
-            <a href="/reservasi" class="block text-red-400 py-3 px-4 bg-white/5 rounded-lg transition-colors duration-300">
-                Legareca Inn
-            </a>
-            <a href="#gallery" class="block text-white hover:text-red-400 py-3 px-4 hover:bg-white/5 rounded-lg transition-colors duration-300">
-                Legareca Art Gallery
-            </a>
-            <a href="#pet" class="block text-white hover:text-red-400 py-3 px-4 hover:bg-white/5 rounded-lg transition-colors duration-300">
-                Legareca Pet
-            </a>
-
-            <a href="#contact" class="block bg-gradient-to-r from-red-500 to-orange-500 text-white font-semibold py-3 px-6 rounded-full hover:from-red-600 hover:to-orange-600 transition-all duration-300 text-center mt-4">
-                HUBUNGI KAMI
-            </a>
-        </div>
-    </div>
-</nav>
+<!-- Include Navbar dari partials -->
+@include('partials.navbar')
 
 <!-- Hero Section -->
 <section class="hero-section text-center pt-24 pb-3">

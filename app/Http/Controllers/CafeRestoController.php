@@ -6,6 +6,7 @@ use App\Models\CafeRestoReservation;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
 
 class CafeRestoController extends Controller
 {
@@ -16,74 +17,148 @@ class CafeRestoController extends Controller
 
     public function store(Request $request)
     {
-        Log::info('=== CAFE RESTO RESERVATION REQUEST ===');
-        Log::info('Request Data:', $request->all());
-        Log::info('IP Address:', [$request->ip()]);
+        // Mulai logging detail
+        Log::info('🚀 ========== CAFE RESTO RESERVATION REQUEST START ==========');
+        Log::info('📅 Timestamp: ' . now()->toDateTimeString());
+        
+        // Log semua informasi request
+        Log::info('📋 Request Method: ' . $request->method());
+        Log::info('🌐 URL: ' . $request->fullUrl());
+        Log::info('📍 IP: ' . $request->ip());
+        
+        // Cek apakah request adalah AJAX
+        Log::info('🔄 Is AJAX? ' . ($request->ajax() ? 'Yes' : 'No'));
+        Log::info('📦 Is JSON? ' . ($request->isJson() ? 'Yes' : 'No'));
+        
+        // Log semua input data
+        Log::info('📥 Request Data (all):', $request->all());
+        Log::info('📥 Request Data (input):', $request->input());
+        
+        // Log JSON content jika ada
+        if ($request->getContent()) {
+            Log::info('📄 Raw Content: ' . $request->getContent());
+        }
+        
+        // Cek CSRF token
+        $csrfToken = $request->input('_token') ?: $request->header('X-CSRF-TOKEN');
+        Log::info('🔐 CSRF Token from request: ' . ($csrfToken ? substr($csrfToken, 0, 20) . '...' : 'NOT FOUND'));
+        Log::info('🔐 Session CSRF Token: ' . substr(session()->token(), 0, 20) . '...');
+
+        // Validasi data
+        Log::info('🔍 Starting validation...');
         
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:100',
             'phone' => 'required|string|max:20',
             'email' => 'required|email|max:100',
-            'date' => 'required|date',
+            'date' => 'required|date|after_or_equal:today',
             'time' => 'required',
             'guests' => 'required|integer|min:1|max:20',
             'table_type' => 'required|string',
             'special_request' => 'nullable|string|max:500'
+        ], [
+            'date.after_or_equal' => 'Tanggal reservasi tidak boleh tanggal kemarin.',
+            'phone.required' => 'Nomor WhatsApp wajib diisi.',
+            'phone.max' => 'Nomor WhatsApp maksimal 20 digit.'
         ]);
 
         if ($validator->fails()) {
-            Log::error('Validation failed:', $validator->errors()->toArray());
+            Log::error('❌ VALIDATION FAILED:', $validator->errors()->toArray());
+            Log::error('📝 Failed Data:', $request->all());
+            
             return response()->json([
                 'success' => false,
-                'errors' => $validator->errors()
+                'errors' => $validator->errors(),
+                'message' => 'Validasi gagal. Silakan periksa data Anda.'
             ], 422);
         }
 
-        Log::info('Validation passed');
+        Log::info('✅ Validation passed successfully');
         
+        // Mulai transaksi database
+        DB::beginTransaction();
         try {
+            Log::info('💾 Starting database transaction...');
+            
+            // Validasi data sebelum save
+            $validatedData = $validator->validated();
+            Log::info('📋 Validated Data:', $validatedData);
+            
             // Simpan ke database
+            Log::info('💿 Creating reservation record...');
+            
             $reservation = CafeRestoReservation::create([
-                'name' => $request->name,
-                'phone' => $request->phone,
-                'email' => $request->email,
-                'date' => $request->date,
-                'time' => $request->time,
-                'guests' => $request->guests,
-                'table_type' => $request->table_type,
-                'special_request' => $request->special_request,
+                'name' => $validatedData['name'],
+                'phone' => $validatedData['phone'],
+                'email' => $validatedData['email'],
+                'date' => $validatedData['date'],
+                'time' => $validatedData['time'],
+                'guests' => $validatedData['guests'],
+                'table_type' => $validatedData['table_type'],
+                'special_request' => $validatedData['special_request'] ?? null,
                 'status' => 'pending'
             ]);
 
-            Log::info('Reservation saved to database:', [
+            Log::info('🎉 Reservation saved to database!');
+            Log::info('📊 Reservation Details:', [
                 'id' => $reservation->id,
                 'name' => $reservation->name,
                 'phone' => $reservation->phone,
-                'date' => $reservation->date
+                'email' => $reservation->email,
+                'date' => $reservation->date,
+                'time' => $reservation->time,
+                'guests' => $reservation->guests,
+                'table_type' => $reservation->table_type,
+                'created_at' => $reservation->created_at
             ]);
 
-            // Simpan ke Google Sheets (jika ada konfigurasi)
+            // Commit transaksi
+            DB::commit();
+            Log::info('✅ Database transaction committed');
+
+            // Simpan ke Google Sheets
+            Log::info('📊 Attempting to save to Google Sheets...');
             $this->saveToGoogleSheets($reservation);
 
             // Kirim WhatsApp ke admin
+            Log::info('📱 Preparing WhatsApp notifications...');
             $this->sendWhatsAppNotification($reservation);
 
-            Log::info('WhatsApp notification prepared');
+            // Generate WhatsApp URL untuk customer
+            $whatsappUrl = $this->generateWhatsAppUrl($reservation);
+            Log::info('🔗 WhatsApp URL generated: ' . $whatsappUrl);
+
+            Log::info('🎊 ========== RESERVATION SUCCESSFULLY PROCESSED ==========');
 
             return response()->json([
                 'success' => true,
                 'message' => '✅ Reservasi berhasil dibuat! Anda akan diarahkan ke WhatsApp untuk konfirmasi.',
-                'whatsapp_url' => $this->generateWhatsAppUrl($reservation),
-                'reservation_id' => 'CR' . str_pad($reservation->id, 6, '0', STR_PAD_LEFT)
+                'whatsapp_url' => $whatsappUrl,
+                'reservation_id' => 'CR' . str_pad($reservation->id, 6, '0', STR_PAD_LEFT),
+                'data' => [
+                    'name' => $reservation->name,
+                    'date' => $reservation->date->format('d/m/Y'),
+                    'time' => $reservation->time,
+                    'guests' => $reservation->guests
+                ]
             ]);
 
         } catch (\Exception $e) {
-            Log::error('Reservation error: ' . $e->getMessage());
-            Log::error('Error trace:', ['trace' => $e->getTraceAsString()]);
+            DB::rollBack();
+            
+            Log::error('💥 RESERVATION ERROR: ' . $e->getMessage());
+            Log::error('📝 Error Trace:', ['trace' => $e->getTraceAsString()]);
+            Log::error('📁 File: ' . $e->getFile());
+            Log::error('📍 Line: ' . $e->getLine());
             
             return response()->json([
                 'success' => false,
-                'message' => '❌ Terjadi kesalahan server. Silakan coba lagi atau hubungi kami via WhatsApp.'
+                'message' => '❌ Terjadi kesalahan server: ' . $e->getMessage(),
+                'error_details' => config('app.debug') ? [
+                    'message' => $e->getMessage(),
+                    'file' => $e->getFile(),
+                    'line' => $e->getLine()
+                ] : null
             ], 500);
         }
     }
@@ -91,19 +166,24 @@ class CafeRestoController extends Controller
     private function saveToGoogleSheets($reservation)
     {
         try {
+            Log::info('📊 Google Sheets: Starting...');
+            
             // Konfigurasi Google Sheets
             $spreadsheetId = env('GOOGLE_SHEETS_SPREADSHEET_ID');
             
             if (!$spreadsheetId) {
-                Log::warning('Google Sheets spreadsheet ID not configured');
+                Log::warning('📊 Google Sheets: Spreadsheet ID not configured in .env');
+                Log::info('📊 Google Sheets: Set GOOGLE_SHEETS_SPREADSHEET_ID in .env file');
                 return;
             }
+            
+            Log::info('📊 Google Sheets: Spreadsheet ID found: ' . substr($spreadsheetId, 0, 10) . '...');
             
             $sheetName = 'Reservasi Cafe & Resto';
             
             $data = [
                 [
-                    date('Y-m-d H:i:s'), // Timestamp
+                    now()->format('Y-m-d H:i:s'), // Timestamp
                     $reservation->name,
                     $reservation->phone,
                     $reservation->email,
@@ -117,26 +197,33 @@ class CafeRestoController extends Controller
                 ]
             ];
 
+            Log::info('📊 Google Sheets: Data prepared:', $data[0]);
+
             // Jika menggunakan revolution/laravel-google-sheets
             if (class_exists('Revolution\Google\Sheets\Facades\Sheets')) {
+                Log::info('📊 Google Sheets: Package found, attempting to save...');
+                
                 \Revolution\Google\Sheets\Facades\Sheets::spreadsheet($spreadsheetId)
                     ->sheet($sheetName)
                     ->append($data);
                     
-                Log::info('Data saved to Google Sheets');
+                Log::info('✅ Google Sheets: Data saved successfully!');
             } else {
-                Log::info('Google Sheets data prepared but package not installed:', $data);
+                Log::info('⚠️ Google Sheets: Package not installed (revolution/laravel-google-sheets)');
+                Log::info('💡 Install with: composer require revolution/laravel-google-sheets');
             }
 
         } catch (\Exception $e) {
-            Log::error('Google Sheets error: ' . $e->getMessage());
-            // Jangan throw error agar proses bisa lanjut
+            Log::error('❌ Google Sheets Error: ' . $e->getMessage());
+            Log::error('📝 Google Sheets Trace:', ['trace' => $e->getTraceAsString()]);
         }
     }
 
     private function sendWhatsAppNotification($reservation)
     {
         try {
+            Log::info('📱 WhatsApp: Preparing notification for admin...');
+            
             // Format pesan WhatsApp untuk admin
             $adminPhone = '6281328897679'; // Ganti dengan nomor admin sebenarnya
             $message = "*📋 RESERVASI BARU - LEGARECA CAFE & RESTO*%0A%0A" .
@@ -154,20 +241,24 @@ class CafeRestoController extends Controller
                 "🕐 Waktu Reservasi: " . $reservation->created_at->format('d/m/Y H:i') . "%0A%0A" .
                 "_⚠️ Silakan konfirmasi reservasi ini segera._";
 
-            // Simpan ke log
-            Log::info('WhatsApp message for admin prepared');
-            Log::info('Admin WhatsApp URL: https://wa.me/' . $adminPhone . '?text=' . urlencode($message));
+            // URL WhatsApp untuk admin
+            $adminWhatsAppUrl = "https://wa.me/" . $adminPhone . "?text=" . $message;
+            
+            Log::info('📱 WhatsApp: Admin notification prepared');
+            Log::info('🔗 WhatsApp Admin URL: ' . $adminWhatsAppUrl);
 
-            // Anda bisa mengintegrasikan dengan WhatsApp API di sini
-            // Contoh: Twilio, WhatsApp Business API, dll.
+            // Catat saja untuk sekarang, bisa diintegrasikan dengan API nanti
+            Log::info('📱 WhatsApp: Notification ready - integrate with WhatsApp API if needed');
 
         } catch (\Exception $e) {
-            Log::error('WhatsApp notification error: ' . $e->getMessage());
+            Log::error('❌ WhatsApp Notification Error: ' . $e->getMessage());
         }
     }
 
     private function generateWhatsAppUrl($reservation)
     {
+        Log::info('📱 WhatsApp: Generating URL for customer...');
+        
         // Format pesan untuk pelanggan
         $customerMessage = "*✅ KONFIRMASI RESERVASI - LEGARECA CAFE & RESTO*%0A%0A" .
             "Halo " . $reservation->name . ",%0A%0A" .
@@ -186,6 +277,13 @@ class CafeRestoController extends Controller
             "• Lokasi: Jl. Padokan Baru No.B789, Jogonalan Lor, Tirtonirmolo, Kasihan, Bantul, Yogyakarta 55181%0A%0A" .
             "_🍽️ Kami tunggu kedatangan Anda!%0ASalam hangat,%0ATim Legareca Cafe & Resto_";
 
-        return "https://wa.me/" . $reservation->phone . "?text=" . urlencode($customerMessage);
+        // URL WhatsApp untuk pelanggan
+        $whatsappUrl = "https://wa.me/" . $reservation->phone . "?text=" . $customerMessage;
+        
+        Log::info('📱 WhatsApp: URL generated for customer');
+        Log::info('📱 Customer Phone: ' . $reservation->phone);
+        Log::info('🔗 WhatsApp URL (truncated): ' . substr($whatsappUrl, 0, 100) . '...');
+
+        return $whatsappUrl;
     }
 }
