@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,98 +8,107 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css">
-    
+
     <style>
         body {
             background-color: #f8f9fa;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
+
         .navbar {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
         }
+
         .card {
             border: none;
             border-radius: 15px;
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
             transition: transform 0.3s ease;
         }
+
         .card:hover {
             transform: translateY(-5px);
         }
+
         .stat-card {
             border-radius: 12px;
             overflow: hidden;
         }
+
         .stat-icon {
             font-size: 2.5rem;
             opacity: 0.8;
         }
+
         .badge-completed {
             background-color: #28a745;
             color: white;
         }
+
         .badge-pending {
             background-color: #ffc107;
             color: #212529;
         }
+
         .badge-cancelled {
             background-color: #dc3545;
             color: white;
         }
+
         .table th {
             background-color: #f1f3f9;
             border-top: none;
             font-weight: 600;
             color: #495057;
         }
+
         .table tbody tr {
             transition: background-color 0.2s;
         }
+
         .table tbody tr:hover {
             background-color: rgba(102, 126, 234, 0.05);
         }
+
         .filter-section {
             background: white;
             border-radius: 10px;
             padding: 20px;
             margin-bottom: 20px;
         }
+
         .btn-primary {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             border: none;
             border-radius: 8px;
             padding: 8px 20px;
         }
+
         .btn-export {
             background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
             border: none;
             color: white;
             border-radius: 8px;
         }
+
         .editable {
             cursor: pointer;
             border-bottom: 1px dashed #667eea;
         }
+
         .editable:hover {
             background-color: rgba(102, 126, 234, 0.1);
         }
     </style>
 </head>
+
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark mb-4">
         <div class="container">
             <a class="navbar-brand fw-bold" href="#">
                 <i class="fas fa-broom me-2"></i>Dashboard Cleaning Report
             </a>
-            <div class="navbar-nav ms-auto">
-                <a class="nav-link" href="{{ route('cleaning-report.index') }}">
-                    <i class="fas fa-plus-circle me-1"></i>Input Data Baru
-                </a>
-                <span class="nav-link">
-                    <i class="fas fa-user me-1"></i>{{ auth()->user()->name ?? 'Admin' }}
-                </span>
-            </div>
         </div>
     </nav>
 
@@ -111,6 +121,9 @@
                 <p class="text-muted mb-0">Kelola dan pantau semua data laporan cleaning</p>
             </div>
             <div>
+                <a href="{{ route('dashboard') }}" class="btn btn-primary">
+                    <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                </a>
                 <a href="{{ route('cleaning-report.data.export') }}" class="btn btn-export me-2">
                     <i class="fas fa-file-export me-2"></i>Export Excel
                 </a>
@@ -129,7 +142,8 @@
                 <div class="col-md-6">
                     <label class="form-label">Cari</label>
                     <div class="input-group">
-                        <input type="text" class="form-control" id="searchInput" placeholder="Cari nama, departemen...">
+                        <input type="text" class="form-control" id="searchInput"
+                            placeholder="Cari nama, departemen...">
                         <button class="btn btn-primary" id="searchBtn">
                             <i class="fas fa-search"></i>
                         </button>
@@ -192,35 +206,35 @@
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    
+
     <script>
         $(document).ready(function() {
             loadStats();
             loadData();
-            
+
             $('#searchBtn').click(function() {
                 loadData();
             });
-            
+
             $('#refreshBtn').click(function() {
                 loadStats();
                 loadData();
             });
-            
+
             $('#filterStatus').change(function() {
                 loadData();
             });
-            
+
             $('#searchInput').keypress(function(e) {
                 if (e.which === 13) {
                     loadData();
                 }
             });
         });
-        
+
         function loadStats() {
             $.ajax({
-                url: '{{ route("cleaning-report.data.stats") }}',
+                url: '{{ route('cleaning-report.data.stats') }}',
                 type: 'GET',
                 success: function(response) {
                     if (response.success) {
@@ -229,7 +243,7 @@
                 }
             });
         }
-        
+
         function renderStats(stats) {
             const statsHtml = `
                 <div class="col-md-3">
@@ -285,16 +299,16 @@
                     </div>
                 </div>
             `;
-            
+
             $('#statsContainer').html(statsHtml);
         }
-        
+
         function loadData(page = 1) {
             const search = $('#searchInput').val();
             const status = $('#filterStatus').val();
-            
+
             $.ajax({
-                url: '{{ route("cleaning-report.data.get") }}',
+                url: '{{ route('cleaning-report.data.get') }}',
                 type: 'GET',
                 data: {
                     page: page,
@@ -310,11 +324,11 @@
                 }
             });
         }
-        
+
         function renderTable(data) {
             const tbody = $('#tableBody');
             tbody.empty();
-            
+
             if (data.length === 0) {
                 tbody.html(`
                     <tr>
@@ -326,13 +340,13 @@
                 `);
                 return;
             }
-            
+
             data.forEach(function(item) {
-                const statusClass = item.status === 'completed' ? 'badge-completed' : 
-                                  item.status === 'pending' ? 'badge-pending' : 'badge-cancelled';
-                const statusText = item.status === 'completed' ? 'Selesai' : 
-                                 item.status === 'pending' ? 'Pending' : 'Dibatalkan';
-                
+                const statusClass = item.status === 'completed' ? 'badge-completed' :
+                    item.status === 'pending' ? 'badge-pending' : 'badge-cancelled';
+                const statusText = item.status === 'completed' ? 'Selesai' :
+                    item.status === 'pending' ? 'Pending' : 'Dibatalkan';
+
                 const row = `
                     <tr>
                         <td class="fw-bold">#${item.id}</td>
@@ -342,8 +356,8 @@
                         <td>
                             ${item.foto_path ? 
                                 `<a href="/${item.foto_path}" target="_blank" class="btn btn-sm btn-outline-info">
-                                    <i class="fas fa-eye"></i> Lihat
-                                </a>` : 
+                                        <i class="fas fa-eye"></i> Lihat
+                                    </a>` : 
                                 '<span class="text-muted">Tidak ada</span>'}
                         </td>
                         <td>
@@ -359,18 +373,18 @@
                         </td>
                     </tr>
                 `;
-                
+
                 tbody.append(row);
             });
         }
-        
+
         function editField(id, field) {
             const currentValue = $(`td:contains(${id})`).next().text().trim();
             const newValue = prompt(`Edit ${field}:`, currentValue);
-            
+
             if (newValue !== null && newValue !== currentValue) {
                 $.ajax({
-                    url: '{{ route("cleaning-report.data.update") }}',
+                    url: '{{ route('cleaning-report.data.update') }}',
                     type: 'POST',
                     data: {
                         _token: '{{ csrf_token() }}',
@@ -387,11 +401,11 @@
                 });
             }
         }
-        
+
         function deleteData(id) {
             if (confirm('Apakah Anda yakin ingin menghapus data ini?')) {
                 $.ajax({
-                    url: '{{ route("cleaning-report.data.delete") }}',
+                    url: '{{ route('cleaning-report.data.delete') }}',
                     type: 'POST',
                     data: {
                         _token: '{{ csrf_token() }}',
@@ -407,23 +421,23 @@
                 });
             }
         }
-        
+
         function renderPagination(response) {
             const pagination = $('#pagination');
             const info = $('#paginationInfo');
-            
+
             pagination.empty();
-            
+
             if (response.total === 0) {
                 info.text('Menampilkan 0 dari 0 data');
                 return;
             }
-            
+
             const start = ((response.current_page - 1) * response.per_page) + 1;
             const end = Math.min(response.current_page * response.per_page, response.total);
-            
+
             info.text(`Menampilkan ${start} - ${end} dari ${response.total} data`);
-            
+
             // Previous button
             if (response.current_page > 1) {
                 pagination.append(`
@@ -434,7 +448,7 @@
                     </li>
                 `);
             }
-            
+
             // Page numbers
             for (let i = 1; i <= response.last_page; i++) {
                 const active = i === response.current_page ? 'active' : '';
@@ -444,7 +458,7 @@
                     </li>
                 `);
             }
-            
+
             // Next button
             if (response.current_page < response.last_page) {
                 pagination.append(`
@@ -458,4 +472,5 @@
         }
     </script>
 </body>
+
 </html>

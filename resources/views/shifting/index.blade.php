@@ -188,10 +188,10 @@
                 </div>
                 <div class="col-md-4 text-end">
                     <a href="{{ route('dashboard') }}" class="btn-new">
-                        <i class="fas fa-plus-circle"></i> Dashboard
+                        <i class="fas fa-tachometer-alt me-2"></i>Dashboard
                     </a>
                     <a href="{{ route('shifting.create') }}" class="btn-new">
-                        <i class="fas fa-plus-circle"></i> Ajukan Shift Baru
+                        <i class="fas fa-plus-circle me-2"></i>Ajukan Shift Baru
                     </a>
                 </div>
             </div>

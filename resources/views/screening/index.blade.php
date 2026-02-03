@@ -120,7 +120,7 @@
             padding: 5px 10px;
             margin: 2px;
         }
-        
+
         .export-loading {
             display: none;
             position: fixed;
@@ -128,19 +128,19 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0,0,0,0.7);
+            background: rgba(0, 0, 0, 0.7);
             z-index: 9999;
             justify-content: center;
             align-items: center;
         }
-        
+
         .export-loading-content {
             background: white;
             padding: 30px;
             border-radius: 10px;
             text-align: center;
         }
-        
+
         .spinner-border {
             width: 3rem;
             height: 3rem;
@@ -165,7 +165,7 @@
         <div class="container">
         </div>
     </nav>
-    
+
     <div class="container">
         <!-- Header -->
         <div class="d-flex justify-content-between align-items-center mb-4">
@@ -176,12 +176,15 @@
                 <p class="text-muted mb-0">Kelola dan pantau semua data screening pasien</p>
             </div>
             <div>
-                <a href="{{ route('dashboard') }}" class="btn btn-export">
-                    <i class="fas fa-file-export me-2"></i>Dashboard
+                <a href="{{ route('dashboard') }}" class="btn btn-primary">
+                    <i class="fas fa-tachometer-alt me-2"></i>Dashboard
                 </a>
                 <button type="button" class="btn btn-success" id="exportExcelBtn">
                     <i class="fas fa-file-excel me-2"></i>Export Excel
                 </button>
+                <a href="{{ route('screening.welcome') }}" class="btn btn-success">
+                    <i class="fas fa-plus me-2"></i>Tambah Screening
+                </a>
             </div>
         </div>
 
@@ -465,22 +468,22 @@
             $('#exportExcelBtn').click(function() {
                 // Ambil semua parameter filter dari form
                 const formData = $('#filterForm').serialize();
-                
+
                 // Tampilkan loading
                 $('#exportLoading').show();
-                
+
                 // Buat URL untuk export dengan parameter filter
-                const exportUrl = '{{ route("screening.export") }}?' + formData;
-                
+                const exportUrl = '{{ route('screening.export') }}?' + formData;
+
                 // Redirect ke URL export
                 window.location.href = exportUrl;
-                
+
                 // Sembunyikan loading setelah 3 detik (fallback)
                 setTimeout(function() {
                     $('#exportLoading').hide();
                 }, 3000);
             });
-            
+
             // Sembunyikan loading jika user kembali ke halaman
             $(window).on('pageshow', function() {
                 $('#exportLoading').hide();
