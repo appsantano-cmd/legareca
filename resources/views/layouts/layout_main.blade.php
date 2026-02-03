@@ -13,7 +13,7 @@
     {{-- Vite --}}
     @vite([
         'resources/css/app.css',
-        'resources/js/public.js'
+        'resources/js/app.js'
     ])
 </head>
 <body class="antialiased text-gray-800">
