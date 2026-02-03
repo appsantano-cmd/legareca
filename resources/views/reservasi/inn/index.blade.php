@@ -143,12 +143,28 @@
     .booking-btn {
         background: linear-gradient(135deg, #ff7a18, #ff3d00);
         color: #ffffff;
+        padding: 14px 28px;
+        border-radius: 10px;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        font-weight: 600;
+        border: none;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(255, 61, 0, 0.3);
+        flex: 1;
+        cursor: pointer;
     }
 
     .booking-btn:hover {
         background: linear-gradient(135deg, #ff6a00, #e53935);
         color: #ffffff;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(255, 61, 0, 0.4);
     }
+
 
 
     .section-title {

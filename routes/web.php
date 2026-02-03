@@ -251,7 +251,6 @@ Route::middleware('auth')->group(function () {
     });
 
     // Venue Booking Routes
-
     Route::get('/venue', [VenueBookingController::class, 'index'])->name('venue.index');
     Route::post('/venue/step', [VenueBookingController::class, 'handleStep'])->name('venue.step');
     Route::post('/venue/submit', [VenueBookingController::class, 'submitBooking'])->name('venue.submit');

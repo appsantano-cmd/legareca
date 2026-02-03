@@ -1,37 +1,38 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@yield('title', 'Legareca Space')</title>
-    
+
     <!-- Favicon -->
     <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
-    
+
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600" rel="stylesheet" />
-    
+
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    
+
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
+
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    
+
     {{-- Vite --}}
     @vite([
-        'resources/css/public.css',
-        'resources/js/public.js'
+    'resources/css/public.css',
+    'resources/js/public.js'
     ])
-    
+
     {{-- Stack untuk page-specific styles --}}
     @stack('styles')
-    
+
     <!-- Custom CSS -->
     <style>
         :root {
@@ -39,25 +40,104 @@
             --secondary-color: #2a9d8f;
             --accent-color: #e76f51;
         }
-        
+
         body {
             font-family: 'Inter', sans-serif;
             background-color: #f8fafc;
             color: #333;
             padding-top: 0 !important;
         }
-        
+
         /* Pastikan konten tidak tertutup navbar */
         main {
-            min-height: calc(100vh - 200px); /* Sesuaikan dengan tinggi footer */
-            padding-top: 4rem; /* Sesuaikan dengan tinggi navbar */
+            min-height: calc(100vh - 200px);
+            /* Sesuaikan dengan tinggi footer */
+            padding-top: 4rem;
+            /* Sesuaikan dengan tinggi navbar */
         }
-        
+
         /* Override untuk navbar agar tidak double */
         nav.navbar {
             display: none !important;
         }
-        
+
+        /* =====================
+   NAVBAR PREMIUM
+===================== */
+        .nav-overlay {
+            background: linear-gradient(135deg,
+                    rgba(10, 25, 47, 0.95),
+                    rgba(15, 23, 42, 0.92));
+            backdrop-filter: blur(10px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+            transition: all 0.3s ease;
+        }
+
+        /* Logo */
+        .nav-logo {
+            filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.4));
+            transition: transform 0.3s ease;
+        }
+
+        .nav-logo:hover {
+            transform: scale(1.05);
+        }
+
+        /* Menu item */
+        .nav-item {
+            position: relative;
+            color: #ffffff;
+            font-weight: 500;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+        }
+
+        .nav-item::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            bottom: -6px;
+            width: 0%;
+            height: 2px;
+            background: linear-gradient(90deg, #ef4444, #f97316);
+            transition: width 0.3s ease;
+        }
+
+        .nav-item:hover {
+            color: #f97316;
+        }
+
+        .nav-item:hover::after {
+            width: 100%;
+        }
+
+        /* Button */
+        .nav-button {
+            padding: 10px 18px;
+            border-radius: 999px;
+            background: linear-gradient(135deg, #ef4444, #f97316);
+            color: white;
+            font-weight: 600;
+            font-size: 0.85rem;
+            box-shadow: 0 6px 18px rgba(239, 68, 68, 0.45);
+            transition: all 0.3s ease;
+        }
+
+        .nav-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 28px rgba(249, 115, 22, 0.6);
+        }
+
+        /* Mobile button */
+        .mobile-menu-btn svg {
+            transition: transform 0.3s ease;
+        }
+
+        .mobile-menu-btn:hover svg {
+            transform: scale(1.1);
+        }
+
+
         /* Navbar baru styling */
         .legareca-navbar {
             z-index: 9999;
@@ -65,18 +145,18 @@
             backdrop-filter: blur(10px);
             border-bottom: 2px solid #e53e3e;
         }
-        
+
         /* Logo styling */
         .logo-img {
             height: 40px;
             width: auto;
             transition: transform 0.3s ease;
         }
-        
+
         .logo-img:hover {
             transform: scale(1.05);
         }
-        
+
         /* Nav link styling */
         .nav-link-custom {
             position: relative;
@@ -85,15 +165,15 @@
             padding: 8px 16px;
             transition: all 0.3s ease;
         }
-        
+
         .nav-link-custom:hover {
             color: #fbb6ce !important;
         }
-        
+
         .nav-link-custom.active {
             color: #fbb6ce !important;
         }
-        
+
         .nav-link-custom.active::after {
             content: '';
             position: absolute;
@@ -103,7 +183,7 @@
             height: 2px;
             background-color: #fbb6ce;
         }
-        
+
         /* Mobile menu button */
         .mobile-menu-btn {
             color: white;
@@ -111,49 +191,50 @@
             border-radius: 8px;
             transition: background-color 0.3s ease;
         }
-        
+
         .mobile-menu-btn:hover {
             background-color: rgba(255, 255, 255, 0.1);
         }
-        
+
         /* Footer styling */
         .main-footer {
             background-color: #1a202c;
             color: #cbd5e0;
             border-top: 1px solid #2d3748;
         }
-        
+
         .footer-link {
             color: #cbd5e0;
             text-decoration: none;
             transition: color 0.3s ease;
         }
-        
+
         .footer-link:hover {
             color: white;
         }
-        
+
         /* Responsive adjustments */
         @media (max-width: 768px) {
             main {
                 padding-top: 3.5rem;
             }
-            
+
             .logo-img {
                 height: 35px;
             }
         }
-        
+
         /* Animations */
         .animate-fade-in {
             animation: fadeIn 0.5s ease-in;
         }
-        
+
         @keyframes fadeIn {
             from {
                 opacity: 0;
                 transform: translateY(10px);
             }
+
             to {
                 opacity: 1;
                 transform: translateY(0);
@@ -161,6 +242,7 @@
         }
     </style>
 </head>
+
 <body class="antialiased text-gray-800">
     <!-- Navbar -->
     @include('partials.navbar')
@@ -175,8 +257,9 @@
 
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    
+
     <!-- Stack untuk page-specific scripts -->
     @stack('scripts')
 </body>
+
 </html>
