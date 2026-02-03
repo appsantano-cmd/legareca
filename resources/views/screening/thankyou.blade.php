@@ -44,6 +44,15 @@
             Enjoy Le Gareca Space!
         </p>
 
+        <div class="mt-6 flex justify-center">
+            <a href="{{ route('screening.review-data') }}"
+                class="bg-[#F87171] text-white px-6 py-3 rounded-full shadow-lg
+               text-sm md:text-base font-bold
+               hover:bg-[#ef4444] hover:scale-105 transition duration-200"
+                style="font-family: Arial Black, Arial, sans-serif;">
+                Review Data
+            </a>
+        </div>
     </div>
 
     <!-- Paw decoration (optional) -->

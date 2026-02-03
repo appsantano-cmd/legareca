@@ -7,6 +7,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Revolution\Google\Sheets\Facades\Sheets;
 use Illuminate\Support\Facades\Mail;
+use App\Exports\ScreeningsExport;
+use Maatwebsite\Excel\Facades\Excel;
 
 use App\Models\Screening;
 use App\Models\ScreeningPet;
@@ -148,17 +150,29 @@ class ScreeningController extends Controller
         // 1. Ambil data dari request
         $petsData = $request->input('pets', []);
 
-        // 2. Cek apakah ada pet yang memilih "Tidak Jadi Periksa"
+        // 2. Cek apakah ada pet yang memilih "Tidak Jadi Periksa" atau Positif 2/3 untuk kutu atau Positif untuk birahi
         $cancelReasons = [];
         $hasCancelled = false;
+        $forceCancelled = false;
 
         if ($request->has('pets')) {
             \Log::info('Checking for cancelled selections...');
             foreach ($request->pets as $petIndex => $petData) {
                 \Log::info("Pet {$petIndex} data:", $petData);
 
-                // Cek kutu
-                if (isset($petData['kutu_action']) && $petData['kutu_action'] === 'tidak_periksa') {
+                // Cek kutu: Positif 2 atau Positif 3 -> langsung cancel
+                if (isset($petData['kutu']) && in_array($petData['kutu'], ['Positif 2', 'Positif 3'])) {
+                    \Log::info("Pet {$petIndex}: Kutu Positif 2/3 found! Auto cancelled.");
+                    $hasCancelled = true;
+                    $forceCancelled = true;
+                    $cancelReasons[] = [
+                        'pet_index' => $petIndex,
+                        'pet_name' => session('pets')[$petIndex]['name'] ?? 'Anabul ' . ($petIndex + 1),
+                        'reason' => 'Kutu ' . $petData['kutu'] . ' (langsung dibatalkan)'
+                    ];
+                }
+                // Cek kutu: Positif dengan pilihan tidak_periksa
+                elseif (isset($petData['kutu_action']) && $petData['kutu_action'] === 'tidak_periksa') {
                     \Log::info("Pet {$petIndex}: Kutu tidak_periksa found!");
                     $hasCancelled = true;
                     $cancelReasons[] = [
@@ -168,23 +182,25 @@ class ScreeningController extends Controller
                     ];
                 }
 
-                // Cek birahi
-                if (isset($petData['birahi_action']) && $petData['birahi_action'] === 'tidak_periksa') {
-                    \Log::info("Pet {$petIndex}: Birahi tidak_periksa found!");
+                // Cek birahi: Positif -> langsung cancel (tidak ada pilihan)
+                if (isset($petData['birahi']) && $petData['birahi'] === 'Positif') {
+                    \Log::info("Pet {$petIndex}: Birahi positif found! Auto cancelled.");
                     $hasCancelled = true;
+                    $forceCancelled = true;
                     $cancelReasons[] = [
                         'pet_index' => $petIndex,
                         'pet_name' => session('pets')[$petIndex]['name'] ?? 'Anabul ' . ($petIndex + 1),
-                        'reason' => 'Birahi positif'
+                        'reason' => 'Birahi positif (langsung dibatalkan)'
                     ];
                 }
             }
         }
 
         \Log::info('Has cancelled: ' . ($hasCancelled ? 'YES' : 'NO'));
+        \Log::info('Force cancelled: ' . ($forceCancelled ? 'YES' : 'NO'));
 
         // ========== CEK APAKAH ADA FORCE CANCELLED ==========
-        if ($request->has('force_cancelled') && $request->force_cancelled === 'true') {
+        if ($forceCancelled || ($request->has('force_cancelled') && $request->force_cancelled === 'true')) {
             \Log::info('=== FORCE CANCELLED DETECTED ===');
 
             // Simpan semua data yang ada ke session TANPA NORMALISASI
@@ -221,9 +237,9 @@ class ScreeningController extends Controller
             return redirect()->route('screening.cancelled');
         }
 
-        // 3. Jika ada yang dibatalkan (normal flow - ketika user klik NEXT)
+        // 3. Jika ada yang dibatalkan (normal flow - ketika user klik NEXT untuk kutu positif pilihan tidak_periksa)
         if ($hasCancelled) {
-            \Log::info('=== NORMAL CANCELLED FLOW ===');
+            \Log::info('=== NORMAL CANCELLED FLOW (kutu positif pilihan tidak_periksa) ===');
 
             // Simpan data ke session TANPA NORMALISASI
             $screeningData = $request->all();
@@ -358,8 +374,9 @@ class ScreeningController extends Controller
             // Kirim email notifikasi
             $this->sendCancelledEmailNotification($cancelReasons);
 
-            // Clear session flag
-            session()->forget(['cancelled_data_saved', 'screening_id']);
+            // Jangan hapus screening_id, tapi hapus hanya flag cancelled_data_saved
+            session()->forget(['cancelled_data_saved']);
+            // screening_id tetap disimpan untuk review data
         }
 
         return view('screening.cancelled', [
@@ -368,6 +385,54 @@ class ScreeningController extends Controller
             'pets' => session('pets', []),
             'screening' => $screening
         ]);
+    }
+
+    public function reviewData()
+    {
+        try {
+            // Cek apakah ada screening_id di session
+            $screeningId = session('screening_id');
+
+            if (!$screeningId) {
+                \Log::warning('No screening_id in session. Current session:', [
+                    'screening_id' => session('screening_id'),
+                    'owner' => session('owner'),
+                    'has_no_hp' => session()->has('no_hp')
+                ]);
+
+                // Jika user baru saja submit dari thankyou page, coba ambil screening terakhir
+                $screening = Screening::with('pets')
+                    ->where('owner_name', session('owner'))
+                    ->when(session('no_hp'), function ($query) {
+                        return $query->where('phone_number', session('no_hp'));
+                    })
+                    ->latest()
+                    ->first();
+
+                if ($screening) {
+                    // Simpan screening_id ke session untuk next time
+                    session()->put('screening_id', $screening->id);
+                }
+            } else {
+                $screening = Screening::with('pets')->find($screeningId);
+            }
+
+            if (!$screening) {
+                \Log::error('Screening not found. ID: ' . $screeningId);
+                return redirect()->route('screening.thankyou')
+                    ->with('error', 'Data screening tidak ditemukan. Silakan lakukan screening baru.');
+            }
+
+            // Ambil cancel reasons dari session jika ada
+            $cancelReasons = session('cancel_reasons', []);
+
+            return view('screening.review-data', compact('screening', 'cancelReasons'));
+
+        } catch (\Exception $e) {
+            Log::error('Review data error: ' . $e->getMessage());
+            return redirect()->route('screening.thankyou')
+                ->with('error', 'Terjadi kesalahan saat memuat data review: ' . $e->getMessage());
+        }
     }
 
     public function noHp()
@@ -401,6 +466,12 @@ class ScreeningController extends Controller
             if (!$screening) {
                 throw new \Exception('Gagal menyimpan data screening');
             }
+
+            // ========== TAMBAHKAN INI ==========
+            // Simpan screening_id ke session untuk review data
+            session()->put('screening_id', $screening->id);
+            session()->put('cancelled_data_saved', true);
+            // ========== END TAMBAHAN ==========
 
             // Ambil data dari DB untuk email
             $screening = Screening::with('pets')->find($screening->id);
@@ -571,7 +642,7 @@ class ScreeningController extends Controller
                     $rows[] = [
                         $s->id,
                         $s->status_text,
-                        $s->created_at->setTimezone('Asia/Jakarta')->translatedFormat('Y-m-d H:i:s'),
+                        $s->created_at->setTimezone('Asia/Jakarta')->translatedFormat('d-m-Y H:i:s'),
                         $s->owner_name,
                         $s->pet_count,
                         $s->phone_number,
@@ -667,99 +738,22 @@ class ScreeningController extends Controller
     }
 
     /**
-     * Export data to CSV/Excel
+     * Export data to Excel (XLSX)
      */
     public function export(Request $request)
     {
         try {
+            $search = $request->query('search');
+            $status = $request->query('status');
             $startDate = $request->query('start_date');
             $endDate = $request->query('end_date');
-            $status = $request->query('status');
 
-            $query = Screening::with('pets')->latest();
+            $fileName = 'screening-data-' . date('d-F-Y') . '.xlsx';
 
-            if ($startDate) {
-                $query->whereDate('created_at', '>=', $startDate);
-            }
-
-            if ($endDate) {
-                $query->whereDate('created_at', '<=', $endDate);
-            }
-
-            if ($status && $status !== 'all') {
-                $query->where('status', $status);
-            }
-
-            $screenings = $query->get();
-
-            $fileName = 'screening-data-' . date('Y-m-d-H-i-s') . '.csv';
-            $headers = [
-                'Content-Type' => 'text/csv',
-                'Content-Disposition' => "attachment; filename=\"$fileName\"",
-                'Pragma' => 'no-cache',
-                'Cache-Control' => 'must-revalidate, post-check=0, pre-check=0',
-                'Expires' => '0'
-            ];
-
-            $callback = function () use ($screenings) {
-                $file = fopen('php://output', 'w');
-
-                // Header row
-                fputcsv($file, [
-                    'ID',
-                    'Tanggal',
-                    'Owner',
-                    'Phone',
-                    'Jumlah Pet',
-                    'Status',
-                    'Pet Name',
-                    'Breed',
-                    'Sex',
-                    'Age',
-                    'Vaksin',
-                    'Kutu',
-                    'Kutu Action',
-                    'Jamur',
-                    'Birahi',
-                    'Birahi Action',
-                    'Kulit',
-                    'Telinga',
-                    'Riwayat',
-                    'Pet Status'
-                ]);
-
-                // Data rows
-                foreach ($screenings as $s) {
-                    foreach ($s->pets as $p) {
-                        fputcsv($file, [
-                            $s->id,
-                            $s->created_at->setTimezone('Asia/Jakarta')->format('Y-m-d H:i:s'),
-                            $s->owner_name,
-                            $s->phone_number,
-                            $s->pet_count,
-                            $s->status_text,
-                            $p->name,
-                            $p->breed,
-                            $p->sex,
-                            $p->age,
-                            $p->vaksin,
-                            $p->kutu,
-                            $p->kutu_action ? ($p->kutu_action == 'tidak_periksa' ? 'Tidak Periksa' : 'Lanjut Obat') : '-',
-                            $p->jamur,
-                            $p->birahi,
-                            $p->birahi_action ? ($p->birahi_action == 'tidak_periksa' ? 'Tidak Periksa' : 'Lanjut Obat') : '-',
-                            $p->kulit,
-                            $p->telinga,
-                            $p->riwayat,
-                            $p->status_text
-                        ]);
-                    }
-                }
-
-                fclose($file);
-            };
-
-            return response()->stream($callback, 200, $headers);
+            return Excel::download(
+                new ScreeningsExport($search, $status, $startDate, $endDate),
+                $fileName
+            );
 
         } catch (\Exception $e) {
             Log::error('Export error: ' . $e->getMessage());

@@ -26,8 +26,8 @@
 
     {{-- Vite --}}
     @vite([
-    'resources/css/public.css',
-    'resources/js/public.js'
+    'resources/css/app.css',
+    'resources/js/app.js'
     ])
 
     {{-- Stack untuk page-specific styles --}}

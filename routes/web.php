@@ -62,10 +62,11 @@ Route::prefix('screening')->name('screening.')->group(function () {
     Route::get('/no-hp', [ScreeningController::class, 'noHp'])->name('noHp');
     Route::post('/no-hp/submit', [ScreeningController::class, 'submitNoHp'])->name('submitNoHp');
     Route::get('/thankyou', [ScreeningController::class, 'thankyou'])->name('thankyou');
+    Route::get('/review-data', [ScreeningController::class, 'reviewData'])->name('review-data');
     Route::get('/cancelled', [ScreeningController::class, 'cancelled'])->name('cancelled');
     Route::get('/export-sheets', [ScreeningController::class, 'exportToSheets'])
         ->name('export-sheets');
-    Route::post('/data/export', [ScreeningController::class, 'export'])->name('export');
+    Route::get('/export', [ScreeningController::class, 'export'])->name('export');
 });
 
 // Notification Routes (Public)
@@ -99,6 +100,8 @@ Route::middleware('auth')->prefix('stok-gudang')->name('stok.')->group(function 
 Route::prefix('transactions')->name('transactions.')->group(function () {
     Route::get('/create', [StokTransactionController::class, 'create'])->name('create');
     Route::post('/', [StokTransactionController::class, 'store'])->name('store');
+
+    Route::get('/get-barang-by-departemen', [StokTransactionController::class, 'getBarangByDepartemen'])->name('getBarangByDepartemen');
 });
 
 // =======================
@@ -114,6 +117,8 @@ Route::middleware('auth')->prefix('transactions')->name('transactions.')->group(
     Route::get('/{id}', [StokTransactionController::class, 'show'])
         ->where('id', '[0-9]+')
         ->name('show');
+    Route::get('/export', [StokTransactionController::class, 'showExportForm'])->name('export.form');
+    Route::post('/export', [StokTransactionController::class, 'export'])->name('export');
 });
 
 // Public Pages Routes (Accessible without login)

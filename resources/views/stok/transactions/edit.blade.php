@@ -52,36 +52,15 @@
             background-color: #ff0019;
         }
 
-        /* Modal departemen styles */
-        .modal-departemen-search-container {
-            position: relative;
-            margin-bottom: 15px;
+        .readonly-field {
+            background-color: #f8f9fa !important;
+            cursor: not-allowed;
         }
 
-        .modal-departemen-search-icon {
-            position: absolute;
-            left: 12px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #6c757d;
-        }
-
-        .modal-departemen-search-input {
-            padding-left: 40px;
-        }
-
-        .departemen-item {
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .departemen-item:hover {
-            background-color: #f8f9fa;
-        }
-
-        .departemen-item.selected {
-            background-color: #e8f5e9;
-            border-left: 4px solid #4CAF50;
+        .form-control:read-only,
+        .form-control:disabled {
+            background-color: #f8f9fa !important;
+            cursor: not-allowed;
         }
     </style>
 </head>
@@ -128,36 +107,52 @@
                             @csrf
                             @method('PUT')
 
+                            <!-- Hidden fields untuk data yang tidak boleh diubah -->
+                            <input type="hidden" name="kode_barang" value="{{ $transaction->kode_barang }}">
+                            <input type="hidden" name="tipe" value="{{ $transaction->tipe }}">
+                            <!-- Kirim departemen untuk semua tipe -->
+                            <input type="hidden" name="departemen" value="{{ $transaction->departemen ?? '' }}">
+                            
+                            @if($transaction->tipe == 'keluar')
+                                <!-- Untuk stok keluar, kirim keperluan sebagai hidden -->
+                                <input type="hidden" name="keperluan" value="{{ $transaction->keperluan }}">
+                            @endif
+
                             <div class="row">
                                 <div class="col-md-6">
+                                    <!-- Tanggal (readonly) -->
                                     <div class="mb-3">
-                                        <label class="form-label required">Tanggal Transaksi</label>
-                                        <input type="date" name="tanggal" class="form-control"
-                                            value="{{ old('tanggal', $transaction->tanggal->format('Y-m-d')) }}"
-                                            required>
-                                        @error('tanggal')
-                                            <div class="text-danger small">{{ $message }}</div>
-                                        @enderror
+                                        <label class="form-label">Tanggal Transaksi</label>
+                                        <input type="date" class="form-control readonly-field" 
+                                            value="{{ $transaction->tanggal->format('Y-m-d') }}" readonly>
+                                        <small class="text-muted">Tanggal transaksi tidak dapat diubah</small>
                                     </div>
 
+                                    <!-- Kode Barang (readonly) -->
                                     <div class="mb-3">
-                                        <label class="form-label required">Kode Barang</label>
-                                        <select name="kode_barang" class="form-select" required>
-                                            <option value="">-- Pilih Barang --</option>
-                                            @foreach ($barangList as $barang)
-                                                <option value="{{ $barang->kode_barang }}"
-                                                    {{ old('kode_barang', $transaction->kode_barang) == $barang->kode_barang ? 'selected' : '' }}>
-                                                    {{ $barang->kode_barang }} - {{ $barang->nama_barang }}
-                                                    (Stok: {{ number_format($barang->stok_akhir, 2) }}
-                                                    {{ $barang->satuan }})
-                                                </option>
-                                            @endforeach
-                                        </select>
-                                        @error('kode_barang')
-                                            <div class="text-danger small">{{ $message }}</div>
-                                        @enderror
+                                        <label class="form-label">Kode Barang</label>
+                                        <input type="text" class="form-control readonly-field" 
+                                            value="{{ $transaction->kode_barang }} - {{ $transaction->nama_barang }}" readonly>
                                     </div>
 
+                                    <!-- Tipe Transaksi (readonly) -->
+                                    <div class="mb-3">
+                                        <label class="form-label">Tipe Transaksi</label>
+                                        <input type="text" class="form-control readonly-field" 
+                                            value="{{ $transaction->tipe == 'masuk' ? 'Stok Masuk' : 'Stok Keluar' }}" readonly>
+                                    </div>
+
+                                    <!-- Departemen (readonly untuk semua tipe) -->
+                                    <div class="mb-3">
+                                        <label class="form-label">Departemen</label>
+                                        <input type="text" class="form-control readonly-field" 
+                                            value="{{ $transaction->departemen ?? 'Tidak ada departemen' }}" readonly>
+                                        <small class="text-muted">Departemen tidak dapat diubah</small>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <!-- Jumlah (bisa diubah) -->
                                     <div class="mb-3">
                                         <label class="form-label required">Jumlah</label>
                                         <input type="number" name="jumlah" class="form-control" step="0.01"
@@ -166,75 +161,44 @@
                                             <div class="text-danger small">{{ $message }}</div>
                                         @enderror
                                         @if ($transaction->tipe == 'keluar')
-                                            <small class="text-muted">
-                                                Stok tersedia:
-                                                @php
-                                                    $stokTersedia =
-                                                        $barangList->firstWhere(
-                                                            'kode_barang',
-                                                            $transaction->kode_barang,
-                                                        )->stok_akhir ?? 0;
-                                                    $stokSetelahKembali = $stokTersedia + $transaction->jumlah;
-                                                @endphp
-                                                <span
-                                                    class="{{ $stokSetelahKembali < old('jumlah', $transaction->jumlah) ? 'text-danger' : 'text-success' }}">
-                                                    {{ number_format($stokSetelahKembali, 2) }}
-                                                </span>
-                                            </small>
+                                            @php
+                                                $stokTersedia = $barangList->firstWhere('kode_barang', $transaction->kode_barang)->stok_akhir ?? 0;
+                                                $stokSetelahKembali = $stokTersedia + $transaction->jumlah;
+                                            @endphp
                                         @endif
                                     </div>
-                                </div>
 
-                                <div class="col-md-6">
-                                    @if ($transaction->tipe == 'masuk')
-                                        <div class="mb-3">
-                                            <label class="form-label required">Supplier</label>
-                                            <input type="text" name="supplier" class="form-control"
-                                                value="{{ old('supplier', $transaction->supplier) }}" required
-                                                placeholder="Masukkan nama supplier">
-                                            @error('supplier')
-                                                <div class="text-danger small">{{ $message }}</div>
-                                            @enderror
-                                            <small class="text-muted">
-                                                Supplier yang sering digunakan:
-                                                @foreach ($supplierList as $supplier)
-                                                    @if ($loop->index < 5)
-                                                        <span class="badge bg-light text-dark me-1 cursor-pointer"
-                                                            onclick="document.querySelector('input[name=\"supplier\"]').value='{{ $supplier }}'">
-                                                            {{ $supplier }}
-                                                        </span>
-                                                    @endif
-                                                @endforeach
-                                            </small>
-                                        </div>
-                                    @else
-                                        <div class="mb-3">
-                                            <label class="form-label required">Departemen</label>
-                                            <div class="d-flex gap-2">
-                                                <input type="text" name="departemen" class="form-control"
-                                                    value="{{ old('departemen', $transaction->departemen) }}"
-                                                    placeholder="Pilih departemen" readonly required>
-                                                <button type="button" class="btn btn-outline-primary"
-                                                    id="btnPilihDepartemen">
-                                                    <i class="bi bi-search"></i> Pilih
-                                                </button>
-                                            </div>
-                                            @error('departemen')
-                                                <div class="text-danger small">{{ $message }}</div>
-                                            @enderror
-                                        </div>
+                                    <!-- Supplier (ditampilkan untuk semua tipe, readonly) -->
+                                    <div class="mb-3">
+                                        <label class="form-label">Supplier</label>
+                                        @if ($transaction->tipe == 'masuk')
+                                            <!-- Untuk stok masuk: tampilkan input supplier readonly -->
+                                            <input type="text" name="supplier" class="form-control readonly-field"
+                                                value="{{ old('supplier', $transaction->supplier) }}" readonly
+                                                placeholder="Supplier">
+                                            <small class="text-muted">Supplier tidak dapat diubah untuk transaksi stok masuk</small>
+                                        @else
+                                            <!-- Untuk stok keluar: tampilkan supplier jika ada -->
+                                            <input type="text" class="form-control readonly-field" 
+                                                value="{{ $transaction->supplier ?? 'Tidak ada supplier' }}" readonly>
+                                            <small class="text-muted">Supplier diambil dari data barang</small>
+                                        @endif
+                                        @error('supplier')
+                                            <div class="text-danger small">{{ $message }}</div>
+                                        @enderror
+                                    </div>
 
+                                    @if ($transaction->tipe == 'keluar')
+                                        <!-- Keperluan (hanya untuk stok keluar, readonly) -->
                                         <div class="mb-3">
-                                            <label class="form-label required">Keperluan</label>
-                                            <input type="text" name="keperluan" class="form-control"
-                                                value="{{ old('keperluan', $transaction->keperluan) }}" required
-                                                placeholder="Masukkan keperluan">
-                                            @error('keperluan')
-                                                <div class="text-danger small">{{ $message }}</div>
-                                            @enderror
+                                            <label class="form-label">Keperluan</label>
+                                            <input type="text" class="form-control readonly-field" 
+                                                value="{{ $transaction->keperluan }}" readonly>
+                                            <small class="text-muted">Keperluan tidak dapat diubah</small>
                                         </div>
                                     @endif
 
+                                    <!-- Nama Penerima Barang (bisa diubah) -->
                                     <div class="mb-3">
                                         <label class="form-label required">Nama Penerima Barang</label>
                                         <input type="text" name="nama_penerima" class="form-control"
@@ -245,6 +209,7 @@
                                         @enderror
                                     </div>
 
+                                    <!-- Keterangan (bisa diubah) -->
                                     <div class="mb-3">
                                         <label class="form-label">Keterangan</label>
                                         <textarea name="keterangan" class="form-control" rows="3" placeholder="Tambahkan keterangan (opsional)">{{ old('keterangan', $transaction->keterangan) }}</textarea>
@@ -257,8 +222,14 @@
 
                             <div class="alert alert-warning mt-3">
                                 <i class="bi bi-exclamation-triangle me-2"></i>
-                                <strong>Perhatian:</strong> Mengubah transaksi akan mempengaruhi stok barang. Pastikan
-                                data yang diinput sudah benar.
+                                <strong>Perhatian:</strong> 
+                                <ul class="mb-0 mt-2">
+                                    <li>Hanya <strong>jumlah, nama penerima, dan keterangan</strong> yang dapat diubah.</li>
+                                    <li>Untuk transaksi <strong>stok masuk</strong>: Supplier tidak dapat diubah.</li>
+                                    <li>Untuk transaksi <strong>stok keluar</strong>: Supplier dan keperluan tidak dapat diubah.</li>
+                                    <li>Departemen tidak dapat diubah untuk semua tipe transaksi.</li>
+                                    <li>Mengubah jumlah akan mempengaruhi stok barang. Pastikan data yang diinput sudah benar.</li>
+                                </ul>
                             </div>
 
                             <div class="d-flex justify-content-between mt-4">
@@ -278,191 +249,47 @@
         </div>
     </div>
 
-    <!-- Modal Departemen -->
-    <div class="modal fade" id="departemenModal" tabindex="-1" aria-labelledby="departemenModalLabel"
-        aria-hidden="true">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header bg-primary text-white">
-                    <h5 class="modal-title" id="departemenModalLabel">
-                        <i class="bi bi-building me-2"></i>Pilih Departemen
-                    </h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
-                        aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="modal-departemen-search-container">
-                        <i class="bi bi-search modal-departemen-search-icon"></i>
-                        <input type="text" id="searchDepartemen" class="form-control modal-departemen-search-input"
-                            placeholder="Cari departemen...">
-                    </div>
-
-                    <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
-                        <table class="table table-hover table-sm">
-                            <thead class="table-light sticky-top">
-                                <tr>
-                                    <th width="50">No</th>
-                                    <th>Nama Departemen</th>
-                                    <th width="100">Aksi</th>
-                                </tr>
-                            </thead>
-                            <tbody id="departemenTableBody">
-                                <!-- Data akan diisi via JavaScript -->
-                            </tbody>
-                        </table>
-                    </div>
-
-                    <div class="mt-3 text-muted">
-                        <small>
-                            <i class="bi bi-info-circle me-1"></i>
-                            Menampilkan <span id="departemenCount">0</span> departemen
-                        </small>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                        <i class="bi bi-x-circle me-1"></i>Tutup
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <template id="departemenRowTemplate">
-        <tr class="departemen-item">
-            <td class="text-center">INDEX</td>
-            <td class="departemen-nama">NAMA_DEPARTEMEN</td>
-            <td class="text-center">
-                <button type="button" class="btn btn-sm btn-outline-primary btn-pilih-departemen">
-                    <i class="bi bi-check-circle me-1"></i>Pilih
-                </button>
-            </td>
-        </tr>
-    </template>
-
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        const departemenModal = new bootstrap.Modal(document.getElementById('departemenModal'));
-        const departemenTableBody = document.getElementById('departemenTableBody');
-        const departemenCountSpan = document.getElementById('departemenCount');
-        const searchDepartemenInput = document.getElementById('searchDepartemen');
-        const btnPilihDepartemen = document.getElementById('btnPilihDepartemen');
-        const departemenInput = document.querySelector('input[name="departemen"]');
-        const departemenRowTemplate = document.getElementById('departemenRowTemplate');
-        
-        let departemenList = @json($departemenList ?? []);
-
-        function loadDepartemenList() {
-            departemenTableBody.innerHTML = '';
-            let count = 0;
-
-            departemenList.forEach((departemen, index) => {
-                const template = departemenRowTemplate.content.cloneNode(true);
-                const row = template.querySelector('.departemen-item');
-                
-                row.querySelector('td:first-child').textContent = index + 1;
-                row.querySelector('.departemen-nama').textContent = departemen;
-                
-                const selectBtn = row.querySelector('.btn-pilih-departemen');
-                selectBtn.addEventListener('click', function() {
-                    selectDepartemen(departemen);
-                });
-
-                departemenTableBody.appendChild(row);
-                count++;
-            });
-
-            departemenCountSpan.textContent = count;
-            searchDepartemen();
-        }
-
-        function searchDepartemen() {
-            const searchTerm = searchDepartemenInput.value.toLowerCase();
-            const rows = departemenTableBody.getElementsByClassName('departemen-item');
-            let visibleCount = 0;
-
-            Array.from(rows).forEach(row => {
-                const departemenNama = row.querySelector('.departemen-nama').textContent.toLowerCase();
-                const isVisible = departemenNama.includes(searchTerm);
-                
-                row.style.display = isVisible ? '' : 'none';
-                if (isVisible) visibleCount++;
-            });
-
-            departemenCountSpan.textContent = visibleCount;
-        }
-
-        function selectDepartemen(departemen) {
-            departemenInput.value = departemen;
-            departemenModal.hide();
-        }
-
-        // Event listener untuk tombol pilih departemen
-        btnPilihDepartemen.addEventListener('click', function() {
-            loadDepartemenList();
-            departemenModal.show();
-        });
-
-        // Event listener untuk pencarian departemen
-        searchDepartemenInput.addEventListener('input', searchDepartemen);
-
-        // Update stok info when barang is changed
-        document.querySelector('select[name="kode_barang"]').addEventListener('change', function() {
-            const selectedOption = this.options[this.selectedIndex];
-            const stokInfo = selectedOption.text.match(/Stok: ([\d.,]+)/);
-            if (stokInfo && {{ $transaction->tipe == 'keluar' ? 'true' : 'false' }}) {
-                const stokTersedia = parseFloat(stokInfo[1].replace(',', ''));
-                const jumlahInput = document.querySelector('input[name="jumlah"]');
-                const jumlah = parseFloat(jumlahInput.value) || 0;
-
-                // Update validation message
-                if (jumlah > stokTersedia) {
-                    jumlahInput.classList.add('is-invalid');
-                    // You can add a custom validation message here
-                } else {
-                    jumlahInput.classList.remove('is-invalid');
-                }
-            }
-        });
-
-        // Validate jumlah on input
+        // Update stok info when jumlah is changed
         document.querySelector('input[name="jumlah"]').addEventListener('input', function() {
-            if ({{ $transaction->tipe == 'keluar' ? 'true' : 'false' }}) {
-                const selectedBarang = document.querySelector('select[name="kode_barang"]').value;
-                if (selectedBarang) {
-                    const selectedOption = document.querySelector('select[name="kode_barang"] option:checked');
-                    const stokInfo = selectedOption.text.match(/Stok: ([\d.,]+)/);
-                    if (stokInfo) {
-                        const stokTersedia = parseFloat(stokInfo[1].replace(',', ''));
-                        const jumlah = parseFloat(this.value) || 0;
-
-                        if (jumlah > stokTersedia) {
-                            this.classList.add('is-invalid');
-                        } else {
-                            this.classList.remove('is-invalid');
-                        }
-                    }
+            @if($transaction->tipe == 'keluar')
+                const currentJumlah = {{ $transaction->jumlah }};
+                const newJumlah = parseFloat(this.value) || 0;
+                const stokSetelahKembali = {{ $stokSetelahKembali }};
+                const stokTersedia = stokSetelahKembali - currentJumlah + newJumlah;
+                
+                const stokInfo = document.getElementById('stokTersediaInfo');
+                stokInfo.textContent = stokTersedia.toFixed(2);
+                
+                if (newJumlah > stokTersedia) {
+                    stokInfo.classList.remove('text-success');
+                    stokInfo.classList.add('text-danger');
+                    this.classList.add('is-invalid');
+                } else {
+                    stokInfo.classList.remove('text-danger');
+                    stokInfo.classList.add('text-success');
+                    this.classList.remove('is-invalid');
                 }
-            }
+            @endif
         });
 
-        // Initialize departemen list
-        document.addEventListener('DOMContentLoaded', function() {
-            // Pre-populate departemen list if needed
-            if (departemenList.length === 0) {
-                // Fallback to default list if no data from controller
-                departemenList = [
-                    'Produksi',
-                    'Gudang',
-                    'Logistik',
-                    'IT',
-                    'HRD',
-                    'Keuangan',
-                    'Marketing',
-                    'Maintenance',
-                    'Lainnya'
-                ];
-            }
+        // Validate form on submit
+        document.querySelector('form').addEventListener('submit', function(e) {
+            @if($transaction->tipe == 'keluar')
+                const jumlah = parseFloat(document.querySelector('input[name="jumlah"]').value) || 0;
+                const stokSetelahKembali = {{ $stokSetelahKembali }};
+                const currentJumlah = {{ $transaction->jumlah }};
+                const stokTersedia = stokSetelahKembali - currentJumlah + jumlah;
+                
+                if (jumlah > stokTersedia) {
+                    e.preventDefault();
+                    alert('Jumlah melebihi stok tersedia! Stok tersedia: ' + stokTersedia.toFixed(2));
+                    return false;
+                }
+            @endif
+            
+            return true;
         });
     </script>
 </body>
