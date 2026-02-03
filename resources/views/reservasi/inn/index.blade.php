@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.layout_main')
 
 @section('title', 'Reservasi Legareca Inn')
 

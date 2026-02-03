@@ -35,7 +35,7 @@ Route::get('/art-gallery/{art}', [ArtGalleryController::class, 'show'])
 Route::middleware(['auth'])->group(function () {
     Route::get('/art-gallery/pages/create', [ArtGalleryController::class, 'create']) // TANPA /pages
         ->name('gallery.create');
-    
+
     Route::post('/art-gallery', [ArtGalleryController::class, 'store'])
         ->name('gallery.store');
 });
@@ -147,11 +147,11 @@ Route::prefix('reservasi')->name('reservasi.')->group(function () {
     Route::get('/', function () {
         return redirect()->route('reservasi.inn.index');
     })->name('index');
-    
+
     // Legareca Inn
     Route::get('/inn', [ReservasiController::class, 'innIndex'])->name('inn.index');
     Route::post('/inn/submit', [ReservasiController::class, 'innSubmit'])->name('inn.submit');
-    
+
     // Jika nanti ada reservasi lain
     // Route::get('/venue', [ReservasiController::class, 'venueIndex'])->name('venue.index');
     // Route::get('/gallery', [ReservasiController::class, 'galleryIndex'])->name('gallery.index');
@@ -194,37 +194,47 @@ Route::middleware('auth')->group(function () {
         Route::post('/', [PengajuanIzinController::class, 'store'])->name('store');
     });
 
-        // shifting Routes
-        Route::prefix('shifting')->name('shifting.')->group(function () {
-            Route::get('/', [ShiftingController::class, 'index'])->name('index');
-            Route::get('/create', [ShiftingController::class, 'create'])->name('create');
-            Route::post('/submit', [ShiftingController::class, 'submit'])->name('submit');
-        });
+    // shifting Routes
+    Route::prefix('shifting')->name('shifting.')->group(function () {
+        Route::get('/', [ShiftingController::class, 'index'])->name('index');
+        Route::get('/create', [ShiftingController::class, 'create'])->name('create');
+        Route::post('/submit', [ShiftingController::class, 'submit'])->name('submit');
+    });
 
     // Daily Cleaning Report Routes
     Route::prefix('cleaning-report')->name('cleaning-report.')->group(function () {
-        // Main Routes
+        // ===== ROUTE UNTUK FORM INPUT DATA BARU =====
         Route::get('/', [DailyCleaningReportController::class, 'index'])->name('index');
+        Route::get('/create', [DailyCleaningReportController::class, 'create'])->name('create'); // TAMBAHKAN INI
 
-        // Multi-step Form
-        Route::get('/create', [DailyCleaningReportController::class, 'create'])->name('create');
+        // ===== ROUTE UNTUK DASHBOARD =====
+        Route::get('/dashboard', [DailyCleaningReportController::class, 'dashboard'])->name('dashboard');
+
+        // ===== ROUTE UNTUK DATA API (AJAX) =====
+        Route::prefix('data')->name('data.')->group(function () {
+            Route::get('/', [DailyCleaningReportController::class, 'getData'])->name('get');
+            Route::post('/update', [DailyCleaningReportController::class, 'updateData'])->name('update');
+            Route::post('/clean', [DailyCleaningReportController::class, 'cleanData'])->name('clean');
+            Route::post('/delete', [DailyCleaningReportController::class, 'deleteData'])->name('delete');
+            Route::get('/export', [DailyCleaningReportController::class, 'exportData'])->name('export');
+            Route::get('/stats', [DailyCleaningReportController::class, 'getStats'])->name('stats');
+        });
+
+        // ===== ROUTE UNTUK MULTI-STEP FORM =====
         Route::post('/store-step1', [DailyCleaningReportController::class, 'storeStep1'])->name('storeStep1');
-
         Route::get('/step2', [DailyCleaningReportController::class, 'showStep2'])->name('step2');
         Route::post('/store-step2', [DailyCleaningReportController::class, 'storeStep2'])->name('storeStep2');
-
         Route::get('/complete/{id}', [DailyCleaningReportController::class, 'complete'])->name('complete');
 
-        // Google Sheets Integration
+        // ===== GOOGLE SHEETS INTEGRATION =====
         Route::get('/export/google-sheets', [DailyCleaningReportController::class, 'exportAllToGoogleSheets'])
             ->name('export.google-sheets');
-
         Route::get('/test-google-sheets', [DailyCleaningReportController::class, 'testGoogleSheetsConnection'])
-            ->name('test-google-sheets');
-
+            ->name('test.google-sheets');
         Route::get('/check-config', [DailyCleaningReportController::class, 'checkGoogleSheetsConfig'])
-            ->name('check-config');
+            ->name('check.config');
     });
+
 
     // Admin/Developer Routes (restricted access)
     Route::middleware(['role:developer,admin'])->group(function () {
@@ -245,7 +255,6 @@ Route::middleware('auth')->group(function () {
     Route::get('/venue', [VenueBookingController::class, 'index'])->name('venue.index');
     Route::post('/venue/step', [VenueBookingController::class, 'handleStep'])->name('venue.step');
     Route::post('/venue/submit', [VenueBookingController::class, 'submitBooking'])->name('venue.submit');
-
 });
 
 // Cafe & Resto Routes

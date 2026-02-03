@@ -8,8 +8,9 @@
             <!-- Desktop Menu -->
             <div class="nav-menu flex items-center gap-8">
                 <a href="/" class="nav-item text-white hover:text-red-500 transition">Beranda</a>
-                <a href="#venue" class="nav-item text-white hover:text-red-500 transition">Venue</a>
-                <a href="#inn" class="nav-item text-white hover:text-red-500 transition">Legareca Inn</a>
+                <a href="/cafe-resto" class="nav-item text-white hover:text-red-500 transition">Legareca Cafe and Resto</a>
+                <a href="/venue" class="nav-item text-white hover:text-red-500 transition">Venue</a>
+                <a href="/reservasi" class="nav-item text-white hover:text-red-500 transition">Legareca Inn</a>
                 <a href="/art-gallery" class="nav-item text-white hover:text-red-500 transition">Legareca Art Gallery</a>
                 <a href="#pet" class="nav-item text-white hover:text-red-500 transition">Legareca Pet</a>
                 
