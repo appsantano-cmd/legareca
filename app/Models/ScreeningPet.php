@@ -113,12 +113,12 @@ class ScreeningPet extends Model
     /**
      * Dapatkan alasan pembatalan
      */
-    public function getCancellationReasonAttribute(): ?string
+    public function getCancellationReason(): ?string
     {
         $reasons = [];
 
         if ($this->kutu_action === 'tidak_periksa') {
-            $reasons[] = "Kutu positif ({$this->kutu})";
+            $reasons[] = "Kutu positif";
         }
 
         if ($this->birahi_action === 'tidak_periksa') {
@@ -130,5 +130,13 @@ class ScreeningPet extends Model
         }
 
         return null;
+    }
+
+    /**
+     * Accessor untuk cancellation_reason
+     */
+    public function getCancellationReasonAttribute(): ?string
+    {
+        return $this->getCancellationReason();
     }
 }

@@ -12,9 +12,12 @@ use Maatwebsite\Excel\Facades\Excel;
 
 use App\Models\Screening;
 use App\Models\ScreeningPet;
+use App\Mail\ScreeningCompleted;
+use App\Mail\ScreeningCancelled;
 
 class ScreeningController extends Controller
 {
+
     /**
      * Display a listing of the screenings.
      */
@@ -228,6 +231,10 @@ class ScreeningController extends Controller
                 \Log::info('Cancelled data saved successfully! Screening ID: ' . $screening->id);
                 session()->put('cancelled_data_saved', true);
                 session()->put('screening_id', $screening->id);
+
+                // Kirim email untuk screening yang dibatalkan
+                $this->sendEmailNotification($screening);
+
             } else {
                 \Log::error('Failed to save cancelled data!');
                 // Tetap redirect ke cancelled page untuk memberi feedback ke user
@@ -259,6 +266,9 @@ class ScreeningController extends Controller
 
             session()->put('cancelled_data_saved', true);
             session()->put('screening_id', $screening->id);
+
+            // Kirim email untuk screening yang dibatalkan
+            $this->sendEmailNotification($screening);
 
             return redirect()->route('screening.cancelled');
         }
@@ -342,7 +352,7 @@ class ScreeningController extends Controller
         }
     }
 
-    public function cancelled()
+public function cancelled()
     {
         $cancelReasons = session('cancel_reasons', []);
         $screeningId = session('screening_id');
@@ -371,8 +381,8 @@ class ScreeningController extends Controller
         if ($screening) {
             $this->exportToSheets();
 
-            // Kirim email notifikasi
-            $this->sendCancelledEmailNotification($cancelReasons);
+            // Kirim email notifikasi untuk screening yang dibatalkan
+            $this->sendEmailNotification($screening);
 
             // Jangan hapus screening_id, tapi hapus hanya flag cancelled_data_saved
             session()->forget(['cancelled_data_saved']);
@@ -467,16 +477,14 @@ class ScreeningController extends Controller
                 throw new \Exception('Gagal menyimpan data screening');
             }
 
-            // ========== TAMBAHKAN INI ==========
             // Simpan screening_id ke session untuk review data
             session()->put('screening_id', $screening->id);
             session()->put('cancelled_data_saved', true);
-            // ========== END TAMBAHAN ==========
 
             // Ambil data dari DB untuk email
             $screening = Screening::with('pets')->find($screening->id);
 
-            // Kirim email notifikasi
+            // Kirim email notifikasi ke Santano
             $this->sendEmailNotification($screening);
 
             return redirect()->route('screening.thankyou');
@@ -484,107 +492,6 @@ class ScreeningController extends Controller
         } catch (\Exception $e) {
             Log::error('submitNoHp error: ' . $e->getMessage());
             return back()->withErrors(['error' => 'Terjadi kesalahan saat menyimpan data']);
-        }
-    }
-
-    private function sendCancelledEmailNotification($cancelReasons)
-    {
-        try {
-            $ownerEmail = "appsantano@gmail.com";
-            $owner = session('owner', 'Tidak diketahui');
-            $pets = session('pets', []);
-            $screeningData = session('screening_result', []);
-
-            $body = "⚠️ SCREENING DIBATALKAN — Le Gareca Space ⚠️\n\n";
-            $body .= "Ada screening yang dibatalkan dengan detail berikut:\n\n";
-            $body .= "👤 Owner: " . $owner . "\n";
-            $body .= "🐶 Total Pet: " . count($pets) . "\n";
-            $body .= "⏰ Waktu: " . now()->setTimezone('Asia/Jakarta')->translatedFormat('j F Y H:i:s') . "\n\n";
-
-            $body .= "ALASAN PEMBATALAN:\n";
-            foreach ($cancelReasons as $reason) {
-                $body .= "• " . $reason['pet_name'] . ": " . $reason['reason'] . "\n";
-            }
-
-            $body .= "\nDETAIL SCREENING YANG TERSIMPAN:\n";
-            $body .= "=====================================\n\n";
-
-            if (isset($screeningData['pets'])) {
-                foreach ($screeningData['pets'] as $index => $petData) {
-                    if (isset($pets[$index])) {
-                        $body .= "🐾 Pet #" . ($index + 1) . ": " . ($pets[$index]['name'] ?? 'Anabul ' . ($index + 1)) . "\n";
-                        $body .= "  Vaksin: " . ($petData['vaksin'] ?? '-') . "\n";
-                        $body .= "  Kutu: " . ($petData['kutu'] ?? '-') . " " . (isset($petData['kutu_action']) ? "[" . ($petData['kutu_action'] == 'tidak_periksa' ? 'Tidak Periksa' : 'Lanjut Obat') . "]" : "") . "\n";
-                        $body .= "  Jamur: " . ($petData['jamur'] ?? '-') . "\n";
-                        $body .= "  Birahi: " . ($petData['birahi'] ?? '-') . " " . (isset($petData['birahi_action']) ? "[" . ($petData['birahi_action'] == 'tidak_periksa' ? 'Tidak Periksa' : 'Lanjut Obat') . "]" : "") . "\n";
-                        $body .= "  Kulit: " . ($petData['kulit'] ?? '-') . "\n";
-                        $body .= "  Telinga: " . ($petData['telinga'] ?? '-') . "\n";
-                        $body .= "  Riwayat: " . ($petData['riwayat'] ?? '-') . "\n";
-                        $body .= "  ------------------------\n\n";
-                    }
-                }
-            }
-
-            $body .= "Data ini telah tersimpan di database dan Google Sheets.\n\n";
-            $body .= "Mohon tindak lanjut sesuai SOP internal.\n\n";
-            $body .= "Terima kasih.\n\n";
-            $body .= "— Sistem Screening Le Gareca";
-
-            Mail::raw($body, function ($message) use ($ownerEmail) {
-                $message->to($ownerEmail)
-                    ->subject("⚠️ Screening Dibatalkan — Le Gareca Space");
-            });
-
-        } catch (\Exception $e) {
-            Log::error('Failed to send cancelled email: ' . $e->getMessage());
-        }
-    }
-
-    private function sendEmailNotification($screening)
-    {
-        try {
-            $ownerEmail = "appsantano@gmail.com";
-
-            $body = "✅ SCREENING BARU — Le Gareca Space ✅\n\n";
-            $body .= "Ada input screening baru dari sistem dengan detail berikut:\n\n";
-            $body .= "👤 Owner: " . $screening->owner_name . "\n";
-            $body .= "📱 Phone: " . $screening->phone_number . "\n";
-            $body .= "🐶 Total Pet: " . $screening->pet_count . "\n";
-            $body .= "⏰ Waktu Input: " . $screening->created_at->setTimezone('Asia/Jakarta')->translatedFormat('j F Y H:i:s') . "\n";
-            $body .= "📊 Status: " . ($screening->status == 'cancelled' ? 'Dibatalkan' : 'Selesai') . "\n\n";
-
-            foreach ($screening->pets as $index => $pet) {
-                $body .= "🐾 Pet #" . ($index + 1) . "\n";
-                $body .= "  Nama: " . $pet->name . "\n";
-                $body .= "  Breed: " . $pet->breed . "\n";
-                $body .= "  Sex: " . $pet->sex . "\n";
-                $body .= "  Age: " . $pet->age . "\n";
-                $body .= "  Vaksin: " . $pet->vaksin . "\n";
-                $body .= "  Kutu: " . $pet->kutu . " " . ($pet->kutu_action ? "[" . ($pet->kutu_action == 'tidak_periksa' ? 'Tidak Periksa' : 'Lanjut Obat') . "]" : "") . "\n";
-                $body .= "  Jamur: " . $pet->jamur . "\n";
-                $body .= "  Birahi: " . $pet->birahi . " " . ($pet->birahi_action ? "[" . ($pet->birahi_action == 'tidak_periksa' ? 'Tidak Periksa' : 'Lanjut Obat') . "]" : "") . "\n";
-                $body .= "  Kulit: " . $pet->kulit . "\n";
-                $body .= "  Telinga: " . $pet->telinga . "\n";
-                $body .= "  Riwayat: " . $pet->riwayat . "\n";
-                $body .= "  Status: " . $pet->status_text . "\n";
-                $body .= "  ------------------------\n\n";
-            }
-
-            $body .= "Mohon tindak lanjut sesuai SOP internal.\n\n";
-            $body .= "Terima kasih.\n\n";
-            $body .= "— Sistem Screening Le Gareca";
-
-            Mail::raw($body, function ($message) use ($ownerEmail, $screening) {
-                $subject = $screening->status == 'cancelled'
-                    ? "⚠️ Screening Dibatalkan — Le Gareca"
-                    : "✅ Screening Baru — Le Gareca";
-
-                $message->to($ownerEmail)
-                    ->subject($subject);
-            });
-
-        } catch (\Exception $e) {
-            Log::error('Failed to send email: ' . $e->getMessage());
         }
     }
 
@@ -759,6 +666,82 @@ class ScreeningController extends Controller
             Log::error('Export error: ' . $e->getMessage());
             return redirect()->route('screening.index')
                 ->with('error', 'Gagal mengekspor data: ' . $e->getMessage());
+        }
+    }
+
+/**
+     * Kirim email notifikasi ke Santano
+     * SIMPLE VERSION - hanya notifikasi tanpa email user
+     */
+    private function sendEmailNotification($screening)
+    {
+        try {
+            // Email Santano
+            $santanoEmail = "appsantano@gmail.com";
+            
+            // Subject berdasarkan status
+            $subject = $screening->status == 'completed' 
+                ? "✅ Screening Baru - " . $screening->owner_name . " - Le Gareca Space"
+                : "⚠️ Screening Dibatalkan - " . $screening->owner_name . " - Le Gareca Space";
+
+            // Body email (text sederhana)
+            $body = $screening->status == 'completed' 
+                ? "✅ SCREENING BARU — Le Gareca Space ✅\n\n"
+                  . "Ada input screening baru dari sistem dengan detail berikut:\n\n"
+                : "⚠️ SCREENING DIBATALKAN — Le Gareca Space ⚠️\n\n"
+                  . "Ada screening yang dibatalkan dengan detail berikut:\n\n";
+
+            $body .= "👤 Owner: " . $screening->owner_name . "\n";
+            $body .= "📱 Phone: " . $screening->phone_number . "\n";
+            $body .= "🐶 Total Pet: " . $screening->pet_count . "\n";
+            $body .= "⏰ Waktu Input: " . $screening->created_at->setTimezone('Asia/Jakarta')->translatedFormat('j F Y H:i:s') . "\n";
+            $body .= "📊 Status: " . ($screening->status == 'cancelled' ? 'Dibatalkan' : 'Selesai') . "\n\n";
+
+            foreach ($screening->pets as $index => $pet) {
+                $body .= "🐾 Pet #" . ($index + 1) . "\n";
+                $body .= "  Nama: " . $pet->name . "\n";
+                $body .= "  Breed: " . $pet->breed . "\n";
+                $body .= "  Sex: " . $pet->sex . "\n";
+                $body .= "  Age: " . $pet->age . "\n";
+                $body .= "  Vaksin: " . $pet->vaksin . "\n";
+                $body .= "  Kutu: " . $pet->kutu . " " . ($pet->kutu_action ? "[" . ($pet->kutu_action == 'tidak_periksa' ? 'Tidak Periksa' : 'Lanjut Obat') . "]" : "") . "\n";
+                $body .= "  Jamur: " . $pet->jamur . "\n";
+                $body .= "  Birahi: " . $pet->birahi . " " . ($pet->birahi_action ? "[" . ($pet->birahi_action == 'tidak_periksa' ? 'Tidak Periksa' : 'Lanjut Obat') . "]" : "") . "\n";
+                $body .= "  Kulit: " . $pet->kulit . "\n";
+                $body .= "  Telinga: " . $pet->telinga . "\n";
+                $body .= "  Riwayat: " . $pet->riwayat . "\n";
+                $body .= "  Status: " . $pet->status_text . "\n";
+                
+                // Tambahkan alasan pembatalan jika ada
+                if ($pet->kutu_action == 'tidak_periksa' || $pet->birahi_action == 'tidak_periksa') {
+                    $reasons = [];
+                    if ($pet->kutu_action == 'tidak_periksa') {
+                        $reasons[] = "Kutu positif";
+                    }
+                    if ($pet->birahi_action == 'tidak_periksa') {
+                        $reasons[] = "Birahi positif";
+                    }
+                    $body .= "  Alasan: " . implode(', ', $reasons) . "\n";
+                }
+                
+                $body .= "  ------------------------\n\n";
+            }
+
+            $body .= "Data ini telah tersimpan di database dan Google Sheets.\n\n";
+            $body .= "Mohon tindak lanjut sesuai SOP internal.\n\n";
+            $body .= "Terima kasih.\n\n";
+            $body .= "— Sistem Screening Le Gareca";
+
+            // Kirim email plain text sederhana
+            Mail::raw($body, function ($message) use ($santanoEmail, $subject) {
+                $message->to($santanoEmail)
+                        ->subject($subject);
+            });
+
+            Log::info('Email notification sent to Santano for screening ID: ' . $screening->id);
+
+        } catch (\Exception $e) {
+            Log::error('Failed to send email notification: ' . $e->getMessage());
         }
     }
 
