@@ -5,3 +5,4 @@ import './pages/reservasi';
 import './pages/caferesto';
 import './pages/reservasi';
 import './pages/kamidaur';
+import './pages/legapetcare';

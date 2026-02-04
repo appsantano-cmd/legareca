@@ -19,6 +19,7 @@ use App\Http\Controllers\VenueBookingController;
 use App\Http\Controllers\ReservasiController;
 use App\Http\Controllers\CafeRestoController;
 use App\Http\Controllers\KamiDaurController;
+use App\Http\Controllers\LegaPetCareController;
 
 // Public Routes
 Route::get('/', function () {
@@ -270,4 +271,7 @@ Route::post('/cafe-resto/reservation', [CafeRestoController::class, 'store'])->n
 
 // Kami Daur Routes
 Route::get('/kami-daur', [KamiDaurController::class, 'index'])->name('kami-daur.index');
+
+// Lega Pet Care Routes
+Route::get('/lega-pet-care', [LegaPetCareController::class, 'index'])->name('lega-pet-care.index');
 
