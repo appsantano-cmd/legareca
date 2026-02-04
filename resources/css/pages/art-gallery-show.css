@@ -1,127 +1,120 @@
-/* =====================================
-   ART GALLERY - DETAIL PAGE
-===================================== */
+/* ===============================
+   ART SHOW – EDITORIAL STYLE
+================================ */
 
-.art-show-container {
-  max-width: 1200px;
+.art-show-wrap {
+  max-width: 980px;
   margin: auto;
-  padding: 3rem 1rem 5rem;
+  padding: 2.5rem 1rem 5rem;
 }
 
-/* Layout */
-.art-show-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 3rem;
-}
-
-/* Image */
-.art-show-image-wrapper {
-  border-radius: 1.25rem;
-  overflow: hidden;
-  box-shadow: 0 15px 35px rgba(0,0,0,0.15);
-  background: #fff;
-}
-
-.art-show-image {
-  width: 100%;
-  height: 460px;
-  object-fit: cover;
-  transition: transform 0.6s ease;
-}
-
-.art-show-image-wrapper:hover .art-show-image {
-  transform: scale(1.08);
-}
-
-/* Content */
-.art-show-title {
-  font-size: 2.2rem;
-  font-weight: 800;
-  margin-bottom: 0.75rem;
-}
-
-.art-show-artist {
-  color: #6b7280;
-  font-size: 1rem;
-  margin-bottom: 0.25rem;
-}
-
-.art-show-year {
-  font-size: 0.9rem;
-  color: #9ca3af;
-  margin-bottom: 1.25rem;
-}
-
-.art-show-price {
-  font-size: 2rem;
-  font-weight: 800;
-  color: #f53003;
-  margin-bottom: 1.5rem;
-}
-
-.art-show-description {
-  font-size: 1rem;
-  line-height: 1.7;
-  color: #374151;
-  margin-bottom: 2rem;
-}
-
-/* Actions */
-.art-show-actions {
-  display: flex;
-  gap: 1rem;
-}
-
-.art-show-btn-primary {
-  background: linear-gradient(135deg, #f53003, #ff7a55);
-  color: white;
-  border-radius: 999px;
-  padding: 0.7rem 1.6rem;
-  font-weight: 600;
-  transition: all 0.3s ease;
-}
-
-.art-show-btn-primary:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(245,48,3,0.4);
-}
-
-.art-show-btn-outline {
-  border: 1px solid #e5e7eb;
-  border-radius: 999px;
-  padding: 0.7rem 1.6rem;
-  font-weight: 500;
-  transition: all 0.3s ease;
-}
-
-.art-show-btn-outline:hover {
-  background: #f3f4f6;
-}
-
-/* Back link */
+/* Back */
 .art-show-back {
   display: inline-block;
   margin-bottom: 1.5rem;
   font-weight: 500;
-  color: #f53003;
+  color: #6b7280;
+}
+
+/* Hero Image */
+.art-show-hero {
+  border-radius: 1.5rem;
+  overflow: hidden;
+  margin-bottom: 2.5rem;
+}
+
+.art-show-hero img {
+  width: 100%;
+  height: 520px;
+  object-fit: cover;
+}
+
+/* Content */
+.art-show-content {
+  max-width: 720px;
+}
+
+/* Meta */
+.art-show-meta {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.art-show-status {
+  font-size: 0.7rem;
+  padding: 0.3rem 0.75rem;
+  border-radius: 999px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+}
+
+.art-show-status.ongoing {
+  background: #ecfdf5;
+  color: #047857;
+}
+
+.art-show-status.upcoming {
+  background: #eff6ff;
+  color: #1d4ed8;
+}
+
+.art-show-status.past {
+  background: #f3f4f6;
+  color: #6b7280;
+}
+
+.art-show-date {
+  font-size: 0.85rem;
+  color: #9ca3af;
+}
+
+/* Title */
+.art-show-title {
+  font-size: 2.4rem;
+  font-weight: 800;
+  margin-bottom: 0.4rem;
+}
+
+/* Artist & location */
+.art-show-artist,
+.art-show-location {
+  font-size: 0.95rem;
+  color: #6b7280;
+  margin-bottom: 0.25rem;
+}
+
+/* Description */
+.art-show-description {
+  margin-top: 2rem;
+  font-size: 1.05rem;
+  line-height: 1.75;
+  color: #374151;
+}
+
+/* Actions */
+.art-show-actions {
+  margin-top: 2.5rem;
+  display: flex;
+  gap: 1rem;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #f53003, #ff7a55);
+  color: #fff;
+  padding: 0.75rem 1.7rem;
+  border-radius: 999px;
+  font-weight: 600;
 }
 
 /* Responsive */
-@media (max-width: 900px) {
-  .art-show-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .art-show-image {
-    height: 320px;
+@media (max-width: 768px) {
+  .art-show-hero img {
+    height: 360px;
   }
 
   .art-show-title {
-    font-size: 1.8rem;
-  }
-
-  .art-show-price {
-    font-size: 1.5rem;
+    font-size: 1.9rem;
   }
 }

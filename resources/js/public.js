@@ -1,4 +1,4 @@
 import './shared/navbar';
 import './pages/welcome';
 import './pages/art-gallery';
-import './pages/reservasi';
+// import './pages/reservasi';
