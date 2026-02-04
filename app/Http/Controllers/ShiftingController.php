@@ -6,6 +6,8 @@ use App\Models\Shifting;
 use App\Services\GoogleSheetsService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use App\Exports\TukarShiftExport; // Tambahkan ini
+use Maatwebsite\Excel\Facades\Excel; // Tambahkan ini
 
 class shiftingController extends Controller
 {
@@ -122,5 +124,22 @@ class shiftingController extends Controller
         return redirect()
             ->route('shifting.create')
             ->with('success', 'Pengajuan tukar shift berhasil dikirim & tunggu konfirmasi.');
+    }
+
+    /**
+     * Export data ke Excel
+     */
+        public function export()
+    {
+        try {
+            // Generate nama file dengan timestamp
+            $filename = 'data-pengajuan-tukar-shift-' . date('Y-m-d-H-i-s') . '.xlsx';
+            
+            return Excel::download(new TukarShiftExport(), $filename);
+        } catch (\Exception $e) {
+            // Jika ada error, redirect kembali dengan pesan
+            return redirect()->route('shifting.index')
+                ->with('error', 'Gagal mengexport data: ' . $e->getMessage());
+        }
     }
 }

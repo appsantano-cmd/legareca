@@ -205,6 +205,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/', [ShiftingController::class, 'index'])->name('index');
         Route::get('/create', [ShiftingController::class, 'create'])->name('create');
         Route::post('/submit', [ShiftingController::class, 'submit'])->name('submit');
+        Route::get('/export', [ShiftingController::class, 'export'])->name('export');
     });
 
     // Daily Cleaning Report Routes

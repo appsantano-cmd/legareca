@@ -543,7 +543,7 @@
         <div class="card">
             <!-- LOGO HEADER -->
             <div class="logo-wrapper">
-                <img src="/logo.png" alt="Logo Perusahaan" class="logo-img">
+                <img src="/images/logo.png" alt="Logo Perusahaan" class="logo-img">
             </div>
             
             {{-- ================= START SCREEN ================= --}}
