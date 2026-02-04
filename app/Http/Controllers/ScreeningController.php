@@ -707,9 +707,8 @@ class ScreeningController extends Controller
             }
 
             $body .= "Data ini telah tersimpan di database dan Google Sheets.\n\n";
-            $body .= "Mohon tindak lanjut sesuai SOP internal.\n\n";
             $body .= "Terima kasih.\n\n";
-            $body .= "— Sistem Screening Le Gareca";
+            $body .= "-- © Santano 2026 | Sistem Screening Le Gareca Space --";
 
             // Kirim email plain text sederhana
             Mail::raw($body, function ($message) use ($santanoEmail, $subject) {
