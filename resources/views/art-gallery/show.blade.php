@@ -16,8 +16,7 @@
             <img
                 src="{{ asset('storage/' . $art->image_path) }}"
                 alt="{{ $art->title }}"
-                class="art-show-image"
-            >
+                class="art-show-image">
         </div>
 
         <!-- Info -->
@@ -25,31 +24,31 @@
             <h1 class="art-show-title">{{ $art->title }}</h1>
 
             @if($art->artist)
-                <p class="art-show-artist">🎨 {{ $art->artist }}</p>
+            <p class="art-show-artist">🎨 {{ $art->artist }}</p>
             @endif
 
             @if($art->creation_date)
-                <p class="art-show-year">
-                    Tahun {{ \Carbon\Carbon::parse($art->creation_date)->format('Y') }}
-                </p>
+            <p class="art-show-year">
+                Tahun {{ \Carbon\Carbon::parse($art->creation_date)->format('Y') }}
+            </p>
             @endif
 
             @if($art->price)
-                <div class="art-show-price">
-                    Rp {{ number_format($art->price) }}
-                </div>
+            <div class="art-show-price">
+                Rp {{ number_format($art->price) }}
+            </div>
             @endif
 
             @if($art->description)
-                <p class="art-show-description">
-                    {{ $art->description }}
-                </p>
+            <p class="art-show-description">
+                {{ $art->description }}
+            </p>
             @endif
 
             <div class="art-show-actions">
-                <a href="https://wa.me/62xxxxxxxxxx"
-                   target="_blank"
-                   class="art-show-btn-primary">
+                <a href="https://wa.me/6281328897679?text=Halo,%20saya%20ingin%20bertanya%20tentang%20Karya%20Ini%20di%20Art%20Gallery"
+                    target="_blank"
+                    class="art-show-btn-primary">
                     💬 Tanya
                 </a>
 

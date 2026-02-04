@@ -18,6 +18,7 @@ use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\VenueBookingController;
 use App\Http\Controllers\ReservasiController;
 use App\Http\Controllers\CafeRestoController;
+use App\Http\Controllers\KamiDaurController;
 
 // Public Routes
 Route::get('/', function () {
@@ -266,3 +267,7 @@ Route::middleware('auth')->group(function () {
 // Cafe & Resto Routes
 Route::get('/cafe-resto', [CafeRestoController::class, 'index'])->name('cafe-resto');
 Route::post('/cafe-resto/reservation', [CafeRestoController::class, 'store'])->name('cafe-resto.reservation.store');
+
+// Kami Daur Routes
+Route::get('/kami-daur', [KamiDaurController::class, 'index'])->name('kami-daur.index');
+

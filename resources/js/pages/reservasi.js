@@ -1,4 +1,4 @@
-<script src="https://cdn.jsdelivr.net/npm/animate.css@4.1.1/animate.min.css"></script>;
+//<script src="https://cdn.jsdelivr.net/npm/animate.css@4.1.1/animate.min.css"></script>;
 // Mobile Menu Toggle
 document.addEventListener("DOMContentLoaded", function () {
     const mobileMenuBtn = document.getElementById("mobileMenuBtn");
