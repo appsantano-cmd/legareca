@@ -502,6 +502,9 @@ public function cancelled()
         return view('screening.thankyou');
     }
 
+    /**
+     * Export data to Spreadsheet
+     */
     public function exportToSheets()
     {
         try {
