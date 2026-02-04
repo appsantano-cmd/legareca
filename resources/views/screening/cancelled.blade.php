@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pemeriksaan Dibatalkan - Le Gareca Space</title>
+    <title>Pemeriksaan Ditangguhkan - Le Gareca Space</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -38,7 +38,7 @@
             <div class="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-r from-red-100 to-orange-100 mb-4">
                 <i class="fas fa-exclamation-triangle text-3xl text-red-500"></i>
             </div>
-            <h1 class="text-3xl md:text-4xl font-extrabold text-gray-800 mb-2">Pemeriksaan Dibatalkan</h1>
+            <h1 class="text-3xl md:text-4xl font-extrabold text-gray-800 mb-2">Pemeriksaan Ditangguhkan</h1>
             <div class="flex items-center justify-center space-x-2">
                 <div class="h-1 w-12 bg-red-400 rounded-full"></div>
                 <h2 class="text-2xl md:text-3xl font-bold text-red-500">Le Gareca Space</h2>
@@ -50,9 +50,9 @@
         <div class="card p-6 animate-fadeIn">
             <div class="text-center mb-8">
                 <i class="fas fa-sad-tear text-6xl text-red-400 mb-4"></i>
-                <h3 class="text-xl font-bold text-gray-800 mb-2">Mohon Maaf, Pemeriksaan Tidak Dapat Dilanjutkan</h3>
+                <h3 class="text-xl font-bold text-gray-800 mb-2">Mohon maaf, anabul tidak dapat masuk ke area Le Gareca Space.</h3>
                 <p class="text-gray-600">
-                    Berdasarkan hasil screening, terdapat kondisi yang mengharuskan pemeriksaan dibatalkan.
+                    Berdasarkan hasil screening, terdapat kondisi yang mengharuskan anabul menjalani perawatan/pengobatan/pemeriksaan medis terlebih dahulu.
                 </p>
             </div>
 
@@ -87,18 +87,8 @@
                     <i class="fas fa-stethoscope mr-2"></i> Saran:
                 </h4>
                 <p class="text-gray-700 mb-3">
-                    Untuk kesehatan anabul Anda, disarankan untuk:
+                    Untuk pemeriksaan medis lebih lanjut dapat menghubungi dokter hewan Lega Pet Care atau dokter hewan langganan Anda.
                 </p>
-                <ul class="list-disc pl-5 text-gray-700 space-y-1">
-                    @if(in_array('kutu', array_column($reasons, 'reason')))
-                    <li>Melakukan perawatan kutu terlebih dahulu</li>
-                    <li>Konsultasi dengan dokter hewan untuk penanganan kutu</li>
-                    @endif
-                    @if(in_array('birahi', array_column($reasons, 'reason')))
-                    <li>Menunggu masa birahi selesai</li>
-                    <li>Pertimbangkan sterilisasi untuk kesehatan jangka panjang</li>
-                    @endif
-                </ul>
             </div>
 
             <!-- Action Buttons -->
