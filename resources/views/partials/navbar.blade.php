@@ -13,11 +13,11 @@
         <!-- Desktop Menu -->
         <div class="nav-menu hidden md:flex items-center gap-8">
             <a href="/" class="nav-item">Beranda</a>
-            <a href="/cafe-resto" class="nav-item">Legareca Cafe & Resto</a>
+            <a href="/cafe-resto" class="nav-item">Le Gareca Cafe & Resto</a>
             <a href="/venue" class="nav-item">Venue</a>
-            <a href="/reservasi" class="nav-item">Legareca Inn</a>
+            <a href="/reservasi" class="nav-item">Le Gareca Inn</a>
             <a href="/art-gallery" class="nav-item">Art Gallery</a>
-            <a href="#pet" class="nav-item">Legareca Pet</a>
+            <a href="#pet" class="nav-item">Lega Pet Care</a>
 
             <button class="nav-button">
                 Hubungi Kami
