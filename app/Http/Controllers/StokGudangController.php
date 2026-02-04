@@ -51,12 +51,14 @@ class StokGudangController extends Controller
             }
         }
 
-        // Filter by search
+        // Filter by search - MODIFIED to include departemen and supplier
         if ($request->has('search') && $request->search) {
             $search = $request->search;
             $query->where(function ($q) use ($search) {
                 $q->where('kode_barang', 'like', "%{$search}%")
-                    ->orWhere('nama_barang', 'like', "%{$search}%");
+                    ->orWhere('nama_barang', 'like', "%{$search}%")
+                    ->orWhere('departemen', 'like', "%{$search}%")
+                    ->orWhere('supplier', 'like', "%{$search}%");
             });
         }
 
