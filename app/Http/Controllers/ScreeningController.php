@@ -9,6 +9,7 @@ use Revolution\Google\Sheets\Facades\Sheets;
 use Illuminate\Support\Facades\Mail;
 use App\Exports\ScreeningsExport;
 use Maatwebsite\Excel\Facades\Excel;
+use App\Services\GoogleSheetsService;
 
 use App\Models\Screening;
 use App\Models\ScreeningPet;
@@ -352,7 +353,7 @@ class ScreeningController extends Controller
         }
     }
 
-public function cancelled()
+    public function cancelled()
     {
         $cancelReasons = session('cancel_reasons', []);
         $screeningId = session('screening_id');
@@ -503,26 +504,18 @@ public function cancelled()
     }
 
     /**
-     * Export data to Spreadsheet
+     * Export data to Spreadsheet using GoogleSheetsService
      */
     public function exportToSheets()
     {
         try {
-            putenv('GOOGLE_APPLICATION_CREDENTIALS=' . realpath(env('GOOGLE_APPLICATION_CREDENTIALS')));
+            // 1. Inisialisasi GoogleSheetsService
+            $sheetsService = new \App\Services\GoogleSheetsService();
 
-            $client = new \Google\Client();
-            $client->useApplicationDefaultCredentials();
-            $client->addScope(\Google\Service\Sheets::SPREADSHEETS);
-
-            $service = new \Google\Service\Sheets($client);
-            Sheets::setService($service);
-
-            $spreadsheetId = env('GOOGLE_SHEETS_SPREADSHEET_ID');
-
-            // 1. Ambil data dari DB (termasuk yang cancelled)
+            // 2. Ambil data dari DB (termasuk yang cancelled)
             $screenings = Screening::with('pets')->get();
 
-            // 2. Susun array rows
+            // 3. Susun array rows
             $rows = [];
             $rows[] = [
                 'ID',
@@ -574,61 +567,43 @@ public function cancelled()
                 }
             }
 
-            // 3. Update ke Google Sheets
-            Sheets::spreadsheet($spreadsheetId)->sheet('Screening')->clear();
-            Sheets::spreadsheet($spreadsheetId)->sheet('Screening')->range('A1')->update($rows);
+            // 4. Gunakan GoogleSheetsService untuk update
+            // Note: Kita perlu menentukan sheet name yang berbeda untuk screening
+            // Berdasarkan kode sebelumnya, sheet name adalah 'Screening'
 
-            // 4. Format spreadsheet
-            $sheetInfo = $service->spreadsheets->get($spreadsheetId);
-            $sheetId = $sheetInfo->sheets[0]->properties->sheetId;
+            // 4a. Set header (overwrite row pertama)
+            $sheetsService->setHeader($rows[0], 'Screening!A1');
 
-            $formatRequests = [
-                [
-                    'repeatCell' => [
-                        'range' => [
-                            'sheetId' => $sheetId,
-                            'startRowIndex' => 0,
-                            'endRowIndex' => 1,
-                            'startColumnIndex' => 0,
-                            'endColumnIndex' => count($rows[0])
-                        ],
-                        'cell' => [
-                            'userEnteredFormat' => [
-                                'backgroundColor' => ['red' => 0.95, 'green' => 0.95, 'blue' => 0.95],
-                                'textFormat' => ['bold' => true, 'fontSize' => 11]
-                            ]
-                        ],
-                        'fields' => 'userEnteredFormat(backgroundColor,textFormat)'
-                    ]
-                ],
-                [
-                    'updateSheetProperties' => [
-                        'properties' => [
-                            'sheetId' => $sheetId,
-                            'gridProperties' => ['frozenRowCount' => 1]
-                        ],
-                        'fields' => 'gridProperties.frozenRowCount'
-                    ]
-                ],
-                [
-                    'autoResizeDimensions' => [
-                        'dimensions' => [
-                            'sheetId' => $sheetId,
-                            'dimension' => 'COLUMNS',
-                            'startIndex' => 0,
-                            'endIndex' => count($rows[0])
-                        ]
-                    ]
-                ]
-            ];
+            // 4b. Hapus data lama dari row 2 ke bawah
+            // Karena GoogleSheetsService tidak punya method clear, kita akan
+            // append semua data baru, lalu hapus sisa data lama
 
-            $batchFormat = new \Google\Service\Sheets\BatchUpdateSpreadsheetRequest([
-                'requests' => $formatRequests
-            ]);
+            // 4c. Append semua data kecuali header (mulai dari index 1)
+            $dataRows = array_slice($rows, 1);
 
-            $service->spreadsheets->batchUpdate($spreadsheetId, $batchFormat);
+            if (!empty($dataRows)) {
+                // Clear existing data dari row 2 ke bawah
+                // Kita akan gunakan batch update untuk clear range A2:Z
+                $service = $sheetsService->raw();
+                $spreadsheetId = config('services.google.spreadsheet_id');
 
-            Log::info('Google Sheets export completed successfully');
+                // Clear range A2:Z1000 (adjust sesuai kebutuhan)
+                $clearRequest = new \Google\Service\Sheets\ClearValuesRequest();
+                $service->spreadsheets_values->clear(
+                    $spreadsheetId,
+                    'Screening!A2:Z1000',
+                    $clearRequest
+                );
+
+                // Append data baru
+                $sheetsService->appendMany($dataRows, 'Screening!A2');
+            }
+
+            Log::info('Google Sheets export completed successfully using GoogleSheetsService');
+
+            // 5. Format spreadsheet (opsional)
+            // Karena GoogleSheetsService tidak support batch format,
+            // kita skip bagian formatting untuk simplifikasi
 
             // Kembalikan response JSON untuk fetch
             return response()->json([
@@ -639,6 +614,7 @@ public function cancelled()
 
         } catch (\Exception $e) {
             Log::error('Google Sheets export error: ' . $e->getMessage());
+            Log::error('Error trace: ' . $e->getTraceAsString());
 
             return response()->json([
                 'success' => false,
@@ -672,7 +648,7 @@ public function cancelled()
         }
     }
 
-/**
+    /**
      * Kirim email notifikasi ke Santano
      * SIMPLE VERSION - hanya notifikasi tanpa email user
      */
@@ -681,18 +657,18 @@ public function cancelled()
         try {
             // Email Santano
             $santanoEmail = "appsantano@gmail.com";
-            
+
             // Subject berdasarkan status
-            $subject = $screening->status == 'completed' 
+            $subject = $screening->status == 'completed'
                 ? "✅ Screening Baru - " . $screening->owner_name . " - Le Gareca Space"
                 : "⚠️ Screening Dibatalkan - " . $screening->owner_name . " - Le Gareca Space";
 
             // Body email (text sederhana)
-            $body = $screening->status == 'completed' 
+            $body = $screening->status == 'completed'
                 ? "✅ SCREENING BARU — Le Gareca Space ✅\n\n"
-                  . "Ada input screening baru dari sistem dengan detail berikut:\n\n"
+                . "Ada input screening baru dari sistem dengan detail berikut:\n\n"
                 : "⚠️ SCREENING DIBATALKAN — Le Gareca Space ⚠️\n\n"
-                  . "Ada screening yang dibatalkan dengan detail berikut:\n\n";
+                . "Ada screening yang dibatalkan dengan detail berikut:\n\n";
 
             $body .= "👤 Owner: " . $screening->owner_name . "\n";
             $body .= "📱 Phone: " . $screening->phone_number . "\n";
@@ -714,7 +690,7 @@ public function cancelled()
                 $body .= "  Telinga: " . $pet->telinga . "\n";
                 $body .= "  Riwayat: " . $pet->riwayat . "\n";
                 $body .= "  Status: " . $pet->status_text . "\n";
-                
+
                 // Tambahkan alasan pembatalan jika ada
                 if ($pet->kutu_action == 'tidak_periksa' || $pet->birahi_action == 'tidak_periksa') {
                     $reasons = [];
@@ -726,7 +702,7 @@ public function cancelled()
                     }
                     $body .= "  Alasan: " . implode(', ', $reasons) . "\n";
                 }
-                
+
                 $body .= "  ------------------------\n\n";
             }
 
@@ -738,7 +714,7 @@ public function cancelled()
             // Kirim email plain text sederhana
             Mail::raw($body, function ($message) use ($santanoEmail, $subject) {
                 $message->to($santanoEmail)
-                        ->subject($subject);
+                    ->subject($subject);
             });
 
             Log::info('Email notification sent to Santano for screening ID: ' . $screening->id);
