@@ -323,7 +323,7 @@
                     <a href="/shifting/create"
                         class="flex items-center p-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition duration-200 {{ request()->is('shifting/create') ? 'active-menu' : '' }}">
                         <i class="fas fa-right-left text-lg w-6"></i>
-                        <span class="ml-3 font-medium">Tukar Shift</span>
+                        <span class="ml-3 font-medium">Form Tukar Shift</span>
                     </a>
 
                     <!-- Daftar Tukar Shift -->
@@ -353,6 +353,7 @@
                         <i class="fas fa-boxes-stacked text-lg w-6"></i>
                         <span class="ml-3 font-medium">Stok Gudang</span>
                     </a>
+
                     <!-- Art Gallery Create -->
                     <a href="{{ route('gallery.create') }}"
                         class="flex items-center p-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition duration-200 {{ request()->is('art-galleries/create') ? 'active-menu' : '' }}">
