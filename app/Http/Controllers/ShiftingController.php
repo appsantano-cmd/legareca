@@ -133,7 +133,7 @@ class shiftingController extends Controller
     {
         try {
             // Generate nama file dengan timestamp
-            $filename = 'data-pengajuan-tukar-shift-' . date('Y-m-d-H-i-s') . '.xlsx';
+            $filename = 'Data-Pengajuan-Tukar-Shift-' . date('d-m-Y') . '.xlsx';
             
             return Excel::download(new TukarShiftExport(), $filename);
         } catch (\Exception $e) {
