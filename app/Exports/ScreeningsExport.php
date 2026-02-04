@@ -30,7 +30,8 @@ class ScreeningsExport implements FromCollection, WithHeadings, WithMapping, Wit
      */
     public function collection()
     {
-        $query = Screening::with('pets')->latest();
+        $query = Screening::with('pets')
+            ->orderBy('id', 'asc');
 
         // Apply filters sama seperti di controller index
         if ($this->search) {
@@ -70,7 +71,7 @@ class ScreeningsExport implements FromCollection, WithHeadings, WithMapping, Wit
             'Nama Owner',
             'Nomor Telepon',
             'Jumlah Pet',
-            
+
             // Data Pet
             'Nama Pet',
             'Breed',
@@ -86,7 +87,7 @@ class ScreeningsExport implements FromCollection, WithHeadings, WithMapping, Wit
             'Kondisi Telinga',
             'Riwayat Kesehatan',
             'Status Pet',
-            
+
             // Additional Info
             'Dibuat Pada',
             'Diupdate Pada'
@@ -100,7 +101,7 @@ class ScreeningsExport implements FromCollection, WithHeadings, WithMapping, Wit
     public function map($screening): array
     {
         $rows = [];
-        
+
         foreach ($screening->pets as $pet) {
             $rows[] = [
                 $screening->id,
@@ -109,7 +110,7 @@ class ScreeningsExport implements FromCollection, WithHeadings, WithMapping, Wit
                 $screening->owner_name,
                 $screening->phone_number,
                 $screening->pet_count,
-                
+
                 // Pet Data
                 $pet->name,
                 $pet->breed,
@@ -125,13 +126,13 @@ class ScreeningsExport implements FromCollection, WithHeadings, WithMapping, Wit
                 $pet->telinga,
                 $pet->riwayat,
                 $pet->status_text,
-                
+
                 // Timestamps
                 $screening->created_at->setTimezone('Asia/Jakarta')->format('Y-m-d H:i:s'),
                 $screening->updated_at->setTimezone('Asia/Jakarta')->format('Y-m-d H:i:s'),
             ];
         }
-        
+
         return $rows;
     }
 

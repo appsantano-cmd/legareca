@@ -135,7 +135,7 @@ class PengajuanIzinController extends Controller
      */
     public function export(Request $request): BinaryFileResponse
     {
-        $filename = 'Pengajuan-Izin-' . date('d-m-Y') . '.xlsx';
+        $filename = 'Data Pengajuan Izin - ' . date('d F Y') . '.xlsx';
 
         return Excel::download(
             new PengajuanIzinExport(

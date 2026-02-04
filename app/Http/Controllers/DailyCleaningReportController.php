@@ -293,7 +293,7 @@ class DailyCleaningReportController extends Controller
     public function exportData()
     {
         try {
-            $filename = 'cleaning-report-export-' . date('Y-m-d-H-i-s') . '.xlsx';
+            $filename = 'Data Cleaning Report - ' . date('d F Y') . '.xlsx';
             return Excel::download(new DataCleaningExport, $filename);
         } catch (\Exception $e) {
             Log::error('Error in exportData: ' . $e->getMessage());

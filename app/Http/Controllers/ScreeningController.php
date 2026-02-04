@@ -655,7 +655,7 @@ public function cancelled()
             $startDate = $request->query('start_date');
             $endDate = $request->query('end_date');
 
-            $fileName = 'screening-data-' . date('d-F-Y') . '.xlsx';
+            $fileName = 'Data Screening - ' . date('d F Y') . '.xlsx';
 
             return Excel::download(
                 new ScreeningsExport($search, $status, $startDate, $endDate),
