@@ -197,7 +197,14 @@ Route::middleware('auth')->group(function () {
         Route::get('/', [PengajuanIzinController::class, 'index'])->name('index');
         Route::get('/create', [PengajuanIzinController::class, 'create'])->name('create');
         Route::post('/', [PengajuanIzinController::class, 'store'])->name('store');
+        Route::post('/{id}/update-status', [PengajuanIzinController::class, 'updateStatus'])->name('update-status');
         Route::get('/export', [PengajuanIzinController::class, 'export'])->name('export');
+
+        // Route untuk action dari email admin
+        Route::get('/email-action/{id}', [PengajuanIzinController::class, 'actionFromEmail'])
+            ->name('email-action');
+        // Route untuk detail (AJAX)
+        Route::get('/{id}/detail', [PengajuanIzinController::class, 'detail'])->name('detail');
     });
 
     // shifting Routes
