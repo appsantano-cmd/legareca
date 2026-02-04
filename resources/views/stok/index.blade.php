@@ -399,7 +399,7 @@
                                         <div class="col-md-4">
                                             <label class="form-label filter-label">Cari Barang</label>
                                             <input type="text" name="search" class="form-control form-control-sm"
-                                                placeholder="Masukkan kode atau nama barang..."
+                                                placeholder="Masukkan kode, nama barang, departemen, atau supplier..."
                                                 value="{{ request('search') }}">
                                         </div>
 
