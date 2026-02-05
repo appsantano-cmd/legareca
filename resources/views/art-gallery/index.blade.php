@@ -1,4 +1,4 @@
-@extends('layouts.layout_main')
+@extends(view: 'layouts.layout_main')
 
 @section('title', 'Art Gallery')
 

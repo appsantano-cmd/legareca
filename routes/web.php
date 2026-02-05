@@ -20,6 +20,7 @@ use App\Http\Controllers\ReservasiController;
 use App\Http\Controllers\CafeRestoController;
 use App\Http\Controllers\KamiDaurController;
 use App\Http\Controllers\LegaPetCareController;
+use App\Http\Controllers\HalamanVenueController;
 
 // Public Routes
 Route::get('/', function () {
@@ -265,12 +266,12 @@ Route::middleware('auth')->group(function () {
         Route::delete('/{id}', [NotificationPageController::class, 'destroy'])->name('notifications.destroy');
         Route::delete('/', [NotificationPageController::class, 'clearAll'])->name('notifications.clear-all');
     });
+});
 
-    // Venue Booking Routes
+// Venue Booking Routes
     Route::get('/venue', [VenueBookingController::class, 'index'])->name('venue.index');
     Route::post('/venue/step', [VenueBookingController::class, 'handleStep'])->name('venue.step');
     Route::post('/venue/submit', [VenueBookingController::class, 'submitBooking'])->name('venue.submit');
-});
 
 // Cafe & Resto Routes
 Route::get('/cafe-resto', [CafeRestoController::class, 'index'])->name('cafe-resto');
@@ -281,4 +282,10 @@ Route::get('/kami-daur', [KamiDaurController::class, 'index'])->name('kami-daur.
 
 // Lega Pet Care Routes
 Route::get('/lega-pet-care', [LegaPetCareController::class, 'index'])->name('lega-pet-care.index');
+
+// Halaman informasi venue
+Route::get('/halamanvenue', [HalamanVenueController::class, 'index'])->name('halamanvenue.index');
+
+// Untuk navbar, Anda bisa menyesuaikan link seperti:
+Route::get('/venue-info', [HalamanVenueController::class, 'index'])->name('venue.info');
 
