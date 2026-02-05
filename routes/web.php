@@ -221,6 +221,12 @@ Route::middleware('auth')->group(function () {
         Route::post('/{id}/update-status', [shiftingController::class, 'updateStatus'])
             ->name('update-status');
 
+        // Tambahkan route GET untuk handle accidental access
+        Route::get('/{id}/update-status', function ($id) {
+            return redirect()->route('shifting.index')
+                ->with('error', 'Akses tidak valid. Silakan gunakan tombol di tabel.');
+        });
+
         // Route untuk action dari email admin
         Route::get('/email-action/{id}', [shiftingController::class, 'actionFromEmail'])
             ->name('email-action');

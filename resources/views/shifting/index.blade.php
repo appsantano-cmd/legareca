@@ -541,7 +541,7 @@
         `;
 
                 // Fetch data dari server
-                const response = await fetch(`/tukar-shift/${id}/detail`);
+                const response = await fetch(`/shifting/${id}/detail`);
                 const data = await response.json();
 
                 document.getElementById('modalContent').innerHTML = `
@@ -661,7 +661,7 @@
 
         function showRejectModal(id) {
             const form = document.getElementById('rejectForm');
-            form.action = `/tukar-shift/${id}/update-status`;
+            form.action = `/shifting/${id}/update-status`;
             document.getElementById('rejectModal').classList.remove('hidden');
             document.body.style.overflow = 'hidden';
         }

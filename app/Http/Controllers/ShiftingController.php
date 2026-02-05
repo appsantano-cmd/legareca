@@ -383,7 +383,7 @@ class shiftingController extends Controller
                 $shifting->tanggal_persetujuan ? $shifting->tanggal_persetujuan->format('d-m-Y H:i:s') : '',
             ];
 
-            $range = "Tukar Shift!N{$rowNumber}:Q{$rowNumber}";
+            $range = "Tukar Shift!N{$rowNumber}:R{$rowNumber}";
 
             $body = new \Google\Service\Sheets\ValueRange([
                 'values' => [$updateData]
