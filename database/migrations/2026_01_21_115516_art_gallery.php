@@ -17,7 +17,9 @@ return new class extends Migration
             $table->string('short_description')->nullable();
             $table->text('description')->nullable();
             $table->string('artist')->nullable();
-            $table->date('creation_date')->nullable();
+            $table->string('location')->nullable();
+            $table->date('start_date')->nullable();
+            $table->date('end_date')->nullable();
             $table->string('image_path')->nullable();
             $table->timestamps();
         });

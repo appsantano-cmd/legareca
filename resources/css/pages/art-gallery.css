@@ -1,116 +1,161 @@
-/* ================================
-   ART GALLERY PAGE – PREMIUM UI
-================================ */
+/* =====================================
+   ART GALLERY – FULL SECTION LAYOUT
+===================================== */
 
-.gallery-grid {
+.gallery-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2.5rem;
+}
+
+/* =====================
+   SECTION
+===================== */
+
+.gallery-section {
+  margin-bottom: 5rem;
+}
+
+.gallery-section-title {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #111827;
+  margin-bottom: 2rem;
+  letter-spacing: -0.01em;
+}
+
+/* =====================
+   ROW (CLICKABLE)
+===================== */
+
+.gallery-row {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-  gap: 1.75rem;
+  grid-template-columns: 420px 1fr;
+  gap: 2.5rem;
+  align-items: center;
+  text-decoration: none;
+  color: inherit;
+  padding-bottom: 2.5rem;
+  border-bottom: 1px solid #e5e7eb;
+  transition: transform 0.35s ease;
 }
 
-/* Card */
-.gallery-card {
-  background: linear-gradient(180deg, #ffffff, #fafafa);
-  border-radius: 1rem;
+.gallery-row:hover {
+  transform: translateX(10px);
+}
+
+/* =====================
+   IMAGE
+===================== */
+
+.gallery-row-image {
   overflow: hidden;
-  box-shadow: 0 8px 25px rgba(0,0,0,0.06);
-  transition: all 0.35s ease;
-  position: relative;
+  border-radius: 1.25rem;
 }
 
-.gallery-card:hover {
-  transform: translateY(-8px) scale(1.01);
-  box-shadow: 0 20px 40px rgba(0,0,0,0.12);
-}
-
-/* Image */
-.gallery-image-wrapper {
-  position: relative;
-  overflow: hidden;
-  height: 230px;
-}
-
-.gallery-image {
+.gallery-row-image img {
   width: 100%;
-  height: 100%;
+  height: 260px;
   object-fit: cover;
   transition: transform 0.6s ease;
 }
 
-.gallery-card:hover .gallery-image {
-  transform: scale(1.12);
+.gallery-row:hover img {
+  transform: scale(1.08);
 }
 
-/* Gradient overlay */
-.gallery-image-wrapper::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    to bottom,
-    rgba(0,0,0,0) 50%,
-    rgba(0,0,0,0.45) 100%
-  );
-  opacity: 0;
-  transition: opacity 0.4s ease;
+/* =====================
+   CONTENT
+===================== */
+
+.gallery-row-content {
+  max-width: 680px;
 }
 
-.gallery-card:hover .gallery-image-wrapper::after {
-  opacity: 1;
-}
-
-/* Content */
-.gallery-content {
-  padding: 1.25rem 1.25rem 1.4rem;
-}
-
-.gallery-title {
-  font-size: 1.1rem;
-  font-weight: 700;
+.gallery-row-title {
+  font-size: 1.7rem;
+  font-weight: 800;
   color: #111827;
-  margin-bottom: 0.2rem;
+  margin-bottom: 0.25rem;
 }
 
-.gallery-artist {
-  font-size: 0.85rem;
-  color: #6b7280;
-  margin-bottom: 0.4rem;
-}
-
-.gallery-description {
+.gallery-row-artist {
   font-size: 0.9rem;
+  color: #6b7280;
+  margin-bottom: 0.9rem;
+}
+
+.gallery-row-description {
+  font-size: 1rem;
+  line-height: 1.65;
   color: #374151;
-  line-height: 1.4;
-  margin-bottom: 0.75rem;
+  margin-bottom: 1.1rem;
 }
 
-/* Footer meta */
-.gallery-meta {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+/* =====================
+   DATES
+===================== */
+
+.gallery-row-dates {
+  margin-top: 0.6rem;
 }
 
-/* Price badge */
-.gallery-price {
-  background: linear-gradient(135deg, #f53003, #ff7a55);
-  color: white;
-  font-weight: 600;
-  font-size: 0.8rem;
-  padding: 0.3rem 0.65rem;
-  border-radius: 999px;
-  box-shadow: 0 4px 10px rgba(245,48,3,.35);
-}
-
-/* Year */
-.gallery-year {
-  font-size: 0.75rem;
+.gallery-row-date-label {
+  display: block;
+  font-size: 0.7rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
   color: #9ca3af;
+  margin-bottom: 0.25rem;
 }
 
-/* Responsive */
-@media (max-width: 640px) {
-  .gallery-image-wrapper {
-    height: 190px;
+.gallery-row-date {
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: #111827;
+}
+
+/* =====================
+   EMPTY STATE
+===================== */
+
+.gallery-empty {
+  color: #9ca3af;
+  font-size: 0.95rem;
+}
+
+/* =====================
+   RESPONSIVE
+===================== */
+
+@media (max-width: 1024px) {
+  .gallery-row {
+    grid-template-columns: 360px 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .gallery-row {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+    padding-bottom: 2rem;
+  }
+
+  .gallery-row:hover {
+    transform: none;
+  }
+
+  .gallery-row-image img {
+    height: 220px;
+  }
+
+  .gallery-row-title {
+    font-size: 1.45rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .gallery-row-image img {
+    height: 200px;
   }
 }

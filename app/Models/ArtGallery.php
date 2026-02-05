@@ -13,7 +13,9 @@ class ArtGallery extends Model
         'short_description',
         'description',
         'artist',
-        'creation_date',
+        'location',
+        'start_date',
+        'end_date',
         'image_path',
     ];
 }

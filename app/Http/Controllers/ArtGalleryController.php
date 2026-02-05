@@ -5,15 +5,32 @@ namespace App\Http\Controllers;
 use App\Models\ArtGallery;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Carbon\Carbon;
 
 class ArtGalleryController extends Controller
 {
     public function index()
     {
-        $galleries = ArtGallery::latest()->get();
+        $today = Carbon::today();
 
-        // Ubah ini untuk menggunakan view yang sudah ada
-        return view('art-gallery.index', compact('galleries'));
+        $ongoing = ArtGallery::where('start_date', '<=', $today)
+            ->where('end_date', '>=', $today)
+            ->orderBy('start_date')
+            ->get();
+
+        $upcoming = ArtGallery::where('start_date', '>', $today)
+            ->orderBy('start_date')
+            ->get();
+
+        $past = ArtGallery::where('end_date', '<', $today)
+            ->orderByDesc('end_date')
+            ->get();
+
+        return view('art-gallery.index', compact(
+            'ongoing',
+            'upcoming',
+            'past'
+        ));
     }
 
     public function create()

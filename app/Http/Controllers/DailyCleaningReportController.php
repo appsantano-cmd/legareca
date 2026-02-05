@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 use Google\Client;
 use Google\Service\Sheets;
 use Google\Service\Sheets\ValueRange;
@@ -18,7 +19,7 @@ use App\Exports\DataCleaningExport;
 class DailyCleaningReportController extends Controller
 {
     // ===== METODE UNTUK FORM INPUT =====
-    
+
     /**
      * Halaman utama - Form input data baru (Step 1)
      */
@@ -26,7 +27,7 @@ class DailyCleaningReportController extends Controller
     {
         return view('cleaning-report.form-step1');
     }
-    
+
     /**
      * Halaman form step 1 (alias untuk index)
      */
@@ -34,7 +35,7 @@ class DailyCleaningReportController extends Controller
     {
         return view('cleaning-report.form-step1');
     }
-    
+
     /**
      * Halaman dashboard data cleaning
      */
@@ -42,9 +43,9 @@ class DailyCleaningReportController extends Controller
     {
         return view('cleaning-report.dashboard');
     }
-    
+
     // ===== METODE UNTUK DASHBOARD DATA CLEANING (AJAX) =====
-    
+
     /**
      * Ambil data untuk dashboard (AJAX)
      */
@@ -55,33 +56,33 @@ class DailyCleaningReportController extends Controller
             $page = $request->input('page', 1);
             $perPage = $request->input('per_page', 10);
             $statusFilter = $request->input('status', 'all');
-            
+
             // Query dari tabel daily_cleaning_reports
             $query = DailyCleaningReport::query();
-            
+
             // Filter pencarian
             if ($search) {
-                $query->where(function($q) use ($search) {
+                $query->where(function ($q) use ($search) {
                     $q->where('nama', 'LIKE', "%{$search}%")
-                      ->orWhere('departemen', 'LIKE', "%{$search}%")
-                      ->orWhere('tanggal', 'LIKE', "%{$search}%");
+                        ->orWhere('departemen', 'LIKE', "%{$search}%")
+                        ->orWhere('tanggal', 'LIKE', "%{$search}%");
                 });
             }
-            
+
             // Filter status
             if ($statusFilter !== 'all') {
                 $query->where('status', $statusFilter);
             }
-            
+
             // Hitung total
             $total = $query->count();
-            
+
             // Ambil data dengan pagination
             $data = $query->orderBy('created_at', 'desc')
-                         ->skip(($page - 1) * $perPage)
-                         ->take($perPage)
-                         ->get();
-            
+                ->skip(($page - 1) * $perPage)
+                ->take($perPage)
+                ->get();
+
             // Hitung statistik
             $stats = [
                 'total' => DailyCleaningReport::count(),
@@ -89,21 +90,23 @@ class DailyCleaningReportController extends Controller
                 'pending' => DailyCleaningReport::where('status', 'pending')->count(),
                 'cancelled' => DailyCleaningReport::where('status', 'cancelled')->count(),
                 'today' => DailyCleaningReport::whereDate('created_at', today())->count(),
-                'this_week' => DailyCleaningReport::whereBetween('created_at', 
-                    [now()->startOfWeek(), now()->endOfWeek()])->count(),
+                'this_week' => DailyCleaningReport::whereBetween(
+                    'created_at',
+                    [now()->startOfWeek(), now()->endOfWeek()]
+                )->count(),
                 'this_month' => DailyCleaningReport::whereMonth('created_at', now()->month)->count()
             ];
-            
+
             return response()->json([
                 'success' => true,
                 'data' => $data,
                 'total' => $total,
                 'stats' => $stats,
-                'current_page' => (int)$page,
-                'per_page' => (int)$perPage,
+                'current_page' => (int) $page,
+                'per_page' => (int) $perPage,
                 'last_page' => ceil($total / $perPage)
             ]);
-            
+
         } catch (\Exception $e) {
             Log::error('Error in getData: ' . $e->getMessage());
             return response()->json([
@@ -112,7 +115,7 @@ class DailyCleaningReportController extends Controller
             ], 500);
         }
     }
-    
+
     /**
      * Get stats untuk dashboard
      */
@@ -125,32 +128,34 @@ class DailyCleaningReportController extends Controller
                 'pending' => DailyCleaningReport::where('status', 'pending')->count(),
                 'cancelled' => DailyCleaningReport::where('status', 'cancelled')->count(),
                 'today' => DailyCleaningReport::whereDate('created_at', today())->count(),
-                'this_week' => DailyCleaningReport::whereBetween('created_at', 
-                    [now()->startOfWeek(), now()->endOfWeek()])->count(),
+                'this_week' => DailyCleaningReport::whereBetween(
+                    'created_at',
+                    [now()->startOfWeek(), now()->endOfWeek()]
+                )->count(),
                 'this_month' => DailyCleaningReport::whereMonth('created_at', now()->month)->count(),
-                
+
                 // Stats per departemen
                 'departemen_stats' => DailyCleaningReport::select('departemen', DB::raw('COUNT(*) as count'))
                     ->groupBy('departemen')
                     ->orderBy('count', 'desc')
                     ->get()->toArray(),
-                
+
                 // Stats per hari (7 hari terakhir)
                 'last_7_days' => DailyCleaningReport::select(
-                        DB::raw('DATE(created_at) as date'),
-                        DB::raw('COUNT(*) as count')
-                    )
+                    DB::raw('DATE(created_at) as date'),
+                    DB::raw('COUNT(*) as count')
+                )
                     ->whereDate('created_at', '>=', now()->subDays(7))
                     ->groupBy('date')
                     ->orderBy('date')
                     ->get()->toArray()
             ];
-            
+
             return response()->json([
                 'success' => true,
                 'stats' => $stats
             ]);
-            
+
         } catch (\Exception $e) {
             Log::error('Error in getStats: ' . $e->getMessage());
             return response()->json([
@@ -159,7 +164,7 @@ class DailyCleaningReportController extends Controller
             ], 500);
         }
     }
-    
+
     /**
      * Update data cleaning
      */
@@ -171,17 +176,17 @@ class DailyCleaningReportController extends Controller
                 'field' => 'required|string|in:nama,departemen,tanggal,status',
                 'value' => 'required|string'
             ]);
-            
+
             $report = DailyCleaningReport::findOrFail($request->id);
             $report->update([$request->field => $request->value]);
-            
+
             Log::info('Data updated: Report ID ' . $request->id . ', Field: ' . $request->field);
-            
+
             return response()->json([
                 'success' => true,
                 'message' => 'Data berhasil diperbarui'
             ]);
-            
+
         } catch (\Exception $e) {
             Log::error('Error in updateData: ' . $e->getMessage());
             return response()->json([
@@ -190,7 +195,7 @@ class DailyCleaningReportController extends Controller
             ], 500);
         }
     }
-    
+
     /**
      * Proses cleaning data
      */
@@ -199,7 +204,7 @@ class DailyCleaningReportController extends Controller
         try {
             $action = $request->input('action');
             $cleanedCount = 0;
-            
+
             switch ($action) {
                 case 'clean_duplicates':
                     // Hapus data duplikat berdasarkan nama dan tanggal
@@ -219,27 +224,27 @@ class DailyCleaningReportController extends Controller
                         $cleanedCount += DailyCleaningReport::whereIn('id', $records)->delete();
                     }
                     break;
-                    
+
                 case 'clean_null_names':
                     // Update nama yang null
                     $cleanedCount = DailyCleaningReport::whereNull('nama')
                         ->orWhere('nama', '')
                         ->update(['nama' => 'Tidak Diketahui']);
                     break;
-                    
+
                 case 'fix_status':
                     // Update status yang tidak valid
                     $cleanedCount = DailyCleaningReport::whereNotIn('status', ['completed', 'pending', 'cancelled'])
                         ->update(['status' => 'pending']);
                     break;
             }
-            
+
             return response()->json([
                 'success' => true,
                 'message' => "Data cleaning selesai. {$cleanedCount} data diperbaiki.",
                 'cleaned_count' => $cleanedCount
             ]);
-            
+
         } catch (\Exception $e) {
             Log::error('Error in cleanData: ' . $e->getMessage());
             return response()->json([
@@ -248,7 +253,7 @@ class DailyCleaningReportController extends Controller
             ], 500);
         }
     }
-    
+
     /**
      * Hapus data cleaning
      */
@@ -258,9 +263,9 @@ class DailyCleaningReportController extends Controller
             $request->validate([
                 'id' => 'required|exists:daily_cleaning_reports,id'
             ]);
-            
+
             $report = DailyCleaningReport::findOrFail($request->id);
-            
+
             // Hapus file foto jika ada
             if ($report->foto_path) {
                 $filePath = str_replace('storage/', 'public/', $report->foto_path);
@@ -268,16 +273,16 @@ class DailyCleaningReportController extends Controller
                     Storage::delete($filePath);
                 }
             }
-            
+
             $report->delete();
-            
+
             Log::info('Data deleted: Report ID ' . $request->id);
-            
+
             return response()->json([
                 'success' => true,
                 'message' => 'Data berhasil dihapus'
             ]);
-            
+
         } catch (\Exception $e) {
             Log::error('Error in deleteData: ' . $e->getMessage());
             return response()->json([
@@ -286,7 +291,7 @@ class DailyCleaningReportController extends Controller
             ], 500);
         }
     }
-    
+
     /**
      * Export data ke Excel
      */
@@ -303,9 +308,9 @@ class DailyCleaningReportController extends Controller
             ]);
         }
     }
-    
+
     // ===== METODE UNTUK MULTI-STEP FORM =====
-    
+
     /**
      * Simpan Step 1
      */
@@ -403,6 +408,9 @@ class DailyCleaningReportController extends Controller
 
             Log::info('✅ Data saved to MySQL: ID ' . $report->id);
 
+            // Kirim email notifikasi dengan gambar embedded
+            $this->sendEmailNotification($report);
+
             // Coba simpan ke Google Sheets
             $googleSheetsResult = [
                 'success' => false,
@@ -422,7 +430,7 @@ class DailyCleaningReportController extends Controller
                 ->with('success', 'Data berhasil disimpan ke Database!')
                 ->with('google_sheets_status', $googleSheetsResult['success'] ? 'success' : 'error')
                 ->with('google_sheets_message', $googleSheetsResult['message']);
-                
+
         } catch (\Illuminate\Http\Exceptions\PostTooLargeException $e) {
             Log::error('PostTooLargeException: ' . $e->getMessage());
             return redirect()->back()
@@ -447,7 +455,7 @@ class DailyCleaningReportController extends Controller
         $googleSheetsMessage = session('google_sheets_message', '');
         return view('cleaning-report.complete', compact('report', 'googleSheetsStatus', 'googleSheetsMessage'));
     }
-    
+
     /**
      * Save to Google Sheets
      */
@@ -456,7 +464,7 @@ class DailyCleaningReportController extends Controller
         try {
             Log::info('📊 Starting Google Sheets save for report ID: ' . $report->id);
             $credentialsPath = storage_path('app/credentials.json');
-            
+
             Log::info('🔍 Checking credentials at: ' . $credentialsPath);
             if (!file_exists($credentialsPath)) {
                 Log::error('❌ Credentials file not found at: ' . $credentialsPath);
@@ -602,7 +610,7 @@ class DailyCleaningReportController extends Controller
             $result['json_valid'] = $json ? 'YES' : 'NO';
             $result['client_email'] = $json['client_email'] ?? 'NOT FOUND';
             $result['project_id'] = $json['project_id'] ?? 'NOT FOUND';
-            
+
             if ($json && isset($json['private_key'])) {
                 $result['private_key_exists'] = 'YES';
                 $result['private_key_length'] = strlen($json['private_key']);
@@ -618,7 +626,7 @@ class DailyCleaningReportController extends Controller
             'app_path/credentials.json' => app_path('credentials.json'),
             'base_path/storage/app/credentials.json' => base_path('storage/app/credentials.json'),
         ];
-        
+
         foreach ($otherPaths as $name => $path) {
             $result[$name . '_exists'] = file_exists($path) ? 'YES' : 'NO';
         }
@@ -633,7 +641,7 @@ class DailyCleaningReportController extends Controller
     {
         try {
             $credentialsPath = storage_path('app/credentials.json');
-            
+
             // Coba alternative path
             if (!file_exists($credentialsPath)) {
                 $alternativePath = base_path('credentials.json');
@@ -748,6 +756,97 @@ class DailyCleaningReportController extends Controller
             Log::info('Image compressed: ' . $filePath);
         } catch (\Exception $e) {
             Log::warning('Image compression failed: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Kirim email notifikasi ke Santano dengan gambar embedded
+     */
+    private function sendEmailNotification($report)
+    {
+        try {
+            // Email Santano
+            $santanoEmail = "appsantano@gmail.com";
+
+            // Subject untuk cleaning report
+            $subject = "🧹 Cleaning Report Baru - " . $report->nama . " - Le Gareca Space";
+
+            // Cek apakah file gambar tersedia dan bisa diakses
+            $imageEmbedded = false;
+            $imagePath = null;
+
+            Log::info('📸 [EMAIL] Raw foto_path from DB', [
+                'foto_path' => $report->foto_path
+            ]);
+
+            if ($report->foto_path) {
+
+                // Path relatif untuk disk public
+                $relativePath = str_replace('storage/', '', $report->foto_path);
+
+                Log::info('📂 [EMAIL] Relative path (public disk)', [
+                    'relative_path' => $relativePath
+                ]);
+
+                // Cek via Storage disk public
+                $existsInDisk = Storage::disk('public')->exists($relativePath);
+
+                Log::info('🧪 [EMAIL] Storage::disk(public)->exists()', [
+                    'exists' => $existsInDisk
+                ]);
+
+                if ($existsInDisk) {
+
+                    $imagePath = Storage::disk('public')->path($relativePath);
+
+                    Log::info('🧭 [EMAIL] Absolute image path', [
+                        'image_path' => $imagePath,
+                        'file_exists' => file_exists($imagePath),
+                        'file_size' => file_exists($imagePath) ? filesize($imagePath) : null
+                    ]);
+
+                    if (file_exists($imagePath)) {
+                        $imageEmbedded = true;
+                    }
+                }
+            }
+
+            Log::info('✅ [EMAIL] Final image status', [
+                'imageEmbedded' => $imageEmbedded,
+                'imagePath' => $imagePath
+            ]);
+
+            // Versi pertama: Menggunakan Mail::raw() sederhana (tanpa gambar)
+            $plainTextBody = "🧹 CLEANING REPORT — Le Gareca Space 🧹\n\n";
+            $plainTextBody .= "Ada input cleaning report baru dari sistem dengan detail berikut:\n\n";
+            $plainTextBody .= "👤 Nama: " . $report->nama . "\n";
+            $plainTextBody .= "📅 Tanggal: " . $report->tanggal->format('d F Y') . "\n";
+            $plainTextBody .= "🏢 Departemen: " . $report->departemen . "\n";
+            $plainTextBody .= "⏰ Waktu Input: " . $report->membership_datetime->setTimezone('Asia/Jakarta')->translatedFormat('j F Y H:i:s') . "\n";
+            $plainTextBody .= "📊 Status: " . ucfirst($report->status) . "\n";
+            $plainTextBody .= "📸 Foto: " . ($imageEmbedded ? "Tersedia" : "Tidak tersedia") . "\n\n";
+            $plainTextBody .= "Data ini telah tersimpan di database dan Google Sheets.\n\n";
+            $plainTextBody .= "Terima kasih.\n\n";
+            $plainTextBody .= "-- © Santano 2026 | Sistem Cleaning Report Le Gareca Space --";
+
+            Mail::raw($plainTextBody, function ($message) use ($santanoEmail, $subject, $imageEmbedded, $imagePath) {
+                $message->to($santanoEmail)
+                    ->subject($subject);
+
+                // Tambahkan gambar sebagai attachment jika tersedia
+                if ($imageEmbedded && $imagePath) {
+                    $message->attach($imagePath, [
+                        'as' => 'cleaning-photo.jpg',
+                        'mime' => 'image/jpeg',
+                    ]);
+                }
+            });
+
+            Log::info('✅ Email notification sent to Santano for cleaning report ID: ' . $report->id);
+
+        } catch (\Exception $e) {
+            Log::error('❌ Failed to send email notification: ' . $e->getMessage());
+            Log::error('Error trace: ' . $e->getTraceAsString());
         }
     }
 }
