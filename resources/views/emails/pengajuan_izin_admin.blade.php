@@ -138,8 +138,33 @@
             
             <div class="action-buttons">
                 <p>Silakan pilih tindakan:</p>
-                <a href="{{ $approveUrl }}" class="btn btn-approve">✓ Setujui</a>
-                <a href="{{ $rejectUrl }}" class="btn btn-reject">✗ Tolak</a>
+                <a href="{{ $approveUrl }}"
+                    style="
+                            display:inline-block;
+                            padding:12px 24px;
+                            margin:0 10px;
+                            background:#0d6efd;
+                            color:#ffffff;
+                            text-decoration:none;
+                            border-radius:5px;
+                            font-weight:bold;
+                            ">
+                        ✓ Setujui
+                </a>
+
+                <a href="{{ $rejectUrl }}"
+                    style="
+                            display:inline-block;
+                            padding:12px 24px;
+                            margin:0 10px;
+                            background:#6c757d;
+                            color:#ffffff;
+                            text-decoration:none;
+                            border-radius:5px;
+                            font-weight:bold;
+                            ">
+                        ✗ Tolak
+                </a>
             </div>
             
             <p style="margin-top: 30px; font-size: 12px; color: #6c757d;">

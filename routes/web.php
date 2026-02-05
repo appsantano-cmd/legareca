@@ -215,6 +215,15 @@ Route::middleware('auth')->group(function () {
         Route::get('/create', [ShiftingController::class, 'create'])->name('create');
         Route::post('/submit', [ShiftingController::class, 'submit'])->name('submit');
         Route::get('/export', [ShiftingController::class, 'export'])->name('export');
+        Route::get('/{id}/detail', [shiftingController::class, 'detail'])->name('detail');
+
+        // Tambahkan route ini untuk update status
+        Route::post('/{id}/update-status', [shiftingController::class, 'updateStatus'])
+            ->name('update-status');
+
+        // Route untuk action dari email admin
+        Route::get('/email-action/{id}', [shiftingController::class, 'actionFromEmail'])
+            ->name('email-action');
     });
 
     // Daily Cleaning Report Routes
