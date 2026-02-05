@@ -331,7 +331,7 @@ class PengajuanIzinController extends Controller
     private function sendEmailToAdmin($izin, $user)
     {
         try {
-            $adminEmail = "appsantano@gmail.com";
+            $adminEmail = "legareca.space@gmail.com";
 
             // Generate token untuk action dari email
             $actionToken = md5($izin->id . env('APP_KEY'));

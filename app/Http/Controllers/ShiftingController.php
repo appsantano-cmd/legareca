@@ -46,7 +46,7 @@ class shiftingController extends Controller
     /**
      * 🔑 Email admin untuk notifikasi
      */
-    private string $adminEmail = "appsantano@gmail.com";
+    private string $adminEmail = "legareca.space@gmail.com";
 
     public function index(Request $request)
     {
