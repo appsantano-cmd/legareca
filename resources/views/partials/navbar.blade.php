@@ -4,7 +4,7 @@
         <!-- Logo -->
         <a href="/" class="flex items-center gap-3">
             <img 
-                src="{{ asset('images/logo.png') }}" 
+                src="{{ asset('logo.png') }}" 
                 alt="Legareca Space Logo"
                 class="h-10 w-auto object-contain nav-logo"
             >
