@@ -16,7 +16,7 @@
             
             <!-- Caption dengan Deskripsi -->
             <div class="slide-caption opacity-75 bg-white rounded d-flex flex-column text-center px-4 py-3 mt-auto mx-auto">
-                <h2 class="caption-title">Legareca Venue</h2>
+                <h2 class="caption-title">Le Gareca Venue</h2>
                 <h3 class="caption-subtitle">Tempat Acara Eksklusif</h3>
                 <p class="caption-description">
                     Venue premium dengan kapasitas hingga 500 orang, dilengkapi fasilitas lengkap untuk pernikahan, seminar, dan acara perusahaan.
@@ -30,7 +30,7 @@
                  class="w-full h-full object-cover">
             
             <div class="slide-caption opacity-75 bg-white rounded d-flex flex-column text-center px-4 py-3 mt-auto mx-auto">
-                <h2 class="caption-title">Legareca Inn</h2>
+                <h2 class="caption-title">Le Gareca Inn</h2>
                 <h3 class="caption-subtitle">Penginapan Nyaman</h3>
                 <p class="caption-description">
                     Hotel bintang 3 dengan 50 kamar lengkap, kolam renang, dan pusat kebugaran. Cocok untuk liburan keluarga atau perjalanan bisnis.
@@ -44,7 +44,7 @@
                  class="w-full h-full object-cover">
             
             <div class="slide-caption opacity-75 bg-white rounded d-flex flex-column text-center px-4 py-3 mt-auto mx-auto">
-                <h2 class="caption-title">Legareca Art Gallery</h2>
+                <h2 class="caption-title">Le Gareca Art Gallery</h2>
                 <h3 class="caption-subtitle">Galeri Seni Modern</h3>
                 <p class="caption-description">
                     Menampilkan karya seni kontemporer dari 100+ seniman lokal dan internasional. Ruang pamer seluas 2000m² dengan pencahayaan profesional.
@@ -112,7 +112,7 @@
                     <img src="https://images.unsplash.com/photo-1578301978693-85fa9c0320b9?ixlib=rb-4.0.3&auto=format&fit=crop&w=1171&q=80" alt="Legareca Art Gallery" class="horizontal-card-image">
                 </div>
                 <div class="horizontal-card-content">
-                    <h3 class="text-xl font-bold mb-2">Legareca Art Gallery</h3>
+                    <h3 class="text-xl font-bold mb-2">Le Gareca Art Gallery</h3>
                     <p class="text-gray-700 mb-4">Galeri seni yang menampilkan karya-karya terbaik dari seniman lokal dan internasional.</p>
                     <a href="#gallery" class="inline-block text-red-500 font-semibold hover:text-red-600">Selengkapnya →</a>
                 </div>
@@ -137,7 +137,7 @@
 <section class="py-12 bg-gray-100">
     <div class="container">
         <h2 class="text-3xl font-bold text-center mb-2 section-title">Event</h2>
-        <p class="text-gray-600 text-center mb-8 max-w-2xl mx-auto">Temukan berbagai acara menarik yang diadakan di Legareca Space</p>
+        <p class="text-gray-600 text-center mb-8 max-w-2xl mx-auto">Temukan berbagai acara menarik yang diadakan di Le Gareca Space</p>
 
         <div class="horizontal-card-container">
             <!-- Event 1 -->
@@ -199,7 +199,7 @@
 <section class="py-12 bg-white">
     <div class="container">
         <h2 class="text-3xl font-bold text-center mb-2 section-title">Food & Beverage</h2>
-        <p class="text-gray-600 text-center mb-8 max-w-2xl mx-auto">Nikmati berbagai pilihan makanan dan minuman terbaik di Legareca Space</p>
+        <p class="text-gray-600 text-center mb-8 max-w-2xl mx-auto">Nikmati berbagai pilihan makanan dan minuman terbaik di Le Gareca Space</p>
 
         <div class="horizontal-card-container">
             <!-- Restaurant -->
@@ -259,8 +259,8 @@
         <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
             <!-- Tentang Kami -->
             <div>
-                <h3 class="text-xl font-bold mb-4">Tentang Legareca Space</h3>
-                <p class="text-gray-300 mb-4">Legareca Space adalah destinasi lengkap yang menggabungkan venue acara, penginapan, galeri seni, dan fasilitas perawatan hewan peliharaan dalam satu lokasi.</p>
+                <h3 class="text-xl font-bold mb-4">Tentang Le Gareca Space</h3>
+                <p class="text-gray-300 mb-4">Le Gareca Space adalah ruang kreatif dan ramah hewan peliharaan yang menyatukan berbagai pengalaman dalam satu kawasan. Mulai dari Cafe Resto yang hangat, Venue untuk berbagai acara, Kami Daur sebagai butik daur ulang yang berkelanjutan, Le Gareca Inn untuk pengalaman menginap yang nyaman, Art Gallery sebagai ruang apresiasi seni, hingga Lega Pet Care yang menghadirkan perhatian khusus bagi sahabat berbulu Anda. Sebuah ruang untuk bersantai, berkarya, dan berbagi momen—bersama manusia dan hewan kesayangan.</p>
                 <p class="text-gray-300">Kami berkomitmen untuk memberikan pengalaman terbaik bagi setiap pengunjung dengan layanan berkualitas dan fasilitas terbaik.</p>
             </div>
 
@@ -282,7 +282,7 @@
                     </li>
                     <li class="flex items-start">
                         <span class="mr-2">🕐</span>
-                        <span>Buka setiap hari: 08.00 - 22.00 WIB</span>
+                        <span>Buka setiap hari: 07.00 - 22.00 WIB</span>
                     </li>
                 </ul>
             </div>
