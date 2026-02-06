@@ -8,8 +8,51 @@
 <section id="beranda" class="hero-section relative flex items-center justify-center pt-16 overflow-hidden">
     <!-- Slider Container -->
     <div class="relative w-full h-full">
+        <!-- Slides -->
+        <div class="slide active" data-slide="0">
+            <img src="https://images.unsplash.com/photo-1519167758481-83f550bb49b3?ixlib=rb-4.0.3&auto=format&fit=crop&w=1190&q=80" 
+                 alt="Legareca Venue" 
+                 class="w-full h-full object-cover">
+            
+            <!-- Caption dengan Deskripsi -->
+            <div class="slide-caption opacity-75 bg-white rounded d-flex flex-column text-center px-4 py-3 mt-auto mx-auto">
+                <h2 class="caption-title">Le Gareca Venue</h2>
+                <h3 class="caption-subtitle">Tempat Acara Eksklusif</h3>
+                <p class="caption-description">
+                    Venue premium dengan kapasitas hingga 500 orang, dilengkapi fasilitas lengkap untuk pernikahan, seminar, dan acara perusahaan.
+                </p>
+            </div>
+        </div>
+        
+        <div class="slide" data-slide="1">
+            <img src="https://images.unsplash.com/photo-1611892440504-42a792e24d32?ixlib=rb-4.0.3&auto=format&fit=crop&w=1170&q=80" 
+                 alt="Legareca Inn" 
+                 class="w-full h-full object-cover">
+            
+            <div class="slide-caption opacity-75 bg-white rounded d-flex flex-column text-center px-4 py-3 mt-auto mx-auto">
+                <h2 class="caption-title">Le Gareca Inn</h2>
+                <h3 class="caption-subtitle">Penginapan Nyaman</h3>
+                <p class="caption-description">
+                    Hotel bintang 3 dengan 50 kamar lengkap, kolam renang, dan pusat kebugaran. Cocok untuk liburan keluarga atau perjalanan bisnis.
+                </p>
+            </div>
+        </div>
+        
+        <div class="slide" data-slide="2">
+            <img src="https://images.unsplash.com/photo-1578301978693-85fa9c0320b9?ixlib=rb-4.0.3&auto=format&fit=crop&w=1171&q=80" 
+                 alt="Legareca Art Gallery" 
+                 class="w-full h-full object-cover">
+            
+            <div class="slide-caption opacity-75 bg-white rounded d-flex flex-column text-center px-4 py-3 mt-auto mx-auto">
+                <h2 class="caption-title">Le Gareca Art Gallery</h2>
+                <h3 class="caption-subtitle">Galeri Seni Modern</h3>
+                <p class="caption-description">
+                    Menampilkan karya seni kontemporer dari 100+ seniman lokal dan internasional. Ruang pamer seluas 2000m² dengan pencahayaan profesional.
+                </p>
+            </div>
+        </div>
 
-        <!-- Navigation Buttons - PERBAIKAN POSISI -->
+        <!-- Navigation Buttons -->
         <button class="slider-btn slider-btn-prev" id="prevBtn">
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                 <polyline points="15 18 9 12 15 6"></polyline>
@@ -30,6 +73,7 @@
         </div>
     </div>
 </section>
+
 
 <!-- Layanan Kami - Card Horizontal -->
 <section class="py-12 bg-white">
@@ -68,7 +112,7 @@
                     <img src="https://images.unsplash.com/photo-1578301978693-85fa9c0320b9?ixlib=rb-4.0.3&auto=format&fit=crop&w=1171&q=80" alt="Legareca Art Gallery" class="horizontal-card-image">
                 </div>
                 <div class="horizontal-card-content">
-                    <h3 class="text-xl font-bold mb-2">Legareca Art Gallery</h3>
+                    <h3 class="text-xl font-bold mb-2">Le Gareca Art Gallery</h3>
                     <p class="text-gray-700 mb-4">Galeri seni yang menampilkan karya-karya terbaik dari seniman lokal dan internasional.</p>
                     <a href="#gallery" class="inline-block text-red-500 font-semibold hover:text-red-600">Selengkapnya →</a>
                 </div>
@@ -93,7 +137,7 @@
 <section class="py-12 bg-gray-100">
     <div class="container">
         <h2 class="text-3xl font-bold text-center mb-2 section-title">Event</h2>
-        <p class="text-gray-600 text-center mb-8 max-w-2xl mx-auto">Temukan berbagai acara menarik yang diadakan di Legareca Space</p>
+        <p class="text-gray-600 text-center mb-8 max-w-2xl mx-auto">Temukan berbagai acara menarik yang diadakan di Le Gareca Space</p>
 
         <div class="horizontal-card-container">
             <!-- Event 1 -->
@@ -155,7 +199,7 @@
 <section class="py-12 bg-white">
     <div class="container">
         <h2 class="text-3xl font-bold text-center mb-2 section-title">Food & Beverage</h2>
-        <p class="text-gray-600 text-center mb-8 max-w-2xl mx-auto">Nikmati berbagai pilihan makanan dan minuman terbaik di Legareca Space</p>
+        <p class="text-gray-600 text-center mb-8 max-w-2xl mx-auto">Nikmati berbagai pilihan makanan dan minuman terbaik di Le Gareca Space</p>
 
         <div class="horizontal-card-container">
             <!-- Restaurant -->
@@ -215,8 +259,8 @@
         <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
             <!-- Tentang Kami -->
             <div>
-                <h3 class="text-xl font-bold mb-4">Tentang Legareca Space</h3>
-                <p class="text-gray-300 mb-4">Legareca Space adalah destinasi lengkap yang menggabungkan venue acara, penginapan, galeri seni, dan fasilitas perawatan hewan peliharaan dalam satu lokasi.</p>
+                <h3 class="text-xl font-bold mb-4">Tentang Le Gareca Space</h3>
+                <p class="text-gray-300 mb-4">Le Gareca Space adalah ruang kreatif dan ramah hewan peliharaan yang menyatukan berbagai pengalaman dalam satu kawasan. Mulai dari Cafe Resto yang hangat, Venue untuk berbagai acara, Kami Daur sebagai butik daur ulang yang berkelanjutan, Le Gareca Inn untuk pengalaman menginap yang nyaman, Art Gallery sebagai ruang apresiasi seni, hingga Lega Pet Care yang menghadirkan perhatian khusus bagi sahabat berbulu Anda. Sebuah ruang untuk bersantai, berkarya, dan berbagi momen—bersama manusia dan hewan kesayangan.</p>
                 <p class="text-gray-300">Kami berkomitmen untuk memberikan pengalaman terbaik bagi setiap pengunjung dengan layanan berkualitas dan fasilitas terbaik.</p>
             </div>
 
@@ -238,7 +282,7 @@
                     </li>
                     <li class="flex items-start">
                         <span class="mr-2">🕐</span>
-                        <span>Buka setiap hari: 08.00 - 22.00 WIB</span>
+                        <span>Buka setiap hari: 07.00 - 22.00 WIB</span>
                     </li>
                 </ul>
             </div>
@@ -266,305 +310,3 @@
 </footer>
 
 @endsection
-
-@push('styles')
-<style>
-    /* Custom Styles untuk halaman utama */
-    .hero-section {
-        height: 80vh;
-        min-height: 600px;
-        background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)),
-            url('https://images.unsplash.com/photo-1519167758481-83f550bb49b3?ixlib=rb-4.0.3&auto=format&fit=crop&w=1190&q=80');
-        background-size: cover;
-        background-position: center;
-        color: white;
-    }
-
-    /* PERBAIKAN: Slider Button */
-    .slider-btn {
-        width: 50px;
-        height: 50px;
-        background-color: rgba(0, 0, 0, 0.7);
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        transition: all 0.3s ease;
-        border: 2px solid rgba(255, 255, 255, 0.3);
-        z-index: 40;
-        position: absolute;
-    }
-
-    .slider-btn:hover {
-        background-color: rgba(0, 0, 0, 0.9);
-        border-color: rgba(255, 255, 255, 0.8);
-        transform: scale(1.1);
-    }
-
-    .slider-btn:active {
-        transform: scale(0.95);
-    }
-
-    .slider-btn-prev {
-        left: 20px;
-        top: 50%;
-        transform: translateY(-50%);
-    }
-
-    .slider-btn-next {
-        right: 20px;
-        top: 50%;
-        transform: translateY(-50%);
-    }
-
-    .slider-indicators {
-        position: absolute;
-        bottom: 30px;
-        left: 50%;
-        transform: translateX(-50%);
-        display: flex;
-        gap: 10px;
-        z-index: 40;
-    }
-
-    .indicator {
-        width: 12px;
-        height: 12px;
-        border-radius: 50%;
-        background-color: rgba(255, 255, 255, 0.5);
-        cursor: pointer;
-        transition: all 0.3s ease;
-    }
-
-    .indicator.active {
-        background-color: white;
-        transform: scale(1.2);
-    }
-
-    .section-title {
-        position: relative;
-        padding-bottom: 1rem;
-        margin-bottom: 2rem;
-    }
-
-    .section-title::after {
-        content: '';
-        position: absolute;
-        bottom: 0;
-        left: 50%;
-        transform: translateX(-50%);
-        width: 80px;
-        height: 3px;
-        background-color: #f53003;
-    }
-
-    /* STYLE BARU UNTUK CARD BERSAMPINGAN */
-    .horizontal-card-container {
-        display: flex;
-        flex-direction: row;
-        overflow-x: auto;
-        padding: 1rem 0;
-        gap: 1.5rem;
-        scrollbar-width: thin;
-        scrollbar-color: #cbd5e1 #f1f5f9;
-        -webkit-overflow-scrolling: touch;
-    }
-
-    .horizontal-card-container::-webkit-scrollbar {
-        height: 8px;
-    }
-
-    .horizontal-card-container::-webkit-scrollbar-track {
-        background: #f1f5f9;
-        border-radius: 10px;
-    }
-
-    .horizontal-card-container::-webkit-scrollbar-thumb {
-        background-color: #cbd5e1;
-        border-radius: 10px;
-    }
-
-    .horizontal-card {
-        flex: 0 0 auto;
-        width: 320px;
-        background-color: #fff;
-        border-radius: 0.75rem;
-        overflow: hidden;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-        transition: all 0.3s ease;
-    }
-
-    .horizontal-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-    }
-
-    .horizontal-card-image {
-        width: 100%;
-        height: 200px;
-        object-fit: cover;
-    }
-
-    .horizontal-card-content {
-        padding: 1.5rem;
-    }
-
-    /* Footer Bergerak */
-    .footer-moving {
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        width: 100%;
-        background-color: #1f2937;
-        color: white;
-        padding: 1rem 0;
-        overflow: hidden;
-        z-index: 100;
-    }
-
-    .moving-text {
-        display: inline-block;
-        white-space: nowrap;
-        padding-left: 100%;
-        animation: moveText 20s linear infinite;
-    }
-
-    @keyframes moveText {
-        0% {
-            transform: translateX(0);
-        }
-
-        100% {
-            transform: translateX(-100%);
-        }
-    }
-
-    /* Responsive */
-    @media (max-width: 768px) {
-        .hero-section {
-            height: 70vh;
-            min-height: 500px;
-        }
-
-        /* Responsive horizontal cards */
-        .horizontal-card {
-            width: 280px;
-        }
-
-        /* Slider button di mobile */
-        .slider-btn {
-            width: 40px;
-            height: 40px;
-        }
-
-        .slider-btn-prev {
-            left: 10px;
-        }
-
-        .slider-btn-next {
-            right: 10px;
-        }
-    }
-
-    @media (min-width: 769px) {
-
-        /* Lebar card lebih besar di desktop */
-        .horizontal-card {
-            width: 350px;
-        }
-    }
-</style>
-@endpush
-
-@push('scripts')
-<script>
-    // Slider Functionality
-    let currentSlide = 0;
-    const slides = [
-        "https://images.unsplash.com/photo-1519167758481-83f550bb49b3?ixlib=rb-4.0.3&auto=format&fit=crop&w=1190&q=80",
-        "https://images.unsplash.com/photo-1611892440504-42a792e24d32?ixlib=rb-4.0.3&auto=format&fit=crop&w=1170&q=80",
-        "https://images.unsplash.com/photo-1578301978693-85fa9c0320b9?ixlib=rb-4.0.3&auto=format&fit=crop&w=1171&q=80"
-    ];
-
-    const indicators = document.querySelectorAll('.indicator');
-    const heroSection = document.querySelector('.hero-section');
-
-    // Initialize slider
-    function initSlider() {
-        // Set background image
-        heroSection.style.background = `linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('${slides[0]}')`;
-        heroSection.style.backgroundSize = 'cover';
-        heroSection.style.backgroundPosition = 'center';
-
-        // Update indicators
-        indicators.forEach((indicator, index) => {
-            if (index === 0) {
-                indicator.classList.add('active');
-            } else {
-                indicator.classList.remove('active');
-            }
-        });
-    }
-
-    // Change slide
-    function changeSlide(slideIndex) {
-        // Update current slide
-        currentSlide = slideIndex;
-
-        // Update background image
-        heroSection.style.background = `linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('${slides[currentSlide]}')`;
-        heroSection.style.backgroundSize = 'cover';
-        heroSection.style.backgroundPosition = 'center';
-
-        // Add fade effect
-        heroSection.style.opacity = '0.9';
-        setTimeout(() => {
-            heroSection.style.opacity = '1';
-        }, 300);
-
-        // Update indicators
-        indicators.forEach((indicator, index) => {
-            if (index === currentSlide) {
-                indicator.classList.add('active');
-            } else {
-                indicator.classList.remove('active');
-            }
-        });
-    }
-
-    // Next slide
-    function nextSlide() {
-        let nextIndex = currentSlide + 1;
-        if (nextIndex >= slides.length) {
-            nextIndex = 0;
-        }
-        changeSlide(nextIndex);
-    }
-
-    // Previous slide
-    function prevSlide() {
-        let prevIndex = currentSlide - 1;
-        if (prevIndex < 0) {
-            prevIndex = slides.length - 1;
-        }
-        changeSlide(prevIndex);
-    }
-
-    // Event listeners for slider buttons
-    document.getElementById('prevBtn').addEventListener('click', prevSlide);
-    document.getElementById('nextBtn').addEventListener('click', nextSlide);
-
-    // Event listeners for indicators
-    indicators.forEach((indicator, index) => {
-        indicator.addEventListener('click', () => {
-            changeSlide(index);
-        });
-    });
-
-    // Auto slide change
-    setInterval(nextSlide, 5000);
-
-    // Initialize on load
-    document.addEventListener('DOMContentLoaded', initSlider);
-</script>
-@endpush

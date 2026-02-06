@@ -3,9 +3,9 @@
 @section('title', 'Reservasi Legareca Inn')
 
 @section('content')
-
 <!-- Include Navbar dari partials -->
 @include('partials.navbar')
+
 <!-- Hero Section -->
 <section class="hero-section text-center pt-24 pb-3">
     <div class="container">
@@ -27,7 +27,6 @@
         </div>
     </div>
 </section>
-
 
 <!-- Room List Section -->
 <section id="rooms" class="py-5">
@@ -266,14 +265,73 @@
             <div class="modal-body p-4">
                 <form id="bookingForm">
                     @csrf
+                    <!-- Input tersembunyi untuk menyimpan data -->
+                    <input type="hidden" id="selectedRoomType" name="room_type">
+                    <input type="hidden" id="selectedRoomPrice" name="room_price">
+                    
                     <div class="row mb-4">
                         <div class="col-md-6">
-                            <label for="roomType" class="form-label fw-bold">Tipe Kamar</label>
-                            <input type="text" class="form-control form-control-lg" id="roomType" name="room_type" readonly style="background: #f8f9fa; font-weight: 600;">
+                            <label class="form-label fw-bold">Tipe Kamar</label>
+                            <div class="form-control form-control-lg" id="roomTypeDisplay" style="background: #f8f9fa; font-weight: 600; min-height: 48px; display: flex; align-items: center;">
+                                <span class="text-muted">Pilih kamar terlebih dahulu</span>
+                            </div>
                         </div>
                         <div class="col-md-6">
-                            <label for="roomPrice" class="form-label fw-bold">Harga per Malam</label>
-                            <input type="text" class="form-control form-control-lg" id="roomPrice" name="room_price" readonly style="background: #f8f9fa; font-weight: 600; color: #2a9d8f;">
+                            <label class="form-label fw-bold">Harga per Malam</label>
+                            <div class="form-control form-control-lg" id="roomPriceDisplay" style="background: #f8f9fa; font-weight: 600; color: #2a9d8f; min-height: 48px; display: flex; align-items: center;">
+                                <span class="text-muted">Rp 0</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tambahkan bagian untuk memilih kamar jika belum dipilih dari tombol -->
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <label class="form-label fw-bold">Pilih Kamar <span class="text-muted">(jika belum dipilih)</span></label>
+                            <div class="row">
+                                <div class="col-md-4 mb-3">
+                                    <div class="room-option" data-room="Standard Room" data-price="350000">
+                                        <div class="card h-100 border">
+                                            <div class="card-body text-center">
+                                                <h6 class="card-title fw-bold mb-2">Standard Room</h6>
+                                                <p class="text-success fw-bold mb-2">Rp 350.000</p>
+                                                <small class="text-muted d-block">Kamar standar dengan fasilitas lengkap</small>
+                                                <button type="button" class="btn btn-sm btn-outline-primary mt-2 p-1 px-3 select-room-btn">
+                                                    Pilih
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <div class="room-option" data-room="Deluxe Room" data-price="550000">
+                                        <div class="card h-100 border">
+                                            <div class="card-body text-center">
+                                                <h6 class="card-title fw-bold mb-2">Deluxe Room</h6>
+                                                <p class="text-success fw-bold mb-2">Rp 550.000</p>
+                                                <small class="text-muted d-block">Kamar premium dengan balkon</small>
+                                                <button type="button" class="btn btn-sm btn-outline-primary mt-2 p-1 px-3 select-room-btn">
+                                                    Pilih
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <div class="room-option" data-room="Family Suite" data-price="850000">
+                                        <div class="card h-100 border">
+                                            <div class="card-body text-center">
+                                                <h6 class="card-title fw-bold mb-2">Family Suite</h6>
+                                                <p class="text-success fw-bold mb-2">Rp 850.000</p>
+                                                <small class="text-muted d-block">Suite keluarga dengan 2 kamar</small>
+                                                <button type="button" class="btn btn-sm btn-outline-primary mt-2 p-1 px-3 select-room-btn">
+                                                    Pilih
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
@@ -345,6 +403,32 @@
                         <div class="form-text">Silakan isi jika ada permintaan khusus untuk kenyamanan Anda</div>
                     </div>
 
+                    <!-- Ringkasan Reservasi -->
+                    <div class="card border-primary mb-4">
+                        <div class="card-header bg-primary text-white">
+                            <h6 class="mb-0"><i class="fas fa-receipt me-2"></i>Ringkasan Reservasi</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <p class="mb-2"><strong>Tipe Kamar:</strong> <span id="summaryRoomType">-</span></p>
+                                    <p class="mb-2"><strong>Harga per Malam:</strong> <span id="summaryRoomPrice">Rp 0</span></p>
+                                    <p class="mb-2"><strong>Jumlah Malam:</strong> <span id="summaryNights">0</span> malam</p>
+                                </div>
+                                <div class="col-md-6">
+                                    <p class="mb-2"><strong>Jumlah Kamar:</strong> <span id="summaryRooms">1</span></p>
+                                    <p class="mb-2"><strong>Check-in:</strong> <span id="summaryCheckIn">-</span></p>
+                                    <p class="mb-0"><strong>Check-out:</strong> <span id="summaryCheckOut">-</span></p>
+                                </div>
+                            </div>
+                            <hr>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <h6 class="mb-0">Total Perkiraan</h6>
+                                <h5 class="mb-0 text-success" id="summaryTotal">Rp 0</h5>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="alert alert-info border-info">
                         <div class="d-flex align-items-center">
                             <i class="fas fa-info-circle fa-2x text-info me-3"></i>
@@ -358,7 +442,7 @@
             </div>
             <div class="modal-footer border-top-0 pt-0 px-4 pb-4">
                 <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal">Batal</button>
-                <button type="submit" form="bookingForm" class="btn btn-primary px-4 py-2">
+                <button type="submit" form="bookingForm" class="btn btn-primary px-4 py-2" id="submitBookingBtn" disabled>
                     <i class="fas fa-paper-plane me-2"></i>Kirim Reservasi
                 </button>
             </div>

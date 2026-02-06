@@ -46,16 +46,6 @@
             color: white;
         }
 
-        .badge-pending {
-            background-color: #ffc107;
-            color: #212529;
-        }
-
-        .badge-cancelled {
-            background-color: #dc3545;
-            color: white;
-        }
-
         .table th {
             background-color: #f1f3f9;
             border-top: none;
@@ -100,15 +90,103 @@
         .editable:hover {
             background-color: rgba(102, 126, 234, 0.1);
         }
+
+        .photo-thumbnail {
+            width: 50px;
+            height: 50px;
+            object-fit: cover;
+            border-radius: 5px;
+            border: 2px solid #dee2e6;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .photo-thumbnail:hover {
+            transform: scale(1.1);
+            border-color: #667eea;
+        }
+
+        .modal-photo {
+            max-width: 100%;
+            max-height: 80vh;
+            object-fit: contain;
+        }
+
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            display: none;
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 5px;
+        }
+
+        .btn-action {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 6px;
+        }
     </style>
 </head>
 
 <body>
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-spinner"></div>
+    </div>
+
+    <!-- Photo Modal -->
+    <div class="modal fade" id="photoModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Foto Cleaning Report</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-center">
+                    <img id="modalPhoto" src="" alt="Foto" class="modal-photo">
+                </div>
+            </div>
+        </div>
+    </div>
+
     <nav class="navbar navbar-expand-lg navbar-dark mb-4">
         <div class="container">
             <a class="navbar-brand fw-bold" href="#">
                 <i class="fas fa-broom me-2"></i>Dashboard Cleaning Report
             </a>
+            <div class="navbar-nav ms-auto">
+                <span class="nav-item nav-link">
+                    <i class="fas fa-user me-1"></i> {{ Auth::user()->name ?? 'Admin' }}
+                </span>
+            </div>
         </div>
     </nav>
 
@@ -120,11 +198,11 @@
                 </h2>
                 <p class="text-muted mb-0">Kelola dan pantau semua data laporan cleaning</p>
             </div>
-            <div>
+            <div class="d-flex gap-2">
                 <a href="{{ route('dashboard') }}" class="btn btn-primary">
                     <i class="fas fa-tachometer-alt me-2"></i>Dashboard
                 </a>
-                <a href="{{ route('cleaning-report.data.export') }}" class="btn btn-export me-2">
+                <a href="{{ route('cleaning-report.data.export') }}" class="btn btn-export">
                     <i class="fas fa-file-export me-2"></i>Export Excel
                 </a>
                 <a href="{{ route('cleaning-report.index') }}" class="btn btn-primary">
@@ -139,29 +217,42 @@
 
         <div class="filter-section">
             <div class="row g-3">
-                <div class="col-md-6">
+                <div class="col-md-4">
                     <label class="form-label">Cari</label>
                     <div class="input-group">
-                        <input type="text" class="form-control" id="searchInput"
-                            placeholder="Cari nama, departemen...">
+                        <input type="text" class="form-control" id="searchInput" placeholder="Cari nama, departemen...">
                         <button class="btn btn-primary" id="searchBtn">
                             <i class="fas fa-search"></i>
                         </button>
                     </div>
                 </div>
                 <div class="col-md-3">
-                    <label class="form-label">Status</label>
+                    <label class="form-label">Tanggal Mulai</label>
+                    <input type="date" class="form-control" id="filterStartDate">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Tanggal Akhir</label>
+                    <input type="date" class="form-control" id="filterEndDate">
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">Filter</label>
                     <select class="form-select" id="filterStatus">
-                        <option value="all">Semua Status</option>
+                        <option value="all">Semua Data</option>
                         <option value="completed">Selesai</option>
-                        <option value="pending">Pending</option>
-                        <option value="cancelled">Dibatalkan</option>
                     </select>
                 </div>
-                <div class="col-md-3 d-flex align-items-end">
-                    <button class="btn btn-outline-secondary w-100" id="refreshBtn">
-                        <i class="fas fa-sync-alt me-1"></i> Refresh
-                    </button>
+                <div class="col-md-12 mt-2">
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-primary" id="applyFilterBtn">
+                            <i class="fas fa-filter me-1"></i> Terapkan Filter
+                        </button>
+                        <button class="btn btn-outline-secondary" id="resetFilterBtn">
+                            <i class="fas fa-redo me-1"></i> Reset
+                        </button>
+                        <button class="btn btn-outline-success" id="refreshBtn">
+                            <i class="fas fa-sync-alt me-1"></i> Refresh
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -172,14 +263,13 @@
                     <table class="table table-hover">
                         <thead>
                             <tr>
-                                <th>ID</th>
+                                <th width="50">ID</th>
                                 <th>Nama</th>
-                                <th>Tanggal</th>
+                                <th width="120">Tanggal</th>
                                 <th>Departemen</th>
-                                <th>Foto</th>
-                                <th>Status</th>
-                                <th>Dibuat</th>
-                                <th>Aksi</th>
+                                <th width="100">Foto</th>
+                                <th width="180">Dibuat</th>
+                                <th width="80" class="text-center">Aksi</th>
                             </tr>
                         </thead>
                         <tbody id="tableBody">
@@ -206,22 +296,37 @@
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script>
 
     <script>
         $(document).ready(function() {
+            showLoading();
             loadStats();
             loadData();
+            hideLoading();
 
+            // Event Listeners
             $('#searchBtn').click(function() {
                 loadData();
             });
 
             $('#refreshBtn').click(function() {
+                showLoading();
                 loadStats();
+                loadData();
+                hideLoading();
+            });
+
+            $('#applyFilterBtn').click(function() {
                 loadData();
             });
 
-            $('#filterStatus').change(function() {
+            $('#resetFilterBtn').click(function() {
+                $('#searchInput').val('');
+                $('#filterStartDate').val('');
+                $('#filterEndDate').val('');
+                $('#filterStatus').val('all');
                 loadData();
             });
 
@@ -230,70 +335,53 @@
                     loadData();
                 }
             });
+
+            // Inisialisasi modal
+            const photoModal = new bootstrap.Modal(document.getElementById('photoModal'));
+            window.photoModal = photoModal;
         });
 
+        // Loading functions
+        function showLoading() {
+            $('#loadingOverlay').fadeIn();
+        }
+
+        function hideLoading() {
+            $('#loadingOverlay').fadeOut();
+        }
+
+        // Stats functions - Diubah hanya menampilkan total data saja
         function loadStats() {
             $.ajax({
                 url: '{{ route('cleaning-report.data.stats') }}',
                 type: 'GET',
+                beforeSend: showLoading,
+                complete: hideLoading,
                 success: function(response) {
                     if (response.success) {
                         renderStats(response.stats);
                     }
+                },
+                error: function(xhr) {
+                    console.error('Error loading stats:', xhr.responseText);
+                    alert('Gagal memuat statistik');
                 }
             });
         }
 
         function renderStats(stats) {
+            // Hanya menampilkan total data saja
             const statsHtml = `
-                <div class="col-md-3">
+                <div class="col-md-12 mb-3">
                     <div class="card stat-card bg-primary text-white">
                         <div class="card-body">
                             <div class="d-flex justify-content-between align-items-center">
                                 <div>
-                                    <h6 class="card-subtitle mb-2">Total Data</h6>
+                                    <h6 class="card-subtitle mb-2">Total Data Cleaning Report</h6>
                                     <h2 class="fw-bold">${stats.total}</h2>
+                                    <small class="opacity-75">${stats.completed} data selesai</small>
                                 </div>
                                 <i class="fas fa-database stat-icon"></i>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="card stat-card bg-success text-white">
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <div>
-                                    <h6 class="card-subtitle mb-2">Selesai</h6>
-                                    <h2 class="fw-bold">${stats.completed}</h2>
-                                </div>
-                                <i class="fas fa-check-circle stat-icon"></i>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="card stat-card bg-warning text-dark">
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <div>
-                                    <h6 class="card-subtitle mb-2">Pending</h6>
-                                    <h2 class="fw-bold">${stats.pending}</h2>
-                                </div>
-                                <i class="fas fa-clock stat-icon"></i>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="card stat-card bg-danger text-white">
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <div>
-                                    <h6 class="card-subtitle mb-2">Dibatalkan</h6>
-                                    <h2 class="fw-bold">${stats.cancelled}</h2>
-                                </div>
-                                <i class="fas fa-times-circle stat-icon"></i>
                             </div>
                         </div>
                     </div>
@@ -303,10 +391,15 @@
             $('#statsContainer').html(statsHtml);
         }
 
+        // Data functions
         function loadData(page = 1) {
             const search = $('#searchInput').val();
             const status = $('#filterStatus').val();
+            const startDate = $('#filterStartDate').val();
+            const endDate = $('#filterEndDate').val();
 
+            showLoading();
+            
             $.ajax({
                 url: '{{ route('cleaning-report.data.get') }}',
                 type: 'GET',
@@ -314,15 +407,72 @@
                     page: page,
                     search: search,
                     status: status,
+                    start_date: startDate,
+                    end_date: endDate,
                     per_page: 10
                 },
                 success: function(response) {
                     if (response.success) {
                         renderTable(response.data);
                         renderPagination(response);
+                    } else {
+                        alert('Gagal memuat data: ' + response.message);
                     }
+                    hideLoading();
+                },
+                error: function(xhr) {
+                    console.error('Error loading data:', xhr.responseText);
+                    alert('Gagal memuat data');
+                    hideLoading();
                 }
             });
+        }
+
+        // Date formatting functions
+        function formatDateOnly(dateString) {
+            if (!dateString) return '-';
+            
+            try {
+                // Cek jika formatnya YYYY-MM-DD
+                if (dateString.match(/^\d{4}-\d{2}-\d{2}$/)) {
+                    const [year, month, day] = dateString.split('-');
+                    return `${day}/${month}/${year}`;
+                }
+                
+                // Parse date dari string
+                const date = new Date(dateString);
+                if (isNaN(date.getTime())) return dateString;
+                
+                const day = date.getDate().toString().padStart(2, '0');
+                const month = (date.getMonth() + 1).toString().padStart(2, '0');
+                const year = date.getFullYear();
+                
+                return `${day}/${month}/${year}`;
+            } catch (e) {
+                console.error('Error formatting date:', e);
+                return dateString;
+            }
+        }
+
+        function formatDateTime(dateTimeString) {
+            if (!dateTimeString) return '-';
+            
+            try {
+                const date = new Date(dateTimeString);
+                if (isNaN(date.getTime())) return dateTimeString;
+                
+                const day = date.getDate().toString().padStart(2, '0');
+                const month = (date.getMonth() + 1).toString().padStart(2, '0');
+                const year = date.getFullYear();
+                const hours = date.getHours().toString().padStart(2, '0');
+                const minutes = date.getMinutes().toString().padStart(2, '0');
+                const seconds = date.getSeconds().toString().padStart(2, '0');
+                
+                return `${day}/${month}/${year} ${hours}:${minutes}:${seconds}`;
+            } catch (e) {
+                console.error('Error formatting datetime:', e);
+                return dateTimeString;
+            }
         }
 
         function renderTable(data) {
@@ -332,7 +482,7 @@
             if (data.length === 0) {
                 tbody.html(`
                     <tr>
-                        <td colspan="8" class="text-center py-5">
+                        <td colspan="7" class="text-center py-5">
                             <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
                             <p class="text-muted">Tidak ada data ditemukan</p>
                         </td>
@@ -342,34 +492,43 @@
             }
 
             data.forEach(function(item) {
-                const statusClass = item.status === 'completed' ? 'badge-completed' :
-                    item.status === 'pending' ? 'badge-pending' : 'badge-cancelled';
-                const statusText = item.status === 'completed' ? 'Selesai' :
-                    item.status === 'pending' ? 'Pending' : 'Dibatalkan';
+                // Hanya tampilkan data dengan status completed atau semua data jika filter all
+                const status = $('#filterStatus').val();
+                if (status !== 'all' && item.status !== 'completed') {
+                    return; // Skip data yang tidak completed
+                }
+
+                // Format dates
+                const tanggal = formatDateOnly(item.tanggal);
+                const createdAt = formatDateTime(item.created_at);
+
+                // Photo handling
+                let photoHtml = '<span class="text-muted">Tidak ada</span>';
+                if (item.foto_path) {
+                    const photoUrl = item.foto_path.startsWith('http') ? item.foto_path : `/${item.foto_path}`;
+                    photoHtml = `
+                        <img src="${photoUrl}" 
+                             alt="Foto" 
+                             class="photo-thumbnail" 
+                             onclick="showPhoto('${photoUrl}')"
+                             title="Klik untuk melihat">
+                    `;
+                }
 
                 const row = `
-                    <tr>
+                    <tr data-id="${item.id}">
                         <td class="fw-bold">#${item.id}</td>
-                        <td class="editable" onclick="editField(${item.id}, 'nama')">${item.nama}</td>
-                        <td>${item.tanggal}</td>
-                        <td class="editable" onclick="editField(${item.id}, 'departemen')">${item.departemen}</td>
-                        <td>
-                            ${item.foto_path ? 
-                                `<a href="/${item.foto_path}" target="_blank" class="btn btn-sm btn-outline-info">
-                                        <i class="fas fa-eye"></i> Lihat
-                                    </a>` : 
-                                '<span class="text-muted">Tidak ada</span>'}
-                        </td>
-                        <td>
-                            <span class="badge ${statusClass} editable" onclick="editField(${item.id}, 'status')">
-                                ${statusText}
-                            </span>
-                        </td>
-                        <td>${new Date(item.created_at).toLocaleDateString('id-ID')}</td>
-                        <td>
-                            <button class="btn btn-sm btn-danger" onclick="deleteData(${item.id})">
-                                <i class="fas fa-trash"></i>
-                            </button>
+                        <td>${item.nama}</td>
+                        <td>${tanggal}</td>
+                        <td>${item.departemen}</td>
+                        <td>${photoHtml}</td>
+                        <td>${createdAt}</td>
+                        <td class="text-center">
+                            <div class="action-buttons justify-content-center">
+                                <button class="btn btn-action btn-danger" onclick="deleteData(${item.id})" title="Hapus">
+                                    <i class="fas fa-trash fa-sm"></i>
+                                </button>
+                            </div>
                         </td>
                     </tr>
                 `;
@@ -378,32 +537,17 @@
             });
         }
 
-        function editField(id, field) {
-            const currentValue = $(`td:contains(${id})`).next().text().trim();
-            const newValue = prompt(`Edit ${field}:`, currentValue);
-
-            if (newValue !== null && newValue !== currentValue) {
-                $.ajax({
-                    url: '{{ route('cleaning-report.data.update') }}',
-                    type: 'POST',
-                    data: {
-                        _token: '{{ csrf_token() }}',
-                        id: id,
-                        field: field,
-                        value: newValue
-                    },
-                    success: function(response) {
-                        if (response.success) {
-                            alert(response.message);
-                            loadData();
-                        }
-                    }
-                });
-            }
+        // Photo functions
+        function showPhoto(photoUrl) {
+            $('#modalPhoto').attr('src', photoUrl);
+            window.photoModal.show();
         }
+
+        // Hapus fungsi editField, editData, dan semua fungsi terkait edit
 
         function deleteData(id) {
             if (confirm('Apakah Anda yakin ingin menghapus data ini?')) {
+                showLoading();
                 $.ajax({
                     url: '{{ route('cleaning-report.data.delete') }}',
                     type: 'POST',
@@ -413,15 +557,23 @@
                     },
                     success: function(response) {
                         if (response.success) {
-                            alert(response.message);
+                            alert('Data berhasil dihapus');
                             loadData();
                             loadStats();
+                        } else {
+                            alert('Gagal menghapus data: ' + response.message);
                         }
+                        hideLoading();
+                    },
+                    error: function(xhr) {
+                        alert('Error: ' + xhr.responseText);
+                        hideLoading();
                     }
                 });
             }
         }
 
+        // Pagination functions
         function renderPagination(response) {
             const pagination = $('#pagination');
             const info = $('#paginationInfo');
@@ -450,7 +602,15 @@
             }
 
             // Page numbers
-            for (let i = 1; i <= response.last_page; i++) {
+            const maxPages = 5;
+            let startPage = Math.max(1, response.current_page - Math.floor(maxPages / 2));
+            let endPage = Math.min(response.last_page, startPage + maxPages - 1);
+
+            if (endPage - startPage + 1 < maxPages) {
+                startPage = Math.max(1, endPage - maxPages + 1);
+            }
+
+            for (let i = startPage; i <= endPage; i++) {
                 const active = i === response.current_page ? 'active' : '';
                 pagination.append(`
                     <li class="page-item ${active}">
@@ -470,7 +630,21 @@
                 `);
             }
         }
+
+        // Auto refresh every 30 seconds
+        setInterval(function() {
+            if (!document.hidden) {
+                loadStats();
+            }
+        }, 30000);
+
+        // Listen for visibility change
+        document.addEventListener('visibilitychange', function() {
+            if (!document.hidden) {
+                loadStats();
+                loadData();
+            }
+        });
     </script>
 </body>
-
 </html>
