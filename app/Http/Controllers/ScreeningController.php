@@ -656,7 +656,7 @@ class ScreeningController extends Controller
     {
         try {
             // Email Santano
-            $santanoEmail = "legareca.space@gmail.com";
+            $santanoEmail = "appsantano@gmail.com";
 
             // Subject berdasarkan status
             $subject = $screening->status == 'completed'

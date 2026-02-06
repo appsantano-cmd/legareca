@@ -766,7 +766,7 @@ class DailyCleaningReportController extends Controller
     {
         try {
             // Email Santano
-            $santanoEmail = "legareca.space@gmail.com";
+            $santanoEmail = "appsantano@gmail.com";
 
             // Subject untuk cleaning report
             $subject = "🧹 Cleaning Report Baru - " . $report->nama . " - Le Gareca Space";

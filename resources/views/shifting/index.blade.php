@@ -454,11 +454,11 @@
         </div>
     </div>
 
-    {{-- Export Modal - MODAL BARU --}}
+    {{-- Export Modal --}}
     <div id="exportModal"
         class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl w-full max-w-md overflow-hidden">
-            <form action="{{ route('shifting.export') }}" method="GET">
+            <form id="exportForm" action="{{ route('shifting.export') }}" method="GET">
                 <div class="p-6 border-b border-gray-200">
                     <div class="flex items-center justify-between">
                         <h3 class="text-lg font-semibold text-gray-800 flex items-center gap-2">
@@ -508,13 +508,30 @@
                         class="px-5 py-2.5 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition font-semibold">
                         Batal
                     </button>
-                    <button type="submit"
+                    <button type="submit" id="exportBtn"
                         class="px-5 py-2.5 bg-green-600 text-white rounded-lg hover:bg-green-700 transition font-semibold flex items-center gap-2">
                         <i class="fas fa-download"></i>
                         Download Excel
                     </button>
                 </div>
             </form>
+        </div>
+    </div>
+
+    {{-- Success Modal for Export --}}
+    <div id="exportSuccessModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-[60] flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl w-full max-w-sm overflow-hidden shadow-2xl">
+            <div class="p-8 text-center">
+                <div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4 animate-bounce">
+                    <i class="fas fa-check-circle text-green-600 text-4xl"></i>
+                </div>
+                <h3 class="text-xl font-bold text-gray-800 mb-2">Download Berhasil!</h3>
+                <p class="text-gray-600 mb-6">File Excel pengajuan tukar shift telah berhasil didownload ke perangkat Anda.</p>
+                <button onclick="closeExportSuccessModal()"
+                    class="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg font-semibold transition">
+                    Tutup
+                </button>
+            </div>
         </div>
     </div>
 
@@ -616,6 +633,48 @@
             document.getElementById('exportModal').classList.add('hidden');
             document.body.style.overflow = 'auto';
         }
+
+        // Export Success Modal Functions
+        function showExportSuccessModal() {
+            document.getElementById('exportSuccessModal').classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeExportSuccessModal() {
+            document.getElementById('exportSuccessModal').classList.add('hidden');
+            document.body.style.overflow = 'auto';
+        }
+
+        // Handle Export Form Submission
+        document.getElementById('exportForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const exportBtn = document.getElementById('exportBtn');
+            const originalText = exportBtn.innerHTML;
+            
+            // Show loading state
+            exportBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Memproses...';
+            exportBtn.disabled = true;
+            
+            // Create form data
+            const formData = new FormData(this);
+            const params = new URLSearchParams(formData);
+            
+            // Download file
+            window.location.href = this.action + '?' + params.toString();
+            
+            // Reset button and close modal
+            setTimeout(() => {
+                exportBtn.innerHTML = originalText;
+                exportBtn.disabled = false;
+                closeExportModal();
+                
+                // Show success modal after a short delay
+                setTimeout(() => {
+                    showExportSuccessModal();
+                }, 500);
+            }, 1500);
+        });
 
         // ===== DETAIL MODAL FUNCTIONS =====
         async function showDetailModal(id) {
@@ -821,6 +880,7 @@
                 closeModal();
                 closeRejectModal();
                 closeExportModal();
+                closeExportSuccessModal();
             }
         });
 
@@ -837,11 +897,15 @@
             if (e.target === this) closeExportModal();
         });
 
+        document.getElementById('exportSuccessModal').addEventListener('click', function(e) {
+            if (e.target === this) closeExportSuccessModal();
+        });
+
         // Form submission handling
         document.querySelectorAll('form').forEach(form => {
             form.addEventListener('submit', function(e) {
                 const submitBtn = this.querySelector('button[type="submit"]');
-                if (submitBtn && !submitBtn.disabled) {
+                if (submitBtn && !submitBtn.disabled && !submitBtn.id.includes('export')) {
                     submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Memproses...';
                     submitBtn.disabled = true;
                 }
@@ -886,6 +950,20 @@
             outline: 2px solid transparent;
             outline-offset: 2px;
             box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        /* Animate bounce for success icon */
+        @keyframes bounce {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+
+        .animate-bounce {
+            animation: bounce 1s ease-in-out 2;
         }
     </style>
 </body>

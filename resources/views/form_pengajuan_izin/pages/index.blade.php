@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <title>Daftar Pengajuan Izin</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
@@ -505,7 +506,7 @@
     {{-- Export Excel Modal --}}
     <div id="exportModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl w-full max-w-md overflow-hidden">
-            <form action="{{ route('izin.export') }}" method="GET">
+            <form id="exportForm" action="{{ route('izin.export') }}" method="GET">
                 <div class="p-6 border-b border-gray-200">
                     <h3 class="text-lg font-semibold text-gray-800 flex items-center gap-2">
                         <i class="fas fa-file-excel text-green-600"></i> Export Data ke Excel
@@ -561,13 +562,30 @@
                         class="px-5 py-2.5 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition font-semibold">
                         Batal
                     </button>
-                    <button type="submit"
+                    <button type="submit" id="exportBtn"
                         class="px-5 py-2.5 bg-green-600 text-white rounded-lg hover:bg-green-700 transition font-semibold flex items-center gap-2">
                         <i class="fas fa-download"></i>
                         Download Excel
                     </button>
                 </div>
             </form>
+        </div>
+    </div>
+
+    {{-- Success Modal for Export --}}
+    <div id="exportSuccessModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-[60] flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl w-full max-w-sm overflow-hidden shadow-2xl">
+            <div class="p-8 text-center">
+                <div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4 animate-bounce">
+                    <i class="fas fa-check-circle text-green-600 text-4xl"></i>
+                </div>
+                <h3 class="text-xl font-bold text-gray-800 mb-2">Download Berhasil!</h3>
+                <p class="text-gray-600 mb-6">File Excel pengajuan izin telah berhasil didownload ke perangkat Anda.</p>
+                <button onclick="closeExportSuccessModal()"
+                    class="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg font-semibold transition">
+                    Tutup
+                </button>
+            </div>
         </div>
     </div>
 
@@ -662,126 +680,179 @@
             document.body.style.overflow = 'auto';
         }
 
+        // Export Success Modal Functions
+        function showExportSuccessModal() {
+            document.getElementById('exportSuccessModal').classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeExportSuccessModal() {
+            document.getElementById('exportSuccessModal').classList.add('hidden');
+            document.body.style.overflow = 'auto';
+        }
+
+        // Handle Export Form Submission
+        document.getElementById('exportForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const exportBtn = document.getElementById('exportBtn');
+            const originalText = exportBtn.innerHTML;
+            
+            // Show loading state
+            exportBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Memproses...';
+            exportBtn.disabled = true;
+            
+            // Create form data
+            const formData = new FormData(this);
+            const params = new URLSearchParams(formData);
+            
+            // Download file
+            window.location.href = this.action + '?' + params.toString();
+            
+            // Reset button and close modal
+            setTimeout(() => {
+                exportBtn.innerHTML = originalText;
+                exportBtn.disabled = false;
+                closeExportModal();
+                
+                // Show success modal after a short delay
+                setTimeout(() => {
+                    showExportSuccessModal();
+                }, 500);
+            }, 1500);
+        });
+
         // Detail Modal Functions
         async function showDetailModal(id) {
             try {
                 // Tampilkan loading state
                 document.getElementById('modalContent').innerHTML = `
-            <div class="flex justify-center items-center py-8">
-                <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-            </div>
-        `;
+                    <div class="flex justify-center items-center py-8">
+                        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+                    </div>
+                `;
 
                 document.getElementById('detailModal').classList.remove('hidden');
                 document.body.style.overflow = 'hidden';
 
                 // Fetch data dari server
                 const response = await fetch(`/izin/${id}/detail`);
-                const data = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                
+                const result = await response.json();
+                
+                if (!result.success) {
+                    throw new Error(result.message || 'Failed to fetch data');
+                }
+                
+                const data = result.data;
 
                 document.getElementById('modalContent').innerHTML = `
-            <div class="space-y-4">
-                <div class="grid grid-cols-2 gap-4">
-                    <div class="bg-gray-50 p-4 rounded-lg">
-                        <p class="text-sm text-gray-500"><i class="fas fa-user mr-2"></i>Nama Lengkap</p>
-                        <p class="font-medium text-gray-800 mt-1">${data.nama || '-'}</p>
+                    <div class="space-y-4">
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="bg-gray-50 p-4 rounded-lg">
+                                <p class="text-sm text-gray-500"><i class="fas fa-user mr-2"></i>Nama Lengkap</p>
+                                <p class="font-medium text-gray-800 mt-1">${data.nama || '-'}</p>
+                            </div>
+                            <div class="bg-gray-50 p-4 rounded-lg">
+                                <p class="text-sm text-gray-500"><i class="fas fa-envelope mr-2"></i>Email</p>
+                                <p class="font-medium text-gray-800 mt-1">${data.user_email || '-'}</p>
+                            </div>
+                        </div>
+                        
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="bg-gray-50 p-4 rounded-lg">
+                                <p class="text-sm text-gray-500"><i class="fas fa-briefcase mr-2"></i>Divisi/Jabatan</p>
+                                <p class="font-medium text-gray-800 mt-1">${data.divisi || '-'}</p>
+                            </div>
+                            <div class="bg-gray-50 p-4 rounded-lg">
+                                <p class="text-sm text-gray-500"><i class="fas fa-tag mr-2"></i>Jenis Izin</p>
+                                <p class="font-medium text-gray-800 mt-1">${data.jenis_izin || '-'}</p>
+                            </div>
+                        </div>
+                        
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="bg-gray-50 p-4 rounded-lg">
+                                <p class="text-sm text-gray-500"><i class="fas fa-calendar-start mr-2"></i>Tanggal Mulai</p>
+                                <p class="font-medium text-gray-800 mt-1">${formatDate(data.tanggal_mulai) || '-'}</p>
+                            </div>
+                            <div class="bg-gray-50 p-4 rounded-lg">
+                                <p class="text-sm text-gray-500"><i class="fas fa-calendar-check mr-2"></i>Tanggal Selesai</p>
+                                <p class="font-medium text-gray-800 mt-1">${formatDate(data.tanggal_selesai) || '-'}</p>
+                            </div>
+                        </div>
+                        
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="bg-gray-50 p-4 rounded-lg">
+                                <p class="text-sm text-gray-500"><i class="fas fa-clock mr-2"></i>Durasi</p>
+                                <p class="font-medium text-gray-800 mt-1">${data.jumlah_hari || '0'} hari</p>
+                            </div>
+                            <div class="bg-gray-50 p-4 rounded-lg">
+                                <p class="text-sm text-gray-500"><i class="fas fa-phone mr-2"></i>Nomor Telepon</p>
+                                <p class="font-medium text-gray-800 mt-1">${data.nomor_telepon || '-'}</p>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <p class="text-sm text-gray-500"><i class="fas fa-map-marker-alt mr-2"></i>Alamat Selama Izin</p>
+                            <p class="font-medium text-gray-800 mt-1">${data.alamat || '-'}</p>
+                        </div>
+                        
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <p class="text-sm text-gray-500"><i class="fas fa-sticky-note mr-2"></i>Keterangan Tambahan</p>
+                            <p class="font-medium text-gray-800 mt-1">${data.keterangan_tambahan || 'Tidak ada keterangan'}</p>
+                        </div>
+                        
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="bg-gray-50 p-4 rounded-lg">
+                                <p class="text-sm text-gray-500"><i class="fas fa-info-circle mr-2"></i>Status</p>
+                                <p class="font-medium text-gray-800 mt-1">
+                                    <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold ${getStatusClass(data.status)}">
+                                        ${getStatusIcon(data.status)} ${data.status || 'Pending'}
+                                    </span>
+                                </p>
+                            </div>
+                            
+                            ${data.disetujui_oleh ? `
+                            <div class="bg-gray-50 p-4 rounded-lg">
+                                <p class="text-sm text-gray-500"><i class="fas fa-user-check mr-2"></i>Disetujui Oleh</p>
+                                <p class="font-medium text-gray-800 mt-1">${data.disetujui_oleh}</p>
+                            </div>
+                            ` : ''}
+                        </div>
+                        
+                        ${data.catatan_admin ? `
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <p class="text-sm text-gray-500"><i class="fas fa-comment mr-2"></i>Catatan Admin</p>
+                            <p class="font-medium text-gray-800 mt-1">${data.catatan_admin}</p>
+                        </div>
+                        ` : ''}
+                        
+                        ${data.documen_pendukung ? `
+                            <div class="bg-gray-50 p-4 rounded-lg">
+                                <p class="text-sm text-gray-500 mb-2"><i class="fas fa-file-pdf mr-2"></i>Dokumen Pendukung</p>
+                                <a href="${data.documen_pendukung}" 
+                                   target="_blank"
+                                   class="inline-flex items-center gap-2 text-blue-600 hover:text-blue-800 font-medium">
+                                    <i class="fas fa-external-link-alt"></i> Buka Dokumen
+                                </a>
+                            </div>
+                            ` : ''}
                     </div>
-                    <div class="bg-gray-50 p-4 rounded-lg">
-                        <p class="text-sm text-gray-500"><i class="fas fa-envelope mr-2"></i>Email</p>
-                        <p class="font-medium text-gray-800 mt-1">${data.user_email || '-'}</p>
-                    </div>
-                </div>
-                
-                <div class="grid grid-cols-2 gap-4">
-                    <div class="bg-gray-50 p-4 rounded-lg">
-                        <p class="text-sm text-gray-500"><i class="fas fa-briefcase mr-2"></i>Divisi/Jabatan</p>
-                        <p class="font-medium text-gray-800 mt-1">${data.divisi || '-'}</p>
-                    </div>
-                    <div class="bg-gray-50 p-4 rounded-lg">
-                        <p class="text-sm text-gray-500"><i class="fas fa-tag mr-2"></i>Jenis Izin</p>
-                        <p class="font-medium text-gray-800 mt-1">${data.jenis_izin || '-'}</p>
-                    </div>
-                </div>
-                
-                <div class="grid grid-cols-2 gap-4">
-                    <div class="bg-gray-50 p-4 rounded-lg">
-                        <p class="text-sm text-gray-500"><i class="fas fa-calendar-start mr-2"></i>Tanggal Mulai</p>
-                        <p class="font-medium text-gray-800 mt-1">${formatDate(data.tanggal_mulai) || '-'}</p>
-                    </div>
-                    <div class="bg-gray-50 p-4 rounded-lg">
-                        <p class="text-sm text-gray-500"><i class="fas fa-calendar-check mr-2"></i>Tanggal Selesai</p>
-                        <p class="font-medium text-gray-800 mt-1">${formatDate(data.tanggal_selesai) || '-'}</p>
-                    </div>
-                </div>
-                
-                <div class="grid grid-cols-2 gap-4">
-                    <div class="bg-gray-50 p-4 rounded-lg">
-                        <p class="text-sm text-gray-500"><i class="fas fa-clock mr-2"></i>Durasi</p>
-                        <p class="font-medium text-gray-800 mt-1">${data.jumlah_hari || '0'} hari</p>
-                    </div>
-                    <div class="bg-gray-50 p-4 rounded-lg">
-                        <p class="text-sm text-gray-500"><i class="fas fa-phone mr-2"></i>Nomor Telepon</p>
-                        <p class="font-medium text-gray-800 mt-1">${data.nomor_telepon || '-'}</p>
-                    </div>
-                </div>
-                
-                <div class="bg-gray-50 p-4 rounded-lg">
-                    <p class="text-sm text-gray-500"><i class="fas fa-map-marker-alt mr-2"></i>Alamat Selama Izin</p>
-                    <p class="font-medium text-gray-800 mt-1">${data.alamat || '-'}</p>
-                </div>
-                
-                <div class="bg-gray-50 p-4 rounded-lg">
-                    <p class="text-sm text-gray-500"><i class="fas fa-sticky-note mr-2"></i>Keterangan Tambahan</p>
-                    <p class="font-medium text-gray-800 mt-1">${data.keterangan_tambahan || 'Tidak ada keterangan'}</p>
-                </div>
-                
-                <div class="grid grid-cols-2 gap-4">
-                    <div class="bg-gray-50 p-4 rounded-lg">
-                        <p class="text-sm text-gray-500"><i class="fas fa-info-circle mr-2"></i>Status</p>
-                        <p class="font-medium text-gray-800 mt-1">
-                            <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold ${getStatusClass(data.status)}">
-                                ${getStatusIcon(data.status)} ${data.status || 'Pending'}
-                            </span>
-                        </p>
-                    </div>
-                    
-                    ${data.disetujui_oleh ? `
-                    <div class="bg-gray-50 p-4 rounded-lg">
-                        <p class="text-sm text-gray-500"><i class="fas fa-user-check mr-2"></i>Disetujui Oleh</p>
-                        <p class="font-medium text-gray-800 mt-1">${data.disetujui_oleh}</p>
-                    </div>
-                    ` : ''}
-                </div>
-                
-                ${data.catatan_admin ? `
-                <div class="bg-gray-50 p-4 rounded-lg">
-                    <p class="text-sm text-gray-500"><i class="fas fa-comment mr-2"></i>Catatan Admin</p>
-                    <p class="font-medium text-gray-800 mt-1">${data.catatan_admin}</p>
-                </div>
-                ` : ''}
-                
-                ${data.documen_pendukung ? `
-                    <div class="bg-gray-50 p-4 rounded-lg">
-                        <p class="text-sm text-gray-500 mb-2"><i class="fas fa-file-pdf mr-2"></i>Dokumen Pendukung</p>
-                        <a href="${data.documen_pendukung}" 
-                           target="_blank"
-                           class="inline-flex items-center gap-2 text-blue-600 hover:text-blue-800 font-medium">
-                            <i class="fas fa-external-link-alt"></i> Buka Dokumen
-                        </a>
-                    </div>
-                    ` : ''}
-            </div>
-        `;
+                `;
 
             } catch (error) {
                 console.error('Error fetching data:', error);
                 document.getElementById('modalContent').innerHTML = `
-            <div class="text-center py-8 text-red-600">
-                <i class="fas fa-exclamation-triangle text-4xl mb-4"></i>
-                <p class="font-medium">Gagal memuat data</p>
-                <p class="text-sm text-gray-600 mt-2">Silakan coba lagi nanti</p>
-            </div>
-        `;
+                    <div class="text-center py-8 text-red-600">
+                        <i class="fas fa-exclamation-triangle text-4xl mb-4"></i>
+                        <p class="font-medium">Gagal memuat data</p>
+                        <p class="text-sm text-gray-600 mt-2">Silakan coba lagi nanti</p>
+                    </div>
+                `;
             }
         }
 
@@ -846,6 +917,7 @@
                 closeDetailModal();
                 closeRejectModal();
                 closeExportModal();
+                closeExportSuccessModal();
             }
         });
 
@@ -862,11 +934,15 @@
             if (e.target === this) closeExportModal();
         });
 
+        document.getElementById('exportSuccessModal').addEventListener('click', function(e) {
+            if (e.target === this) closeExportSuccessModal();
+        });
+
         // Form submission handling
         document.querySelectorAll('form').forEach(form => {
             form.addEventListener('submit', function(e) {
                 const submitBtn = this.querySelector('button[type="submit"]');
-                if (submitBtn && !submitBtn.disabled) {
+                if (submitBtn && !submitBtn.disabled && !submitBtn.id.includes('export')) {
                     submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Memproses...';
                     submitBtn.disabled = true;
                 }
@@ -911,6 +987,20 @@
             outline: 2px solid transparent;
             outline-offset: 2px;
             box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        /* Animate bounce for success icon */
+        @keyframes bounce {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+
+        .animate-bounce {
+            animation: bounce 1s ease-in-out 2;
         }
     </style>
 </body>

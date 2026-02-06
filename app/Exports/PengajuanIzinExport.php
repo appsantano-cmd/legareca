@@ -71,18 +71,23 @@ class PengajuanIzinExport implements FromCollection, WithHeadings, WithMapping, 
     {
         return [
             'No',
-            'Nama Karyawan',
+            'Nama',
+            'User Email',
             'Divisi',
             'Jenis Izin',
             'Tanggal Mulai',
             'Tanggal Selesai',
             'Jumlah Hari',
-            'Status',
+            'Keterangan Tambahan',
             'Nomor Telepon',
             'Alamat',
-            'Keterangan Tambahan',
             'Dokumen Pendukung',
-            'Tanggal Pengajuan'
+            'Konfirmasi',
+            'Status',
+            'Catatan Admin',
+            'Disetujui Oleh',
+            'Tanggal Persetujuan',
+            'Tanggal Input'
         ];
     }
 
@@ -92,19 +97,27 @@ class PengajuanIzinExport implements FromCollection, WithHeadings, WithMapping, 
      */
     public function map($izin): array
     {
+        static $no = 0;
+        $no++;
+        
         return [
-            // 'No' akan diisi oleh Excel dengan ROW() atau otomatis
+            $no,
             $izin->nama,
+            $izin->user_email ?? '-',
             $izin->divisi,
             $izin->jenis_izin,
             \Carbon\Carbon::parse($izin->tanggal_mulai)->format('d/m/Y'),
             \Carbon\Carbon::parse($izin->tanggal_selesai)->format('d/m/Y'),
             $izin->jumlah_hari,
-            $izin->status,
+            $izin->keterangan_tambahan ?? '-',
             $izin->nomor_telepon,
             $izin->alamat,
-            $izin->keterangan_tambahan ?? '-',
             $izin->documen_pendukung ? 'Ada' : 'Tidak Ada',
+            $izin->konfirmasi ? 'Ya' : 'Tidak',
+            $izin->status,
+            $izin->catatan_admin ?? '-',
+            $izin->disetujui_oleh ?? '-',
+            $izin->tanggal_persetujuan ? \Carbon\Carbon::parse($izin->tanggal_persetujuan)->format('d/m/Y H:i:s') : '-',
             \Carbon\Carbon::parse($izin->created_at)->format('d/m/Y H:i:s')
         ];
     }
@@ -124,7 +137,7 @@ class PengajuanIzinExport implements FromCollection, WithHeadings, WithMapping, 
     public function styles(Worksheet $sheet)
     {
         // Style untuk header (baris pertama)
-        $sheet->getStyle('A1:M1')->applyFromArray([
+        $sheet->getStyle('A1:R1')->applyFromArray([
             'font' => [
                 'bold' => true,
                 'color' => ['rgb' => 'FFFFFF']
@@ -149,7 +162,7 @@ class PengajuanIzinExport implements FromCollection, WithHeadings, WithMapping, 
         $sheet->getRowDimension(1)->setRowHeight(30);
 
         // Style untuk semua sel
-        $sheet->getStyle('A2:M' . ($sheet->getHighestRow()))
+        $sheet->getStyle('A2:R' . ($sheet->getHighestRow()))
             ->applyFromArray([
                 'borders' => [
                     'allBorders' => [
@@ -163,7 +176,7 @@ class PengajuanIzinExport implements FromCollection, WithHeadings, WithMapping, 
             ]);
 
         // Style untuk kolom angka
-        $sheet->getStyle('G2:G' . $sheet->getHighestRow()) // Kolom Jumlah Hari
+        $sheet->getStyle('H2:H' . $sheet->getHighestRow()) // Kolom Jumlah Hari
             ->applyFromArray([
                 'alignment' => [
                     'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
@@ -171,7 +184,7 @@ class PengajuanIzinExport implements FromCollection, WithHeadings, WithMapping, 
             ]);
 
         // Style untuk tanggal
-        $sheet->getStyle('E2:F' . $sheet->getHighestRow()) // Kolom tanggal
+        $sheet->getStyle('F2:G' . $sheet->getHighestRow()) // Kolom tanggal
             ->applyFromArray([
                 'alignment' => [
                     'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
@@ -181,7 +194,7 @@ class PengajuanIzinExport implements FromCollection, WithHeadings, WithMapping, 
         // Style untuk status dengan warna berdasarkan nilai
         $lastRow = $sheet->getHighestRow();
         for ($row = 2; $row <= $lastRow; $row++) {
-            $status = $sheet->getCell('H' . $row)->getValue();
+            $status = $sheet->getCell('N' . $row)->getValue(); // Kolom N = Status
             $color = '';
             
             switch ($status) {
@@ -197,7 +210,7 @@ class PengajuanIzinExport implements FromCollection, WithHeadings, WithMapping, 
             }
             
             if ($color) {
-                $sheet->getStyle('H' . $row)->applyFromArray([
+                $sheet->getStyle('N' . $row)->applyFromArray([
                     'fill' => [
                         'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
                         'startColor' => ['rgb' => substr($color, -6)],
@@ -222,35 +235,27 @@ class PengajuanIzinExport implements FromCollection, WithHeadings, WithMapping, 
                 // Freeze header row (baris pertama)
                 $event->sheet->freezePane('A2');
                 
-                // Tambahkan nomor urut
                 $sheet = $event->sheet->getDelegate();
-                $lastRow = $sheet->getHighestRow();
                 
-                for ($row = 2; $row <= $lastRow; $row++) {
-                    $sheet->setCellValue('A' . $row, $row - 1);
-                }
-                
-                // Style untuk kolom nomor
-                $sheet->getStyle('A2:A' . $lastRow)->applyFromArray([
-                    'alignment' => [
-                        'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
-                    ],
-                ]);
-                
-                // Set lebar kolom tertentu
-                $sheet->getColumnDimension('A')->setWidth(8);  // No
-                $sheet->getColumnDimension('B')->setWidth(25); // Nama
-                $sheet->getColumnDimension('C')->setWidth(20); // Divisi
-                $sheet->getColumnDimension('D')->setWidth(20); // Jenis Izin
-                $sheet->getColumnDimension('E')->setWidth(15); // Tgl Mulai
-                $sheet->getColumnDimension('F')->setWidth(15); // Tgl Selesai
-                $sheet->getColumnDimension('G')->setWidth(12); // Jumlah Hari
-                $sheet->getColumnDimension('H')->setWidth(15); // Status
-                $sheet->getColumnDimension('I')->setWidth(20); // No Telp
-                $sheet->getColumnDimension('J')->setWidth(30); // Alamat
-                $sheet->getColumnDimension('K')->setWidth(30); // Keterangan
-                $sheet->getColumnDimension('L')->setWidth(20); // Dokumen
-                $sheet->getColumnDimension('M')->setWidth(20); // Tgl Pengajuan
+                // Set lebar kolom
+                $sheet->getColumnDimension('A')->setWidth(6);   // No
+                $sheet->getColumnDimension('B')->setWidth(25);  // Nama
+                $sheet->getColumnDimension('C')->setWidth(30);  // Email
+                $sheet->getColumnDimension('D')->setWidth(20);  // Divisi
+                $sheet->getColumnDimension('E')->setWidth(20);  // Jenis Izin
+                $sheet->getColumnDimension('F')->setWidth(15);  // Tgl Mulai
+                $sheet->getColumnDimension('G')->setWidth(15);  // Tgl Selesai
+                $sheet->getColumnDimension('H')->setWidth(12);  // Jumlah Hari
+                $sheet->getColumnDimension('I')->setWidth(30);  // Keterangan
+                $sheet->getColumnDimension('J')->setWidth(20);  // No Telp
+                $sheet->getColumnDimension('K')->setWidth(30);  // Alamat
+                $sheet->getColumnDimension('L')->setWidth(20);  // Dokumen
+                $sheet->getColumnDimension('M')->setWidth(12);  // Konfirmasi
+                $sheet->getColumnDimension('N')->setWidth(15);  // Status
+                $sheet->getColumnDimension('O')->setWidth(30);  // Catatan Admin
+                $sheet->getColumnDimension('P')->setWidth(25);  // Disetujui Oleh
+                $sheet->getColumnDimension('Q')->setWidth(20);  // Tgl Persetujuan
+                $sheet->getColumnDimension('R')->setWidth(20);  // Tanggal Input
             },
         ];
     }
