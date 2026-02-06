@@ -90,7 +90,7 @@ class GoogleSheetsService
             $params
         );
     }
-        /**
+    /**
      * ⚠️ Escape hatch (untuk repository legacy)
      * Akses langsung Google Sheets SDK jika memang dibutuhkan
      */
@@ -113,11 +113,20 @@ class GoogleSheetsService
     }
 
     /**
+     * Get the spreadsheet ID
+     */
+    public function getSpreadsheetId(): string
+    {
+        return $this->spreadsheetId;
+    }
+
+    /**
      * Append raw helper (multi rows)
      */
     public function appendRaw(array $rows, string $range): void
     {
-        if (empty($rows)) return;
+        if (empty($rows))
+            return;
 
         $body = new ValueRange([
             'values' => $rows,
@@ -131,6 +140,27 @@ class GoogleSheetsService
                 'valueInputOption' => 'USER_ENTERED',
                 'insertDataOption' => 'INSERT_ROWS',
             ]
+        );
+    }
+
+    /**
+     * 🔹 Update nilai di range tertentu
+     */
+    public function update(string $range, array $values): void
+    {
+        $body = new ValueRange([
+            'values' => [$values],
+        ]);
+
+        $params = [
+            'valueInputOption' => 'USER_ENTERED',
+        ];
+
+        $this->service->spreadsheets_values->update(
+            $this->spreadsheetId,
+            $range,
+            $body,
+            $params
         );
     }
 

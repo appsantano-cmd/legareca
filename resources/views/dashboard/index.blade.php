@@ -168,7 +168,6 @@
             color: white;
         }
 
-        /* Add pagination styles */
         .pagination {
             display: flex;
             justify-content: center;
@@ -260,137 +259,164 @@
                     </a>
                 </li>
 
-                <!-- User Management (Admin/Developer only) -->
-                @if (in_array(auth()->user()->role, ['admin', 'developer']))
-                <li>
-                    <div class="mt-6 mb-2 px-3">
-                        <span class="text-xs font-semibold text-gray-500 uppercase tracking-wider">User
-                            Management</span>
-                    </div>
+                <!-- Staff Menu -->
+                @if (auth()->user()->role === 'staff')
+                    <li>
+                        <div class="mt-6 mb-2 px-3">
+                            <span class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Staff Menu</span>
+                        </div>
 
-                    <!-- Add User -->
-                    <a href="{{ route('users.create') }}"
-                        class="flex items-center p-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition duration-200 {{ request()->routeIs('users.create') ? 'active-menu' : '' }}">
-                        <i class="fas fa-user-plus text-lg w-6"></i>
-                        <span class="ml-3 font-medium">Tambah User</span>
-                    </a>
+                        <!-- Form Cleaning Report -->
+                        <a href="{{ route('cleaning-report.create') }}"
+                            class="flex items-center p-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition duration-200 {{ request()->routeIs('cleaning-report.create') ? 'active-menu' : '' }}">
+                            <i class="fas fa-pen-to-square text-lg w-6"></i>
+                            <span class="ml-3 font-medium">Form Cleaning Report</span>
+                        </a>
 
-                    <!-- User List -->
-                    <a href="{{ route('users.index') }}"
-                        class="flex items-center p-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition duration-200 {{ request()->routeIs('users.index') ? 'active-menu' : '' }}">
-                        <i class="fas fa-users text-lg w-6"></i>
-                        <span class="ml-3 font-medium">Daftar User</span>
-                    </a>
-                </li>
+                        <!-- Form Tukar Shift -->
+                        <a href="{{ route('shifting.create') }}"
+                            class="flex items-center p-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition duration-200 {{ request()->routeIs('shifting.create') ? 'active-menu' : '' }}">
+                            <i class="fas fa-right-left text-lg w-6"></i>
+                            <span class="ml-3 font-medium">Form Tukar Shift</span>
+                        </a>
+
+                        <!-- Form Pengajuan Izin -->
+                        <a href="{{ route('izin.create') }}"
+                            class="flex items-center p-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition duration-200 {{ request()->routeIs('izin.create') ? 'active-menu' : '' }}">
+                            <i class="fas fa-file-circle-plus text-lg w-6"></i>
+                            <span class="ml-3 font-medium">Form Pengajuan Izin</span>
+                        </a>
+
+                        <!-- Stok Gudang (Transaction Create) -->
+                        <a href="{{ route('transactions.create') }}"
+                            class="flex items-center p-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition duration-200 {{ request()->routeIs('transactions.create') ? 'active-menu' : '' }}">
+                            <i class="fas fa-boxes-stacked text-lg w-6"></i>
+                            <span class="ml-3 font-medium">Stok Gudang</span>
+                        </a>
+
+                        <!-- Stok Station -->
+                        <a href="{{ route('stok-kitchen.index') }}"
+                            class="flex items-center p-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition duration-200 {{ request()->routeIs('master-kitchen.index') ? 'active-menu' : '' }}">
+                            <i class="fas fa-kitchen-set text-lg w-6"></i>
+                            <span class="ml-3 font-medium">Stok Station</span>
+                        </a>
+                    </li>
                 @endif
 
+                <!-- Admin & Developer Menu -->
                 @if (in_array(auth()->user()->role, ['admin', 'developer']))
-                <li>
-                    <div class="mt-6 mb-2 px-3">
-                        <span class="text-xs font-semibold text-gray-500 uppercase tracking-wider">System
-                            Management</span>
-                    </div>
+                    <li>
+                        <div class="mt-6 mb-2 px-3">
+                            <span class="text-xs font-semibold text-gray-500 uppercase tracking-wider">User
+                                Management</span>
+                        </div>
 
-                    <!-- Form Screening -->
-                    <a href="/screening"
-                        class="flex items-center p-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition duration-200 {{ request()->is('screening') ? 'active-menu' : '' }}">
-                        <i class="fas fa-clipboard-list text-lg w-6"></i>
-                        <span class="ml-3 font-medium">Form Screening</span>
-                    </a>
+                        <!-- Tambah User -->
+                        <a href="{{ route('users.create') }}"
+                            class="flex items-center p-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition duration-200 {{ request()->routeIs('users.create') ? 'active-menu' : '' }}">
+                            <i class="fas fa-user-plus text-lg w-6"></i>
+                            <span class="ml-3 font-medium">Tambah User</span>
+                        </a>
 
-                    <!-- Daftar Screening -->
-                    <a href="/screening/data"
-                        class="flex items-center p-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition duration-200 {{ request()->is('screening/data') ? 'active-menu' : '' }}">
-                        <i class="fas fa-list-check text-lg w-6"></i>
-                        <span class="ml-3 font-medium">Daftar Screening</span>
-                    </a>
+                        <!-- Daftar User -->
+                        <a href="{{ route('users.index') }}"
+                            class="flex items-center p-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition duration-200 {{ request()->routeIs('users.index') ? 'active-menu' : '' }}">
+                            <i class="fas fa-users text-lg w-6"></i>
+                            <span class="ml-3 font-medium">Daftar User</span>
+                        </a>
 
-                    <!-- Form Cleaning -->
-                    <a href="/cleaning-report"
-                        class="flex items-center p-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition duration-200 {{ request()->is('cleaning-report') ? 'active-menu' : '' }}">
-                        <i class="fas fa-pen-to-square text-lg w-6"></i>
-                        <span class="ml-3 font-medium">Form Cleaning Report</span>
-                    </a>
+                        <div class="mt-6 mb-2 px-3">
+                            <span class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Form
+                                Management</span>
+                        </div>
 
-                    <!-- Daftar Cleaning -->
-                    <a href="/cleaning-report/dashboard"
-                        class="flex items-center p-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition duration-200 {{ request()->is('cleaning-report/dashboard') ? 'active-menu' : '' }}">
-                        <i class="fas fa-broom text-lg w-6"></i>
-                        <span class="ml-3 font-medium">Daftar Cleaning Report</span>
-                    </a>
+                        <!-- Form Screening -->
+                        <a href="{{ route('screening.welcome') }}"
+                            class="flex items-center p-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition duration-200 {{ request()->routeIs('screening.welcome') ? 'active-menu' : '' }}">
+                            <i class="fas fa-clipboard-list text-lg w-6"></i>
+                            <span class="ml-3 font-medium">Form Screening</span>
+                        </a>
 
-                    <!-- Form Tukar Shift -->
-                    <a href="/shifting/create"
-                        class="flex items-center p-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition duration-200 {{ request()->is('shifting/create') ? 'active-menu' : '' }}">
-                        <i class="fas fa-right-left text-lg w-6"></i>
-                        <span class="ml-3 font-medium">Form Tukar Shift</span>
-                    </a>
+                        <!-- Daftar Screening -->
+                        <a href="{{ route('screening.index') }}"
+                            class="flex items-center p-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition duration-200 {{ request()->routeIs('screening.index') ? 'active-menu' : '' }}">
+                            <i class="fas fa-list-check text-lg w-6"></i>
+                            <span class="ml-3 font-medium">Daftar Screening</span>
+                        </a>
 
-                    <!-- Daftar Tukar Shift -->
-                    <a href="/shifting"
-                        class="flex items-center p-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition duration-200 {{ request()->is('shifting') ? 'active-menu' : '' }}">
-                        <i class="fas fa-calendar-days text-lg w-6"></i>
-                        <span class="ml-3 font-medium">Daftar Tukar Shift</span>
-                    </a>
+                        <!-- Form Cleaning Report -->
+                        <a href="{{ route('cleaning-report.create') }}"
+                            class="flex items-center p-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition duration-200 {{ request()->routeIs('cleaning-report.create') ? 'active-menu' : '' }}">
+                            <i class="fas fa-pen-to-square text-lg w-6"></i>
+                            <span class="ml-3 font-medium">Form Cleaning Report</span>
+                        </a>
 
-                    <!-- Form Pengajuan Izin -->
-                    <a href="{{ route('izin.create') }}"
-                        class="flex items-center p-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition duration-200 {{ request()->is('izin/create') ? 'active-menu' : '' }}">
-                        <i class="fas fa-file-circle-plus text-lg w-6"></i>
-                        <span class="ml-3 font-medium">Form Pengajuan Izin</span>
-                    </a>
+                        <!-- Daftar Cleaning Report -->
+                        <a href="{{ route('cleaning-report.dashboard') }}"
+                            class="flex items-center p-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition duration-200 {{ request()->routeIs('cleaning-report.dashboard') ? 'active-menu' : '' }}">
+                            <i class="fas fa-broom text-lg w-6"></i>
+                            <span class="ml-3 font-medium">Daftar Cleaning Report</span>
+                        </a>
 
-                    <!-- Daftar Pengajuan Izin -->
-                    <a href="{{ route('izin.index') }}"
-                        class="flex items-center p-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition duration-200 {{ request()->is('izin') ? 'active-menu' : '' }}">
-                        <i class="fas fa-folder-open text-lg w-6"></i>
-                        <span class="ml-3 font-medium">Daftar Pengajuan Izin</span>
-                    </a>
+                        <!-- Form Tukar Shift -->
+                        <a href="{{ route('shifting.create') }}"
+                            class="flex items-center p-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition duration-200 {{ request()->routeIs('shifting.create') ? 'active-menu' : '' }}">
+                            <i class="fas fa-right-left text-lg w-6"></i>
+                            <span class="ml-3 font-medium">Form Tukar Shift</span>
+                        </a>
 
-                    <!-- Stok Gudang -->
-                    <a href="{{ route('stok.index') }}"
-                        class="flex items-center p-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition duration-200 {{ request()->is('stok*') ? 'active-menu' : '' }}">
-                        <i class="fas fa-boxes-stacked text-lg w-6"></i>
-                        <span class="ml-3 font-medium">Stok Gudang</span>
-                    </a>
+                        <!-- Daftar Tukar Shift -->
+                        <a href="{{ route('shifting.index') }}"
+                            class="flex items-center p-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition duration-200 {{ request()->routeIs('shifting.index') ? 'active-menu' : '' }}">
+                            <i class="fas fa-calendar-days text-lg w-6"></i>
+                            <span class="ml-3 font-medium">Daftar Tukar Shift</span>
+                        </a>
 
-                    <!-- Art Gallery Create -->
-                    <a href="{{ route('gallery.create') }}"
-                        class="flex items-center p-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition duration-200 {{ request()->is('art-galleries/create') ? 'active-menu' : '' }}">
-                        <i class="fas fa-paint-brush text-lg w-6"></i>
-                        <span class="ml-3 font-medium">Art Gallery Create</span>
-                    </a>
-                    @endif
+                        <!-- Form Pengajuan Izin -->
+                        <a href="{{ route('izin.create') }}"
+                            class="flex items-center p-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition duration-200 {{ request()->routeIs('izin.create') ? 'active-menu' : '' }}">
+                            <i class="fas fa-file-circle-plus text-lg w-6"></i>
+                            <span class="ml-3 font-medium">Form Pengajuan Izin</span>
+                        </a>
 
-                    <!-- Staff Menu (Staff only) -->
-                    @if (auth()->user()->role === 'staff')
-                <li>
-                    <div class="mt-6 mb-2 px-3">
-                        <span class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Staff Menu</span>
-                    </div>
+                        <!-- Daftar Pengajuan Izin -->
+                        <a href="{{ route('izin.index') }}"
+                            class="flex items-center p-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition duration-200 {{ request()->routeIs('izin.index') ? 'active-menu' : '' }}">
+                            <i class="fas fa-folder-open text-lg w-6"></i>
+                            <span class="ml-3 font-medium">Daftar Pengajuan Izin</span>
+                        </a>
 
-                    <!-- Cleaning  -->
-                    <a href="/cleaning-report"
-                        class="flex items-center p-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition duration-200 {{ request()->is('cleaning-report') ? 'active-menu' : '' }}">
-                        <i class="fas fa-broom text-lg w-6"></i>
-                        <span class="ml-3 font-medium">Cleaning Report</span>
-                    </a>
+                        <div class="mt-6 mb-2 px-3">
+                            <span class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Inventory
+                                Management</span>
+                        </div>
 
-                    <!-- Tukar Shift -->
-                    <a href="/shifting"
-                        class="flex items-center p-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition duration-200 {{ request()->is('shifting') ? 'active-menu' : '' }}">
-                        <i class="fas fa-exchange-alt text-lg w-6"></i>
-                        <span class="ml-3 font-medium">Tukar Shift</span>
-                    </a>
+                        <!-- Stok Gudang -->
+                        <a href="{{ route('stok.index') }}"
+                            class="flex items-center p-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition duration-200 {{ request()->routeIs('stok.index') ? 'active-menu' : '' }}">
+                            <i class="fas fa-warehouse text-lg w-6"></i>
+                            <span class="ml-3 font-medium">Stok Gudang</span>
+                        </a>
 
-                    <!-- Pengajuan Izin -->
-                    <a href="{{ route('izin.create') }}"
-                        class="flex items-center p-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition duration-200 {{ request()->is('izin') ? 'active-menu' : '' }}">
-                        <i class="fas fa-file-alt text-lg w-6"></i>
-                        <span class="ml-3 font-medium">Pengajuan Izin</span>
-                    </a>
+                        <!-- Stok Station -->
+                        <a href="{{ route('master-kitchen.index') }}"
+                            class="flex items-center p-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition duration-200 {{ request()->routeIs('master-kitchen.index') ? 'active-menu' : '' }}">
+                            <i class="fas fa-kitchen-set text-lg w-6"></i>
+                            <span class="ml-3 font-medium">Stok Station</span>
+                        </a>
 
-                </li>
+                        <div class="mt-6 mb-2 px-3">
+                            <span class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Content
+                                Management</span>
+                        </div>
+
+                        <!-- Art Gallery Create -->
+                        <a href="{{ route('gallery.create') }}"
+                            class="flex items-center p-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition duration-200 {{ request()->routeIs('gallery.create') ? 'active-menu' : '' }}">
+                            <i class="fas fa-paint-brush text-lg w-6"></i>
+                            <span class="ml-3 font-medium">Art Gallery Create</span>
+                        </a>
+                    </li>
                 @endif
             </ul>
         </div>
@@ -425,11 +451,9 @@
                 <!-- Right side: Notifications, User dropdown -->
                 <div class="flex items-center space-x-4">
                     <!-- Notifications -->
-
                     @php
-                    $notifications = auth()->user()->notifications()->orderBy('created_at', 'desc')->take(5)->get();
-
-                    $unreadCount = auth()->user()->unreadNotifications()->count();
+                        $notifications = auth()->user()->notifications()->orderBy('created_at', 'desc')->take(5)->get();
+                        $unreadCount = auth()->user()->unreadNotifications()->count();
                     @endphp
 
                     <div class="relative">
@@ -437,10 +461,10 @@
                             onclick="toggleDropdown('notification-dropdown')">
                             <i class="fas fa-bell text-xl"></i>
                             @if ($unreadCount > 0)
-                            <span
-                                class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                                {{ $unreadCount > 9 ? '9+' : $unreadCount }}
-                            </span>
+                                <span
+                                    class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                                    {{ $unreadCount > 9 ? '9+' : $unreadCount }}
+                                </span>
                             @endif
                         </button>
 
@@ -451,62 +475,60 @@
                                 <h3 class="font-semibold text-gray-800">Notifications</h3>
                             </div>
 
-                            <!-- Di dropdown notifikasi -->
                             <div class="max-h-60 overflow-y-auto">
                                 @forelse($notifications as $notification)
-                                @php
-                                // Tentukan icon dan warna berdasarkan type
-                                $iconClass = '';
-                                $bgColor = '';
-                                $textColor = '';
+                                    @php
+                                        $iconClass = '';
+                                        $bgColor = '';
+                                        $textColor = '';
 
-                                if (str_contains($notification->type, 'cleaning')) {
-                                $iconClass = 'fa-broom';
-                                $bgColor = 'bg-green-100';
-                                $textColor = 'text-green-600';
-                                } elseif (str_contains($notification->type, 'shifting')) {
-                                $iconClass = 'fa-exchange-alt';
-                                $bgColor = 'bg-blue-100';
-                                $textColor = 'text-blue-600';
-                                } elseif (str_contains($notification->type, 'izin')) {
-                                $iconClass = 'fa-file-alt';
-                                $bgColor = 'bg-yellow-100';
-                                $textColor = 'text-yellow-600';
-                                } elseif (str_contains($notification->type, 'confirmation')) {
-                                $iconClass = 'fa-check-circle';
-                                $bgColor = 'bg-green-100';
-                                $textColor = 'text-green-600';
-                                } else {
-                                $iconClass = 'fa-bell';
-                                $bgColor = 'bg-gray-100';
-                                $textColor = 'text-gray-600';
-                                }
-                                @endphp
+                                        if (str_contains($notification->type, 'cleaning')) {
+                                            $iconClass = 'fa-broom';
+                                            $bgColor = 'bg-green-100';
+                                            $textColor = 'text-green-600';
+                                        } elseif (str_contains($notification->type, 'shifting')) {
+                                            $iconClass = 'fa-exchange-alt';
+                                            $bgColor = 'bg-blue-100';
+                                            $textColor = 'text-blue-600';
+                                        } elseif (str_contains($notification->type, 'izin')) {
+                                            $iconClass = 'fa-file-alt';
+                                            $bgColor = 'bg-yellow-100';
+                                            $textColor = 'text-yellow-600';
+                                        } elseif (str_contains($notification->type, 'confirmation')) {
+                                            $iconClass = 'fa-check-circle';
+                                            $bgColor = 'bg-green-100';
+                                            $textColor = 'text-green-600';
+                                        } else {
+                                            $iconClass = 'fa-bell';
+                                            $bgColor = 'bg-gray-100';
+                                            $textColor = 'text-gray-600';
+                                        }
+                                    @endphp
 
-                                <a href="#"
-                                    class="flex items-center px-4 py-3 hover:bg-gray-50 {{ !$loop->last ? 'border-b border-gray-100' : '' }} notification-item"
-                                    data-id="{{ $notification->id }}">
-                                    <div
-                                        class="w-10 h-10 rounded-full {{ $bgColor }} {{ $textColor }} flex items-center justify-center mr-3">
-                                        <i class="fas {{ $iconClass }}"></i>
-                                    </div>
-                                    <div>
-                                        <p class="text-sm font-medium text-gray-800">{{ $notification->title }}
-                                        </p>
-                                        <p class="text-xs text-gray-500">{{ $notification->message }}</p>
-                                        <p class="text-xs text-gray-400 mt-1">
-                                            {{ $notification->created_at->diffForHumans() }}
-                                        </p>
-                                    </div>
-                                    @if (!$notification->is_read)
-                                    <span class="ml-auto w-2 h-2 rounded-full bg-blue-500"></span>
-                                    @endif
-                                </a>
+                                    <a href="#"
+                                        class="flex items-center px-4 py-3 hover:bg-gray-50 {{ !$loop->last ? 'border-b border-gray-100' : '' }} notification-item"
+                                        data-id="{{ $notification->id }}">
+                                        <div
+                                            class="w-10 h-10 rounded-full {{ $bgColor }} {{ $textColor }} flex items-center justify-center mr-3">
+                                            <i class="fas {{ $iconClass }}"></i>
+                                        </div>
+                                        <div>
+                                            <p class="text-sm font-medium text-gray-800">{{ $notification->title }}
+                                            </p>
+                                            <p class="text-xs text-gray-500">{{ $notification->message }}</p>
+                                            <p class="text-xs text-gray-400 mt-1">
+                                                {{ $notification->created_at->diffForHumans() }}
+                                            </p>
+                                        </div>
+                                        @if (!$notification->is_read)
+                                            <span class="ml-auto w-2 h-2 rounded-full bg-blue-500"></span>
+                                        @endif
+                                    </a>
                                 @empty
-                                <div class="px-4 py-6 text-center text-gray-500">
-                                    <i class="fas fa-bell-slash text-2xl mb-2"></i>
-                                    <p>No notifications</p>
-                                </div>
+                                    <div class="px-4 py-6 text-center text-gray-500">
+                                        <i class="fas fa-bell-slash text-2xl mb-2"></i>
+                                        <p>No notifications</p>
+                                    </div>
                                 @endforelse
                             </div>
 
@@ -576,58 +598,12 @@
                             </div>
                             <div class="flex items-center bg-white/20 backdrop-blur-sm rounded-lg px-4 py-2">
                                 <i class="fas fa-clock mr-3"></i>
-                                <span>{{ now()->format('h:i A') }}</span>
+                                <span class="time-display">{{ now()->format('h:i A') }}</span>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-
-            <!-- Conditional card Content Based on Role -->
-            @if (auth()->user()->role === 'staff')
-            <!-- Staff Dashboard Content -->
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                <!-- Cleaning Report Card -->
-                <div class="staff-card rounded-xl shadow-lg overflow-hidden card-hover">
-                    <a href="/cleaning-report" class="block p-6 h-full">
-                        <div class="flex items-center justify-between mb-4">
-                            <div
-                                class="w-12 h-12 rounded-lg bg-white/20 backdrop-blur-sm flex items-center justify-center">
-                                <i class="fas fa-broom text-white text-xl"></i>
-                            </div>
-                        </div>
-                        <h3 class="text-2xl font-bold mb-1">Cleaning Report</h3>
-                    </a>
-                </div>
-
-                <!-- Shift Change Card -->
-                <div class="staff-card-secondary rounded-xl shadow-lg overflow-hidden card-hover">
-                    <a href="/shifting" class="block p-6 h-full">
-                        <div class="flex items-center justify-between mb-4">
-                            <div
-                                class="w-12 h-12 rounded-lg bg-white/20 backdrop-blur-sm flex items-center justify-center">
-                                <i class="fas fa-exchange-alt text-white text-xl"></i>
-                            </div>
-                        </div>
-                        <h3 class="text-2xl font-bold mb-1">Tukar Shift</h3>
-                    </a>
-                </div>
-
-                <!-- Leave Request Card -->
-                <div class="staff-card-tertiary rounded-xl shadow-lg overflow-hidden card-hover">
-                    <a href="/izin" class="block p-6 h-full">
-                        <div class="flex items-center justify-between mb-4">
-                            <div
-                                class="w-12 h-12 rounded-lg bg-white/20 backdrop-blur-sm flex items-center justify-center">
-                                <i class="fas fa-file-alt text-white text-xl"></i>
-                            </div>
-                        </div>
-                        <h3 class="text-2xl font-bold mb-1">Pengajuan Izin</h3>
-                    </a>
-                </div>
-            </div>
-            @else
-            @endif
         </main>
     </div>
 

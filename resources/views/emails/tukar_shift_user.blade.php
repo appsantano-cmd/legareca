@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Update Status Pengajuan Tukar Shift</title>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background: #f8f9fa; padding: 20px; border-radius: 5px; }
+        .content { background: white; padding: 20px; border: 1px solid #dee2e6; border-radius: 5px; margin-top: 20px; }
+        .info-item { margin-bottom: 10px; }
+        .info-label { font-weight: bold; color: #495057; }
+        .info-value { color: #212529; }
+        .status-box { 
+            padding: 15px; 
+            border-radius: 5px; 
+            margin: 20px 0; 
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        .status-approved { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .status-rejected { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .footer { margin-top: 30px; padding-top: 20px; border-top: 1px solid #dee2e6; color: #6c757d; font-size: 12px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h2>🔄 Update Status Pengajuan Tukar Shift</h2>
+            <p>Sistem Pengajuan Tukar Shift - Le Gareca Space</p>
+        </div>
+        
+        <div class="content">
+            <p>Halo {{ $shifting->nama_karyawan }},</p>
+            
+            <p>Pengajuan tukar shift Anda telah diperbarui statusnya:</p>
+            
+            <div class="status-box {{ $shifting->status == 'disetujui' ? 'status-approved' : 'status-rejected' }}">
+                @if($shifting->status == 'disetujui')
+                    ✅ PENGAJUAN TUKAR SHIFT DISETUJUI
+                @else
+                    ❌ PENGAJUAN TUKAR SHIFT DITOLAK
+                @endif
+            </div>
+            
+            <p><strong>Detail Pengajuan:</strong></p>
+            
+            <div class="info-item">
+                <span class="info-label">Nama:</span>
+                <span class="info-value">{{ $shifting->nama_karyawan }}</span>
+            </div>
+            
+            <div class="info-item">
+                <span class="info-label">Divisi/Jabatan:</span>
+                <span class="info-value">{{ $shifting->divisi_jabatan }}</span>
+            </div>
+            
+            <div class="info-item">
+                <span class="info-label">Shift Asli:</span>
+                <span class="info-value">
+                    {{ \Carbon\Carbon::parse($shifting->tanggal_shift_asli)->format('d F Y') }} 
+                    ({{ $shifting->jam_shift_asli }})
+                </span>
+            </div>
+            
+            <div class="info-item">
+                <span class="info-label">Shift Tujuan:</span>
+                <span class="info-value">
+                    {{ \Carbon\Carbon::parse($shifting->tanggal_shift_tujuan)->format('d F Y') }} 
+                    ({{ $shifting->jam_shift_tujuan }})
+                </span>
+            </div>
+            
+            <div class="info-item">
+                <span class="info-label">Alasan:</span>
+                <span class="info-value">{{ $shifting->alasan }}</span>
+            </div>
+            
+            <div class="info-item">
+                <span class="info-label">Status Saat Ini:</span>
+                <span class="info-value">
+                    <strong>{{ ucfirst($shifting->status) }}</strong>
+                </span>
+            </div>
+            
+            @if($shifting->disetujui_oleh)
+            <div class="info-item">
+                <span class="info-label">Disetujui/Ditolak Oleh:</span>
+                <span class="info-value">{{ $shifting->disetujui_oleh }}</span>
+            </div>
+            @endif
+            
+            @if($shifting->tanggal_persetujuan)
+            <div class="info-item">
+                <span class="info-label">Tanggal Persetujuan:</span>
+                <span class="info-value">
+                    {{ \Carbon\Carbon::parse($shifting->tanggal_persetujuan)->format('d F Y H:i:s') }}
+                </span>
+            </div>
+            @endif
+            
+            @if($shifting->catatan_admin)
+            <div class="info-item">
+                <span class="info-label">Catatan dari Admin:</span>
+                <span class="info-value">{{ $shifting->catatan_admin }}</span>
+            </div>
+            @endif
+            
+            <p style="margin-top: 30px;">
+                @if($shifting->status == 'disetujui')
+                    Selamat, Pengajuan tukar shift Anda telah disetujui.
+                @else
+                    Mohon maaf, pengajuan tukar shift Anda tidak dapat disetujui saat ini.
+                @endif
+            </p>
+            
+            <p>Terima kasih.</p>
+        </div>
+        
+        <div class="footer">
+            <p>Email ini dikirim secara otomatis dari Sistem Pengajuan Tukar Shift Le Gareca Space.</p>
+            <p>© {{ date('Y') }} Le Gareca Space. All rights reserved.</p>
+        </div>
+    </div>
+</body>
+</html>
