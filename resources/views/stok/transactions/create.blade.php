@@ -759,9 +759,15 @@
 
                             <div class="d-flex justify-content-between mt-4">
                                 @auth
-                                    <a href="{{ route('transactions.index') }}" class="btn btn-secondary">
-                                        <i class="bi bi-arrow-left me-2"></i>Kembali
-                                    </a>
+                                    @if (auth()->user()->role === 'staff')
+                                        <a href="{{ url('/dashboard') }}" class="btn btn-secondary">
+                                            <i class="bi bi-arrow-left me-2"></i>Kembali
+                                        </a>
+                                    @elseif (in_array(auth()->user()->role, ['admin', 'developer']))
+                                        <a href="{{ route('transactions.index') }}" class="btn btn-secondary">
+                                            <i class="bi bi-arrow-left me-2"></i>Kembali
+                                        </a>
+                                    @endif
                                 @endauth
                                 <div>
                                     <button type="submit" name="action" value="save" class="btn btn-primary"
