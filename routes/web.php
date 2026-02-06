@@ -64,7 +64,7 @@ Route::prefix('screening')->name('screening.')->controller(ScreeningController::
     Route::get('/cancelled', 'cancelled')->name('cancelled');
     Route::get('/export-sheets', 'exportToSheets')->name('export-sheets');
     Route::get('/export', 'export')->name('export');
-    
+
     // Admin Screening Data
     Route::middleware(['auth'])->group(function () {
         Route::get('/data', 'index')->name('index');
@@ -100,7 +100,7 @@ Route::prefix('reservasi')->name('reservasi.')->controller(ReservasiController::
     Route::get('/', function () {
         return redirect()->route('reservasi.inn.index');
     })->name('index');
-    
+
     Route::get('/inn', 'innIndex')->name('inn.index');
     Route::post('/inn/submit', 'innSubmit')->name('inn.submit');
 });
@@ -137,7 +137,7 @@ Route::middleware(['auth', 'role:developer,admin,marcom,staff'])->group(function
 
     // Dashboard
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
-    
+
     // Stok Station Dashboard
     Route::get('/stok-station', [DashboardController::class, 'index'])->name('home');
 
@@ -155,21 +155,13 @@ Route::middleware(['auth', 'role:developer,admin,marcom,staff'])->group(function
 
     // Daily Cleaning Report
     Route::prefix('cleaning-report')->name('cleaning-report.')->controller(DailyCleaningReportController::class)->group(function () {
-        Route::get('/', 'index')->name('index');
         Route::get('/create', 'create')->name('create');
-    });
 
-    // Cleaning Report Data
-    Route::prefix('data')->name('data.')->controller(DailyCleaningReportController::class)->group(function () {
+        // ===== ROUTE UNTUK MULTI-STEP FORM =====
         Route::post('/store-step1', 'storeStep1')->name('storeStep1');
         Route::get('/step2', 'showStep2')->name('step2');
         Route::post('/store-step2', 'storeStep2')->name('storeStep2');
         Route::get('/complete/{id}', 'complete')->name('complete');
-        
-        // Google Sheets Integration
-        Route::get('/export/google-sheets', 'exportAllToGoogleSheets')->name('export.google-sheets');
-        Route::get('/test-google-sheets', 'testGoogleSheetsConnection')->name('test.google-sheets');
-        Route::get('/check-config', 'checkGoogleSheetsConfig')->name('check.config');
     });
 
     // Notifications
@@ -240,7 +232,7 @@ Route::middleware(['auth', 'role:developer,admin'])->group(function () {
     // Stok Gudang Master Data
     Route::resource('departemen', DepartemenController::class)->parameters(['departemen' => 'departemen']);
     Route::get('/api/departemen', [DepartemenController::class, 'indexApi'])->name('api.departemen.index');
-    
+
     Route::resource('satuan', SatuanController::class);
     Route::get('/api/satuan', [SatuanController::class, 'indexApi'])->name('api.satuan.index');
 
@@ -285,16 +277,22 @@ Route::middleware(['auth', 'role:developer,admin'])->group(function () {
 
     // Cleaning Report Management
     Route::prefix('cleaning-report')->name('cleaning-report.')->controller(DailyCleaningReportController::class)->group(function () {
+        Route::get('/', 'index')->name('index');
         Route::get('/dashboard', 'dashboard')->name('dashboard');
-    });
 
-    // Cleaning Report Data Management
-    Route::prefix('data')->name('data')->controller(DailyCleaningReportController::class)->group(function () {
-        Route::get('/', 'getData')->name('get');
-        Route::post('/update', 'updateData')->name('update');
-        Route::post('/clean', 'cleanData')->name('clean');
-        Route::post('/delete', 'deleteData')->name('delete');
-        Route::get('/export', 'exportData')->name('export');
-        Route::get('/stats', 'getStats')->name('stats');
+        // Cleaning Report Data Management
+        Route::prefix('data')->name('data.')->group(function () {  // <-- Tambah titik di sini
+            Route::get('/', 'getData')->name('get');
+            Route::post('/update', 'updateData')->name('update');
+            Route::post('/clean', 'cleanData')->name('clean');
+            Route::post('/delete', 'deleteData')->name('delete');
+            Route::get('/export', 'exportData')->name('export');  // <-- Sekarang namanya: cleaning-report.data.export
+            Route::get('/stats', 'getStats')->name('stats');
+        });
+
+        // ===== GOOGLE SHEETS INTEGRATION =====
+        Route::get('/export/google-sheets', 'exportAllToGoogleSheets')->name('export.google-sheets');
+        Route::get('/test-google-sheets', 'testGoogleSheetsConnection')->name('test.google-sheets');
+        Route::get('/check-config', 'checkGoogleSheetsConfig')->name('check.config');
     });
 });
