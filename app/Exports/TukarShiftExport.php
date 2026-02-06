@@ -16,12 +16,38 @@ use Carbon\Carbon;
 
 class TukarShiftExport implements FromCollection, WithHeadings, WithMapping, WithStyles, WithTitle, ShouldAutoSize, WithEvents
 {
+    protected $startDate;
+    protected $endDate;
+
     /**
-     * Mengambil data dari database
+     * Constructor dengan parameter filter tanggal
+     */
+    public function __construct($startDate = null, $endDate = null)
+    {
+        $this->startDate = $startDate;
+        $this->endDate = $endDate;
+    }
+
+    /**
+     * Mengambil data dari database dengan filter tanggal
      */
     public function collection()
     {
-        return Shifting::orderBy('created_at', 'desc')->get();
+        $query = Shifting::query();
+
+        // Filter berdasarkan tanggal jika ada
+        if ($this->startDate && $this->endDate) {
+            $query->whereBetween('created_at', [
+                Carbon::parse($this->startDate)->startOfDay(),
+                Carbon::parse($this->endDate)->endOfDay()
+            ]);
+        } elseif ($this->startDate) {
+            $query->whereDate('created_at', '>=', Carbon::parse($this->startDate)->startOfDay());
+        } elseif ($this->endDate) {
+            $query->whereDate('created_at', '<=', Carbon::parse($this->endDate)->endOfDay());
+        }
+
+        return $query->orderBy('created_at', 'desc')->get();
     }
 
     /**
@@ -97,6 +123,8 @@ class TukarShiftExport implements FromCollection, WithHeadings, WithMapping, Wit
             'pending' => 'MENUNGGU',
             'approved' => 'DISETUJUI',
             'rejected' => 'DITOLAK',
+            'disetujui' => 'DISETUJUI',
+            'ditolak' => 'DITOLAK',
         ];
 
         return $translations[$status] ?? strtoupper($status);

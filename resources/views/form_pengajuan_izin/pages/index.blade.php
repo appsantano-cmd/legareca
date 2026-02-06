@@ -31,11 +31,11 @@
                         Dashboard
                     </a>
 
-                    <a href="{{ route('izin.export') }}"
+                    <button onclick="showExportModal()"
                         class="inline-flex items-center gap-2 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white px-5 py-2.5 rounded-lg text-sm font-semibold transition shadow-md hover:shadow-lg">
                         <i class="fas fa-file-excel"></i>
                         Export Excel
-                    </a>
+                    </button>
 
                     <a href="{{ route('izin.create') }}"
                         class="inline-flex items-center gap-2 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white px-5 py-2.5 rounded-lg text-sm font-semibold transition shadow-md hover:shadow-lg">
@@ -502,14 +502,83 @@
         </div>
     </div>
 
+    {{-- Export Excel Modal --}}
+    <div id="exportModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl w-full max-w-md overflow-hidden">
+            <form action="{{ route('izin.export') }}" method="GET">
+                <div class="p-6 border-b border-gray-200">
+                    <h3 class="text-lg font-semibold text-gray-800 flex items-center gap-2">
+                        <i class="fas fa-file-excel text-green-600"></i> Export Data ke Excel
+                    </h3>
+                </div>
+
+                <div class="p-6 space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-calendar-alt mr-1"></i> Tanggal Mulai
+                        </label>
+                        <input type="date" name="start_date" 
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-calendar-check mr-1"></i> Tanggal Selesai
+                        </label>
+                        <input type="date" name="end_date" 
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-filter mr-1"></i> Status
+                        </label>
+                        <select name="status" 
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
+                            <option value="">Semua Status</option>
+                            <option value="Pending">Pending</option>
+                            <option value="Disetujui">Disetujui</option>
+                            <option value="Ditolak">Ditolak</option>
+                        </select>
+                    </div>
+                    
+                    <div class="bg-blue-50 border-l-4 border-blue-400 p-4">
+                        <div class="flex">
+                            <div class="flex-shrink-0">
+                                <i class="fas fa-info-circle text-blue-400"></i>
+                            </div>
+                            <div class="ml-3">
+                                <p class="text-sm text-blue-700">
+                                    Kosongkan filter untuk export semua data pengajuan izin.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="p-6 border-t border-gray-200 flex justify-end gap-3">
+                    <button type="button" onclick="closeExportModal()"
+                        class="px-5 py-2.5 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition font-semibold">
+                        Batal
+                    </button>
+                    <button type="submit"
+                        class="px-5 py-2.5 bg-green-600 text-white rounded-lg hover:bg-green-700 transition font-semibold flex items-center gap-2">
+                        <i class="fas fa-download"></i>
+                        Download Excel
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     {{-- Detail Modal --}}
-    <div id="detailModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 items-center justify-center p-4">
+    <div id="detailModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden">
             <div class="p-6 border-b border-gray-200 flex items-center justify-between">
                 <h3 class="text-lg font-semibold text-gray-800 flex items-center gap-2">
                     <i class="fas fa-file-alt text-blue-600"></i> Detail Pengajuan Izin
                 </h3>
-                <button onclick="closeModal()"
+                <button onclick="closeDetailModal()"
                     class="text-gray-400 hover:text-gray-600 p-2 rounded-lg hover:bg-gray-100 transition">
                     <i class="fas fa-times text-xl"></i>
                 </button>
@@ -522,7 +591,7 @@
             </div>
 
             <div class="p-6 border-t border-gray-200">
-                <button onclick="closeModal()"
+                <button onclick="closeDetailModal()"
                     class="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-semibold transition">
                     Tutup
                 </button>
@@ -531,7 +600,7 @@
     </div>
 
     {{-- Reject Modal --}}
-    <div id="rejectModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 items-center justify-center p-4">
+    <div id="rejectModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl w-full max-w-md overflow-hidden">
             <form id="rejectForm" method="POST">
                 @csrf
@@ -582,6 +651,18 @@
     </div>
 
     <script>
+        // Export Modal Functions
+        function showExportModal() {
+            document.getElementById('exportModal').classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeExportModal() {
+            document.getElementById('exportModal').classList.add('hidden');
+            document.body.style.overflow = 'auto';
+        }
+
+        // Detail Modal Functions
         async function showDetailModal(id) {
             try {
                 // Tampilkan loading state
@@ -590,6 +671,9 @@
                 <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
             </div>
         `;
+
+                document.getElementById('detailModal').classList.remove('hidden');
+                document.body.style.overflow = 'hidden';
 
                 // Fetch data dari server
                 const response = await fetch(`/izin/${id}/detail`);
@@ -689,8 +773,6 @@
             </div>
         `;
 
-                document.getElementById('detailModal').classList.remove('hidden');
-                document.body.style.overflow = 'hidden';
             } catch (error) {
                 console.error('Error fetching data:', error);
                 document.getElementById('modalContent').innerHTML = `
@@ -703,6 +785,12 @@
             }
         }
 
+        function closeDetailModal() {
+            document.getElementById('detailModal').classList.add('hidden');
+            document.body.style.overflow = 'auto';
+        }
+
+        // Reject Modal Functions
         function showRejectModal(id) {
             const form = document.getElementById('rejectForm');
             form.action = `/izin/${id}/update-status`;
@@ -752,33 +840,33 @@
             return icons[status] || '<i class="fas fa-question-circle"></i>';
         }
 
-        function closeModal() {
-            document.getElementById('detailModal').classList.add('hidden');
-            document.body.style.overflow = 'auto';
-        }
-
         // Close modal on ESC key
         document.addEventListener('keydown', function(e) {
             if (e.key === 'Escape') {
-                closeModal();
+                closeDetailModal();
                 closeRejectModal();
+                closeExportModal();
             }
         });
 
         // Close modal on background click
         document.getElementById('detailModal').addEventListener('click', function(e) {
-            if (e.target === this) closeModal();
+            if (e.target === this) closeDetailModal();
         });
 
         document.getElementById('rejectModal').addEventListener('click', function(e) {
             if (e.target === this) closeRejectModal();
         });
 
+        document.getElementById('exportModal').addEventListener('click', function(e) {
+            if (e.target === this) closeExportModal();
+        });
+
         // Form submission handling
         document.querySelectorAll('form').forEach(form => {
             form.addEventListener('submit', function(e) {
                 const submitBtn = this.querySelector('button[type="submit"]');
-                if (submitBtn) {
+                if (submitBtn && !submitBtn.disabled) {
                     submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Memproses...';
                     submitBtn.disabled = true;
                 }

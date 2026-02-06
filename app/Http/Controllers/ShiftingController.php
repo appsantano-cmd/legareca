@@ -436,15 +436,36 @@ class shiftingController extends Controller
     }
 
     /**
-     * Export data ke Excel
+     * Export data ke Excel dengan filter tanggal
      */
-    public function export()
+    public function export(Request $request)
     {
         try {
-            // Generate nama file dengan timestamp
-            $filename = 'Data Pengajuan Tukar Shift - ' . date('d F Y') . '.xlsx';
+            // Validasi input tanggal (opsional)
+            $request->validate([
+                'start_date' => 'nullable|date',
+                'end_date' => 'nullable|date|after_or_equal:start_date',
+            ]);
 
-            return Excel::download(new TukarShiftExport(), $filename);
+            $startDate = $request->input('start_date');
+            $endDate = $request->input('end_date');
+
+            // Generate nama file dengan timestamp
+            $filename = 'Data Pengajuan Tukar Shift';
+            
+            if ($startDate && $endDate) {
+                $filename .= ' (' . Carbon::parse($startDate)->format('d-m-Y') . ' s.d ' . Carbon::parse($endDate)->format('d-m-Y') . ')';
+            } elseif ($startDate) {
+                $filename .= ' (dari ' . Carbon::parse($startDate)->format('d-m-Y') . ')';
+            } elseif ($endDate) {
+                $filename .= ' (sampai ' . Carbon::parse($endDate)->format('d-m-Y') . ')';
+            } else {
+                $filename .= ' - ' . date('d F Y');
+            }
+            
+            $filename .= '.xlsx';
+
+            return Excel::download(new TukarShiftExport($startDate, $endDate), $filename);
         } catch (\Exception $e) {
             // Jika ada error, redirect kembali dengan pesan
             return redirect()->route('shifting.index')
@@ -462,25 +483,23 @@ class shiftingController extends Controller
 
             return response()->json([
                 'success' => true,
-                'data' => [
-                    'nama_karyawan' => $shifting->nama_karyawan,
-                    'user_email' => $shifting->user_email,
-                    'divisi_jabatan' => $shifting->divisi_jabatan,
-                    'tanggal_shift_asli' => $shifting->tanggal_shift_asli,
-                    'jam_shift_asli' => $shifting->jam_shift_asli,
-                    'tanggal_shift_tujuan' => $shifting->tanggal_shift_tujuan,
-                    'jam_shift_tujuan' => $shifting->jam_shift_tujuan,
-                    'alasan' => $shifting->alasan,
-                    'sudah_pengganti' => $shifting->sudah_pengganti,
-                    'nama_karyawan_pengganti' => $shifting->nama_karyawan_pengganti,
-                    'tanggal_shift_pengganti' => $shifting->tanggal_shift_pengganti,
-                    'jam_shift_pengganti' => $shifting->jam_shift_pengganti,
-                    'status' => $shifting->status,
-                    'catatan_admin' => $shifting->catatan_admin,
-                    'disetujui_oleh' => $shifting->disetujui_oleh,
-                    'tanggal_persetujuan' => $shifting->tanggal_persetujuan,
-                    'created_at' => $shifting->created_at,
-                ]
+                'nama_karyawan' => $shifting->nama_karyawan,
+                'user_email' => $shifting->user_email,
+                'divisi_jabatan' => $shifting->divisi_jabatan,
+                'tanggal_shift_asli' => $shifting->tanggal_shift_asli,
+                'jam_shift_asli' => $shifting->jam_shift_asli,
+                'tanggal_shift_tujuan' => $shifting->tanggal_shift_tujuan,
+                'jam_shift_tujuan' => $shifting->jam_shift_tujuan,
+                'alasan' => $shifting->alasan,
+                'sudah_pengganti' => $shifting->sudah_pengganti,
+                'nama_karyawan_pengganti' => $shifting->nama_karyawan_pengganti,
+                'tanggal_shift_pengganti' => $shifting->tanggal_shift_pengganti,
+                'jam_shift_pengganti' => $shifting->jam_shift_pengganti,
+                'status' => $shifting->status,
+                'catatan_admin' => $shifting->catatan_admin,
+                'disetujui_oleh' => $shifting->disetujui_oleh,
+                'tanggal_persetujuan' => $shifting->tanggal_persetujuan,
+                'created_at' => $shifting->created_at,
             ]);
         } catch (\Exception $e) {
             return response()->json([

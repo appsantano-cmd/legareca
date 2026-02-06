@@ -145,6 +145,86 @@
             width: 3rem;
             height: 3rem;
         }
+
+        /* Export Modal Styles */
+        .modal-backdrop-custom {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1050;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-backdrop-custom.show {
+            display: flex;
+        }
+
+        .modal-content-custom {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: modalSlideIn 0.3s ease-out;
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal-header-custom {
+            background: linear-gradient(135deg, #20c997 0%, #0d6efd 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 15px 15px 0 0;
+            border: none;
+        }
+
+        .modal-header-custom h5 {
+            margin: 0;
+            font-weight: 600;
+        }
+
+        .modal-body-custom {
+            padding: 25px;
+        }
+
+        .modal-footer-custom {
+            padding: 15px 25px;
+            border-top: 1px solid #dee2e6;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        .btn-close-custom {
+            background: transparent;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            opacity: 0.8;
+            transition: opacity 0.2s;
+        }
+
+        .btn-close-custom:hover {
+            opacity: 1;
+        }
     </style>
 </head>
 
@@ -157,6 +237,62 @@
             </div>
             <h5>Mengekspor data ke Excel...</h5>
             <p class="text-muted">Mohon tunggu sebentar</p>
+        </div>
+    </div>
+
+    <!-- Export Modal -->
+    <div class="modal-backdrop-custom" id="exportModal">
+        <div class="modal-content-custom">
+            <div class="modal-header-custom">
+                <h5>
+                    <i class="fas fa-file-excel me-2"></i>Export Data ke Excel
+                </h5>
+                <button type="button" class="btn-close-custom" onclick="closeExportModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <form action="{{ route('screening.export') }}" method="GET" id="exportForm">
+                <div class="modal-body-custom">
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">
+                            <i class="fas fa-filter me-1 text-muted"></i>Status
+                        </label>
+                        <select class="form-select" name="status">
+                            <option value="all">Semua Status</option>
+                            <option value="completed" {{ $status == 'completed' ? 'selected' : '' }}>Selesai</option>
+                            <option value="cancelled" {{ $status == 'cancelled' ? 'selected' : '' }}>Dibatalkan</option>
+                        </select>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-semibold">
+                                <i class="fas fa-calendar-alt me-1 text-muted"></i>Dari Tanggal
+                            </label>
+                            <input type="date" class="form-control" name="start_date" value="{{ $startDate }}">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-semibold">
+                                <i class="fas fa-calendar-check me-1 text-muted"></i>Sampai Tanggal
+                            </label>
+                            <input type="date" class="form-control" name="end_date" value="{{ $endDate }}">
+                        </div>
+                    </div>
+
+                    <div class="alert alert-info mb-0">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <small>Filter yang Anda pilih akan diterapkan pada data yang diekspor ke Excel.</small>
+                    </div>
+                </div>
+                <div class="modal-footer-custom">
+                    <button type="button" class="btn btn-secondary" onclick="closeExportModal()">
+                        <i class="fas fa-times me-1"></i>Batal
+                    </button>
+                    <button type="submit" class="btn btn-success">
+                        <i class="fas fa-download me-1"></i>Download Excel
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 
@@ -179,7 +315,7 @@
                 <a href="{{ route('dashboard') }}" class="btn btn-primary">
                     <i class="fas fa-tachometer-alt me-2"></i>Dashboard
                 </a>
-                <button type="button" class="btn btn-success" id="exportExcelBtn">
+                <button type="button" class="btn btn-success" onclick="showExportModal()">
                     <i class="fas fa-file-excel me-2"></i>Export Excel
                 </button>
                 <a href="{{ route('screening.welcome') }}" class="btn btn-success">
@@ -415,18 +551,44 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.js"></script>
 
     <script>
-        // Initialize DataTable (optional - uncomment if you want to use DataTables instead of Laravel pagination)
-        /*
-        $(document).ready(function() {
-            $('.table').DataTable({
-                language: {
-                    url: '//cdn.datatables.net/plug-ins/1.13.4/i18n/id.json'
-                },
-                pageLength: 25,
-                order: [[0, 'desc']]
-            });
+        // Export Modal Functions
+        function showExportModal() {
+            document.getElementById('exportModal').classList.add('show');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeExportModal() {
+            document.getElementById('exportModal').classList.remove('show');
+            document.body.style.overflow = 'auto';
+        }
+
+        // Close modal when clicking outside
+        document.getElementById('exportModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeExportModal();
+            }
         });
-        */
+
+        // Close modal on ESC key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeExportModal();
+            }
+        });
+
+        // Handle export form submission
+        document.getElementById('exportForm').addEventListener('submit', function(e) {
+            // Show loading overlay
+            document.getElementById('exportLoading').style.display = 'flex';
+
+            // Close modal
+            closeExportModal();
+
+            // Hide loading after 3 seconds (fallback)
+            setTimeout(function() {
+                document.getElementById('exportLoading').style.display = 'none';
+            }, 3000);
+        });
 
         // Update datetime every second
         function updateDateTime() {
@@ -463,31 +625,9 @@
             }
         }
 
-        // Export Excel dengan SweetAlert
-        $(document).ready(function() {
-            $('#exportExcelBtn').click(function() {
-                // Ambil semua parameter filter dari form
-                const formData = $('#filterForm').serialize();
-
-                // Tampilkan loading
-                $('#exportLoading').show();
-
-                // Buat URL untuk export dengan parameter filter
-                const exportUrl = '{{ route('screening.export') }}?' + formData;
-
-                // Redirect ke URL export
-                window.location.href = exportUrl;
-
-                // Sembunyikan loading setelah 3 detik (fallback)
-                setTimeout(function() {
-                    $('#exportLoading').hide();
-                }, 3000);
-            });
-
-            // Sembunyikan loading jika user kembali ke halaman
-            $(window).on('pageshow', function() {
-                $('#exportLoading').hide();
-            });
+        // Sembunyikan loading jika user kembali ke halaman
+        $(window).on('pageshow', function() {
+            $('#exportLoading').hide();
         });
     </script>
 </body>

@@ -31,11 +31,11 @@
                         Dashboard
                     </a>
 
-                    <a href="{{ route('shifting.export') }}"
+                    <button onclick="showExportModal()"
                         class="inline-flex items-center gap-2 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white px-5 py-2.5 rounded-lg text-sm font-semibold transition shadow-md hover:shadow-lg">
                         <i class="fas fa-file-excel"></i>
                         Export Excel
-                    </a>
+                    </button>
 
                     <a href="{{ route('shifting.create') }}"
                         class="inline-flex items-center gap-2 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white px-5 py-2.5 rounded-lg text-sm font-semibold transition shadow-md hover:shadow-lg">
@@ -142,13 +142,16 @@
                                         value="{{ request('search') }}"
                                         class="pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition">
                                 </div>
-                                
+
                                 <select name="status"
                                     class="px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
                                     <option value="">Semua Status</option>
-                                    <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>Pending</option>
-                                    <option value="disetujui" {{ request('status') == 'disetujui' ? 'selected' : '' }}>Disetujui</option>
-                                    <option value="ditolak" {{ request('status') == 'ditolak' ? 'selected' : '' }}>Ditolak</option>
+                                    <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>
+                                        Pending</option>
+                                    <option value="disetujui" {{ request('status') == 'disetujui' ? 'selected' : '' }}>
+                                        Disetujui</option>
+                                    <option value="ditolak" {{ request('status') == 'ditolak' ? 'selected' : '' }}>
+                                        Ditolak</option>
                                 </select>
 
                                 <button type="submit"
@@ -206,7 +209,7 @@
                                     <td class="p-4">
                                         <span class="text-sm font-medium text-gray-700">#{{ $item->id }}</span>
                                     </td>
-                                    
+
                                     <td class="p-4">
                                         <div class="flex items-center gap-3">
                                             <div
@@ -251,10 +254,10 @@
                                     <td class="p-4">
                                         <span
                                             class="inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-semibold {{ $config['class'] }}">
-                                            <i class="{{ $config['icon'] }}"></i> 
+                                            <i class="{{ $config['icon'] }}"></i>
                                             {{ ucfirst($item->status) }}
                                         </span>
-                                        @if($item->disetujui_oleh)
+                                        @if ($item->disetujui_oleh)
                                             <br>
                                             <small class="text-xs text-gray-500 mt-1 block">
                                                 Oleh: {{ $item->disetujui_oleh }}
@@ -270,24 +273,24 @@
                                                 <i class="fas fa-info-circle"></i>
                                             </button>
 
-                                            @if($item->status == 'pending')
+                                            @if ($item->status == 'pending')
                                                 {{-- Tombol Setujui --}}
-                                                <form action="{{ route('shifting.update-status', $item->id) }}" method="POST" class="inline">
+                                                <form action="{{ route('shifting.update-status', $item->id) }}"
+                                                    method="POST" class="inline">
                                                     @csrf
                                                     <input type="hidden" name="status" value="disetujui">
-                                                    <button type="submit" 
-                                                            onclick="return confirm('Setujui pengajuan tukar shift ini?')"
-                                                            class="text-green-600 hover:text-green-800 p-2 rounded-lg hover:bg-green-50 transition"
-                                                            title="Setujui">
+                                                    <button type="submit"
+                                                        onclick="return confirm('Setujui pengajuan tukar shift ini?')"
+                                                        class="text-green-600 hover:text-green-800 p-2 rounded-lg hover:bg-green-50 transition"
+                                                        title="Setujui">
                                                         <i class="fas fa-check"></i>
                                                     </button>
                                                 </form>
 
                                                 {{-- Tombol Tolak --}}
-                                                <button type="button" 
-                                                        onclick="showRejectModal({{ $item->id }})"
-                                                        class="text-red-600 hover:text-red-800 p-2 rounded-lg hover:bg-red-50 transition"
-                                                        title="Tolak">
+                                                <button type="button" onclick="showRejectModal({{ $item->id }})"
+                                                    class="text-red-600 hover:text-red-800 p-2 rounded-lg hover:bg-red-50 transition"
+                                                    title="Tolak">
                                                     <i class="fas fa-times"></i>
                                                 </button>
                                             @endif
@@ -301,8 +304,10 @@
                                             <div class="w-24 h-24 text-gray-300 mb-4">
                                                 <i class="fas fa-exchange-alt text-6xl"></i>
                                             </div>
-                                            <p class="text-gray-500 text-lg font-medium mb-2">Belum ada pengajuan tukar shift</p>
-                                            <p class="text-gray-400 text-sm mb-4">Mulai dengan membuat pengajuan tukar shift baru</p>
+                                            <p class="text-gray-500 text-lg font-medium mb-2">Belum ada pengajuan tukar
+                                                shift</p>
+                                            <p class="text-gray-400 text-sm mb-4">Mulai dengan membuat pengajuan tukar
+                                                shift baru</p>
                                             <a href="{{ route('shifting.create') }}"
                                                 class="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-lg text-sm font-semibold transition">
                                                 <i class="fas fa-plus-circle"></i>
@@ -388,24 +393,22 @@
                                         <i class="fas fa-info-circle"></i>
                                     </button>
 
-                                    @if($item->status == 'pending')
+                                    @if ($item->status == 'pending')
                                         {{-- Setujui Button Mobile --}}
-                                        <form action="{{ route('shifting.update-status', $item->id) }}" method="POST" class="inline">
+                                        <form action="{{ route('shifting.update-status', $item->id) }}"
+                                            method="POST" class="inline">
                                             @csrf
                                             <input type="hidden" name="status" value="disetujui">
-                                            <button type="submit" 
-                                                    onclick="return confirm('Setujui pengajuan tukar shift ini?')"
-                                                    class="text-green-600 hover:text-green-800 p-1"
-                                                    title="Setujui">
+                                            <button type="submit"
+                                                onclick="return confirm('Setujui pengajuan tukar shift ini?')"
+                                                class="text-green-600 hover:text-green-800 p-1" title="Setujui">
                                                 <i class="fas fa-check"></i>
                                             </button>
                                         </form>
 
                                         {{-- Tolak Button Mobile --}}
-                                        <button type="button" 
-                                                onclick="showRejectModal({{ $item->id }})"
-                                                class="text-red-600 hover:text-red-800 p-1"
-                                                title="Tolak">
+                                        <button type="button" onclick="showRejectModal({{ $item->id }})"
+                                            class="text-red-600 hover:text-red-800 p-1" title="Tolak">
                                             <i class="fas fa-times"></i>
                                         </button>
                                     @endif
@@ -451,8 +454,73 @@
         </div>
     </div>
 
+    {{-- Export Modal - MODAL BARU --}}
+    <div id="exportModal"
+        class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl w-full max-w-md overflow-hidden">
+            <form action="{{ route('shifting.export') }}" method="GET">
+                <div class="p-6 border-b border-gray-200">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-lg font-semibold text-gray-800 flex items-center gap-2">
+                            <i class="fas fa-file-excel text-green-600"></i> Export Data ke Excel
+                        </h3>
+                        <button type="button" onclick="closeExportModal()"
+                            class="text-gray-400 hover:text-gray-600 p-2 rounded-lg hover:bg-gray-100 transition">
+                            <i class="fas fa-times text-xl"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="p-6">
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-calendar-alt mr-1"></i> Tanggal Awal
+                        </label>
+                        <input type="date" name="start_date" id="start_date"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-calendar-alt mr-1"></i> Tanggal Akhir
+                        </label>
+                        <input type="date" name="end_date" id="end_date"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
+                    </div>
+
+                    <div class="bg-blue-50 border-l-4 border-blue-400 p-4">
+                        <div class="flex">
+                            <div class="flex-shrink-0">
+                                <i class="fas fa-info-circle text-blue-400"></i>
+                            </div>
+                            <div class="ml-3">
+                                <p class="text-sm text-blue-700">
+                                    Kosongkan tanggal untuk mengexport semua data. Atau isi kedua tanggal untuk filter
+                                    berdasarkan rentang waktu.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="p-6 border-t border-gray-200 flex justify-end gap-3">
+                    <button type="button" onclick="closeExportModal()"
+                        class="px-5 py-2.5 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition font-semibold">
+                        Batal
+                    </button>
+                    <button type="submit"
+                        class="px-5 py-2.5 bg-green-600 text-white rounded-lg hover:bg-green-700 transition font-semibold flex items-center gap-2">
+                        <i class="fas fa-download"></i>
+                        Download Excel
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     {{-- Detail Modal --}}
-    <div id="detailModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 items-center justify-center p-4">
+    <div id="detailModal"
+        class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden">
             <div class="p-6 border-b border-gray-200 flex items-center justify-between">
                 <h3 class="text-lg font-semibold text-gray-800 flex items-center gap-2">
@@ -480,16 +548,23 @@
     </div>
 
     {{-- Reject Modal --}}
-    <div id="rejectModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 items-center justify-center p-4">
+    <div id="rejectModal"
+        class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl w-full max-w-md overflow-hidden">
             <form id="rejectForm" method="POST">
                 @csrf
                 <input type="hidden" name="status" value="ditolak">
-                
+
                 <div class="p-6 border-b border-gray-200">
-                    <h3 class="text-lg font-semibold text-gray-800 flex items-center gap-2">
-                        <i class="fas fa-times-circle text-red-600"></i> Tolak Pengajuan Tukar Shift
-                    </h3>
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-lg font-semibold text-gray-800 flex items-center gap-2">
+                            <i class="fas fa-times-circle text-red-600"></i> Tolak Pengajuan Tukar Shift
+                        </h3>
+                        <button type="button" onclick="closeRejectModal()"
+                            class="text-gray-400 hover:text-gray-600 p-2 rounded-lg hover:bg-gray-100 transition">
+                            <i class="fas fa-times text-xl"></i>
+                        </button>
+                    </div>
                 </div>
 
                 <div class="p-6">
@@ -501,7 +576,7 @@
                             class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
                             placeholder="Berikan alasan penolakan (jika perlu)..."></textarea>
                     </div>
-                    
+
                     <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-4">
                         <div class="flex">
                             <div class="flex-shrink-0">
@@ -531,6 +606,18 @@
     </div>
 
     <script>
+        // ===== EXPORT MODAL FUNCTIONS =====
+        function showExportModal() {
+            document.getElementById('exportModal').classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeExportModal() {
+            document.getElementById('exportModal').classList.add('hidden');
+            document.body.style.overflow = 'auto';
+        }
+
+        // ===== DETAIL MODAL FUNCTIONS =====
         async function showDetailModal(id) {
             try {
                 // Tampilkan loading state
@@ -597,25 +684,25 @@
                     </div>
                     
                     ${data.sudah_pengganti === 'ya' ? `
-                    <div class="bg-gray-50 p-4 rounded-lg">
-                        <p class="text-sm text-gray-500"><i class="fas fa-user-friends mr-2"></i>Nama Pengganti</p>
-                        <p class="font-medium text-gray-800 mt-1">${data.nama_karyawan_pengganti || '-'}</p>
-                    </div>
-                    ` : ''}
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <p class="text-sm text-gray-500"><i class="fas fa-user-friends mr-2"></i>Nama Pengganti</p>
+                            <p class="font-medium text-gray-800 mt-1">${data.nama_karyawan_pengganti || '-'}</p>
+                        </div>
+                        ` : ''}
                 </div>
                 
                 ${data.sudah_pengganti === 'ya' ? `
-                <div class="grid grid-cols-2 gap-4">
-                    <div class="bg-gray-50 p-4 rounded-lg">
-                        <p class="text-sm text-gray-500"><i class="fas fa-calendar mr-2"></i>Tanggal Shift Pengganti</p>
-                        <p class="font-medium text-gray-800 mt-1">${formatDate(data.tanggal_shift_pengganti) || '-'}</p>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <p class="text-sm text-gray-500"><i class="fas fa-calendar mr-2"></i>Tanggal Shift Pengganti</p>
+                            <p class="font-medium text-gray-800 mt-1">${formatDate(data.tanggal_shift_pengganti) || '-'}</p>
+                        </div>
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <p class="text-sm text-gray-500"><i class="fas fa-clock mr-2"></i>Jam Shift Pengganti</p>
+                            <p class="font-medium text-gray-800 mt-1">${data.jam_shift_pengganti || '-'}</p>
+                        </div>
                     </div>
-                    <div class="bg-gray-50 p-4 rounded-lg">
-                        <p class="text-sm text-gray-500"><i class="fas fa-clock mr-2"></i>Jam Shift Pengganti</p>
-                        <p class="font-medium text-gray-800 mt-1">${data.jam_shift_pengganti || '-'}</p>
-                    </div>
-                </div>
-                ` : ''}
+                    ` : ''}
                 
                 <div class="grid grid-cols-2 gap-4">
                     <div class="bg-gray-50 p-4 rounded-lg">
@@ -624,19 +711,19 @@
                     </div>
                     
                     ${data.tanggal_persetujuan ? `
-                    <div class="bg-gray-50 p-4 rounded-lg">
-                        <p class="text-sm text-gray-500"><i class="fas fa-calendar-alt mr-2"></i>Tanggal Persetujuan</p>
-                        <p class="font-medium text-gray-800 mt-1">${formatDateTime(data.tanggal_persetujuan)}</p>
-                    </div>
-                    ` : ''}
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <p class="text-sm text-gray-500"><i class="fas fa-calendar-alt mr-2"></i>Tanggal Persetujuan</p>
+                            <p class="font-medium text-gray-800 mt-1">${formatDateTime(data.tanggal_persetujuan)}</p>
+                        </div>
+                        ` : ''}
                 </div>
                 
                 ${data.catatan_admin ? `
-                <div class="bg-gray-50 p-4 rounded-lg">
-                    <p class="text-sm text-gray-500"><i class="fas fa-sticky-note mr-2"></i>Catatan Admin</p>
-                    <p class="font-medium text-gray-800 mt-1">${data.catatan_admin}</p>
-                </div>
-                ` : ''}
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <p class="text-sm text-gray-500"><i class="fas fa-sticky-note mr-2"></i>Catatan Admin</p>
+                        <p class="font-medium text-gray-800 mt-1">${data.catatan_admin}</p>
+                    </div>
+                    ` : ''}
                 
                 <div class="bg-gray-50 p-4 rounded-lg">
                     <p class="text-sm text-gray-500"><i class="fas fa-clock mr-2"></i>Waktu Pengajuan</p>
@@ -659,6 +746,12 @@
             }
         }
 
+        function closeModal() {
+            document.getElementById('detailModal').classList.add('hidden');
+            document.body.style.overflow = 'auto';
+        }
+
+        // ===== REJECT MODAL FUNCTIONS =====
         function showRejectModal(id) {
             const form = document.getElementById('rejectForm');
             form.action = `/shifting/${id}/update-status`;
@@ -680,6 +773,7 @@
             }
         });
 
+        // ===== UTILITY FUNCTIONS =====
         function formatDate(dateString) {
             if (!dateString) return '';
             const date = new Date(dateString);
@@ -720,16 +814,13 @@
             return icons[status] || '<i class="fas fa-question-circle"></i>';
         }
 
-        function closeModal() {
-            document.getElementById('detailModal').classList.add('hidden');
-            document.body.style.overflow = 'auto';
-        }
-
+        // ===== KEYBOARD & BACKGROUND CLICK HANDLERS =====
         // Close modal on ESC key
         document.addEventListener('keydown', function(e) {
             if (e.key === 'Escape') {
                 closeModal();
                 closeRejectModal();
+                closeExportModal();
             }
         });
 
@@ -742,11 +833,15 @@
             if (e.target === this) closeRejectModal();
         });
 
+        document.getElementById('exportModal').addEventListener('click', function(e) {
+            if (e.target === this) closeExportModal();
+        });
+
         // Form submission handling
         document.querySelectorAll('form').forEach(form => {
             form.addEventListener('submit', function(e) {
                 const submitBtn = this.querySelector('button[type="submit"]');
-                if (submitBtn) {
+                if (submitBtn && !submitBtn.disabled) {
                     submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Memproses...';
                     submitBtn.disabled = true;
                 }
