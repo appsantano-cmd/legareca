@@ -12,9 +12,29 @@ use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
 class DataCleaningExport implements FromCollection, WithHeadings, WithMapping, ShouldAutoSize, WithStyles
 {
+    protected $startDate;
+    protected $endDate;
+
+    public function __construct($startDate = null, $endDate = null)
+    {
+        $this->startDate = $startDate;
+        $this->endDate = $endDate;
+    }
+
     public function collection()
     {
-        return DailyCleaningReport::orderBy('created_at', 'desc')->get();
+        $query = DailyCleaningReport::query();
+
+        // Apply date filters if provided
+        if ($this->startDate) {
+            $query->whereDate('tanggal', '>=', $this->startDate);
+        }
+
+        if ($this->endDate) {
+            $query->whereDate('tanggal', '<=', $this->endDate);
+        }
+
+        return $query->orderBy('created_at', 'desc')->get();
     }
 
     public function headings(): array
@@ -38,7 +58,7 @@ class DataCleaningExport implements FromCollection, WithHeadings, WithMapping, S
         return [
             $report->id,
             $report->nama,
-            $report->tanggal,
+            $report->tanggal instanceof \Carbon\Carbon ? $report->tanggal->format('Y-m-d') : $report->tanggal,
             $report->departemen,
             $report->status,
             $report->foto_path,

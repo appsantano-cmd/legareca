@@ -293,13 +293,31 @@ class DailyCleaningReportController extends Controller
     }
 
     /**
-     * Export data ke Excel
+     * Export data ke Excel dengan filter tanggal
      */
-    public function exportData()
+    public function exportData(Request $request)
     {
         try {
-            $filename = 'Data Cleaning Report - ' . date('d F Y') . '.xlsx';
-            return Excel::download(new DataCleaningExport, $filename);
+            $startDate = $request->input('start_date');
+            $endDate = $request->input('end_date');
+
+            // Generate filename dengan range tanggal jika ada
+            $filename = 'Data Cleaning Report';
+            
+            if ($startDate && $endDate) {
+                $filename .= ' - ' . date('d-m-Y', strtotime($startDate)) . ' sampai ' . date('d-m-Y', strtotime($endDate));
+            } elseif ($startDate) {
+                $filename .= ' - Dari ' . date('d-m-Y', strtotime($startDate));
+            } elseif ($endDate) {
+                $filename .= ' - Sampai ' . date('d-m-Y', strtotime($endDate));
+            } else {
+                $filename .= ' - ' . date('d F Y');
+            }
+            
+            $filename .= '.xlsx';
+
+            // Pass filter parameters to export class
+            return Excel::download(new DataCleaningExport($startDate, $endDate), $filename);
         } catch (\Exception $e) {
             Log::error('Error in exportData: ' . $e->getMessage());
             return response()->json([

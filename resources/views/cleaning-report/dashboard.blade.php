@@ -153,6 +153,129 @@
             justify-content: center;
             border-radius: 6px;
         }
+
+        /* Modal Export Styles */
+        .modal-content {
+            border-radius: 15px;
+            border: none;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .modal-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 15px 15px 0 0;
+            padding: 20px 25px;
+        }
+
+        .modal-header .btn-close {
+            filter: brightness(0) invert(1);
+        }
+
+        .modal-body {
+            padding: 25px;
+        }
+
+        .modal-footer {
+            border-top: 1px solid #e9ecef;
+            padding: 15px 25px;
+        }
+
+        /* Success Notification Styles */
+        .success-notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            padding: 20px 25px;
+            border-radius: 12px;
+            box-shadow: 0 8px 25px rgba(40, 167, 69, 0.4);
+            z-index: 10000;
+            display: none;
+            animation: slideInRight 0.4s ease-out;
+            min-width: 300px;
+        }
+
+        .success-notification.show {
+            display: block;
+        }
+
+        .success-notification .notification-icon {
+            font-size: 2rem;
+            margin-right: 15px;
+            animation: checkmark 0.5s ease-in-out;
+        }
+
+        .success-notification .notification-content {
+            flex: 1;
+        }
+
+        .success-notification .notification-title {
+            font-weight: 600;
+            font-size: 1.1rem;
+            margin-bottom: 5px;
+        }
+
+        .success-notification .notification-message {
+            font-size: 0.9rem;
+            opacity: 0.95;
+        }
+
+        .success-notification .btn-close-notification {
+            background: transparent;
+            border: none;
+            color: white;
+            font-size: 1.2rem;
+            cursor: pointer;
+            padding: 0;
+            margin-left: 10px;
+            opacity: 0.8;
+        }
+
+        .success-notification .btn-close-notification:hover {
+            opacity: 1;
+        }
+
+        @keyframes slideInRight {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes checkmark {
+            0% {
+                transform: scale(0) rotate(0deg);
+            }
+            50% {
+                transform: scale(1.2) rotate(180deg);
+            }
+            100% {
+                transform: scale(1) rotate(360deg);
+            }
+        }
+
+        /* Form styles in modal */
+        .date-range-group {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .date-range-group .form-group {
+            flex: 1;
+        }
+
+        .date-range-separator {
+            margin-top: 25px;
+            color: #6c757d;
+            font-weight: 600;
+        }
     </style>
 </head>
 
@@ -160,6 +283,77 @@
     <!-- Loading Overlay -->
     <div class="loading-overlay" id="loadingOverlay">
         <div class="loading-spinner"></div>
+    </div>
+
+    <!-- Success Notification -->
+    <div class="success-notification" id="successNotification">
+        <div class="d-flex align-items-center">
+            <div class="notification-icon">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <div class="notification-content">
+                <div class="notification-title">Download Berhasil!</div>
+                <div class="notification-message">File Excel telah berhasil didownload</div>
+            </div>
+            <button class="btn-close-notification" onclick="hideSuccessNotification()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Export Excel Modal -->
+    <div class="modal fade" id="exportModal" tabindex="-1" aria-labelledby="exportModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exportModalLabel">
+                        <i class="fas fa-file-export me-2"></i>Export Data ke Excel
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="text-muted mb-4">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Pilih rentang tanggal untuk export data cleaning report
+                    </p>
+                    
+                    <form id="exportForm">
+                        <div class="date-range-group">
+                            <div class="form-group">
+                                <label class="form-label fw-semibold">
+                                    <i class="fas fa-calendar-alt me-1"></i>Tanggal Awal
+                                </label>
+                                <input type="date" class="form-control" id="export_start_date" name="start_date">
+                            </div>
+                            
+                            <div class="date-range-separator">
+                                <i class="fas fa-arrow-right"></i>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label fw-semibold">
+                                    <i class="fas fa-calendar-alt me-1"></i>Tanggal Akhir
+                                </label>
+                                <input type="date" class="form-control" id="export_end_date" name="end_date">
+                            </div>
+                        </div>
+
+                        <div class="alert alert-info mt-3 d-flex align-items-center" role="alert">
+                            <i class="fas fa-lightbulb me-2"></i>
+                            <small>Kosongkan tanggal untuk export semua data</small>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-1"></i>Batal
+                    </button>
+                    <button type="button" class="btn btn-export" onclick="processExport()">
+                        <i class="fas fa-download me-1"></i>Download Excel
+                    </button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Photo Modal -->
@@ -202,9 +396,9 @@
                 <a href="{{ route('dashboard') }}" class="btn btn-primary">
                     <i class="fas fa-tachometer-alt me-2"></i>Dashboard
                 </a>
-                <a href="{{ route('cleaning-report.data.export') }}" class="btn btn-export">
+                <button type="button" class="btn btn-export" data-bs-toggle="modal" data-bs-target="#exportModal">
                     <i class="fas fa-file-export me-2"></i>Export Excel
-                </a>
+                </button>
                 <a href="{{ route('cleaning-report.index') }}" class="btn btn-primary">
                     <i class="fas fa-plus me-2"></i>Tambah Data
                 </a>
@@ -339,7 +533,72 @@
             // Inisialisasi modal
             const photoModal = new bootstrap.Modal(document.getElementById('photoModal'));
             window.photoModal = photoModal;
+
+            const exportModal = new bootstrap.Modal(document.getElementById('exportModal'));
+            window.exportModal = exportModal;
         });
+
+        // Export Excel Function
+        function processExport() {
+            const startDate = $('#export_start_date').val();
+            const endDate = $('#export_end_date').val();
+
+            // Build URL with parameters
+            let exportUrl = '{{ route('cleaning-report.data.export') }}';
+            const params = new URLSearchParams();
+
+            if (startDate) {
+                params.append('start_date', startDate);
+            }
+            if (endDate) {
+                params.append('end_date', endDate);
+            }
+
+            if (params.toString()) {
+                exportUrl += '?' + params.toString();
+            }
+
+            // Close modal
+            window.exportModal.hide();
+
+            // Show loading
+            showLoading();
+
+            // Create hidden iframe for download
+            const iframe = document.createElement('iframe');
+            iframe.style.display = 'none';
+            iframe.src = exportUrl;
+            document.body.appendChild(iframe);
+
+            // Show success notification after short delay
+            setTimeout(function() {
+                hideLoading();
+                showSuccessNotification();
+                
+                // Remove iframe after download
+                setTimeout(function() {
+                    document.body.removeChild(iframe);
+                }, 2000);
+            }, 1500);
+
+            // Reset form
+            $('#exportForm')[0].reset();
+        }
+
+        // Success Notification Functions
+        function showSuccessNotification() {
+            const notification = $('#successNotification');
+            notification.addClass('show');
+            
+            // Auto hide after 5 seconds
+            setTimeout(function() {
+                hideSuccessNotification();
+            }, 5000);
+        }
+
+        function hideSuccessNotification() {
+            $('#successNotification').removeClass('show');
+        }
 
         // Loading functions
         function showLoading() {
@@ -542,8 +801,6 @@
             $('#modalPhoto').attr('src', photoUrl);
             window.photoModal.show();
         }
-
-        // Hapus fungsi editField, editData, dan semua fungsi terkait edit
 
         function deleteData(id) {
             if (confirm('Apakah Anda yakin ingin menghapus data ini?')) {
