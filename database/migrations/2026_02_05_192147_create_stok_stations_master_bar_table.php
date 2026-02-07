@@ -11,9 +11,10 @@ return new class extends Migration
         Schema::create('stok_stations_master_bar', function (Blueprint $table) {
             $table->id();
             $table->date('tanggal');
-            $table->string('kode_bahan');
+            $table->string('kode_bahan')->unique();
             $table->string('nama_bahan');
-            $table->string('nama_satuan'); // Ubah dari satuan_id
+            $table->string('nama_satuan');
+            $table->decimal('stok_awal', 10, 2);
             $table->decimal('stok_minimum', 10, 2);
             $table->enum('status_stok', ['SAFE', 'REORDER'])->default('SAFE');
             $table->timestamps();

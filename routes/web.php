@@ -138,9 +138,6 @@ Route::middleware(['auth', 'role:developer,admin,marcom,staff'])->group(function
     // Dashboard
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
-    // Stok Station Dashboard
-    Route::get('/stok-station', [DashboardController::class, 'index'])->name('home');
-
     // Izin
     Route::prefix('izin')->name('izin.')->controller(PengajuanIzinController::class)->group(function () {
         Route::get('/create', 'create')->name('create');
@@ -182,6 +179,16 @@ Route::middleware(['auth', 'role:developer,admin,marcom,staff'])->group(function
     Route::get('/api/master-bar/{kode_bahan}', [StokBarController::class, 'getMasterBahan']);
     Route::get('/api/previous-stok-kitchen', [StokKitchenController::class, 'getPreviousStok']);
     Route::get('/api/previous-stok-bar', [StokBarController::class, 'getPreviousStok']);
+
+    // Stok Station for search
+    Route::get('/api/search-master-kitchen', [StokKitchenController::class, 'searchMasterBahan']);
+    Route::get('/api/search-master-bar', [StokBarController::class, 'searchMasterBahan']);
+
+    // Stok Station Harian Kitchen export
+    Route::post('/stok-kitchen/export', [StokKitchenController::class, 'export'])
+        ->name('stok-kitchen.export');
+    // Tambahkan route untuk export di routes/web.php
+    Route::get('/stok-bar/export', [StokBarController::class, 'export'])->name('stok-bar.export');
 
     // Transactions
     Route::prefix('transactions')->name('transactions.')->controller(StokTransactionController::class)->group(function () {
@@ -250,8 +257,13 @@ Route::middleware(['auth', 'role:developer,admin'])->group(function () {
 
     // Stok Station Master Data
     Route::resource('master-kitchen', StokStationMasterKitchenController::class)->except(['show', 'create', 'edit']);
+    Route::post('/master-kitchen/export', [StokStationMasterKitchenController::class, 'export'])
+        ->name('master-kitchen.export');
+
     Route::resource('satuan-station', SatuanStationController::class)->except(['show']);
     Route::resource('master-bar', StokStationMasterBarController::class)->except(['show', 'create', 'edit']);
+    Route::post('/master-bar/export', [StokStationMasterBarController::class, 'export'])
+        ->name('master-bar.export');
 
     // Izin Management
     Route::prefix('izin')->name('izin.')->controller(PengajuanIzinController::class)->group(function () {

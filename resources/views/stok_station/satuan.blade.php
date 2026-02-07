@@ -18,9 +18,6 @@
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <h4><i class="fas fa-balance-scale me-2"></i> Data Satuan Station</h4>
                     <div>
-                        <button type="button" class="btn btn-primary me-2" data-bs-toggle="modal" data-bs-target="#exportModal">
-                            <i class="fas fa-file-export me-1"></i> Export
-                        </button>
                         <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#createModal">
                             <i class="fas fa-plus me-1"></i> Tambah Satuan
                         </button>
