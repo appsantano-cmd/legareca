@@ -25,6 +25,7 @@ use App\Http\Controllers\StokStationMasterKitchenController;
 use App\Http\Controllers\StokStationMasterBarController;
 use App\Http\Controllers\StokKitchenController;
 use App\Http\Controllers\StokBarController;
+use App\Http\Controllers\ActivityLogController;
 
 // ============================
 // PUBLIC ROUTES (NO AUTH)
@@ -308,3 +309,25 @@ Route::middleware(['auth', 'role:developer,admin'])->group(function () {
         Route::get('/check-config', 'checkGoogleSheetsConfig')->name('check.config');
     });
 });
+
+// routes/web.php (tambahkan di dalam group developer)
+
+Route::middleware(['auth', 'role:developer'])->prefix('admin')->name('admin.')->group(function () {
+    // Activity Log Routes (Developer Only)
+    Route::prefix('activity-log')->name('activity-log.')->group(function () {
+        Route::get('/', [ActivityLogController::class, 'index'])->name('index');
+        Route::get('/forms', [ActivityLogController::class, 'formSubmissions'])->name('forms');
+        Route::get('/export', [ActivityLogController::class, 'export'])->name('export');
+        Route::get('/user/{user}', [ActivityLogController::class, 'userActivities'])->name('user');
+        Route::get('/{id}', [ActivityLogController::class, 'show'])->name('show');
+        Route::get('/{id}/form-data', [ActivityLogController::class, 'getFormData'])->name('form-data');
+        Route::delete('/clear-old', [ActivityLogController::class, 'clearOldLogs'])->name('clear-old');
+
+        // API untuk dashboard (tambahkan ini)
+        Route::get('/quick-stats', [ActivityLogController::class, 'quickStats'])->name('quick-stats');
+        Route::get('/recent', [ActivityLogController::class, 'recentActivities'])->name('recent');
+        Route::get('/check-new', [ActivityLogController::class, 'checkNewActivities'])->name('check-new');
+    });
+});
+
+

@@ -5,10 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
+use App\Traits\Loggable;
 
 class StokStationMasterKitchen extends Model
 {
-    use HasFactory;
+    use HasFactory, Loggable;
 
     protected $table = 'stok_stations_master_kitchen';
 
@@ -35,7 +36,7 @@ class StokStationMasterKitchen extends Model
         static::creating(function ($model) {
             // Generate kode bahan otomatis untuk kitchen (MAxxx)
             $model->kode_bahan = self::generateKodeBahanKitchen();
-            
+
             // Set status stok
             if ($model->stok_awal <= $model->stok_minimum) {
                 $model->status_stok = 'REORDER';

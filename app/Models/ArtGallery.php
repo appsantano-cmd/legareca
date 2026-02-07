@@ -3,9 +3,11 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Traits\Loggable;
 
 class ArtGallery extends Model
 {
+    use Loggable;
     protected $table = 'art_galleries';
 
     protected $fillable = [

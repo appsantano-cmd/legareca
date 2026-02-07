@@ -212,6 +212,24 @@
             background-color: #f9fafb;
             cursor: not-allowed;
         }
+
+        /* New styles for Activity Log badge */
+        .activity-log-badge {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+            color: white;
+            font-size: 0.6rem;
+            padding: 2px 6px;
+            border-radius: 10px;
+            font-weight: bold;
+        }
+
+        /* Developer-specific menu item */
+        .developer-menu {
+            border-left: 3px solid #8b5cf6;
+        }
     </style>
 </head>
 
@@ -416,6 +434,33 @@
                             <i class="fas fa-paint-brush text-lg w-6"></i>
                             <span class="ml-3 font-medium">Art Gallery Create</span>
                         </a>
+
+                        <!-- Developer Menu (Activity Log) -->
+                        @if (auth()->user()->role === 'developer')
+                            <div class="mt-6 mb-2 px-3">
+                                <span class="text-xs font-semibold text-purple-600 uppercase tracking-wider">
+                                    <i class="fas fa-code mr-1"></i> Developer Tools
+                                </span>
+                            </div>
+
+                            <!-- Activity Log -->
+                            <a href="{{ route('admin.activity-log.index') }}"
+                                class="flex items-center p-3 text-gray-700 hover:bg-purple-50 hover:text-purple-600 rounded-lg transition duration-200 developer-menu {{ request()->is('admin/activity-log*') ? 'active-menu' : '' }} relative">
+                                <i class="fas fa-history text-lg w-6"></i>
+                                <span class="ml-3 font-medium">Activity Log</span>
+                                <!-- Live activity badge -->
+                                <div class="activity-log-badge" id="activityLogBadge" style="display: none;">
+                                    <span id="recentActivitiesCount">0</span>
+                                </div>
+                            </a>
+
+                            <!-- Form Submissions (View only) -->
+                            <a href="{{ route('admin.activity-log.forms') }}"
+                                class="flex items-center p-3 text-gray-700 hover:bg-purple-50 hover:text-purple-600 rounded-lg transition duration-200 developer-menu {{ request()->is('admin/activity-log/forms') ? 'active-menu' : '' }}">
+                                <i class="fas fa-file-edit text-lg w-6"></i>
+                                <span class="ml-3 font-medium">Form Submissions</span>
+                            </a>
+                        @endif
                     </li>
                 @endif
             </ul>
@@ -450,6 +495,17 @@
 
                 <!-- Right side: Notifications, User dropdown -->
                 <div class="flex items-center space-x-4">
+                    <!-- Developer Activity Indicator -->
+                    @if (auth()->user()->role === 'developer')
+                        <div class="hidden md:flex items-center space-x-2">
+                            <div class="relative" id="liveActivityIndicator">
+                                <div class="w-3 h-3 rounded-full bg-green-500 animate-pulse" id="activityIndicator">
+                                </div>
+                                <div class="text-xs text-gray-600 ml-2">Live Activity</div>
+                            </div>
+                        </div>
+                    @endif
+
                     <!-- Notifications -->
                     @php
                         $notifications = auth()->user()->notifications()->orderBy('created_at', 'desc')->take(5)->get();
@@ -552,7 +608,15 @@
                             </div>
                             <div class="hidden md:block text-left">
                                 <p class="text-sm font-medium">{{ auth()->user()->name }}</p>
-                                <p class="text-xs text-gray-500 capitalize">{{ auth()->user()->role }}</p>
+                                <p class="text-xs text-gray-500 capitalize">
+                                    @if (auth()->user()->role === 'developer')
+                                        <span class="text-purple-600 font-bold">
+                                            <i class="fas fa-code mr-1"></i>Developer
+                                        </span>
+                                    @else
+                                        {{ auth()->user()->role }}
+                                    @endif
+                                </p>
                             </div>
                             <i class="fas fa-chevron-down text-xs hidden md:block"></i>
                         </button>
@@ -563,7 +627,34 @@
                             <div class="px-4 py-3 border-b border-gray-100">
                                 <p class="text-sm font-semibold text-gray-800">{{ auth()->user()->name }}</p>
                                 <p class="text-xs text-gray-500">{{ auth()->user()->email }}</p>
+                                <div class="mt-1">
+                                    <span
+                                        class="px-2 py-1 rounded-full text-xs font-medium 
+                                        @if (auth()->user()->role === 'developer') bg-purple-100 text-purple-800
+                                        @elseif(auth()->user()->role === 'admin') bg-red-100 text-red-800
+                                        @elseif(auth()->user()->role === 'staff') bg-green-100 text-green-800
+                                        @else bg-gray-100 text-gray-800 @endif">
+                                        {{ auth()->user()->role }}
+                                    </span>
+                                </div>
                             </div>
+
+                            <!-- Developer Quick Links -->
+                            @if (auth()->user()->role === 'developer')
+                                <div class="border-t border-gray-100 mt-2 pt-2">
+                                    <a href="{{ route('admin.activity-log.index') }}"
+                                        class="flex items-center px-4 py-2 text-gray-700 hover:bg-purple-50 text-sm">
+                                        <i class="fas fa-history w-4 mr-3 text-purple-600"></i>
+                                        <span>Activity Log</span>
+                                    </a>
+                                    <a href="{{ route('admin.activity-log.forms') }}"
+                                        class="flex items-center px-4 py-2 text-gray-700 hover:bg-purple-50 text-sm">
+                                        <i class="fas fa-file-edit w-4 mr-3 text-purple-600"></i>
+                                        <span>Form Submissions</span>
+                                    </a>
+                                </div>
+                            @endif
+
                             <div class="border-t border-gray-100 mt-2 pt-2">
                                 <form method="POST" action="{{ route('logout') }}">
                                     @csrf
@@ -588,9 +679,19 @@
                     class="bg-gradient-to-r from-blue-600 to-indigo-700 rounded-2xl shadow-lg overflow-hidden card-hover">
                     <div class="p-8 text-white">
                         <h1 class="text-3xl font-bold mb-2">Welcome back, {{ auth()->user()->name }}!</h1>
-                        <p class="text-blue-100 mb-6">You are logged in as <span
-                                class="font-bold capitalize">{{ auth()->user()->role }}</span>. Here's what's
-                            happening today.</p>
+                        <p class="text-blue-100 mb-6">You are logged in as
+                            <span class="font-bold capitalize">
+                                @if (auth()->user()->role === 'developer')
+                                    <i class="fas fa-code mr-1"></i>Developer
+                                @else
+                                    {{ auth()->user()->role }}
+                                @endif
+                            </span>.
+                            @if (auth()->user()->role === 'developer')
+                                <br>You have access to <strong>Activity Log</strong> for monitoring all system
+                                activities.
+                            @endif
+                        </p>
                         <div class="flex flex-wrap items-center gap-4">
                             <div class="flex items-center bg-white/20 backdrop-blur-sm rounded-lg px-4 py-2">
                                 <i class="fas fa-calendar-day mr-3"></i>
@@ -600,10 +701,60 @@
                                 <i class="fas fa-clock mr-3"></i>
                                 <span class="time-display">{{ now()->format('h:i A') }}</span>
                             </div>
+
+                            <!-- Developer Stats (Only for developer) -->
+                            @if (auth()->user()->role === 'developer')
+                                <div
+                                    class="flex items-center bg-purple-500/30 backdrop-blur-sm rounded-lg px-4 py-2 border border-purple-400/30">
+                                    <i class="fas fa-history mr-3"></i>
+                                    <span id="recentActivityStats">Loading activities...</span>
+                                </div>
+                            @endif
                         </div>
                     </div>
                 </div>
             </div>
+
+            <!-- Main Content Cards (Existing content) -->
+            @if (auth()->user()->role === 'developer')
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+                    <!-- System Status -->
+                    <div class="bg-white rounded-xl shadow-md p-6 card-hover">
+                        <h3 class="text-lg font-bold text-gray-800 mb-4">System Status</h3>
+                        <div class="space-y-4">
+                            <div class="flex items-center justify-between">
+                                <span class="text-gray-700">Database</span>
+                                <span class="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">Online</span>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-gray-700">Email Service</span>
+                                <span class="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">Active</span>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-gray-700">File Storage</span>
+                                <span class="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">Normal</span>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-gray-700">API Services</span>
+                                <span
+                                    class="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">Operational</span>
+                            </div>
+
+                            <!-- Developer System Info -->
+                            <div class="border-t border-gray-200 pt-4 mt-4">
+                                <h4 class="text-sm font-semibold text-gray-700 mb-2">Developer Info</h4>
+                                <div class="text-xs text-gray-600 space-y-1">
+                                    <div>PHP: {{ phpversion() }}</div>
+                                    <div>Laravel: {{ app()->version() }}</div>
+                                    <div>Environment: {{ app()->environment() }}</div>
+                                    <div>Activity Log: <span id="activityLogStatus">Active</span></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            @endif
         </main>
     </div>
 
@@ -727,6 +878,15 @@
             // Update time initially and every minute
             updateTime();
             setInterval(updateTime, 60000);
+
+            // Load developer stats if user is developer
+            @if (auth()->user()->role === 'developer')
+                loadDeveloperStats();
+                loadRecentActivities();
+
+                // Live activity indicator
+                startLiveActivityMonitoring();
+            @endif
         });
 
         // Fungsi untuk mengambil notifikasi terbaru
@@ -853,6 +1013,210 @@
 
         // Jalankan pertama kali
         document.addEventListener('DOMContentLoaded', fetchNotifications);
+
+        // ================== DEVELOPER FUNCTIONS ==================
+
+        // Load developer stats
+        async function loadDeveloperStats() {
+            try {
+                const response = await fetch('/admin/activity-log/quick-stats', {
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                    }
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    // Update stats cards
+                    document.getElementById('todayActivitiesCount').textContent = data.today_activities || 0;
+                    document.getElementById('formSubmissionsCount').textContent = data.form_submissions || 0;
+                    document.getElementById('userLoginsCount').textContent = data.user_logins || 0;
+                    document.getElementById('activeUsersCount').textContent = data.active_users || 0;
+
+                    // Update welcome message stats
+                    const recentStats = document.getElementById('recentActivityStats');
+                    if (recentStats) {
+                        const recentCount = data.recent_activities || 0;
+                        recentStats.textContent = `${recentCount} recent activities`;
+
+                        // Update badge if there are recent activities
+                        const badge = document.getElementById('activityLogBadge');
+                        const badgeCount = document.getElementById('recentActivitiesCount');
+                        if (recentCount > 0) {
+                            badge.style.display = 'block';
+                            badgeCount.textContent = recentCount > 9 ? '9+' : recentCount;
+                        } else {
+                            badge.style.display = 'none';
+                        }
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading developer stats:', error);
+            }
+        }
+
+        // Load recent activities for dashboard
+        async function loadRecentActivities() {
+            try {
+                const response = await fetch('/admin/activity-log/recent', {
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                    }
+                });
+
+                const data = await response.json();
+                const container = document.getElementById('recentActivitiesList');
+
+                if (data.success && data.activities.length > 0) {
+                    let html = '';
+                    data.activities.forEach((activity, index) => {
+                        // Determine icon based on activity type
+                        let icon = 'fa-circle';
+                        let color = 'text-gray-400';
+
+                        switch (activity.activity_type) {
+                            case 'LOGIN':
+                                icon = 'fa-sign-in-alt';
+                                color = 'text-green-500';
+                                break;
+                            case 'FORM_SUBMIT':
+                                icon = 'fa-file-edit';
+                                color = 'text-blue-500';
+                                break;
+                            case 'CREATE':
+                                icon = 'fa-plus-circle';
+                                color = 'text-green-500';
+                                break;
+                            case 'UPDATE':
+                                icon = 'fa-edit';
+                                color = 'text-yellow-500';
+                                break;
+                            case 'DELETE':
+                                icon = 'fa-trash-alt';
+                                color = 'text-red-500';
+                                break;
+                        }
+
+                        html += `
+                            <div class="flex items-start ${index < data.activities.length - 1 ? 'pb-3 border-b border-gray-100' : ''}">
+                                <div class="flex-shrink-0 mt-1">
+                                    <i class="fas ${icon} ${color} text-sm"></i>
+                                </div>
+                                <div class="ml-3 flex-1">
+                                    <p class="text-sm text-gray-800">${activity.description}</p>
+                                    <div class="flex justify-between items-center mt-1">
+                                        <span class="text-xs text-gray-500">${activity.name}</span>
+                                        <span class="text-xs text-gray-400">${activity.time}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    });
+
+                    container.innerHTML = html;
+                } else {
+                    container.innerHTML = '<p class="text-gray-500">No recent activities</p>';
+                }
+            } catch (error) {
+                console.error('Error loading recent activities:', error);
+                document.getElementById('recentActivitiesList').innerHTML =
+                    '<p class="text-gray-500">Error loading activities</p>';
+            }
+        }
+
+        // Live activity monitoring
+        function startLiveActivityMonitoring() {
+            // Blink indicator every 2 seconds
+            const indicator = document.getElementById('activityIndicator');
+            if (indicator) {
+                setInterval(() => {
+                    indicator.classList.toggle('animate-pulse');
+                    indicator.classList.toggle('bg-green-500');
+                    indicator.classList.toggle('bg-purple-500');
+                }, 2000);
+            }
+
+            // Refresh stats every 60 seconds
+            setInterval(() => {
+                loadDeveloperStats();
+                loadRecentActivities();
+            }, 60000);
+
+            // Check for new activities every 30 seconds
+            setInterval(checkNewActivities, 30000);
+        }
+
+        // Check for new activities
+        async function checkNewActivities() {
+            try {
+                const response = await fetch('/admin/activity-log/check-new', {
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                    }
+                });
+
+                const data = await response.json();
+                if (data.success && data.has_new) {
+                    // Show notification
+                    showNewActivityNotification(data.count);
+                    // Update stats
+                    loadDeveloperStats();
+                    loadRecentActivities();
+                }
+            } catch (error) {
+                console.error('Error checking new activities:', error);
+            }
+        }
+
+        // Show notification for new activities
+        function showNewActivityNotification(count) {
+            // Create notification element
+            const notification = document.createElement('div');
+            notification.className =
+                'fixed bottom-4 right-4 bg-purple-600 text-white px-4 py-3 rounded-lg shadow-lg z-50 animate-fade-in';
+            notification.innerHTML = `
+                <div class="flex items-center">
+                    <i class="fas fa-history mr-3"></i>
+                    <div>
+                        <p class="font-medium">New Activity Detected</p>
+                        <p class="text-sm opacity-90">${count} new ${count === 1 ? 'activity' : 'activities'} recorded</p>
+                    </div>
+                    <button class="ml-4 text-white opacity-75 hover:opacity-100" onclick="this.parentElement.parentElement.remove()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            `;
+
+            // Add to body
+            document.body.appendChild(notification);
+
+            // Remove after 5 seconds
+            setTimeout(() => {
+                if (notification.parentElement) {
+                    notification.remove();
+                }
+            }, 5000);
+
+            // Add animation CSS if not exists
+            if (!document.querySelector('style#activity-notification-style')) {
+                const style = document.createElement('style');
+                style.id = 'activity-notification-style';
+                style.textContent = `
+                    @keyframes fade-in {
+                        from { opacity: 0; transform: translateY(10px); }
+                        to { opacity: 1; transform: translateY(0); }
+                    }
+                    .animate-fade-in {
+                        animation: fade-in 0.3s ease-out;
+                    }
+                `;
+                document.head.appendChild(style);
+            }
+        }
     </script>
 </body>
 

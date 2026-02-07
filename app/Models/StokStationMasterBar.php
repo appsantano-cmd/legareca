@@ -5,10 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
+use App\Traits\Loggable;
 
 class StokStationMasterBar extends Model
 {
-    use HasFactory;
+    use HasFactory, Loggable;
 
     protected $table = 'stok_stations_master_bar';
 
@@ -35,7 +36,7 @@ class StokStationMasterBar extends Model
         static::creating(function ($model) {
             // Generate kode bahan otomatis untuk bar (MIxxx)
             $model->kode_bahan = self::generateKodeBahanBar();
-            
+
             // Set status stok
             if ($model->stok_awal <= $model->stok_minimum) {
                 $model->status_stok = 'REORDER';

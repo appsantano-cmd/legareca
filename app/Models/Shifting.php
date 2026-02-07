@@ -4,10 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Traits\Loggable;
 
 class shifting extends Model
 {
-    use HasFactory;
+    use HasFactory, Loggable;
 
     protected $table = 'shift_requests';
 
@@ -41,7 +42,7 @@ class shifting extends Model
     protected $attributes = [
         'status' => 'pending',
     ];
-    
+
     /**
      * Get the user that owns the shift request.
      */

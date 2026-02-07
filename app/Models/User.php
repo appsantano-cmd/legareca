@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Traits\Loggable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -10,7 +10,7 @@ use Illuminate\Notifications\Notifiable;
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable;
+    use HasFactory, Notifiable, Loggable;
 
     const ROLE_DEVELOPER = 'developer';
     const ROLE_ADMIN = 'admin';
@@ -28,6 +28,7 @@ class User extends Authenticatable
         'email',
         'password',
         'role',
+        'last_login_at'
     ];
 
     /**
@@ -50,6 +51,7 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'last_login_at' => 'datetime',
         ];
     }
 
@@ -86,5 +88,44 @@ class User extends Authenticatable
     public function unreadNotifications()
     {
         return $this->notifications()->where('is_read', false);
+    }
+
+    /**
+     * Get all activities for this user
+     */
+    public function activities()
+    {
+        return $this->hasMany(ActivityLog::class);
+    }
+
+    /**
+     * Get recent activities
+     */
+    public function recentActivities($limit = 10)
+    {
+        return $this->activities()
+            ->orderBy('created_at', 'desc')
+            ->limit($limit)
+            ->get();
+    }
+
+    /**
+     * Get today's activities
+     */
+    public function todayActivities()
+    {
+        return $this->activities()
+            ->today()
+            ->orderBy('created_at', 'desc')
+            ->get();
+    }
+
+    /**
+     * Update last login time
+     */
+    public function updateLastLogin()
+    {
+        $this->last_login_at = now();
+        $this->save();
     }
 }

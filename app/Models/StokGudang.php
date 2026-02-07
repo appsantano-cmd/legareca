@@ -6,10 +6,11 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
+use App\Traits\Loggable;
 
 class StokGudang extends Model
 {
-    use HasFactory;
+    use HasFactory, Loggable;
 
     protected $table = 'stok_gudang';
 

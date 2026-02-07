@@ -4,13 +4,14 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Traits\Loggable;
 
 class StokRolloverHistory extends Model
 {
-    use HasFactory;
+    use HasFactory, Loggable;
 
     protected $table = 'stok_rollover_history';
-    
+
     protected $fillable = [
         'from_bulan',
         'from_tahun',

@@ -4,10 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Traits\Loggable;
 
 class Satuan extends Model
 {
-    use HasFactory;
+    use HasFactory, Loggable;
 
     protected $table = 'satuan';
     protected $fillable = ['nama_satuan'];

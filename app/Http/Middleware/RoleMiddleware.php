@@ -1,29 +1,40 @@
 <?php
+// app/Http/Middleware/RoleMiddleware.php
 
 namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
-use Symfony\Component\HttpFoundation\Response;
+use Illuminate\Support\Facades\Auth;
 
 class RoleMiddleware
 {
     /**
-     * Handle an incoming request.
-     *
-     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
+     * Handle an incoming request
      */
-    public function handle($request, Closure $next, ...$roles)
+    public function handle(Request $request, Closure $next, ...$roles)
     {
-        if (!auth()->check()) {
-            abort(403);
+        if (!Auth::check()) {
+            return redirect()->route('login');
         }
-
-        if (!in_array(auth()->user()->role, $roles)) {
-            abort(403, 'Anda tidak punya akses');
+        
+        $user = Auth::user();
+        
+        // Check if user has any of the required roles
+        foreach ($roles as $role) {
+            if ($user->role === $role) {
+                return $next($request);
+            }
         }
-
-        return $next($request);
+        
+        // If user doesn't have required role
+        if ($request->expectsJson()) {
+            return response()->json([
+                'error' => 'Unauthorized. Required role: ' . implode(', ', $roles)
+            ], 403);
+        }
+        
+        return redirect()->route('dashboard')
+            ->with('error', 'Anda tidak memiliki izin untuk mengakses halaman ini.');
     }
-
 }

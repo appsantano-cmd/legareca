@@ -3,9 +3,14 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Traits\Loggable;
 
 class DailyCleaningReport extends Model
 {
+    use Loggable;
+
+    protected $table = 'daily_cleaning_reports';
+
     protected $fillable = [
         'nama',
         'tanggal',

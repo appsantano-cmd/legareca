@@ -5,13 +5,14 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Traits\Loggable;
 
 class MasterStokGudang extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory, SoftDeletes, Loggable;
 
     protected $table = 'master_stok_gudang';
-    
+
     protected $fillable = [
         'kode_barang',
         'nama_barang',

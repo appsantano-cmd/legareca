@@ -5,13 +5,14 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use App\Traits\Loggable;
 
 class StokTransaction extends Model
 {
-    use HasFactory;
+    use HasFactory, Loggable;
 
     protected $table = 'stok_transactions';
-    
+
     protected $fillable = [
         'stok_gudang_id',
         'tipe',
