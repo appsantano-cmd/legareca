@@ -155,94 +155,138 @@ class Screening extends Model
     /**
      * Simpan data screening dari session dengan struktur baru
      */
-    public static function saveFromSession(): ?self
+    /**
+     * Save screening data from session
+     */
+    public static function saveFromSession()
     {
         try {
-            // Format nomor telepon
-            $countryCode = session('country_code', '+62');
-            $phoneNumber = session('no_hp');
+            \Log::info('=== SAVE FROM SESSION START ===');
 
-            if (!$countryCode || !$phoneNumber) {
-                throw new \Exception('Country code or phone number is missing');
-            }
-
-            $fullPhoneNumber = self::formatPhoneNumber($countryCode, $phoneNumber);
-
-            // Validasi nomor telepon
-            if (!self::validatePhoneNumber($fullPhoneNumber)) {
-                throw new \Exception('Invalid phone number format');
-            }
-
-            // Buat data screening utama
-            $screening = self::create([
-                'owner_name' => session('owner'),
-                'pet_count' => session('count'),
-                'phone_number' => $fullPhoneNumber,
-                'status' => 'completed'
-            ]);
-
-            // Simpan data pets dari session
+            $ownerName = session('owner');
+            $phoneNumber = Screening::formatPhoneNumber(
+                session('country_code', '+62'),
+                session('no_hp')
+            );
+            $petCount = session('count', 1);
             $petsData = session('pets', []);
-            $screeningResults = session('screening_result', []);
+            $screeningData = session('screening_result', []);
+            $cancelReasons = session('cancel_reasons', []);
+            $hasCancelledPet = session('has_cancelled_pet', false);
 
-            foreach ($petsData as $index => $pet) {
-                $screening->pets()->create([
-                    'name' => $pet['name'],
-                    'breed' => $pet['breed'],
-                    'sex' => $pet['sex'],
-                    'age' => $pet['age'],
-                    'vaksin' => $screeningResults['pets'][$index]['vaksin'] ?? null,
-                    'kutu' => $screeningResults['pets'][$index]['kutu'] ?? null,
-                    'kutu_action' => $screeningResults['pets'][$index]['kutu_action'] ?? null,
-                    'jamur' => $screeningResults['pets'][$index]['jamur'] ?? null,
-                    'birahi' => $screeningResults['pets'][$index]['birahi'] ?? null,
-                    'birahi_action' => $screeningResults['pets'][$index]['birahi_action'] ?? null,
-                    'kulit' => $screeningResults['pets'][$index]['kulit'] ?? null,
-                    'telinga' => $screeningResults['pets'][$index]['telinga'] ?? null,
-                    'riwayat' => $screeningResults['pets'][$index]['riwayat'] ?? null,
-                    'status' => 'completed'
-                ]);
+            \Log::info('Session data for save:', [
+                'owner' => $ownerName,
+                'phone' => $phoneNumber,
+                'pet_count' => $petCount,
+                'pets_data_count' => count($petsData),
+                'screening_data_count' => count($screeningData),
+                'has_cancelled_pet' => $hasCancelledPet,
+                'cancel_reasons' => $cancelReasons
+            ]);
+
+            // Determine overall status
+            // Jika ada minimal satu pet yang cancelled, maka screening status = cancelled
+            // Jika tidak ada pet yang cancelled, status = completed
+            $overallStatus = $hasCancelledPet ? 'cancelled' : 'completed';
+
+            \Log::info('Overall screening status determined: ' . $overallStatus);
+
+            // Create screening record
+            $screening = new Screening();
+            $screening->owner_name = $ownerName;
+            $screening->phone_number = $phoneNumber;
+            $screening->pet_count = $petCount;
+            $screening->status = $overallStatus; // Set status berdasarkan kondisi
+            $screening->save();
+
+            \Log::info('Screening record created. ID: ' . $screening->id . ', Status: ' . $overallStatus);
+
+            // Save pets data
+            if (isset($screeningData['pets']) && is_array($screeningData['pets'])) {
+                foreach ($screeningData['pets'] as $index => $petData) {
+                    $pet = new ScreeningPet();
+                    $pet->screening_id = $screening->id;
+
+                    // Basic pet info from session
+                    $petSessionData = $petsData[$index] ?? [];
+                    $pet->name = $petSessionData['name'] ?? 'Anabul ' . ($index + 1);
+                    $pet->breed = $petSessionData['breed'] ?? '';
+                    $pet->sex = $petSessionData['sex'] ?? '';
+                    $pet->age = $petSessionData['age'] ?? '';
+
+                    // Screening results from form
+                    $pet->vaksin = $petData['vaksin'] ?? '-';
+                    $pet->kutu = $petData['kutu'] ?? '-';
+                    $pet->jamur = $petData['jamur'] ?? '-';
+                    $pet->birahi = $petData['birahi'] ?? '-';
+                    $pet->kulit = $petData['kulit'] ?? '-';
+                    $pet->telinga = $petData['telinga'] ?? '-';
+                    $pet->riwayat = $petData['riwayat'] ?? '-';
+
+                    // Kutu action (if exists)
+                    $pet->kutu_action = $petData['kutu_action'] ?? null;
+
+                    // Birahi action (if exists)
+                    $pet->birahi_action = $petData['birahi_action'] ?? null;
+
+                    // Determine pet status
+                    $petStatus = 'Normal'; // Default
+                    $petCancelled = false;
+
+                    // Check if this pet is cancelled
+                    foreach ($cancelReasons as $reason) {
+                        if ($reason['pet_index'] == $index) {
+                            $petCancelled = true;
+                            break;
+                        }
+                    }
+
+                    // Set pet status
+                    if ($petCancelled) {
+                        $petStatus = 'Tidak Boleh Masuk';
+                    } elseif ($petData['kutu'] === 'Positif' && isset($petData['kutu_action']) && $petData['kutu_action'] === 'lanjut_obat') {
+                        $petStatus = 'Lanjut Obat';
+                    } elseif (in_array($petData['kutu'], ['Positif', 'Positif 2', 'Positif 3'])) {
+                        // Jika kutu positif tanpa action atau dengan action null, tetap ditandai
+                        if ($petData['kutu'] === 'Positif' && (!isset($petData['kutu_action']) || $petData['kutu_action'] === null)) {
+                            $petStatus = 'Kutu Positif';
+                        } elseif (in_array($petData['kutu'], ['Positif 2', 'Positif 3'])) {
+                            $petStatus = 'Tidak Boleh Masuk';
+                        } else {
+                            $petStatus = 'Kutu Positif';
+                        }
+                    } elseif ($petData['birahi'] === 'Positif') {
+                        $petStatus = 'Tidak Boleh Masuk';
+                    } else {
+                        $petStatus = 'Normal';
+                    }
+
+                    $pet->status = $petStatus;
+                    $pet->save();
+
+                    \Log::info("Pet {$index} saved. Name: {$pet->name}, Status: {$petStatus}");
+                }
             }
 
-            // ========== PERUBAHAN PENTING ==========
-            // Hanya hapus session data yang diperlukan, tapi TETAPKAN screening_id
-            // Simpan screening_id ke session sebelum menghapus data lain
-            session()->put('screening_id', $screening->id);
-            session()->put('cancelled_data_saved', true);
-
-            // Hapus data session yang tidak diperlukan lagi untuk review
-            // TAPI jangan hapus semua, biarkan beberapa untuk review data
-            $sessionDataToForget = [
-                'count', // pet count
-                'screening_result', // hasil screening
-                'cancel_reasons', // alasan cancel
-                'cancelled_data_saved' // flag
-            ];
-
-            // Hapus data yang tidak perlu
-            session()->forget($sessionDataToForget);
-
-            // Log data session yang tersisa
-            \Log::info('Session after saving screening:', [
-                'screening_id' => session('screening_id'),
-                'owner' => session('owner'),
-                'pets' => session('pets'),
-                'no_hp' => session('no_hp'),
-                'country_code' => session('country_code')
+            // Clear session data after save
+            session()->forget([
+                'owner',
+                'count',
+                'pets',
+                'screening_result',
+                'no_hp',
+                'country_code',
+                'cancel_reasons',
+                'has_cancelled_pet'
             ]);
-            // ========== END PERUBAHAN ==========
 
-            \Log::info('Screening saved successfully', [
-                'id' => $screening->id,
-                'owner' => $screening->owner_name,
-                'phone' => $screening->phone_number,
-                'status' => $screening->status
-            ]);
+            \Log::info('=== SAVE FROM SESSION COMPLETE ===');
 
             return $screening;
 
         } catch (\Exception $e) {
             \Log::error('Failed to save screening from session: ' . $e->getMessage());
+            \Log::error('Error trace: ' . $e->getTraceAsString());
             return null;
         }
     }

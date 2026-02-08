@@ -149,133 +149,8 @@ class ScreeningController extends Controller
     {
         \Log::info('=== SUBMIT SCREENING RESULT START ===');
         \Log::info('Full request data:', $request->all());
-        \Log::info('Force cancelled:', ['force_cancelled' => $request->input('force_cancelled')]);
 
-        // 1. Ambil data dari request
-        $petsData = $request->input('pets', []);
-
-        // 2. Cek apakah ada pet yang memilih "Tidak Jadi Periksa" atau Positif 2/3 untuk kutu atau Positif untuk birahi
-        $cancelReasons = [];
-        $hasCancelled = false;
-        $forceCancelled = false;
-
-        if ($request->has('pets')) {
-            \Log::info('Checking for cancelled selections...');
-            foreach ($request->pets as $petIndex => $petData) {
-                \Log::info("Pet {$petIndex} data:", $petData);
-
-                // Cek kutu: Positif 2 atau Positif 3 -> langsung cancel
-                if (isset($petData['kutu']) && in_array($petData['kutu'], ['Positif 2', 'Positif 3'])) {
-                    \Log::info("Pet {$petIndex}: Kutu Positif 2/3 found! Auto cancelled.");
-                    $hasCancelled = true;
-                    $forceCancelled = true;
-                    $cancelReasons[] = [
-                        'pet_index' => $petIndex,
-                        'pet_name' => session('pets')[$petIndex]['name'] ?? 'Anabul ' . ($petIndex + 1),
-                        'reason' => 'Kutu ' . $petData['kutu'] . ' (langsung dibatalkan)'
-                    ];
-                }
-                // Cek kutu: Positif dengan pilihan tidak_periksa
-                elseif (isset($petData['kutu_action']) && $petData['kutu_action'] === 'tidak_periksa') {
-                    \Log::info("Pet {$petIndex}: Kutu tidak_periksa found!");
-                    $hasCancelled = true;
-                    $cancelReasons[] = [
-                        'pet_index' => $petIndex,
-                        'pet_name' => session('pets')[$petIndex]['name'] ?? 'Anabul ' . ($petIndex + 1),
-                        'reason' => 'Kutu positif (' . ($petData['kutu'] ?? 'Positif') . ')'
-                    ];
-                }
-
-                // Cek birahi: Positif -> langsung cancel (tidak ada pilihan)
-                if (isset($petData['birahi']) && $petData['birahi'] === 'Positif') {
-                    \Log::info("Pet {$petIndex}: Birahi positif found! Auto cancelled.");
-                    $hasCancelled = true;
-                    $forceCancelled = true;
-                    $cancelReasons[] = [
-                        'pet_index' => $petIndex,
-                        'pet_name' => session('pets')[$petIndex]['name'] ?? 'Anabul ' . ($petIndex + 1),
-                        'reason' => 'Birahi positif (langsung dibatalkan)'
-                    ];
-                }
-            }
-        }
-
-        \Log::info('Has cancelled: ' . ($hasCancelled ? 'YES' : 'NO'));
-        \Log::info('Force cancelled: ' . ($forceCancelled ? 'YES' : 'NO'));
-
-        // ========== CEK APAKAH ADA FORCE CANCELLED ==========
-        if ($forceCancelled || ($request->has('force_cancelled') && $request->force_cancelled === 'true')) {
-            \Log::info('=== FORCE CANCELLED DETECTED ===');
-
-            // Simpan semua data yang ada ke session TANPA NORMALISASI
-            // Biarkan data asli dari form
-            $screeningData = $request->all();
-
-            \Log::info('Raw screening data for cancelled:', $screeningData);
-
-            // Simpan ke session apa adanya
-            session()->put('screening_result', $screeningData);
-            session()->put('cancel_reasons', $cancelReasons);
-
-            \Log::info('Session data saved:', [
-                'screening_result' => session('screening_result'),
-                'cancel_reasons' => session('cancel_reasons'),
-                'pets' => session('pets'),
-                'owner' => session('owner'),
-                'count' => session('count')
-            ]);
-
-            // Simpan ke database
-            $screening = Screening::saveCancelledData();
-
-            if ($screening) {
-                \Log::info('Cancelled data saved successfully! Screening ID: ' . $screening->id);
-                session()->put('cancelled_data_saved', true);
-                session()->put('screening_id', $screening->id);
-
-                // Kirim email untuk screening yang dibatalkan
-                $this->sendEmailNotification($screening);
-
-            } else {
-                \Log::error('Failed to save cancelled data!');
-                // Tetap redirect ke cancelled page untuk memberi feedback ke user
-            }
-
-            // Redirect ke halaman cancelled
-            return redirect()->route('screening.cancelled');
-        }
-
-        // 3. Jika ada yang dibatalkan (normal flow - ketika user klik NEXT untuk kutu positif pilihan tidak_periksa)
-        if ($hasCancelled) {
-            \Log::info('=== NORMAL CANCELLED FLOW (kutu positif pilihan tidak_periksa) ===');
-
-            // Simpan data ke session TANPA NORMALISASI
-            $screeningData = $request->all();
-
-            \Log::info('Raw screening data for normal cancelled:', $screeningData);
-
-            session()->put('screening_result', $screeningData);
-            session()->put('cancel_reasons', $cancelReasons);
-
-            // Simpan ke database
-            $screening = Screening::saveCancelledData();
-
-            if (!$screening) {
-                \Log::error('Failed to save cancelled data in normal flow');
-                return back()->withErrors(['error' => 'Gagal menyimpan data pembatalan']);
-            }
-
-            session()->put('cancelled_data_saved', true);
-            session()->put('screening_id', $screening->id);
-
-            // Kirim email untuk screening yang dibatalkan
-            $this->sendEmailNotification($screening);
-
-            return redirect()->route('screening.cancelled');
-        }
-
-        // 4. Jika TIDAK ada yang dibatalkan, validasi semua field
-        // Hanya untuk flow normal, semua field harus diisi (tidak boleh "-")
+        // 1. Validasi semua field untuk flow normal
         $request->validate([
             'pets' => 'required|array|min:1',
             'pets.*.vaksin' => 'required|string|not_in:-',
@@ -295,13 +170,91 @@ class ScreeningController extends Controller
             'pets.*.riwayat.not_in' => 'Riwayat kesehatan harus dipilih',
         ]);
 
-        // 5. Simpan data ke session
-        session()->put('screening_result', $request->all());
+        // 2. Deteksi kondisi untuk menentukan status
+        $hasCancelledPet = false;
+        $cancelReasons = [];
+        $kutuPositifNeedsAction = [];
 
-        // Log data yang akan disimpan
-        \Log::info('Screening result for normal flow:', $request->all());
+        if ($request->has('pets')) {
+            \Log::info('Checking for cancelled conditions...');
+            foreach ($request->pets as $petIndex => $petData) {
+                \Log::info("Pet {$petIndex} data:", $petData);
+                
+                $petCancelled = false;
+                $reason = '';
 
-        // 6. Lanjut ke halaman noHp
+                // Cek kutu positif yang membutuhkan action
+                if (isset($petData['kutu']) && $petData['kutu'] === 'Positif') {
+                    if (!isset($petData['kutu_action']) || $petData['kutu_action'] === '') {
+                        $kutuPositifNeedsAction[] = $petIndex;
+                        continue; // Skip validasi lainnya untuk pet ini
+                    }
+                    
+                    // Jika sudah memilih action, cek pilihannya
+                    if (isset($petData['kutu_action']) && $petData['kutu_action'] === 'tidak_periksa') {
+                        $petCancelled = true;
+                        $hasCancelledPet = true;
+                        $reason = 'Kutu positif (tidak jadi periksa)';
+                    }
+                    // Jika memilih lanjut_obat, tidak cancelled (status completed)
+                }
+                
+                // Aturan 2: Kutu Positif 2 atau Positif 3 -> cancelled
+                if (isset($petData['kutu']) && in_array($petData['kutu'], ['Positif 2', 'Positif 3'])) {
+                    $petCancelled = true;
+                    $hasCancelledPet = true;
+                    $reason = 'Kutu ' . $petData['kutu'];
+                }
+                
+                // Aturan 3: Birahi Positif -> cancelled
+                if (isset($petData['birahi']) && $petData['birahi'] === 'Positif') {
+                    $petCancelled = true;
+                    $hasCancelledPet = true;
+                    $reason = 'Birahi positif';
+                }
+                
+                // Aturan 3a: Birahi Positif dengan pilihan tidak_periksa -> cancelled
+                if (isset($petData['birahi_action']) && $petData['birahi_action'] === 'tidak_periksa') {
+                    $petCancelled = true;
+                    $hasCancelledPet = true;
+                    $reason = 'Birahi positif (tidak jadi periksa)';
+                }
+
+                if ($petCancelled) {
+                    $cancelReasons[] = [
+                        'pet_index' => $petIndex,
+                        'pet_name' => session('pets')[$petIndex]['name'] ?? 'Anabul ' . ($petIndex + 1),
+                        'reason' => $reason
+                    ];
+                }
+            }
+        }
+
+        // Validasi tambahan untuk kutu positif yang belum pilih action
+        if (!empty($kutuPositifNeedsAction)) {
+            \Log::warning('Kutu positif needs action:', $kutuPositifNeedsAction);
+            
+            $errorMessages = [];
+            foreach ($kutuPositifNeedsAction as $petIndex) {
+                $petName = session('pets')[$petIndex]['name'] ?? 'Anabul ' . ($petIndex + 1);
+                $errorMessages["pets.{$petIndex}.kutu_action"] = "Silakan pilih tindakan untuk kutu positif pada {$petName}";
+            }
+            
+            return back()
+                ->withErrors($errorMessages)
+                ->withInput();
+        }
+
+        \Log::info('Cancelled pets found:', $cancelReasons);
+        \Log::info('Has cancelled pet: ' . ($hasCancelledPet ? 'YES' : 'NO'));
+
+        // 3. Simpan data ke session (termasuk cancel reasons)
+        $screeningData = $request->all();
+        session()->put('screening_result', $screeningData);
+        session()->put('cancel_reasons', $cancelReasons);
+        session()->put('has_cancelled_pet', $hasCancelledPet);
+
+        // 4. Lanjut ke halaman noHp
         return redirect()->route('screening.noHp');
     }
 
@@ -353,49 +306,62 @@ class ScreeningController extends Controller
         }
     }
 
-    public function cancelled()
+    public function noHp()
     {
-        $cancelReasons = session('cancel_reasons', []);
-        $screeningId = session('screening_id');
+        return view('screening.noHp');
+    }
 
-        if (empty($cancelReasons)) {
-            return redirect()->route('screening.noHp');
+    public function submitNoHp(Request $request)
+    {
+        $request->validate([
+            'no_hp' => 'required|numeric|max_digits:13'
+        ]);
+
+        session()->put('no_hp', $request->no_hp);
+        session()->put('country_code', $request->country_code ?? '+62');
+
+        // Validasi format nomor telepon sebelum simpan
+        $fullPhoneNumber = Screening::formatPhoneNumber(
+            session('country_code', '+62'),
+            session('no_hp')
+        );
+
+        if (!Screening::validatePhoneNumber($fullPhoneNumber)) {
+            return back()->withErrors(['no_hp' => 'Format nomor telepon tidak valid']);
         }
 
-        // Cek apakah data sudah disimpan
-        $screening = null;
-        if ($screeningId) {
-            $screening = Screening::with('pets')->find($screeningId);
+        // Simpan ke database
+        try {
+            $screening = Screening::saveFromSession();
 
-            // Jika tidak ditemukan, coba save lagi
-            if (!$screening && session('cancelled_data_saved') !== true) {
-                $screening = Screening::saveCancelledData();
+            if (!$screening) {
+                throw new \Exception('Gagal menyimpan data screening');
             }
-        }
 
-        // Jika masih tidak ada, coba save
-        if (!$screening) {
-            $screening = Screening::saveCancelledData();
-        }
+            // Simpan screening_id ke session untuk review data
+            session()->put('screening_id', $screening->id);
 
-        // Ekspor ke Google Sheets
-        if ($screening) {
-            $this->exportToSheets();
+            // Ambil data dari DB untuk email
+            $screening = Screening::with('pets')->find($screening->id);
 
-            // Kirim email notifikasi untuk screening yang dibatalkan
+            // Kirim email notifikasi ke Santano
             $this->sendEmailNotification($screening);
 
-            // Jangan hapus screening_id, tapi hapus hanya flag cancelled_data_saved
-            session()->forget(['cancelled_data_saved']);
-            // screening_id tetap disimpan untuk review data
-        }
+            // Ekspor ke Google Sheets
+            $this->exportToSheets();
 
-        return view('screening.cancelled', [
-            'reasons' => $cancelReasons,
-            'owner' => session('owner', 'Owner'),
-            'pets' => session('pets', []),
-            'screening' => $screening
-        ]);
+            // Redirect ke review data
+            return redirect()->route('screening.thankyou');
+
+        } catch (\Exception $e) {
+            Log::error('submitNoHp error: ' . $e->getMessage());
+            return back()->withErrors(['error' => 'Terjadi kesalahan saat menyimpan data']);
+        }
+    }
+
+    public function thankyou()
+    {
+        return view('screening.thankyou');
     }
 
     public function reviewData()
@@ -434,73 +400,54 @@ class ScreeningController extends Controller
                     ->with('error', 'Data screening tidak ditemukan. Silakan lakukan screening baru.');
             }
 
-            // Ambil cancel reasons dari session jika ada
-            $cancelReasons = session('cancel_reasons', []);
+            // Ambil restricted pets langsung dari database
+            $restrictedPets = [];
+            
+            foreach ($screening->pets as $index => $pet) {
+                // Tentukan apakah pet ini tidak boleh masuk berdasarkan data di database
+                $isRestricted = false;
+                $restrictionReasons = [];
+                
+                // Aturan 1: Kutu Positif dengan action tidak_periksa
+                if ($pet->kutu === 'Positif' && $pet->kutu_action === 'tidak_periksa') {
+                    $isRestricted = true;
+                    $restrictionReasons[] = 'Kutu positif (tidak jadi periksa)';
+                }
+                
+                // Aturan 2: Kutu Positif 2 atau Positif 3
+                if (in_array($pet->kutu, ['Positif 2', 'Positif 3'])) {
+                    $isRestricted = true;
+                    $restrictionReasons[] = 'Kutu ' . $pet->kutu;
+                }
+                
+                // Aturan 3: Birahi Positif
+                if ($pet->birahi === 'Positif') {
+                    $isRestricted = true;
+                    $restrictionReasons[] = 'Birahi positif';
+                }
+                
+                // Aturan 4: Birahi Positif dengan action tidak_periksa
+                if ($pet->birahi === 'Positif' && $pet->birahi_action === 'tidak_periksa') {
+                    $isRestricted = true;
+                    $restrictionReasons[] = 'Birahi positif (tidak jadi periksa)';
+                }
+                
+                if ($isRestricted) {
+                    $restrictedPets[] = [
+                        'pet_index' => $index,
+                        'pet_name' => $pet->name,
+                        'reasons' => $restrictionReasons
+                    ];
+                }
+            }
 
-            return view('screening.review-data', compact('screening', 'cancelReasons'));
+            return view('screening.review-data', compact('screening', 'restrictedPets'));
 
         } catch (\Exception $e) {
             Log::error('Review data error: ' . $e->getMessage());
             return redirect()->route('screening.thankyou')
                 ->with('error', 'Terjadi kesalahan saat memuat data review: ' . $e->getMessage());
         }
-    }
-
-    public function noHp()
-    {
-        return view('screening.noHp');
-    }
-
-    public function submitNoHp(Request $request)
-    {
-        $request->validate([
-            'no_hp' => 'required|numeric|max_digits:13'
-        ]);
-
-        session()->put('no_hp', $request->no_hp);
-        session()->put('country_code', $request->country_code ?? '+62');
-
-        // Validasi format nomor telepon sebelum simpan
-        $fullPhoneNumber = Screening::formatPhoneNumber(
-            session('country_code', '+62'),
-            session('no_hp')
-        );
-
-        if (!Screening::validatePhoneNumber($fullPhoneNumber)) {
-            return back()->withErrors(['no_hp' => 'Format nomor telepon tidak valid']);
-        }
-
-        // Simpan ke database
-        try {
-            $screening = Screening::saveFromSession();
-
-            if (!$screening) {
-                throw new \Exception('Gagal menyimpan data screening');
-            }
-
-            // Simpan screening_id ke session untuk review data
-            session()->put('screening_id', $screening->id);
-            session()->put('cancelled_data_saved', true);
-
-            // Ambil data dari DB untuk email
-            $screening = Screening::with('pets')->find($screening->id);
-
-            // Kirim email notifikasi ke Santano
-            $this->sendEmailNotification($screening);
-
-            return redirect()->route('screening.thankyou');
-
-        } catch (\Exception $e) {
-            Log::error('submitNoHp error: ' . $e->getMessage());
-            return back()->withErrors(['error' => 'Terjadi kesalahan saat menyimpan data']);
-        }
-    }
-
-    public function thankyou()
-    {
-        // auto export saat halaman thankyou dibuka
-        $this->exportToSheets();
-        return view('screening.thankyou');
     }
 
     /**
@@ -537,11 +484,38 @@ class ScreeningController extends Controller
                 'Kulit',
                 'Telinga',
                 'Riwayat',
-                'Pet Status'
+                'Pet Status',
+                'Boleh Masuk'
             ];
 
             foreach ($screenings as $s) {
                 foreach ($s->pets as $p) {
+                    // Tentukan apakah pet boleh masuk berdasarkan kondisi
+                    $bolehMasuk = 'Ya';
+                    $restrictionReasons = [];
+
+                    // Cek kondisi kutu
+                    if (
+                        in_array($p->kutu, ['Positif 2', 'Positif 3']) ||
+                        ($p->kutu == 'Positif' && $p->kutu_action == 'tidak_periksa')
+                    ) {
+                        $bolehMasuk = 'Tidak';
+                        $restrictionReasons[] = 'Kutu';
+                    }
+
+                    // Cek kondisi birahi
+                    if (
+                        $p->birahi == 'Positif' ||
+                        ($p->birahi == 'Positif' && $p->birahi_action == 'tidak_periksa')
+                    ) {
+                        $bolehMasuk = 'Tidak';
+                        $restrictionReasons[] = 'Birahi';
+                    }
+
+                    // Gabungkan alasan jika ada
+                    $alasanTidakMasuk = $bolehMasuk == 'Tidak' ?
+                        'Alasan: ' . implode(', ', $restrictionReasons) : '-';
+
                     $rows[] = [
                         $s->id,
                         $s->status_text,
@@ -562,48 +536,38 @@ class ScreeningController extends Controller
                         $p->kulit,
                         $p->telinga,
                         $p->riwayat,
-                        $p->status_text
+                        $p->status_text,
+                        $bolehMasuk,
+                        $alasanTidakMasuk
                     ];
                 }
             }
 
             // 4. Gunakan GoogleSheetsService untuk update
-            // Note: Kita perlu menentukan sheet name yang berbeda untuk screening
-            // Berdasarkan kode sebelumnya, sheet name adalah 'Screening'
+            $sheetsService = new \App\Services\GoogleSheetsService();
 
             // 4a. Set header (overwrite row pertama)
             $sheetsService->setHeader($rows[0], 'Screening!A1');
 
-            // 4b. Hapus data lama dari row 2 ke bawah
-            // Karena GoogleSheetsService tidak punya method clear, kita akan
-            // append semua data baru, lalu hapus sisa data lama
+            // 4b. Clear existing data dari row 2 ke bawah
+            $service = $sheetsService->raw();
+            $spreadsheetId = config('services.google.spreadsheet_id');
 
-            // 4c. Append semua data kecuali header (mulai dari index 1)
+            // Clear range A2:Z1000
+            $clearRequest = new \Google\Service\Sheets\ClearValuesRequest();
+            $service->spreadsheets_values->clear(
+                $spreadsheetId,
+                'Screening!A2:Z1000',
+                $clearRequest
+            );
+
+            // 4c. Append data baru
             $dataRows = array_slice($rows, 1);
-
             if (!empty($dataRows)) {
-                // Clear existing data dari row 2 ke bawah
-                // Kita akan gunakan batch update untuk clear range A2:Z
-                $service = $sheetsService->raw();
-                $spreadsheetId = config('services.google.spreadsheet_id');
-
-                // Clear range A2:Z1000 (adjust sesuai kebutuhan)
-                $clearRequest = new \Google\Service\Sheets\ClearValuesRequest();
-                $service->spreadsheets_values->clear(
-                    $spreadsheetId,
-                    'Screening!A2:Z1000',
-                    $clearRequest
-                );
-
-                // Append data baru
                 $sheetsService->appendMany($dataRows, 'Screening!A2');
             }
 
             Log::info('Google Sheets export completed successfully using GoogleSheetsService');
-
-            // 5. Format spreadsheet (opsional)
-            // Karena GoogleSheetsService tidak support batch format,
-            // kita skip bagian formatting untuk simplifikasi
 
             // Kembalikan response JSON untuk fetch
             return response()->json([
@@ -650,7 +614,6 @@ class ScreeningController extends Controller
 
     /**
      * Kirim email notifikasi ke Santano
-     * SIMPLE VERSION - hanya notifikasi tanpa email user
      */
     private function sendEmailNotification($screening)
     {
@@ -663,7 +626,7 @@ class ScreeningController extends Controller
                 ? "✅ Screening Baru - " . $screening->owner_name . " - Le Gareca Space"
                 : "⚠️ Screening Dibatalkan - " . $screening->owner_name . " - Le Gareca Space";
 
-            // Body email (text sederhana)
+            // Body email
             $body = $screening->status == 'completed'
                 ? "✅ SCREENING BARU — Le Gareca Space ✅\n\n"
                 . "Ada input screening baru dari sistem dengan detail berikut:\n\n"
@@ -692,17 +655,23 @@ class ScreeningController extends Controller
                 $body .= "  Status: " . $pet->status_text . "\n";
 
                 // Tambahkan alasan pembatalan jika ada
-                if ($pet->kutu_action == 'tidak_periksa' || $pet->birahi_action == 'tidak_periksa') {
+                if ($pet->status === 'Tidak Boleh Masuk') {
                     $reasons = [];
-                    if ($pet->kutu_action == 'tidak_periksa') {
-                        $reasons[] = "Kutu positif";
-                    }
-                    if ($pet->birahi_action == 'tidak_periksa') {
+                    if (in_array($pet->kutu, ['Positif 2', 'Positif 3'])) {
+                        $reasons[] = "Kutu " . $pet->kutu;
+                    } elseif ($pet->kutu == 'Positif' && $pet->kutu_action == 'tidak_periksa') {
+                        $reasons[] = "Kutu positif (tidak periksa)";
+                    } elseif ($pet->birahi == 'Positif') {
                         $reasons[] = "Birahi positif";
+                    } elseif ($pet->birahi == 'Positif' && $pet->birahi_action == 'tidak_periksa') {
+                        $reasons[] = "Birahi positif (tidak periksa)";
                     }
-                    $body .= "  Alasan: " . implode(', ', $reasons) . "\n";
+                    
+                    if (!empty($reasons)) {
+                        $body .= "  Alasan: " . implode(', ', $reasons) . "\n";
+                    }
                 }
-
+                
                 $body .= "  ------------------------\n\n";
             }
 

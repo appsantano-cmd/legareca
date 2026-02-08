@@ -62,16 +62,9 @@ Route::prefix('screening')->name('screening.')->controller(ScreeningController::
     Route::post('/no-hp/submit', 'submitNoHp')->name('submitNoHp');
     Route::get('/thankyou', 'thankyou')->name('thankyou');
     Route::get('/review-data', 'reviewData')->name('review-data');
-    Route::get('/cancelled', 'cancelled')->name('cancelled');
     Route::get('/export-sheets', 'exportToSheets')->name('export-sheets');
     Route::get('/export', 'export')->name('export');
 
-    // Admin Screening Data
-    Route::middleware(['auth'])->group(function () {
-        Route::get('/data', 'index')->name('index');
-        Route::get('/data/{id}', 'show')->name('show');
-        Route::delete('/data/{id}', 'destroy')->name('destroy');
-    });
 });
 
 // Venue Booking
@@ -213,6 +206,13 @@ Route::middleware(['auth', 'role:developer,admin'])->group(function () {
     // User Management
     Route::resource('users', UserController::class)->only(['index', 'create', 'store']);
 
+    // Data Screening
+    Route::prefix('screening')->name('screening.')->controller(ScreeningController::class)->group(function () {
+        Route::get('/data', 'index')->name('index');
+        Route::get('/data/{id}', 'show')->name('show');
+        Route::delete('/data/{id}', 'destroy')->name('destroy');
+    });
+    
     // Stok Gudang
     Route::prefix('stok-gudang')->name('stok.')->controller(StokGudangController::class)->group(function () {
         Route::get('/', 'index')->name('index');
