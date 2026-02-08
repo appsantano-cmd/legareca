@@ -56,12 +56,24 @@ class StokTransactionController extends Controller
             });
         }
 
-        $transactions = $query->paginate(20);
+        // Handle pagination dengan opsi "all"
+        $perPage = $request->get('per_page', 10);
+        
+        if ($perPage === 'all') {
+            $transactions = $query->get();
+        } else {
+            // Validasi jika per_page bukan angka, gunakan default 10
+            if (!is_numeric($perPage) || $perPage <= 0) {
+                $perPage = 10;
+            }
+            $transactions = $query->paginate($perPage)->withQueryString();
+        }
 
-        // Summary
+        // Summary - gunakan query yang sama untuk menghitung summary
+        $summaryQuery = clone $query;
         $summary = [
-            'total_masuk' => (clone $query)->where('tipe', 'masuk')->sum('jumlah'),
-            'total_keluar' => (clone $query)->where('tipe', 'keluar')->sum('jumlah'),
+            'total_masuk' => $summaryQuery->where('tipe', 'masuk')->sum('jumlah'),
+            'total_keluar' => $summaryQuery->where('tipe', 'keluar')->sum('jumlah'),
         ];
 
         // Get all barang for dropdown

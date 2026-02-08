@@ -10,10 +10,17 @@ class SupplierController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $suppliers = Supplier::latest()->paginate(10);
-        return view('stok.supplier.index', compact('suppliers'));
+        $showDeleted = $request->has('show_deleted') && $request->show_deleted == 'true';
+        
+        if ($showDeleted) {
+            $suppliers = Supplier::onlyTrashed()->orderBy('deleted_at', 'desc')->get();
+        } else {
+            $suppliers = Supplier::orderBy('created_at', 'asc')->get();
+        }
+        
+        return view('stok.supplier.index', compact('suppliers', 'showDeleted'));
     }
 
     /**
@@ -42,26 +49,36 @@ class SupplierController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Supplier $supplier)
+    public function show($id)
     {
-        return view('supplier.show', compact('supplier'));
+        $supplier = Supplier::withTrashed()->findOrFail($id);
+        return view('stok.supplier.show', compact('supplier'));
     }
 
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Supplier $supplier)
+    public function edit($id)
     {
+        $supplier = Supplier::withTrashed()->findOrFail($id);
+        
+        if ($supplier->deleted_at) {
+            return redirect()->route('supplier.index', ['show_deleted' => true])
+                ->with('error', 'Tidak dapat mengedit supplier yang telah dihapus. Restore terlebih dahulu.');
+        }
+        
         return view('stok.supplier.edit', compact('supplier'));
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Supplier $supplier)
+    public function update(Request $request, $id)
     {
+        $supplier = Supplier::findOrFail($id);
+        
         $request->validate([
-            'nama_supplier' => 'required|unique:supplier,nama_supplier,' . $supplier->id . '|max:255',
+            'nama_supplier' => 'required|unique:supplier,nama_supplier,' . $id . '|max:255',
         ]);
 
         $supplier->update($request->all());
@@ -73,14 +90,42 @@ class SupplierController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Supplier $supplier)
+    public function destroy($id)
     {
+        $supplier = Supplier::findOrFail($id);
         $supplier->delete();
 
         return redirect()->route('supplier.index')
             ->with('success', 'Supplier berhasil dihapus.');
     }
 
+    /**
+     * Restore soft deleted supplier.
+     */
+    public function restore($id)
+    {
+        $supplier = Supplier::onlyTrashed()->findOrFail($id);
+        $supplier->restore();
+
+        return redirect()->route('supplier.index', ['show_deleted' => true])
+            ->with('success', 'Supplier berhasil direstore.');
+    }
+
+    /**
+     * Force delete supplier permanently.
+     */
+    public function forceDelete($id)
+    {
+        $supplier = Supplier::onlyTrashed()->findOrFail($id);
+        $supplier->forceDelete();
+
+        return redirect()->route('supplier.index', ['show_deleted' => true])
+            ->with('success', 'Supplier berhasil dihapus permanen.');
+    }
+
+    /**
+     * API endpoint for suppliers.
+     */
     public function indexApi()
     {
         $suppliers = Supplier::withTrashed()->orderBy('nama_supplier')->get();
