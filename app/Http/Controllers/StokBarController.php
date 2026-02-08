@@ -8,6 +8,7 @@ use App\Models\SatuanStation;
 use Illuminate\Http\Request;
 use App\Exports\StokBarExport;
 use Maatwebsite\Excel\Facades\Excel;
+use Carbon\Carbon; // Tambahkan ini untuk format tanggal
 
 class StokBarController extends Controller
 {
@@ -32,6 +33,11 @@ class StokBarController extends Controller
         // Filter berdasarkan shift
         if ($request->filled('shift')) {
             $query->where('shift', $request->shift);
+        }
+
+        // TAMBAHAN: Filter berdasarkan status
+        if ($request->filled('status_stok')) {
+            $query->where('status_stok', $request->status_stok);
         }
 
         // Urutkan dari yang lama ke baru berdasarkan tanggal, shift, dan waktu

@@ -312,15 +312,15 @@
                 padding: 8px 15px;
                 font-size: 0.9rem;
             }
-            
+
             .modal-dialog {
                 margin: 0.5rem;
             }
-            
+
             .form-section {
                 padding: 20px 15px;
             }
-            
+
             .table-responsive {
                 font-size: 0.9rem;
             }
@@ -360,6 +360,18 @@
                             <option value="2" {{ request('shift') == '2' ? 'selected' : '' }}>Shift 2</option>
                         </select>
                     </div>
+                    <div class="row g-3 mt-2">
+                        <div class="col-md-3">
+                            <label class="form-label">Status Stok</label>
+                            <select class="form-select" name="status_stok">
+                                <option value="">Semua Status</option>
+                                <option value="SAFE" {{ request('status_stok') == 'SAFE' ? 'selected' : '' }}>SAFE
+                                </option>
+                                <option value="REORDER" {{ request('status_stok') == 'REORDER' ? 'selected' : '' }}>REORDER
+                                </option>
+                            </select>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="row mt-3">
@@ -372,7 +384,7 @@
                                 <i class="fas fa-times me-1"></i> Reset Filter
                             </a>
 
-                            @if (request()->anyFilled(['start_date', 'end_date', 'nama_bahan', 'shift']))
+                            @if (request()->anyFilled(['start_date', 'end_date', 'nama_bahan', 'shift', 'status_stok']))
                                 <div class="ms-auto">
                                     <span class="badge bg-info">
                                         <i class="fas fa-filter me-1"></i>
@@ -383,6 +395,7 @@
                         </div>
                     </div>
                 </div>
+
             </form>
         </div>
 
@@ -444,7 +457,7 @@
                                 <thead class="sticky-header">
                                     <tr>
                                         <th class="text-center" style="width: 50px">#</th>
-                                        <th style="width: 100px">Tanggal</th>
+                                        <th style="width: 12px">Tanggal & Jam</th>
                                         <th class="text-center" style="width: 80px">Shift</th>
                                         <th style="width: 120px">Kode Bahan</th>
                                         <th>Nama Bahan</th>
@@ -473,6 +486,10 @@
                                                     <i class="fas fa-calendar-alt me-1"></i>
                                                     {{ $item->tanggal->format('d/m/Y') }}
                                                 </span>
+                                                <small class="text-muted">
+                                                    <i class="fas fa-clock me-1"></i>
+                                                    {{ $item->created_at->format('H:i') }}
+                                                </small>
                                             </td>
                                             <td class="text-center">
                                                 <span class="badge bg-info">Shift {{ $item->shift }}</span>
@@ -575,9 +592,11 @@
                                     <div class="col-md-3 mb-3">
                                         <label class="form-label fw-semibold">Tanggal <span
                                                 class="text-danger">*</span></label>
+                                        <!-- MODIFIKASI: Tambahkan readonly dan value hari ini -->
                                         <input type="date" class="form-control @error('tanggal') is-invalid @enderror"
-                                            name="tanggal" id="tanggal" value="{{ old('tanggal', date('Y-m-d')) }}"
-                                            required onchange="getPreviousStok()">
+                                            name="tanggal" id="tanggal" value="{{ date('Y-m-d') }}" required readonly
+                                            onchange="getPreviousStok()">
+                                        <small class="text-muted">Tanggal tidak dapat diubah</small>
                                         @error('tanggal')
                                             <div class="invalid-feedback">{{ $message }}</div>
                                         @enderror
@@ -1435,29 +1454,29 @@
             const endDate = document.getElementById('export_end_date').value;
             const namaBahan = document.getElementById('export_nama_bahan').value;
             const shift = document.getElementById('export_shift').value;
-            
+
             // Format tanggal
             const start = new Date(startDate).toLocaleDateString('id-ID', {
                 day: '2-digit',
                 month: '2-digit',
                 year: 'numeric'
             });
-            
+
             const end = new Date(endDate).toLocaleDateString('id-ID', {
                 day: '2-digit',
                 month: '2-digit',
                 year: 'numeric'
             });
-            
+
             // Update preview
             if (startDate === endDate) {
                 document.getElementById('exportPeriod').textContent = start;
             } else {
                 document.getElementById('exportPeriod').textContent = `${start} s/d ${end}`;
             }
-            
+
             document.getElementById('exportBahan').textContent = namaBahan || 'Semua Bahan';
-            
+
             if (shift === '1') {
                 document.getElementById('exportShift').textContent = 'Shift 1';
             } else if (shift === '2') {
@@ -1472,7 +1491,7 @@
             const exportForm = document.getElementById('exportForm');
             const startDate = document.getElementById('export_start_date').value;
             const endDate = document.getElementById('export_end_date').value;
-            
+
             if (!startDate || !endDate) {
                 Swal.fire({
                     icon: 'warning',
@@ -1482,7 +1501,7 @@
                 });
                 return;
             }
-            
+
             if (startDate > endDate) {
                 Swal.fire({
                     icon: 'error',
@@ -1492,22 +1511,22 @@
                 });
                 return;
             }
-            
+
             // Show loading
             const originalContent = this.innerHTML;
             this.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> Memproses...';
             this.disabled = true;
-            
+
             // Close modal first
             const exportModal = bootstrap.Modal.getInstance(document.getElementById('exportModal'));
             if (exportModal) {
                 exportModal.hide();
             }
-            
+
             // Submit form after modal is hidden
             setTimeout(() => {
                 exportForm.submit();
-                
+
                 // Reset button after 3 seconds
                 setTimeout(() => {
                     this.innerHTML = originalContent;
@@ -1564,10 +1583,10 @@
             const today = new Date().toISOString().split('T')[0];
             document.getElementById('export_start_date').value = today;
             document.getElementById('export_end_date').value = today;
-            
+
             // Update preview
             updateExportPreview();
-            
+
             // Add event listeners for real-time preview update
             const exportFields = ['export_start_date', 'export_end_date', 'export_nama_bahan', 'export_shift'];
             exportFields.forEach(field => {
@@ -1577,30 +1596,30 @@
                     element.addEventListener('input', updateExportPreview);
                 }
             });
-            
+
             // Copy current filter to export form
             document.getElementById('exportModal')?.addEventListener('show.bs.modal', function() {
                 const currentStartDate = "{{ request('start_date', date('Y-m-d')) }}";
                 const currentEndDate = "{{ request('end_date', date('Y-m-d')) }}";
                 const currentNamaBahan = "{{ request('nama_bahan') }}";
                 const currentShift = "{{ request('shift') }}";
-                
+
                 if (currentStartDate) {
                     document.getElementById('export_start_date').value = currentStartDate;
                 }
-                
+
                 if (currentEndDate) {
                     document.getElementById('export_end_date').value = currentEndDate;
                 }
-                
+
                 if (currentNamaBahan) {
                     document.getElementById('export_nama_bahan').value = currentNamaBahan;
                 }
-                
+
                 if (currentShift) {
                     document.getElementById('export_shift').value = currentShift;
                 }
-                
+
                 updateExportPreview();
             });
 

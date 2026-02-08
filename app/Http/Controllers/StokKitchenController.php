@@ -6,9 +6,9 @@ use App\Models\StokKitchen;
 use App\Models\StokStationMasterKitchen;
 use App\Models\SatuanStation;
 use Illuminate\Http\Request;
-use App\Exports\StokKitchenExport; // Tambahkan ini
-use Maatwebsite\Excel\Facades\Excel; // Tambahkan ini
-use Carbon\Carbon; // Tambahkan ini
+use App\Exports\StokKitchenExport;
+use Maatwebsite\Excel\Facades\Excel;
+use Carbon\Carbon;
 
 class StokKitchenController extends Controller
 {
@@ -33,6 +33,11 @@ class StokKitchenController extends Controller
         // Filter berdasarkan shift
         if ($request->filled('shift')) {
             $query->where('shift', $request->shift);
+        }
+
+        // Filter berdasarkan status (TAMBAHAN: Filter status)
+        if ($request->filled('status_stok')) {
+            $query->where('status_stok', $request->status_stok);
         }
 
         // Urutkan dari yang lama ke baru berdasarkan tanggal, shift, dan waktu
@@ -216,6 +221,7 @@ class StokKitchenController extends Controller
         $endDate = Carbon::parse($request->end_date)->format('Y-m-d');
         $namaBahan = $request->nama_bahan;
         $shift = $request->shift;
+        $statusStok = $request->status_stok; // TAMBAHAN: Filter status untuk export
 
         // Format nama file sesuai permintaan
         $startDateFormatted = Carbon::parse($request->start_date)->locale('id')->translatedFormat('d F Y'); // 07 Januari 2026
@@ -230,7 +236,7 @@ class StokKitchenController extends Controller
         }
 
         return Excel::download(
-            new StokKitchenExport($startDate, $endDate, $namaBahan, $shift),
+            new StokKitchenExport($startDate, $endDate, $namaBahan, $shift, $statusStok), // TAMBAHAN: Parameter status
             $fileName
         );
     }

@@ -304,6 +304,18 @@
                             <option value="2" {{ request('shift') == '2' ? 'selected' : '' }}>Shift 2</option>
                         </select>
                     </div>
+                    <div class="row g-3 mt-2">
+                        <div class="col-md-3">
+                            <label class="form-label">Status Stok</label>
+                            <select class="form-select" name="status_stok">
+                                <option value="">Semua Status</option>
+                                <option value="SAFE" {{ request('status_stok') == 'SAFE' ? 'selected' : '' }}>SAFE
+                                </option>
+                                <option value="REORDER" {{ request('status_stok') == 'REORDER' ? 'selected' : '' }}>REORDER
+                                </option>
+                            </select>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="row mt-3">
@@ -316,7 +328,7 @@
                                 <i class="fas fa-times me-1"></i> Reset Filter
                             </a>
 
-                            @if (request()->anyFilled(['start_date', 'end_date', 'nama_bahan', 'shift']))
+                            @if (request()->anyFilled(['start_date', 'end_date', 'nama_bahan', 'shift', 'status_stok']))
                                 <div class="ms-auto">
                                     <span class="badge bg-info">
                                         <i class="fas fa-filter me-1"></i>
@@ -379,7 +391,7 @@
                                 <thead class="sticky-header">
                                     <tr>
                                         <th class="text-center" style="width: 50px">#</th>
-                                        <th style="width: 100px">Tanggal</th>
+                                        <th style="width: 120px">Tanggal & Jam</th>
                                         <th class="text-center" style="width: 80px">Shift</th>
                                         <th style="width: 120px">Kode Bahan</th>
                                         <th>Nama Bahan</th>
@@ -408,6 +420,10 @@
                                                     <i class="fas fa-calendar-alt me-1"></i>
                                                     {{ $item->tanggal->format('d/m/Y') }}
                                                 </span>
+                                                <small class="text-muted">
+                                                    <i class="fas fa-clock me-1"></i>
+                                                    {{ $item->created_at->format('H:i') }}
+                                                </small>
                                             </td>
                                             <td class="text-center">
                                                 <span class="badge bg-info">Shift {{ $item->shift }}</span>
@@ -510,9 +526,11 @@
                                     <div class="col-md-3 mb-3">
                                         <label class="form-label fw-semibold">Tanggal <span
                                                 class="text-danger">*</span></label>
+                                        <!-- MODIFIKASI: Tambahkan readonly dan value hari ini -->
                                         <input type="date" class="form-control @error('tanggal') is-invalid @enderror"
-                                            name="tanggal" id="tanggal" value="{{ old('tanggal', date('Y-m-d')) }}"
-                                            required onchange="getPreviousStok()">
+                                            name="tanggal" id="tanggal" value="{{ date('Y-m-d') }}" required readonly
+                                            onchange="getPreviousStok()">
+                                        <small class="text-muted">Tanggal tidak dapat diubah</small>
                                         @error('tanggal')
                                             <div class="invalid-feedback">{{ $message }}</div>
                                         @enderror
@@ -720,12 +738,16 @@
                 <form id="exportForm" method="GET" action="{{ route('stok-bar.export') }}">
                     <div class="modal-body">
                         <div class="mb-3">
-                            <label for="export_start_date" class="form-label">Tanggal Mulai <span class="text-danger">*</span></label>
-                            <input type="date" class="form-control" id="export_start_date" name="export_start_date" required>
+                            <label for="export_start_date" class="form-label">Tanggal Mulai <span
+                                    class="text-danger">*</span></label>
+                            <input type="date" class="form-control" id="export_start_date" name="export_start_date"
+                                required>
                         </div>
                         <div class="mb-3">
-                            <label for="export_end_date" class="form-label">Tanggal Akhir <span class="text-danger">*</span></label>
-                            <input type="date" class="form-control" id="export_end_date" name="export_end_date" required>
+                            <label for="export_end_date" class="form-label">Tanggal Akhir <span
+                                    class="text-danger">*</span></label>
+                            <input type="date" class="form-control" id="export_end_date" name="export_end_date"
+                                required>
                         </div>
                         <div class="alert alert-info">
                             <i class="fas fa-info-circle me-2"></i>
@@ -1305,7 +1327,7 @@
                 exportForm.addEventListener('submit', function(e) {
                     const startDate = document.getElementById('export_start_date').value;
                     const endDate = document.getElementById('export_end_date').value;
-                    
+
                     if (!startDate || !endDate) {
                         e.preventDefault();
                         Swal.fire({
@@ -1316,7 +1338,7 @@
                         });
                         return false;
                     }
-                    
+
                     if (new Date(startDate) > new Date(endDate)) {
                         e.preventDefault();
                         Swal.fire({
@@ -1327,33 +1349,36 @@
                         });
                         return false;
                     }
-                    
+
                     // Tampilkan loading state
                     const exportButton = document.getElementById('exportButton');
                     exportButton.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> Membuat Excel...';
                     exportButton.disabled = true;
-                    
+
                     // Auto close modal setelah download
                     setTimeout(function() {
-                        const exportModal = bootstrap.Modal.getInstance(document.getElementById('exportModal'));
+                        const exportModal = bootstrap.Modal.getInstance(document.getElementById(
+                            'exportModal'));
                         if (exportModal) {
                             exportModal.hide();
                         }
                         // Reset button state
-                        exportButton.innerHTML = '<i class="fas fa-download me-1"></i> Download Excel';
+                        exportButton.innerHTML =
+                            '<i class="fas fa-download me-1"></i> Download Excel';
                         exportButton.disabled = false;
                     }, 2000);
                 });
             }
-            
+
             // Set default dates untuk export modal
             const exportModal = document.getElementById('exportModal');
             if (exportModal) {
                 exportModal.addEventListener('show.bs.modal', function() {
                     const today = new Date();
                     const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
-                    
-                    document.getElementById('export_start_date').value = firstDay.toISOString().split('T')[0];
+
+                    document.getElementById('export_start_date').value = firstDay.toISOString().split('T')[
+                        0];
                     document.getElementById('export_end_date').value = today.toISOString().split('T')[0];
                 });
             }

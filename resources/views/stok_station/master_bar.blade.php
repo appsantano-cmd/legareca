@@ -747,7 +747,6 @@
                                     <th>Satuan</th>
                                     <th>Stok Awal</th>
                                     <th>Stok Minimum</th>
-                                    <th>Status</th>
                                     <th style="text-align: center;">Aksi</th>
                                 </tr>
                             </thead>
@@ -770,17 +769,6 @@
                                         <td style="text-align: right; font-weight: 600;">
                                             {{ number_format($item->stok_awal, 2) }}</td>
                                         <td style="text-align: right;">{{ number_format($item->stok_minimum, 2) }}</td>
-                                        <td>
-                                            @if ($item->status_stok == 'SAFE')
-                                                <span class="badge badge-success">
-                                                    <i class="fas fa-check-circle"></i> SAFE
-                                                </span>
-                                            @else
-                                                <span class="badge badge-danger">
-                                                    <i class="fas fa-exclamation-circle"></i> REORDER
-                                                </span>
-                                            @endif
-                                        </td>
                                         <td>
                                             <div class="action-buttons">
                                                 <button type="button" class="btn-action btn-edit" data-bs-toggle="modal"
