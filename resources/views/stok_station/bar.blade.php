@@ -688,25 +688,6 @@
                                     </div>
                                 </div>
 
-                                <!-- Informasi Sistem -->
-                                <div class="info-card mb-4">
-                                    <div class="d-flex">
-                                        <i class="fas fa-lightbulb text-warning me-3 mt-1"></i>
-                                        <div>
-                                            <h6 class="fw-bold mb-2">Cara Kerja Sistem Stok:</h6>
-                                            <ul class="mb-0" style="padding-left: 20px;">
-                                                <li>Stok awal pertama kali diambil dari data master bar</li>
-                                                <li>Untuk transaksi berikutnya, stok awal otomatis diambil dari stok akhir
-                                                    transaksi sebelumnya</li>
-                                                <li>Shift 1: Stok awal diambil dari stok akhir Shift 2 hari sebelumnya</li>
-                                                <li>Shift 2: Stok awal diambil dari stok akhir Shift 1 hari yang sama</li>
-                                                <li>Sistem akan otomatis menghitung stok akhir dan menentukan status
-                                                    (SAFE/REORDER)</li>
-                                            </ul>
-                                        </div>
-                                    </div>
-                                </div>
-
                                 <!-- Action Buttons -->
                                 <div class="d-flex justify-content-end gap-3 pt-3 border-top">
                                     <button type="button" class="btn btn-lg btn-outline-secondary"
@@ -1222,47 +1203,125 @@
             modal.hide();
         }
 
-        // Get Previous Stock
+        // Get Previous Stock - DIPERBAIKI
         function getPreviousStok() {
             const tanggal = document.getElementById('tanggal').value;
             const shift = document.getElementById('shift').value;
             const kodeBahan = document.getElementById('kode_bahan').value;
 
-            if (!tanggal || !shift || !kodeBahan) return;
+            if (!tanggal || !shift || !kodeBahan) {
+                return;
+            }
+
+            // Tampilkan loading
+            const stokAwalInfo = document.getElementById('stok_awal_info');
+            stokAwalInfo.innerHTML = `
+                <i class="fas fa-spinner fa-spin me-1 text-primary"></i>
+                Mencari data stok sebelumnya...
+            `;
+            stokAwalInfo.className = 'text-primary mt-1 d-block';
 
             fetch(`/api/previous-stok-bar?tanggal=${tanggal}&kode_bahan=${kodeBahan}&shift=${shift}`)
-                .then(response => response.json())
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
                 .then(data => {
                     const stokAwalInput = document.getElementById('stok_awal');
-                    const stokAwalInfo = document.getElementById('stok_awal_info');
 
-                    if (data.source === 'previous_transaction') {
-                        stokAwalInput.value = data.stok_awal;
-                        stokAwalInfo.innerHTML = `
-                        <i class="fas fa-check-circle me-1 text-success"></i>
-                        Stok awal diambil dari transaksi sebelumnya: ${data.stok_akhir}
-                    `;
-                        stokAwalInfo.className = 'text-success mt-1 d-block';
-                    } else if (data.source === 'master') {
-                        stokAwalInput.value = data.stok_awal;
-                        stokAwalInfo.innerHTML = `
-                        <i class="fas fa-database me-1 text-primary"></i>
-                        Stok awal diambil dari data master: ${data.stok_awal}
-                    `;
-                        stokAwalInfo.className = 'text-primary mt-1 d-block';
-                    } else {
-                        stokAwalInput.value = 0;
-                        stokAwalInfo.innerHTML = `
-                        <i class="fas fa-exclamation-triangle me-1 text-warning"></i>
-                        Tidak ada data sebelumnya. Silakan isi stok awal manual.
-                    `;
-                        stokAwalInfo.className = 'text-warning mt-1 d-block';
+                    // Update nilai stok awal
+                    stokAwalInput.value = data.stok_awal;
+
+                    // Update informasi berdasarkan sumber
+                    let message = '';
+                    let icon = '';
+                    let colorClass = '';
+
+                    switch (data.source) {
+                        case 'same_shift_transaction':
+                            icon = '<i class="fas fa-exchange-alt me-1"></i>';
+                            message =
+                                `Stok awal diambil dari transaksi sebelumnya dalam shift ${data.shift_transaksi}: ${parseFloat(data.stok_akhir).toFixed(2)}`;
+                            if (data.waktu_transaksi) {
+                                message += `<br><small>Waktu transaksi: ${data.waktu_transaksi}</small>`;
+                            }
+                            colorClass = 'text-primary';
+                            break;
+
+                        case 'previous_shift_same_day':
+                            icon = '<i class="fas fa-arrow-left me-1"></i>';
+                            message =
+                                `Stok awal diambil dari shift ${data.shift_transaksi} hari ini: ${parseFloat(data.stok_akhir).toFixed(2)}`;
+                            if (data.waktu_transaksi) {
+                                message += `<br><small>Waktu transaksi: ${data.waktu_transaksi}</small>`;
+                            }
+                            colorClass = 'text-info';
+                            break;
+
+                        case 'previous_day_shift_2':
+                            icon = '<i class="fas fa-calendar-minus me-1"></i>';
+                            const prevDate = new Date(data.tanggal_transaksi).toLocaleDateString('id-ID');
+                            message =
+                                `Stok awal diambil dari transaksi tanggal ${prevDate} shift ${data.shift_transaksi}: ${parseFloat(data.stok_akhir).toFixed(2)}`;
+                            if (data.waktu_transaksi) {
+                                message += `<br><small>Waktu transaksi: ${data.waktu_transaksi}</small>`;
+                            }
+                            colorClass = 'text-success';
+                            break;
+
+                        case 'previous_day_shift_1':
+                            icon = '<i class="fas fa-calendar-minus me-1"></i>';
+                            const prevDate2 = new Date(data.tanggal_transaksi).toLocaleDateString('id-ID');
+                            message =
+                                `Stok awal diambil dari transaksi tanggal ${prevDate2} shift ${data.shift_transaksi}: ${parseFloat(data.stok_akhir).toFixed(2)}`;
+                            if (data.waktu_transaksi) {
+                                message += `<br><small>Waktu transaksi: ${data.waktu_transaksi}</small>`;
+                            }
+                            colorClass = 'text-success';
+                            break;
+
+                        case 'any_previous_transaction':
+                            icon = '<i class="fas fa-history me-1"></i>';
+                            const anyPrevDate = new Date(data.tanggal_transaksi).toLocaleDateString('id-ID');
+                            message =
+                                `Stok awal diambil dari transaksi terakhir (${anyPrevDate} shift ${data.shift_transaksi}): ${parseFloat(data.stok_akhir).toFixed(2)}`;
+                            if (data.waktu_transaksi) {
+                                message += `<br><small>Waktu transaksi: ${data.waktu_transaksi}</small>`;
+                            }
+                            colorClass = 'text-warning';
+                            break;
+
+                        case 'master':
+                            icon = '<i class="fas fa-database me-1"></i>';
+                            message = `Stok awal diambil dari data master: ${parseFloat(data.stok_awal).toFixed(2)}`;
+                            message += `<br><small>Belum ada transaksi sebelumnya untuk bahan ini</small>`;
+                            colorClass = 'text-secondary';
+                            break;
+
+                        default:
+                            icon = '<i class="fas fa-exclamation-triangle me-1"></i>';
+                            message = `Tidak ada data sebelumnya. Silakan isi stok awal manual.`;
+                            colorClass = 'text-danger';
+                            break;
                     }
 
+                    stokAwalInfo.innerHTML = `${icon}${message}`;
+                    stokAwalInfo.className = `${colorClass} mt-1 d-block`;
+
+                    // Hitung stok akhir
                     calculateStokAkhir();
+
                 })
                 .catch(error => {
                     console.error('Error loading previous stok:', error);
+                    const stokAwalInfo = document.getElementById('stok_awal_info');
+                    stokAwalInfo.innerHTML = `
+                        <i class="fas fa-exclamation-triangle me-1 text-danger"></i>
+                        Gagal memuat data stok sebelumnya.
+                    `;
+                    stokAwalInfo.className = 'text-danger mt-1 d-block';
                 });
         }
 
@@ -1276,10 +1335,14 @@
             const stokAkhir = stokAwal + stokMasuk - stokKeluar - waste;
             document.getElementById('stok_akhir_preview').value = stokAkhir.toFixed(2);
 
+            // Update warna berdasarkan nilai stok akhir
+            const previewElement = document.getElementById('stok_akhir_preview');
             if (stokAkhir < 0) {
-                document.getElementById('stok_akhir_preview').className = 'form-control fw-bold fs-5 text-danger';
+                previewElement.className = 'form-control fw-bold fs-5 text-danger';
+            } else if (stokAkhir === 0) {
+                previewElement.className = 'form-control fw-bold fs-5 text-warning';
             } else {
-                document.getElementById('stok_akhir_preview').className = 'form-control fw-bold fs-5 text-primary';
+                previewElement.className = 'form-control fw-bold fs-5 text-primary';
             }
         }
 
@@ -1320,7 +1383,7 @@
                 });
         }
 
-        // Handle Export Form Submission
+        // Handle Export Form Submission - SIMPLIFIED
         document.addEventListener('DOMContentLoaded', function() {
             const exportForm = document.getElementById('exportForm');
             if (exportForm) {
@@ -1330,23 +1393,13 @@
 
                     if (!startDate || !endDate) {
                         e.preventDefault();
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Tanggal Harus Diisi!',
-                            text: 'Silakan pilih tanggal mulai dan tanggal akhir',
-                            confirmButtonColor: '#8a2387'
-                        });
+                        alert('Silakan pilih tanggal mulai dan tanggal akhir');
                         return false;
                     }
 
                     if (new Date(startDate) > new Date(endDate)) {
                         e.preventDefault();
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Tanggal Tidak Valid!',
-                            text: 'Tanggal mulai tidak boleh lebih besar dari tanggal akhir',
-                            confirmButtonColor: '#8a2387'
-                        });
+                        alert('Tanggal mulai tidak boleh lebih besar dari tanggal akhir');
                         return false;
                     }
 
@@ -1392,6 +1445,26 @@
                 }
             });
 
+            // Event listeners untuk tanggal, shift, dan kode bahan
+            const tanggalInput = document.getElementById('tanggal');
+            const shiftSelect = document.getElementById('shift');
+            const kodeBahanInput = document.getElementById('kode_bahan');
+
+            if (tanggalInput && shiftSelect && kodeBahanInput) {
+                tanggalInput.addEventListener('change', function() {
+                    if (shiftSelect.value && kodeBahanInput.value) {
+                        getPreviousStok();
+                    }
+                });
+
+                shiftSelect.addEventListener('change', function() {
+                    if (tanggalInput.value && kodeBahanInput.value) {
+                        getPreviousStok();
+                    }
+                });
+            }
+
+            // Validasi form submit - SIMPLIFIED
             const stokForm = document.getElementById('stokForm');
             if (stokForm) {
                 stokForm.addEventListener('submit', function(e) {
@@ -1399,49 +1472,40 @@
                     const stokMasuk = parseFloat(document.getElementById('stok_masuk').value) || 0;
                     const stokKeluar = parseFloat(document.getElementById('stok_keluar').value) || 0;
                     const waste = parseFloat(document.getElementById('waste').value) || 0;
+                    const kodeBahan = document.getElementById('kode_bahan').value;
 
                     const stokAkhir = stokAwal + stokMasuk - stokKeluar - waste;
 
-                    if (stokAkhir < 0) {
+                    // Validasi
+                    if (!kodeBahan) {
                         e.preventDefault();
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Stok Akhir Negatif!',
-                            text: 'Stok akhir tidak boleh negatif. Periksa kembali input stok keluar dan waste.',
-                            confirmButtonColor: '#8a2387'
-                        });
+                        alert('Silakan pilih bahan terlebih dahulu.');
                         return false;
                     }
 
-                    if (!document.getElementById('kode_bahan').value) {
+                    if (stokAkhir < 0) {
                         e.preventDefault();
-                        Swal.fire({
-                            icon: 'warning',
-                            title: 'Pilih Bahan!',
-                            text: 'Silakan pilih bahan terlebih dahulu.',
-                            confirmButtonColor: '#8a2387'
-                        });
+                        alert(
+                            'Stok akhir tidak boleh negatif. Periksa kembali input stok keluar dan waste.');
+                        return false;
+                    }
+
+                    // Simple confirmation
+                    if (!confirm('Apakah Anda yakin ingin menyimpan data stok ini?')) {
+                        e.preventDefault();
                         return false;
                     }
                 });
             }
-        });
 
-        // Auto-close alerts after 5 seconds
-        setTimeout(function() {
-            const alerts = document.querySelectorAll('.alert');
-            alerts.forEach(function(alert) {
-                const bsAlert = new bootstrap.Alert(alert);
-                bsAlert.close();
-            });
-        }, 5000);
-
-        // Initialize tooltips
-        document.addEventListener('DOMContentLoaded', function() {
-            const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-            tooltipTriggerList.map(function(tooltipTriggerEl) {
-                return new bootstrap.Tooltip(tooltipTriggerEl);
-            });
+            // Auto-close alerts after 5 seconds
+            setTimeout(function() {
+                const alerts = document.querySelectorAll('.alert');
+                alerts.forEach(function(alert) {
+                    const bsAlert = new bootstrap.Alert(alert);
+                    bsAlert.close();
+                });
+            }, 5000);
         });
     </script>
 @endpush

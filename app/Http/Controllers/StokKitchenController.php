@@ -68,42 +68,7 @@ class StokKitchenController extends Controller
             'pic' => 'required|string|max:100'
         ]);
 
-        // Jika stok awal tidak diisi, ambil dari stok akhir transaksi sebelumnya
-        if (!$request->filled('stok_awal')) {
-            if ($request->shift == '2') {
-                // Jika shift 2, cari stok akhir dari shift 1 hari yang sama
-                $previousStok = StokKitchen::where('tanggal', $request->tanggal)
-                    ->where('shift', '1')
-                    ->where('kode_bahan', $request->kode_bahan)
-                    ->latest()
-                    ->first();
-
-                if ($previousStok) {
-                    $request->merge(['stok_awal' => $previousStok->stok_akhir]);
-                } else {
-                    // Jika tidak ada data sebelumnya, ambil dari master
-                    $master = StokStationMasterKitchen::where('kode_bahan', $request->kode_bahan)->first();
-                    $request->merge(['stok_awal' => $master ? $master->stok_awal : 0]);
-                }
-            } else {
-                // Jika shift 1, cari dari shift 2 hari sebelumnya
-                $previousDate = date('Y-m-d', strtotime($request->tanggal . ' -1 day'));
-                $previousStok = StokKitchen::where('tanggal', $previousDate)
-                    ->where('shift', '2')
-                    ->where('kode_bahan', $request->kode_bahan)
-                    ->latest()
-                    ->first();
-
-                if ($previousStok) {
-                    $request->merge(['stok_awal' => $previousStok->stok_akhir]);
-                } else {
-                    // Jika tidak ada data sebelumnya, ambil dari master
-                    $master = StokStationMasterKitchen::where('kode_bahan', $request->kode_bahan)->first();
-                    $request->merge(['stok_awal' => $master ? $master->stok_awal : 0]);
-                }
-            }
-        }
-
+        // Simpan data (stok_akhir dan status_stok akan dihitung otomatis di model)
         StokKitchen::create($request->all());
 
         return redirect()->route('stok-kitchen.index')
@@ -126,6 +91,7 @@ class StokKitchenController extends Controller
             'pic' => 'required|string|max:100'
         ]);
 
+        // Update data (stok_akhir dan status_stok akan dihitung otomatis di model)
         $stokKitchen->update($request->all());
 
         return redirect()->route('stok-kitchen.index')
@@ -165,35 +131,126 @@ class StokKitchenController extends Controller
 
         $master = StokStationMasterKitchen::where('kode_bahan', $kode_bahan)->first();
 
-        if ($shift == '1') {
-            // Untuk shift 1, ambil shift 2 hari sebelumnya
-            $previousDate = date('Y-m-d', strtotime($tanggal . ' -1 day'));
-            $previousShift = '2';
-        } else {
-            // Untuk shift 2, ambil shift 1 hari yang sama
-            $previousDate = $tanggal;
-            $previousShift = '1';
-        }
+        // LOGIC PERBAIKAN: Cari transaksi terakhir dengan prioritas yang lebih baik
+        // 1. Cari di hari yang sama, shift yang sama (transaksi sebelumnya dalam shift yang sama)
+        // 2. Cari di hari yang sama, shift sebelumnya (jika shift 2, cari shift 1)
+        // 3. Cari di hari sebelumnya, shift 2 (jika shift 1)
+        // 4. Cari transaksi terakhir apapun (tanpa filter tanggal/shift)
+        // 5. Jika tidak ada, ambil dari master
 
-        $previousStok = StokKitchen::where('tanggal', $previousDate)
-            ->where('shift', $previousShift)
-            ->where('kode_bahan', $kode_bahan)
-            ->latest()
+        $query = StokKitchen::where('kode_bahan', $kode_bahan);
+
+        // 1. Hari yang sama, shift yang sama (untuk multiple transactions dalam shift yang sama)
+        $sameShiftTransaction = $query->clone()
+            ->whereDate('tanggal', $tanggal)
+            ->where('shift', $shift)
+            ->orderBy('created_at', 'desc')
             ->first();
 
-        if ($previousStok) {
+        if ($sameShiftTransaction) {
             return response()->json([
-                'stok_awal' => $previousStok->stok_akhir,
-                'stok_akhir' => $previousStok->stok_akhir,
-                'source' => 'previous_transaction'
+                'stok_awal' => $sameShiftTransaction->stok_akhir,
+                'stok_akhir' => $sameShiftTransaction->stok_akhir,
+                'source' => 'same_shift_transaction',
+                'tanggal_transaksi' => $sameShiftTransaction->tanggal->format('Y-m-d'),
+                'shift_transaksi' => $sameShiftTransaction->shift,
+                'waktu_transaksi' => $sameShiftTransaction->created_at->format('H:i'),
+                'previous_id' => $sameShiftTransaction->id
             ]);
         }
 
-        // fallback ke master
+        // 2. Hari yang sama, shift sebelumnya
+        $previousShift = ($shift == '2') ? '1' : '2';
+        $sameDayPreviousShift = $query->clone()
+            ->whereDate('tanggal', $tanggal)
+            ->where('shift', $previousShift)
+            ->orderBy('created_at', 'desc')
+            ->first();
+
+        if ($sameDayPreviousShift) {
+            return response()->json([
+                'stok_awal' => $sameDayPreviousShift->stok_akhir,
+                'stok_akhir' => $sameDayPreviousShift->stok_akhir,
+                'source' => 'previous_shift_same_day',
+                'tanggal_transaksi' => $sameDayPreviousShift->tanggal->format('Y-m-d'),
+                'shift_transaksi' => $sameDayPreviousShift->shift,
+                'waktu_transaksi' => $sameDayPreviousShift->created_at->format('H:i'),
+                'previous_id' => $sameDayPreviousShift->id
+            ]);
+        }
+
+        // 3. Hari sebelumnya, shift 2 (khusus untuk shift 1 hari ini)
+        if ($shift == '1') {
+            $previousDate = date('Y-m-d', strtotime($tanggal . ' -1 day'));
+            $previousDayShift2 = $query->clone()
+                ->whereDate('tanggal', $previousDate)
+                ->where('shift', '2')
+                ->orderBy('created_at', 'desc')
+                ->first();
+
+            if ($previousDayShift2) {
+                return response()->json([
+                    'stok_awal' => $previousDayShift2->stok_akhir,
+                    'stok_akhir' => $previousDayShift2->stok_akhir,
+                    'source' => 'previous_day_shift_2',
+                    'tanggal_transaksi' => $previousDayShift2->tanggal->format('Y-m-d'),
+                    'shift_transaksi' => $previousDayShift2->shift,
+                    'waktu_transaksi' => $previousDayShift2->created_at->format('H:i'),
+                    'previous_id' => $previousDayShift2->id
+                ]);
+            }
+        }
+
+        // 4. Hari sebelumnya, shift 1 (khusus untuk shift 2 hari ini)
+        if ($shift == '2') {
+            $previousDate = date('Y-m-d', strtotime($tanggal . ' -1 day'));
+            $previousDayShift1 = $query->clone()
+                ->whereDate('tanggal', $previousDate)
+                ->where('shift', '1')
+                ->orderBy('created_at', 'desc')
+                ->first();
+
+            if ($previousDayShift1) {
+                return response()->json([
+                    'stok_awal' => $previousDayShift1->stok_akhir,
+                    'stok_akhir' => $previousDayShift1->stok_akhir,
+                    'source' => 'previous_day_shift_1',
+                    'tanggal_transaksi' => $previousDayShift1->tanggal->format('Y-m-d'),
+                    'shift_transaksi' => $previousDayShift1->shift,
+                    'waktu_transaksi' => $previousDayShift1->created_at->format('H:i'),
+                    'previous_id' => $previousDayShift1->id
+                ]);
+            }
+        }
+
+        // 5. Cari transaksi terakhir apapun (tanpa filter tanggal/shift)
+        $anyPreviousTransaction = $query->clone()
+            ->orderBy('tanggal', 'desc')
+            ->orderBy('shift', 'desc')
+            ->orderBy('created_at', 'desc')
+            ->first();
+
+        if ($anyPreviousTransaction) {
+            return response()->json([
+                'stok_awal' => $anyPreviousTransaction->stok_akhir,
+                'stok_akhir' => $anyPreviousTransaction->stok_akhir,
+                'source' => 'any_previous_transaction',
+                'tanggal_transaksi' => $anyPreviousTransaction->tanggal->format('Y-m-d'),
+                'shift_transaksi' => $anyPreviousTransaction->shift,
+                'waktu_transaksi' => $anyPreviousTransaction->created_at->format('H:i'),
+                'previous_id' => $anyPreviousTransaction->id
+            ]);
+        }
+
+        // 6. Fallback ke master jika tidak ada transaksi sebelumnya sama sekali
         return response()->json([
             'stok_awal' => $master?->stok_awal ?? 0,
             'stok_akhir' => $master?->stok_awal ?? 0,
-            'source' => 'master'
+            'source' => 'master',
+            'tanggal_transaksi' => null,
+            'shift_transaksi' => null,
+            'waktu_transaksi' => null,
+            'previous_id' => null
         ]);
     }
 
@@ -221,22 +278,20 @@ class StokKitchenController extends Controller
         $endDate = Carbon::parse($request->end_date)->format('Y-m-d');
         $namaBahan = $request->nama_bahan;
         $shift = $request->shift;
-        $statusStok = $request->status_stok; // TAMBAHAN: Filter status untuk export
+        $statusStok = $request->status_stok;
 
         // Format nama file sesuai permintaan
-        $startDateFormatted = Carbon::parse($request->start_date)->locale('id')->translatedFormat('d F Y'); // 07 Januari 2026
-        $endDateFormatted = Carbon::parse($request->end_date)->locale('id')->translatedFormat('d F Y'); // 10 Februari 2026
+        $startDateFormatted = Carbon::parse($request->start_date)->locale('id')->translatedFormat('d F Y');
+        $endDateFormatted = Carbon::parse($request->end_date)->locale('id')->translatedFormat('d F Y');
 
         if ($startDate == $endDate) {
-            // Jika tanggal sama, gunakan format: Stok Station Harian Kitchen - 07 Januari 2026.xlsx
             $fileName = "Stok Station Harian Kitchen - " . $startDateFormatted . ".xlsx";
         } else {
-            // Jika range tanggal, gunakan format: Stok Station Harian Kitchen - 07 Januari 2026 - 10 Februari 2026.xlsx
             $fileName = "Stok Station Harian Kitchen - " . $startDateFormatted . " - " . $endDateFormatted . ".xlsx";
         }
 
         return Excel::download(
-            new StokKitchenExport($startDate, $endDate, $namaBahan, $shift, $statusStok), // TAMBAHAN: Parameter status
+            new StokKitchenExport($startDate, $endDate, $namaBahan, $shift, $statusStok),
             $fileName
         );
     }

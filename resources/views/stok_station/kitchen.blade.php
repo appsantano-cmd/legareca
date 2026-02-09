@@ -754,25 +754,6 @@
                                     </div>
                                 </div>
 
-                                <!-- Informasi Sistem -->
-                                <div class="info-card mb-4">
-                                    <div class="d-flex">
-                                        <i class="fas fa-lightbulb text-warning me-3 mt-1"></i>
-                                        <div>
-                                            <h6 class="fw-bold mb-2">Cara Kerja Sistem Stok:</h6>
-                                            <ul class="mb-0" style="padding-left: 20px;">
-                                                <li>Stok awal pertama kali diambil dari data master kitchen</li>
-                                                <li>Untuk transaksi berikutnya, stok awal otomatis diambil dari stok akhir
-                                                    transaksi sebelumnya</li>
-                                                <li>Shift 1: Stok awal diambil dari stok akhir Shift 2 hari sebelumnya</li>
-                                                <li>Shift 2: Stok awal diambil dari stok akhir Shift 1 hari yang sama</li>
-                                                <li>Sistem akan otomatis menghitung stok akhir dan menentukan status
-                                                    (SAFE/REORDER)</li>
-                                            </ul>
-                                        </div>
-                                    </div>
-                                </div>
-
                                 <!-- Action Buttons -->
                                 <div class="d-flex justify-content-end gap-3 pt-3 border-top">
                                     <button type="button" class="btn btn-lg btn-outline-secondary"
@@ -1281,11 +1262,11 @@
 
                     if (data.length === 0) {
                         bahanList.innerHTML = `
-                        <div class="text-center py-5">
-                            <i class="fas fa-box-open fa-3x text-muted mb-3"></i>
-                            <p class="text-muted">Tidak ada bahan ditemukan</p>
-                        </div>
-                    `;
+                    <div class="text-center py-5">
+                        <i class="fas fa-box-open fa-3x text-muted mb-3"></i>
+                        <p class="text-muted">Tidak ada bahan ditemukan</p>
+                    </div>
+                `;
                         return;
                     }
 
@@ -1293,18 +1274,18 @@
                         const item = document.createElement('div');
                         item.className = 'bahan-item';
                         item.innerHTML = `
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div>
-                                <h6 class="mb-1">${bahan.nama_bahan}</h6>
-                                <small class="text-muted">
-                                    <span class="badge bg-secondary">${bahan.kode_bahan}</span>
-                                    <span class="ms-2">Satuan: ${bahan.nama_satuan}</span>
-                                    <span class="ms-2">Stok Min: ${bahan.stok_minimum}</span>
-                                </small>
-                            </div>
-                            <i class="fas fa-chevron-right"></i>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="mb-1">${bahan.nama_bahan}</h6>
+                            <small class="text-muted">
+                                <span class="badge bg-secondary">${bahan.kode_bahan}</span>
+                                <span class="ms-2">Satuan: ${bahan.nama_satuan}</span>
+                                <span class="ms-2">Stok Min: ${bahan.stok_minimum}</span>
+                            </small>
                         </div>
-                    `;
+                        <i class="fas fa-chevron-right"></i>
+                    </div>
+                `;
                         item.onclick = () => selectBahan(bahan);
                         bahanList.appendChild(item);
                     });
@@ -1356,41 +1337,119 @@
             const shift = document.getElementById('shift').value;
             const kodeBahan = document.getElementById('kode_bahan').value;
 
-            if (!tanggal || !shift || !kodeBahan) return;
+            if (!tanggal || !shift || !kodeBahan) {
+                return;
+            }
+
+            // Tampilkan loading
+            const stokAwalInfo = document.getElementById('stok_awal_info');
+            stokAwalInfo.innerHTML = `
+            <i class="fas fa-spinner fa-spin me-1 text-primary"></i>
+            Mencari data stok sebelumnya...
+        `;
+            stokAwalInfo.className = 'text-primary mt-1 d-block';
 
             fetch(`/api/previous-stok-kitchen?tanggal=${tanggal}&kode_bahan=${kodeBahan}&shift=${shift}`)
-                .then(response => response.json())
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
                 .then(data => {
                     const stokAwalInput = document.getElementById('stok_awal');
-                    const stokAwalInfo = document.getElementById('stok_awal_info');
 
-                    if (data.source === 'previous_transaction') {
-                        stokAwalInput.value = data.stok_awal;
-                        stokAwalInfo.innerHTML = `
-                        <i class="fas fa-check-circle me-1 text-success"></i>
-                        Stok awal diambil dari transaksi sebelumnya: ${data.stok_akhir}
-                    `;
-                        stokAwalInfo.className = 'text-success mt-1 d-block';
-                    } else if (data.source === 'master') {
-                        stokAwalInput.value = data.stok_awal;
-                        stokAwalInfo.innerHTML = `
-                        <i class="fas fa-database me-1 text-primary"></i>
-                        Stok awal diambil dari data master: ${data.stok_awal}
-                    `;
-                        stokAwalInfo.className = 'text-primary mt-1 d-block';
-                    } else {
-                        stokAwalInput.value = 0;
-                        stokAwalInfo.innerHTML = `
-                        <i class="fas fa-exclamation-triangle me-1 text-warning"></i>
-                        Tidak ada data sebelumnya. Silakan isi stok awal manual.
-                    `;
-                        stokAwalInfo.className = 'text-warning mt-1 d-block';
+                    // Update nilai stok awal
+                    stokAwalInput.value = data.stok_awal;
+
+                    // Update informasi berdasarkan sumber
+                    let message = '';
+                    let icon = '';
+                    let colorClass = '';
+
+                    switch (data.source) {
+                        case 'same_shift_transaction':
+                            icon = '<i class="fas fa-exchange-alt me-1"></i>';
+                            message =
+                                `Stok awal diambil dari transaksi sebelumnya dalam shift ${data.shift_transaksi}: ${parseFloat(data.stok_akhir).toFixed(2)}`;
+                            if (data.waktu_transaksi) {
+                                message += `<br><small>Waktu transaksi: ${data.waktu_transaksi}</small>`;
+                            }
+                            colorClass = 'text-primary';
+                            break;
+
+                        case 'previous_shift_same_day':
+                            icon = '<i class="fas fa-arrow-left me-1"></i>';
+                            message =
+                                `Stok awal diambil dari shift ${data.shift_transaksi} hari ini: ${parseFloat(data.stok_akhir).toFixed(2)}`;
+                            if (data.waktu_transaksi) {
+                                message += `<br><small>Waktu transaksi: ${data.waktu_transaksi}</small>`;
+                            }
+                            colorClass = 'text-info';
+                            break;
+
+                        case 'previous_day_shift_2':
+                            icon = '<i class="fas fa-calendar-minus me-1"></i>';
+                            const prevDate = new Date(data.tanggal_transaksi).toLocaleDateString('id-ID');
+                            message =
+                                `Stok awal diambil dari transaksi tanggal ${prevDate} shift ${data.shift_transaksi}: ${parseFloat(data.stok_akhir).toFixed(2)}`;
+                            if (data.waktu_transaksi) {
+                                message += `<br><small>Waktu transaksi: ${data.waktu_transaksi}</small>`;
+                            }
+                            colorClass = 'text-success';
+                            break;
+
+                        case 'previous_day_shift_1':
+                            icon = '<i class="fas fa-calendar-minus me-1"></i>';
+                            const prevDate2 = new Date(data.tanggal_transaksi).toLocaleDateString('id-ID');
+                            message =
+                                `Stok awal diambil dari transaksi tanggal ${prevDate2} shift ${data.shift_transaksi}: ${parseFloat(data.stok_akhir).toFixed(2)}`;
+                            if (data.waktu_transaksi) {
+                                message += `<br><small>Waktu transaksi: ${data.waktu_transaksi}</small>`;
+                            }
+                            colorClass = 'text-success';
+                            break;
+
+                        case 'any_previous_transaction':
+                            icon = '<i class="fas fa-history me-1"></i>';
+                            const anyPrevDate = new Date(data.tanggal_transaksi).toLocaleDateString('id-ID');
+                            message =
+                                `Stok awal diambil dari transaksi terakhir (${anyPrevDate} shift ${data.shift_transaksi}): ${parseFloat(data.stok_akhir).toFixed(2)}`;
+                            if (data.waktu_transaksi) {
+                                message += `<br><small>Waktu transaksi: ${data.waktu_transaksi}</small>`;
+                            }
+                            colorClass = 'text-warning';
+                            break;
+
+                        case 'master':
+                            icon = '<i class="fas fa-database me-1"></i>';
+                            message = `Stok awal diambil dari data master: ${parseFloat(data.stok_awal).toFixed(2)}`;
+                            message += `<br><small>Belum ada transaksi sebelumnya untuk bahan ini</small>`;
+                            colorClass = 'text-secondary';
+                            break;
+
+                        default:
+                            icon = '<i class="fas fa-exclamation-triangle me-1"></i>';
+                            message = `Tidak ada data sebelumnya. Silakan isi stok awal manual.`;
+                            colorClass = 'text-danger';
+                            break;
                     }
 
+                    stokAwalInfo.innerHTML = `${icon}${message}`;
+                    stokAwalInfo.className = `${colorClass} mt-1 d-block`;
+
+                    // Hitung stok akhir
                     calculateStokAkhir();
+
                 })
                 .catch(error => {
                     console.error('Error loading previous stok:', error);
+                    const stokAwalInfo = document.getElementById('stok_awal_info');
+                    stokAwalInfo.innerHTML = `
+                    <i class="fas fa-exclamation-triangle me-1 text-danger"></i>
+                    Gagal memuat data stok sebelumnya.
+                `;
+                    stokAwalInfo.className = 'text-danger mt-1 d-block';
                 });
         }
 
@@ -1404,10 +1463,14 @@
             const stokAkhir = stokAwal + stokMasuk - stokKeluar - waste;
             document.getElementById('stok_akhir_preview').value = stokAkhir.toFixed(2);
 
+            // Update warna berdasarkan nilai stok akhir
+            const previewElement = document.getElementById('stok_akhir_preview');
             if (stokAkhir < 0) {
-                document.getElementById('stok_akhir_preview').className = 'form-control fw-bold fs-5 text-danger';
+                previewElement.className = 'form-control fw-bold fs-5 text-danger';
+            } else if (stokAkhir === 0) {
+                previewElement.className = 'form-control fw-bold fs-5 text-warning';
             } else {
-                document.getElementById('stok_akhir_preview').className = 'form-control fw-bold fs-5 text-primary';
+                previewElement.className = 'form-control fw-bold fs-5 text-primary';
             }
         }
 
@@ -1486,57 +1549,47 @@
             }
         }
 
-        // Handle Export Button Click
-        document.getElementById('exportButton')?.addEventListener('click', function() {
-            const exportForm = document.getElementById('exportForm');
-            const startDate = document.getElementById('export_start_date').value;
-            const endDate = document.getElementById('export_end_date').value;
-
-            if (!startDate || !endDate) {
-                Swal.fire({
-                    icon: 'warning',
-                    title: 'Perhatian!',
-                    text: 'Mohon isi tanggal mulai dan tanggal akhir',
-                    confirmButtonColor: '#667eea'
-                });
-                return;
-            }
-
-            if (startDate > endDate) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Tanggal Tidak Valid!',
-                    text: 'Tanggal mulai tidak boleh lebih besar dari tanggal akhir',
-                    confirmButtonColor: '#667eea'
-                });
-                return;
-            }
-
-            // Show loading
-            const originalContent = this.innerHTML;
-            this.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> Memproses...';
-            this.disabled = true;
-
-            // Close modal first
-            const exportModal = bootstrap.Modal.getInstance(document.getElementById('exportModal'));
-            if (exportModal) {
-                exportModal.hide();
-            }
-
-            // Submit form after modal is hidden
-            setTimeout(() => {
-                exportForm.submit();
-
-                // Reset button after 3 seconds
-                setTimeout(() => {
-                    this.innerHTML = originalContent;
-                    this.disabled = false;
-                }, 3000);
-            }, 300);
-        });
-
-        // Event Listeners for real-time calculation
+        // Handle Export Button Click - SIMPLIFIED VERSION
         document.addEventListener('DOMContentLoaded', function() {
+            const exportButton = document.getElementById('exportButton');
+            if (exportButton) {
+                exportButton.addEventListener('click', function(e) {
+                    e.preventDefault();
+
+                    const exportForm = document.getElementById('exportForm');
+                    const startDate = document.getElementById('export_start_date').value;
+                    const endDate = document.getElementById('export_end_date').value;
+
+                    if (!startDate || !endDate) {
+                        alert('Mohon isi tanggal mulai dan tanggal akhir');
+                        return;
+                    }
+
+                    if (startDate > endDate) {
+                        alert('Tanggal mulai tidak boleh lebih besar dari tanggal akhir');
+                        return;
+                    }
+
+                    // Simple confirmation
+                    if (confirm('Apakah Anda yakin ingin mengexport data?')) {
+                        // Show loading
+                        const originalContent = this.innerHTML;
+                        this.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> Memproses...';
+                        this.disabled = true;
+
+                        // Submit form
+                        exportForm.submit();
+
+                        // Reset button after 3 seconds
+                        setTimeout(() => {
+                            this.innerHTML = originalContent;
+                            this.disabled = false;
+                        }, 3000);
+                    }
+                });
+            }
+
+            // Event listeners untuk perhitungan real-time
             const stockFields = ['stok_awal', 'stok_masuk', 'stok_keluar', 'waste'];
             stockFields.forEach(field => {
                 const element = document.getElementById(field);
@@ -1545,6 +1598,26 @@
                 }
             });
 
+            // Event listeners untuk tanggal, shift, dan kode bahan
+            const tanggalInput = document.getElementById('tanggal');
+            const shiftSelect = document.getElementById('shift');
+            const kodeBahanInput = document.getElementById('kode_bahan');
+
+            if (tanggalInput && shiftSelect && kodeBahanInput) {
+                tanggalInput.addEventListener('change', function() {
+                    if (shiftSelect.value && kodeBahanInput.value) {
+                        getPreviousStok();
+                    }
+                });
+
+                shiftSelect.addEventListener('change', function() {
+                    if (tanggalInput.value && kodeBahanInput.value) {
+                        getPreviousStok();
+                    }
+                });
+            }
+
+            // Validasi form submit - SIMPLIFIED VERSION
             const stokForm = document.getElementById('stokForm');
             if (stokForm) {
                 stokForm.addEventListener('submit', function(e) {
@@ -1552,28 +1625,27 @@
                     const stokMasuk = parseFloat(document.getElementById('stok_masuk').value) || 0;
                     const stokKeluar = parseFloat(document.getElementById('stok_keluar').value) || 0;
                     const waste = parseFloat(document.getElementById('waste').value) || 0;
+                    const kodeBahan = document.getElementById('kode_bahan').value;
 
                     const stokAkhir = stokAwal + stokMasuk - stokKeluar - waste;
 
-                    if (stokAkhir < 0) {
+                    // Validasi
+                    if (!kodeBahan) {
                         e.preventDefault();
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Stok Akhir Negatif!',
-                            text: 'Stok akhir tidak boleh negatif. Periksa kembali input stok keluar dan waste.',
-                            confirmButtonColor: '#667eea'
-                        });
+                        alert('Silakan pilih bahan terlebih dahulu.');
                         return false;
                     }
 
-                    if (!document.getElementById('kode_bahan').value) {
+                    if (stokAkhir < 0) {
                         e.preventDefault();
-                        Swal.fire({
-                            icon: 'warning',
-                            title: 'Pilih Bahan!',
-                            text: 'Silakan pilih bahan terlebih dahulu.',
-                            confirmButtonColor: '#667eea'
-                        });
+                        alert(
+                            'Stok akhir tidak boleh negatif. Periksa kembali input stok keluar dan waste.');
+                        return false;
+                    }
+
+                    // Simple confirmation
+                    if (!confirm('Apakah Anda yakin ingin menyimpan data stok ini?')) {
+                        e.preventDefault();
                         return false;
                     }
                 });
@@ -1581,8 +1653,11 @@
 
             // Set default dates for export
             const today = new Date().toISOString().split('T')[0];
-            document.getElementById('export_start_date').value = today;
-            document.getElementById('export_end_date').value = today;
+            const exportStartDate = document.getElementById('export_start_date');
+            const exportEndDate = document.getElementById('export_end_date');
+
+            if (exportStartDate) exportStartDate.value = today;
+            if (exportEndDate) exportEndDate.value = today;
 
             // Update preview
             updateExportPreview();
@@ -1598,30 +1673,38 @@
             });
 
             // Copy current filter to export form
-            document.getElementById('exportModal')?.addEventListener('show.bs.modal', function() {
-                const currentStartDate = "{{ request('start_date', date('Y-m-d')) }}";
-                const currentEndDate = "{{ request('end_date', date('Y-m-d')) }}";
-                const currentNamaBahan = "{{ request('nama_bahan') }}";
-                const currentShift = "{{ request('shift') }}";
+            const exportModal = document.getElementById('exportModal');
+            if (exportModal) {
+                exportModal.addEventListener('show.bs.modal', function() {
+                    const currentStartDate = "{{ request('start_date', date('Y-m-d')) }}";
+                    const currentEndDate = "{{ request('end_date', date('Y-m-d')) }}";
+                    const currentNamaBahan = "{{ request('nama_bahan') }}";
+                    const currentShift = "{{ request('shift') }}";
 
-                if (currentStartDate) {
-                    document.getElementById('export_start_date').value = currentStartDate;
-                }
+                    const exportStartDate = document.getElementById('export_start_date');
+                    const exportEndDate = document.getElementById('export_end_date');
+                    const exportNamaBahan = document.getElementById('export_nama_bahan');
+                    const exportShift = document.getElementById('export_shift');
 
-                if (currentEndDate) {
-                    document.getElementById('export_end_date').value = currentEndDate;
-                }
+                    if (exportStartDate && currentStartDate) {
+                        exportStartDate.value = currentStartDate;
+                    }
 
-                if (currentNamaBahan) {
-                    document.getElementById('export_nama_bahan').value = currentNamaBahan;
-                }
+                    if (exportEndDate && currentEndDate) {
+                        exportEndDate.value = currentEndDate;
+                    }
 
-                if (currentShift) {
-                    document.getElementById('export_shift').value = currentShift;
-                }
+                    if (exportNamaBahan && currentNamaBahan) {
+                        exportNamaBahan.value = currentNamaBahan;
+                    }
 
-                updateExportPreview();
-            });
+                    if (exportShift && currentShift) {
+                        exportShift.value = currentShift;
+                    }
+
+                    updateExportPreview();
+                });
+            }
 
             // Auto-close alerts after 5 seconds
             setTimeout(function() {
@@ -1631,12 +1714,6 @@
                     bsAlert.close();
                 });
             }, 5000);
-
-            // Initialize tooltips
-            const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-            tooltipTriggerList.map(function(tooltipTriggerEl) {
-                return new bootstrap.Tooltip(tooltipTriggerEl);
-            });
         });
     </script>
 @endpush
