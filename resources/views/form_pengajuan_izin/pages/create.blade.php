@@ -230,12 +230,12 @@
                                         <div>
                                             <div class="grid sm:grid-cols-2 gap-3 mb-6">
                                                 @foreach ([
-        'Izin Sakit' => 'sakit',
-        'Izin Datang Terlambat' => 'terlambat',
-        'Izin Pulang Lebih Awal' => 'pulang',
-        'Izin Kematian Keluarga' => 'kematian',
-        'Lainnya' => 'lainnya',
-    ] as $label => $value)
+                                                    'Izin Sakit' => 'sakit',
+                                                    'Izin Datang Terlambat' => 'terlambat',
+                                                    'Izin Pulang Lebih Awal' => 'pulang',
+                                                    'Izin Kematian Keluarga' => 'kematian',
+                                                    'Lainnya' => 'lainnya',
+                                                ] as $label => $value)
                                                     <label class="cursor-pointer">
                                                         <input type="radio" name="jenis_izin_pilihan"
                                                             value="{{ $label }}" x-model="selected"
@@ -327,8 +327,7 @@
                                                     Total Hari Izin
                                                 </label>
                                                 <div class="relative">
-                                                    <input type="number" id="jumlah_hari" name="jumlah_hari"
-                                                        value="{{ old('jumlah_hari') }}"
+                                                    <input type="number" id="jumlah_hari"
                                                         class="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl 
                                                               text-slate-700 font-medium"
                                                         readonly placeholder="Akan terhitung otomatis">
@@ -356,7 +355,6 @@
                                 {{-- Hidden input untuk file --}}
                                 <input type="file" name="documen_pendukung" id="fileInput" accept="image/*,.pdf"
                                     class="hidden">
-                                <input type="hidden" id="cameraImageData" name="camera_image_data">
 
                                 {{-- Pilihan Upload Method --}}
                                 <div class="mb-6">
@@ -578,7 +576,6 @@
             // Only run if user is logged in
             @if (Auth::check())
                 const fileInput = document.getElementById('fileInput');
-                const cameraImageData = document.getElementById('cameraImageData');
                 const uploadArea = document.getElementById('uploadArea');
                 const uploadContent = document.getElementById('uploadContent');
                 const previewBox = document.getElementById('previewBox');
@@ -701,16 +698,18 @@
                     if (!file) return;
 
                     // Validate file size (5MB max)
-                    const maxSize = 5 * 1024 * 1024;
+                    const maxSize = 20 * 1024 * 1024;
                     if (file.size > maxSize) {
-                        showNotification('File terlalu besar. Maksimal ukuran file adalah 5MB.', 'error');
+                        showNotification('File terlalu besar. Maksimal ukuran file adalah 20MB.', 'error');
                         return;
                     }
 
                     // Validate file type
-                    const validTypes = ['image/jpeg', 'image/png', 'image/jpg', 'application/pdf'];
-                    if (!validTypes.includes(file.type)) {
-                        showNotification('Format file tidak didukung. Gunakan JPG, PNG, atau PDF.', 'error');
+                    const ext = file.name.split('.').pop().toLowerCase();
+                    const validExt = ['jpg', 'jpeg', 'png', 'pdf', 'heic', 'heif', 'webp'];
+
+                    if (!validExt.includes(ext)) {
+                        showNotification('Format file tidak didukung. Gunakan JPG, PNG, PDF, atau HEIC.', 'error');
                         return;
                     }
 
@@ -857,13 +856,11 @@
 
                     // Reset file input
                     fileInput.value = '';
-                    cameraImageData.value = '';
                     capturedBlob = null;
                 };
 
                 window.removeFile = function() {
                     fileInput.value = '';
-                    cameraImageData.value = '';
                     capturedBlob = null;
 
                     uploadArea.classList.add('hidden');
