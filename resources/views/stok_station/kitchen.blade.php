@@ -124,7 +124,7 @@
         }
 
         .bahan-list {
-            max-height: 300px;
+            max-height: 400px;
             overflow-y: auto;
             border: 1px solid #eef2f7;
             border-radius: 10px;
@@ -141,8 +141,7 @@
         }
 
         .bahan-item:hover {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
+            background: rgba(102, 126, 234, 0.1);
             transform: translateX(5px);
         }
 
@@ -270,6 +269,119 @@
             align-items: center;
         }
 
+        /* Styles untuk Multiple Bahan */
+        .bahan-card {
+            background: white;
+            border: 2px solid #eef2f7;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .bahan-card:hover {
+            border-color: #667eea;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.1);
+        }
+
+        .bahan-card.selected {
+            border-color: #0ba360;
+            background-color: rgba(11, 163, 96, 0.05);
+        }
+
+        .bahan-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eef2f7;
+        }
+
+        .bahan-title {
+            font-weight: 600;
+            color: #667eea;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .remove-bahan {
+            background: #dc3545;
+            color: white;
+            border: none;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .remove-bahan:hover {
+            background: #c82333;
+            transform: scale(1.1);
+        }
+
+        .selected-bahan-list {
+            max-height: 300px;
+            overflow-y: auto;
+            padding: 10px;
+            border: 1px solid #eef2f7;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .selected-bahan-item {
+            background: #f8f9fa;
+            border: 1px solid #eef2f7;
+            border-radius: 8px;
+            padding: 10px 15px;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .selected-bahan-info {
+            flex: 1;
+        }
+
+        .selected-bahan-actions {
+            display: flex;
+            gap: 5px;
+        }
+
+        .empty-bahan {
+            text-align: center;
+            padding: 30px;
+            color: #6c757d;
+        }
+
+        .empty-bahan i {
+            font-size: 3em;
+            margin-bottom: 10px;
+        }
+
+        /* Checkbox styling untuk modal */
+        .bahan-checkbox-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .bahan-checkbox {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+
+        .bahan-info {
+            flex: 1;
+        }
+
         /* Export Modal Styles */
         #exportModal .modal-header {
             background: linear-gradient(135deg, #0ba360 0%, #3cba92 100%);
@@ -323,6 +435,10 @@
 
             .table-responsive {
                 font-size: 0.9rem;
+            }
+
+            .bahan-card {
+                padding: 15px;
             }
         }
     </style>
@@ -395,7 +511,6 @@
                         </div>
                     </div>
                 </div>
-
             </form>
         </div>
 
@@ -410,17 +525,17 @@
                         </div>
                         <div class="d-flex gap-2">
                             @if (auth()->check() && in_array(auth()->user()->role, ['admin', 'developer']))
-                                <button type="button" class="btn btn-success fw-semibold shadow-sm" data-bs-toggle="modal"
+                                <button type="button" class="btn btn-success" data-bs-toggle="modal"
                                     data-bs-target="#exportModal">
-                                    <i class="fas fa-file-export me-1"></i> Export Data
+                                    <i class="fas fa-file-export me-1"></i> Export
                                 </button>
                             @endif
 
-                            <button type="button" class="btn btn-warning text-dark fw-semibold shadow-sm"
-                                onclick="toggleForm()">
+                            <button type="button" class="btn btn-warning text-dark" onclick="toggleForm()">
                                 <i class="fas fa-plus me-1"></i> Tambah Stok
                             </button>
                         </div>
+
                     </div>
                     <div class="card-body p-4">
                         <!-- Success/Error Messages -->
@@ -442,22 +557,13 @@
                             </div>
                         @endif
 
-                        @if (session('export_success'))
-                            <div class="alert alert-info alert-dismissible fade show d-flex align-items-center"
-                                role="alert">
-                                <i class="fas fa-file-excel me-3" style="font-size: 1.5em;"></i>
-                                <div class="flex-grow-1">{{ session('export_success') }}</div>
-                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                            </div>
-                        @endif
-
                         <!-- Data Table Section -->
                         <div class="table-responsive table-container">
                             <table class="table table-hover align-middle">
                                 <thead class="sticky-header">
                                     <tr>
                                         <th class="text-center" style="width: 50px">#</th>
-                                        <th style="width: 12px">Tanggal & Jam</th>
+                                        <th style="width: 120px">Tanggal & Jam</th>
                                         <th class="text-center" style="width: 80px">Shift</th>
                                         <th style="width: 120px">Kode Bahan</th>
                                         <th>Nama Bahan</th>
@@ -578,39 +684,39 @@
                         <div id="formSection" class="form-section" style="display: none;">
                             <div class="d-flex justify-content-between align-items-center mb-4">
                                 <h5 class="mb-0">
-                                    <i class="fas fa-plus-circle me-2 text-primary"></i> Form Input Stok Kitchen
+                                    <i class="fas fa-plus-circle me-2 text-primary"></i> Form Input Stok Kitchen (Multiple
+                                    Bahan)
                                 </h5>
                                 <button type="button" class="btn btn-outline-secondary" onclick="toggleForm()">
                                     <i class="fas fa-times me-1"></i> Tutup Form
                                 </button>
                             </div>
 
+                            <!-- Header Form (Tanggal, Shift, PIC) -->
                             <form action="{{ route('stok-kitchen.store') }}" method="POST" id="stokForm">
                                 @csrf
-                                <div class="row">
-                                    <!-- Tanggal dan Shift -->
+                                <input type="hidden" name="bahan" id="bahanDataInput">
+
+                                <div class="row mb-4">
                                     <div class="col-md-3 mb-3">
-                                        <label class="form-label fw-semibold">Tanggal <span
-                                                class="text-danger">*</span></label>
-                                        <!-- MODIFIKASI: Tambahkan readonly dan value hari ini -->
+                                        <label class="form-label fw-semibold">
+                                            Tanggal <span class="text-danger">*</span>
+                                        </label>
                                         <input type="date" class="form-control @error('tanggal') is-invalid @enderror"
-                                            name="tanggal" id="tanggal" value="{{ date('Y-m-d') }}" required readonly
-                                            onchange="getPreviousStok()">
-                                        <small class="text-muted">Tanggal tidak dapat diubah</small>
+                                            name="tanggal" id="tanggal" value="{{ date('Y-m-d') }}" readonly required>
                                         @error('tanggal')
                                             <div class="invalid-feedback">{{ $message }}</div>
                                         @enderror
                                     </div>
+
                                     <div class="col-md-3 mb-3">
                                         <label class="form-label fw-semibold">Shift <span
                                                 class="text-danger">*</span></label>
                                         <select class="form-select @error('shift') is-invalid @enderror" name="shift"
-                                            id="shift" required onchange="getPreviousStok()">
+                                            id="shift" required>
                                             <option value="">Pilih Shift</option>
-                                            <option value="1" {{ old('shift') == '1' ? 'selected' : '' }}>Shift 1
-                                            </option>
-                                            <option value="2" {{ old('shift') == '2' ? 'selected' : '' }}>Shift 2
-                                            </option>
+                                            <option value="1">Shift 1</option>
+                                            <option value="2">Shift 2</option>
                                         </select>
                                         @error('shift')
                                             <div class="invalid-feedback">{{ $message }}</div>
@@ -626,149 +732,25 @@
                                             <div class="invalid-feedback">{{ $message }}</div>
                                         @enderror
                                     </div>
-                                </div>
-
-                                <!-- Pilih Bahan -->
-                                <div class="row mb-4">
-                                    <div class="col-md-6">
-                                        <label class="form-label fw-semibold">Bahan <span
-                                                class="text-danger">*</span></label>
-                                        <div class="input-group">
-                                            <input type="text" class="form-control"
-                                                placeholder="Cari atau klik untuk memilih bahan..." id="searchBahan"
-                                                readonly onclick="showBahanModal()">
-                                            <button class="btn btn-outline-primary" type="button"
-                                                onclick="showBahanModal()">
-                                                <i class="fas fa-search"></i> Pilih Bahan
-                                            </button>
-                                            <input type="hidden" name="kode_bahan" id="kode_bahan">
-                                            <input type="hidden" name="nama_bahan" id="nama_bahan">
-                                            <input type="hidden" name="nama_satuan" id="nama_satuan">
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label class="form-label fw-semibold">Informasi Bahan</label>
-                                        <div class="info-card">
-                                            <div class="d-flex align-items-center mb-2">
-                                                <i class="fas fa-box me-3"></i>
-                                                <div>
-                                                    <small class="text-muted">Kode Bahan</small>
-                                                    <div id="infoKodeBahan" class="fw-bold">-</div>
-                                                </div>
-                                            </div>
-                                            <div class="d-flex align-items-center mb-2">
-                                                <i class="fas fa-weight me-3"></i>
-                                                <div>
-                                                    <small class="text-muted">Satuan</small>
-                                                    <div id="infoSatuan" class="fw-bold">-</div>
-                                                </div>
-                                            </div>
-                                            <div class="d-flex align-items-center">
-                                                <i class="fas fa-exclamation-triangle me-3"></i>
-                                                <div>
-                                                    <small class="text-muted">Stok Minimum</small>
-                                                    <div id="infoStokMinimum" class="fw-bold">-</div>
-                                                </div>
-                                            </div>
-                                        </div>
+                                    <div class="col-md-3 mb-3 d-flex align-items-end">
+                                        <button type="button" class="btn btn-primary w-100" onclick="showBahanModal()">
+                                            <i class="fas fa-plus me-1"></i> Tambah Bahan
+                                        </button>
                                     </div>
                                 </div>
 
-                                <!-- Input Stok -->
-                                <div class="row">
-                                    <div class="col-md-3 mb-3">
-                                        <label class="form-label fw-semibold">Stok Awal</label>
-                                        <div class="stok-input-group">
-                                            <input type="number" step="0.01"
-                                                class="form-control @error('stok_awal') is-invalid @enderror"
-                                                name="stok_awal" id="stok_awal" value="{{ old('stok_awal') }}" readonly>
-                                            <span class="unit" id="stokAwalUnit">-</span>
-                                        </div>
-                                        <small class="text-muted mt-1 d-block" id="stok_awal_info">
-                                            <i class="fas fa-info-circle me-1"></i>
-                                            Stok awal akan otomatis terisi
-                                        </small>
-                                        @error('stok_awal')
-                                            <div class="invalid-feedback">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-                                    <div class="col-md-3 mb-3">
-                                        <label class="form-label fw-semibold">Stok Masuk</label>
-                                        <div class="stok-input-group">
-                                            <input type="number" step="0.01"
-                                                class="form-control @error('stok_masuk') is-invalid @enderror"
-                                                name="stok_masuk" id="stok_masuk" value="{{ old('stok_masuk', 0) }}">
-                                            <span class="unit" id="stokMasukUnit">-</span>
-                                        </div>
-                                        @error('stok_masuk')
-                                            <div class="invalid-feedback">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-                                    <div class="col-md-3 mb-3">
-                                        <label class="form-label fw-semibold">Stok Keluar</label>
-                                        <div class="stok-input-group">
-                                            <input type="number" step="0.01"
-                                                class="form-control @error('stok_keluar') is-invalid @enderror"
-                                                name="stok_keluar" id="stok_keluar" value="{{ old('stok_keluar', 0) }}">
-                                            <span class="unit" id="stokKeluarUnit">-</span>
-                                        </div>
-                                        @error('stok_keluar')
-                                            <div class="invalid-feedback">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-                                    <div class="col-md-3 mb-3">
-                                        <label class="form-label fw-semibold">Waste</label>
-                                        <div class="stok-input-group">
-                                            <input type="number" step="0.01"
-                                                class="form-control @error('waste') is-invalid @enderror" name="waste"
-                                                id="waste" value="{{ old('waste', 0) }}">
-                                            <span class="unit" id="wasteUnit">-</span>
-                                        </div>
-                                        @error('waste')
-                                            <div class="invalid-feedback">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-                                </div>
+                                <!-- Daftar Bahan yang Dipilih -->
+                                <div class="mb-4">
+                                    <h6 class="fw-semibold mb-3">
+                                        <i class="fas fa-list me-2"></i> Daftar Bahan yang Akan Disimpan
+                                        <span class="badge bg-primary ms-2" id="bahanCount">0</span>
+                                    </h6>
 
-                                <!-- Alasan Waste dan Stok Akhir -->
-                                <div class="row mb-4">
-                                    <div class="col-md-8 mb-3">
-                                        <label class="form-label fw-semibold">Alasan Waste (Opsional)</label>
-                                        <textarea class="form-control @error('alasan_waste') is-invalid @enderror" name="alasan_waste" id="alasan_waste"
-                                            rows="2" placeholder="Masukkan alasan waste jika ada...">{{ old('alasan_waste') }}</textarea>
-                                        @error('alasan_waste')
-                                            <div class="invalid-feedback">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-                                    <div class="col-md-4 mb-3">
-                                        <label class="form-label fw-semibold">Stok Akhir</label>
-                                        <div class="stok-input-group">
-                                            <input type="text" class="form-control fw-bold fs-5 text-primary"
-                                                id="stok_akhir_preview" value="0.00" readonly>
-                                            <span class="unit" id="stokAkhirUnit">-</span>
-                                        </div>
-                                        <small class="text-muted mt-1 d-block">
-                                            <i class="fas fa-calculator me-1"></i>
-                                            Stok Awal + Masuk - Keluar - Waste
-                                        </small>
-                                    </div>
-                                </div>
-
-                                <!-- Informasi Sistem -->
-                                <div class="info-card mb-4">
-                                    <div class="d-flex">
-                                        <i class="fas fa-lightbulb text-warning me-3 mt-1"></i>
-                                        <div>
-                                            <h6 class="fw-bold mb-2">Cara Kerja Sistem Stok:</h6>
-                                            <ul class="mb-0" style="padding-left: 20px;">
-                                                <li>Stok awal pertama kali diambil dari data master kitchen</li>
-                                                <li>Untuk transaksi berikutnya, stok awal otomatis diambil dari stok akhir
-                                                    transaksi sebelumnya</li>
-                                                <li>Shift 1: Stok awal diambil dari stok akhir Shift 2 hari sebelumnya</li>
-                                                <li>Shift 2: Stok awal diambil dari stok akhir Shift 1 hari yang sama</li>
-                                                <li>Sistem akan otomatis menghitung stok akhir dan menentukan status
-                                                    (SAFE/REORDER)</li>
-                                            </ul>
+                                    <div id="selectedBahanList" class="selected-bahan-list">
+                                        <div class="empty-bahan">
+                                            <i class="fas fa-utensils"></i>
+                                            <p class="mb-0">Belum ada bahan dipilih</p>
+                                            <small class="text-muted">Klik "Tambah Bahan" untuk menambahkan</small>
                                         </div>
                                     </div>
                                 </div>
@@ -779,8 +761,9 @@
                                         onclick="toggleForm()">
                                         <i class="fas fa-times me-2"></i> Batal
                                     </button>
-                                    <button type="submit" class="btn btn-lg btn-primary">
-                                        <i class="fas fa-save me-2"></i> Simpan Data
+                                    <button type="submit" class="btn btn-lg btn-primary" id="submitButton" disabled>
+                                        <i class="fas fa-save me-2"></i> Simpan Semua (<span id="bahanCountBtn">0</span>
+                                        bahan)
                                     </button>
                                 </div>
                             </form>
@@ -791,13 +774,14 @@
         </div>
     </div>
 
-    <!-- Modal Pilih Bahan -->
+    <!-- Modal Pilih Bahan (Multiple Selection) -->
     <div class="modal fade" id="bahanModal" tabindex="-1" aria-labelledby="bahanModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg">
+        <div class="modal-dialog modal-xl">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="bahanModalLabel">
-                        <i class="fas fa-boxes me-2"></i>Pilih Bahan Kitchen
+                        <i class="fas fa-utensils me-2"></i>Pilih Bahan Kitchen (Multiple Selection)
+                        <span class="badge bg-primary ms-2" id="totalBahanCount">0 bahan tersedia</span>
                     </h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
@@ -806,12 +790,33 @@
                     <div class="search-box mb-4">
                         <i class="fas fa-search"></i>
                         <input type="text" class="form-control" id="searchBahanInput"
-                            placeholder="Cari bahan berdasarkan kode atau nama..." onkeyup="searchBahan()">
+                            placeholder="Cari bahan berdasarkan kode atau nama..." oninput="searchBahan()">
+                    </div>
+
+                    <!-- Selected Count and Actions -->
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div>
+                            <span class="badge bg-success" id="selectedCountModal">0 bahan dipilih</span>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <button type="button" class="btn btn-sm btn-outline-secondary" onclick="selectAllBahan()">
+                                <i class="fas fa-check-square me-1"></i> Pilih Semua
+                            </button>
+                            <button type="button" class="btn btn-sm btn-outline-secondary" onclick="deselectAllBahan()">
+                                <i class="fas fa-square me-1"></i> Batal Semua
+                            </button>
+                            <button type="button" class="btn btn-sm btn-success" onclick="addSelectedBahan()">
+                                <i class="fas fa-check me-1"></i> Tambahkan yang Dipilih
+                            </button>
+                        </div>
                     </div>
 
                     <!-- Bahan List -->
                     <div class="bahan-list" id="bahanList">
-                        <!-- Bahan items will be loaded here -->
+                        <div class="text-center py-5">
+                            <i class="fas fa-spinner fa-spin fa-3x text-primary mb-3"></i>
+                            <p class="text-muted">Memuat data bahan...</p>
+                        </div>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -823,7 +828,75 @@
         </div>
     </div>
 
-    <!-- All Modals (Detail, Edit, Delete) -->
+    <!-- Modal untuk Input Detail Bahan -->
+    <div class="modal fade" id="detailBahanModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-edit me-2"></i>Input Detail Stok
+                        <span class="badge bg-primary ms-2" id="detailBahanCounter"></span>
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" id="detailBahanModalBody">
+                    <!-- Content akan diisi oleh JavaScript -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-1"></i> Lewati
+                    </button>
+                    <button type="button" class="btn btn-primary" onclick="saveBahanDetail()">
+                        <i class="fas fa-save me-1"></i> Simpan & Lanjut
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Export -->
+    <div class="modal fade" id="exportModal" tabindex="-1" aria-labelledby="exportModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exportModalLabel">
+                        <i class="fas fa-file-export me-2"></i>Export Data Stok Kitchen
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form id="exportForm" method="GET" action="{{ route('stok-kitchen.export') }}">
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="export_start_date" class="form-label">Tanggal Mulai <span
+                                    class="text-danger">*</span></label>
+                            <input type="date" class="form-control" id="export_start_date" name="export_start_date"
+                                required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="export_end_date" class="form-label">Tanggal Akhir <span
+                                    class="text-danger">*</span></label>
+                            <input type="date" class="form-control" id="export_end_date" name="export_end_date"
+                                required>
+                        </div>
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i>
+                            Data akan diexport dalam format Excel (.xlsx) dengan header kolom yang freeze.
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                            <i class="fas fa-times me-1"></i> Batal
+                        </button>
+                        <button type="submit" class="btn btn-success" id="exportButton">
+                            <i class="fas fa-download me-1"></i> Download Excel
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modals lainnya (Detail, Edit, Delete untuk data yang sudah ada) -->
     @foreach ($stokKitchen as $item)
         <!-- Detail Modal -->
         <div class="modal fade" id="detailModal{{ $item->id }}" tabindex="-1" aria-hidden="true">
@@ -1141,114 +1214,16 @@
             </div>
         </div>
     @endforeach
-
-    <!-- Export Modal -->
-    <div class="modal fade" id="exportModal" tabindex="-1" aria-labelledby="exportModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="exportModalLabel">
-                        <i class="fas fa-file-export me-2"></i>Export Data Stok Kitchen
-                    </h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <form action="{{ route('stok-kitchen.export') }}" method="POST" id="exportForm">
-                    @csrf
-                    <div class="modal-body">
-                        <div class="alert alert-info">
-                            <i class="fas fa-info-circle me-2"></i>
-                            <strong>Perhatian:</strong> Data akan diexport berdasarkan filter yang Anda pilih
-                        </div>
-
-                        <!-- Filter Export -->
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label fw-semibold">Tanggal Mulai <span
-                                        class="text-danger">*</span></label>
-                                <input type="date" class="form-control" id="export_start_date" name="start_date"
-                                    value="{{ request('start_date', date('Y-m-d')) }}" required>
-                                <div class="form-text">Pilih tanggal awal periode</div>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label fw-semibold">Tanggal Akhir <span
-                                        class="text-danger">*</span></label>
-                                <input type="date" class="form-control" id="export_end_date" name="end_date"
-                                    value="{{ request('end_date', date('Y-m-d')) }}" required>
-                                <div class="form-text">Pilih tanggal akhir periode</div>
-                            </div>
-                        </div>
-
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label fw-semibold">Nama Bahan</label>
-                                <input type="text" class="form-control" name="nama_bahan" id="export_nama_bahan"
-                                    value="{{ request('nama_bahan') }}" placeholder="Kosongkan untuk semua bahan">
-                                <div class="form-text">Filter berdasarkan nama bahan</div>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label fw-semibold">Shift</label>
-                                <select class="form-select" name="shift" id="export_shift">
-                                    <option value="">Semua Shift</option>
-                                    <option value="1" {{ request('shift') == '1' ? 'selected' : '' }}>Shift 1
-                                    </option>
-                                    <option value="2" {{ request('shift') == '2' ? 'selected' : '' }}>Shift 2
-                                    </option>
-                                </select>
-                                <div class="form-text">Filter berdasarkan shift</div>
-                            </div>
-                        </div>
-
-                        <!-- Preview Filter -->
-                        <div class="card border-primary">
-                            <div class="card-header bg-primary bg-opacity-10 border-primary">
-                                <h6 class="mb-0"><i class="fas fa-filter me-2"></i>Ringkasan Filter Export</h6>
-                            </div>
-                            <div class="card-body">
-                                <div class="row">
-                                    <div class="col-md-4">
-                                        <small class="text-muted">Periode</small>
-                                        <div id="exportPeriod" class="fw-bold">-</div>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <small class="text-muted">Bahan</small>
-                                        <div id="exportBahan" class="fw-bold">Semua Bahan</div>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <small class="text-muted">Shift</small>
-                                        <div id="exportShift" class="fw-bold">Semua Shift</div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Informasi Format File -->
-                        <div class="alert alert-warning mt-3">
-                            <i class="fas fa-file-excel me-2"></i>
-                            <strong>Format File:</strong> Excel (.xlsx)
-                            <br>
-                            <small class="text-muted">
-                                Nama file: Stok Station Harian Kitchen - [Tanggal Mulai] - [Tanggal Akhir].xlsx
-                                <br>
-                                Jika tanggal sama: Stok Station Harian Kitchen - [Tanggal].xlsx
-                            </small>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                            <i class="fas fa-times me-1"></i> Batal
-                        </button>
-                        <button type="button" class="btn btn-success" id="exportButton">
-                            <i class="fas fa-file-excel me-1"></i> Export Data
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
 @endsection
 
 @push('scripts')
     <script>
+        // Global variables
+        let allMasterBahan = []; // Semua bahan dari master
+        let selectedBahan = []; // Bahan yang dipilih di modal (sementara)
+        let bahanDetailList = []; // Bahan yang sudah diinput detailnya
+        let currentBahanIndex = 0; // Index bahan yang sedang diproses
+
         // Toggle Form Visibility
         function toggleForm() {
             const formSection = document.getElementById('formSection');
@@ -1268,46 +1243,16 @@
         function showBahanModal() {
             const modal = new bootstrap.Modal(document.getElementById('bahanModal'));
             modal.show();
-            loadBahanList();
+            loadAllMasterBahan();
         }
 
-        // Load Bahan List
-        function loadBahanList(search = '') {
-            fetch(`/api/search-master-kitchen?search=${search}`)
+        // Load All Master Bahan
+        function loadAllMasterBahan() {
+            fetch(`/api/search-master-kitchen?search=`)
                 .then(response => response.json())
                 .then(data => {
-                    const bahanList = document.getElementById('bahanList');
-                    bahanList.innerHTML = '';
-
-                    if (data.length === 0) {
-                        bahanList.innerHTML = `
-                        <div class="text-center py-5">
-                            <i class="fas fa-box-open fa-3x text-muted mb-3"></i>
-                            <p class="text-muted">Tidak ada bahan ditemukan</p>
-                        </div>
-                    `;
-                        return;
-                    }
-
-                    data.forEach(bahan => {
-                        const item = document.createElement('div');
-                        item.className = 'bahan-item';
-                        item.innerHTML = `
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div>
-                                <h6 class="mb-1">${bahan.nama_bahan}</h6>
-                                <small class="text-muted">
-                                    <span class="badge bg-secondary">${bahan.kode_bahan}</span>
-                                    <span class="ms-2">Satuan: ${bahan.nama_satuan}</span>
-                                    <span class="ms-2">Stok Min: ${bahan.stok_minimum}</span>
-                                </small>
-                            </div>
-                            <i class="fas fa-chevron-right"></i>
-                        </div>
-                    `;
-                        item.onclick = () => selectBahan(bahan);
-                        bahanList.appendChild(item);
-                    });
+                    allMasterBahan = data;
+                    renderBahanList();
                 })
                 .catch(error => {
                     console.error('Error loading bahan:', error);
@@ -1315,322 +1260,725 @@
                 });
         }
 
+        // Render Bahan List in Modal
+        function renderBahanList(searchTerm = '') {
+            const bahanListElement = document.getElementById('bahanList');
+            const totalBahanCount = document.getElementById('totalBahanCount');
+
+            // Filter bahan berdasarkan search term
+            const filteredBahan = allMasterBahan.filter(bahan => {
+                if (!searchTerm) return true;
+                const searchLower = searchTerm.toLowerCase();
+                return bahan.nama_bahan.toLowerCase().includes(searchLower) ||
+                    bahan.kode_bahan.toLowerCase().includes(searchLower);
+            });
+
+            if (filteredBahan.length === 0) {
+                bahanListElement.innerHTML = `
+            <div class="text-center py-5">
+                <i class="fas fa-utensils fa-3x text-muted mb-3"></i>
+                <p class="text-muted">Tidak ada bahan ditemukan</p>
+                <small>Ubah kata kunci pencarian</small>
+            </div>
+        `;
+                totalBahanCount.textContent = '0 bahan tersedia';
+                return;
+            }
+
+            let html = '';
+            filteredBahan.forEach(bahan => {
+                const isSelected = selectedBahan.some(b => b.kode_bahan === bahan.kode_bahan);
+
+                html += `
+            <div class="bahan-item ${isSelected ? 'selected' : ''}" onclick="toggleBahanSelection('${bahan.kode_bahan}')">
+                <div class="bahan-checkbox-container">
+                    <input type="checkbox" class="form-check-input bahan-checkbox" 
+                           id="checkbox-${bahan.kode_bahan}" 
+                           ${isSelected ? 'checked' : ''}
+                           onclick="event.stopPropagation(); toggleBahanSelection('${bahan.kode_bahan}')">
+                    <div class="bahan-info">
+                        <h6 class="mb-1">${bahan.nama_bahan}</h6>
+                        <small class="text-muted">
+                            <span class="badge bg-secondary">${bahan.kode_bahan}</span>
+                            <span class="ms-2">Satuan: ${bahan.nama_satuan}</span>
+                            <span class="ms-2">Stok Min: ${bahan.stok_minimum}</span>
+                        </small>
+                    </div>
+                </div>
+            </div>
+        `;
+            });
+
+            bahanListElement.innerHTML = html;
+            totalBahanCount.textContent = `${filteredBahan.length} bahan tersedia`;
+            updateSelectedCountModal();
+        }
+
+        // Toggle Bahan Selection
+        function toggleBahanSelection(kodeBahan) {
+            const bahan = allMasterBahan.find(b => b.kode_bahan === kodeBahan);
+            if (!bahan) return;
+
+            const index = selectedBahan.findIndex(b => b.kode_bahan === kodeBahan);
+            const checkbox = document.getElementById(`checkbox-${kodeBahan}`);
+
+            if (index === -1) {
+                // Tambahkan ke selected
+                selectedBahan.push({
+                    ...bahan,
+                    stok_awal: 0,
+                    stok_masuk: 0,
+                    stok_keluar: 0,
+                    waste: 0,
+                    alasan_waste: ''
+                });
+                checkbox.checked = true;
+            } else {
+                // Hapus dari selected
+                selectedBahan.splice(index, 1);
+                checkbox.checked = false;
+            }
+
+            // Update UI
+            const item = checkbox.closest('.bahan-item');
+            if (checkbox.checked) {
+                item.classList.add('selected');
+            } else {
+                item.classList.remove('selected');
+            }
+
+            updateSelectedCountModal();
+        }
+
+        // Select All Bahan
+        function selectAllBahan() {
+            const searchTerm = document.getElementById('searchBahanInput').value;
+            const filteredBahan = allMasterBahan.filter(bahan => {
+                if (!searchTerm) return true;
+                const searchLower = searchTerm.toLowerCase();
+                return bahan.nama_bahan.toLowerCase().includes(searchLower) ||
+                    bahan.kode_bahan.toLowerCase().includes(searchLower);
+            });
+
+            filteredBahan.forEach(bahan => {
+                const index = selectedBahan.findIndex(b => b.kode_bahan === bahan.kode_bahan);
+                if (index === -1) {
+                    selectedBahan.push({
+                        ...bahan,
+                        stok_awal: 0,
+                        stok_masuk: 0,
+                        stok_keluar: 0,
+                        waste: 0,
+                        alasan_waste: ''
+                    });
+                }
+            });
+
+            renderBahanList(searchTerm);
+        }
+
+        // Deselect All Bahan
+        function deselectAllBahan() {
+            const searchTerm = document.getElementById('searchBahanInput').value;
+            const filteredBahan = allMasterBahan.filter(bahan => {
+                if (!searchTerm) return true;
+                const searchLower = searchTerm.toLowerCase();
+                return bahan.nama_bahan.toLowerCase().includes(searchLower) ||
+                    bahan.kode_bahan.toLowerCase().includes(searchLower);
+            });
+
+            filteredBahan.forEach(bahan => {
+                const index = selectedBahan.findIndex(b => b.kode_bahan === bahan.kode_bahan);
+                if (index !== -1) {
+                    selectedBahan.splice(index, 1);
+                }
+            });
+
+            renderBahanList(searchTerm);
+        }
+
+        // Update Selected Count in Modal
+        function updateSelectedCountModal() {
+            const countElement = document.getElementById('selectedCountModal');
+            countElement.textContent = `${selectedBahan.length} bahan dipilih`;
+        }
+
         // Search Bahan
         function searchBahan() {
             const searchTerm = document.getElementById('searchBahanInput').value;
-            loadBahanList(searchTerm);
+            renderBahanList(searchTerm);
         }
 
-        // Select Bahan
-        function selectBahan(bahan) {
-            // Update form fields
-            document.getElementById('kode_bahan').value = bahan.kode_bahan;
-            document.getElementById('nama_bahan').value = bahan.nama_bahan;
-            document.getElementById('nama_satuan').value = bahan.nama_satuan;
-            document.getElementById('searchBahan').value = `${bahan.kode_bahan} - ${bahan.nama_bahan}`;
+        // Add Selected Bahan to Form
+        function addSelectedBahan() {
+            if (selectedBahan.length === 0) {
+                alert('Silakan pilih minimal satu bahan');
+                return;
+            }
 
-            // Update info card
-            document.getElementById('infoKodeBahan').textContent = bahan.kode_bahan;
-            document.getElementById('infoSatuan').textContent = bahan.nama_satuan;
-            document.getElementById('infoStokMinimum').textContent = bahan.stok_minimum;
+            // Reset bahan detail list
+            bahanDetailList = [];
 
-            // Update unit labels
-            const unit = bahan.nama_satuan;
-            document.getElementById('stokAwalUnit').textContent = unit;
-            document.getElementById('stokMasukUnit').textContent = unit;
-            document.getElementById('stokKeluarUnit').textContent = unit;
-            document.getElementById('wasteUnit').textContent = unit;
-            document.getElementById('stokAkhirUnit').textContent = unit;
-
-            // Get previous stock
-            getPreviousStok();
-
-            // Close modal
+            // Tutup modal bahan
             const modal = bootstrap.Modal.getInstance(document.getElementById('bahanModal'));
             modal.hide();
+
+            // Mulai proses input detail
+            currentBahanIndex = 0;
+            showDetailBahanModal();
         }
 
-        // Get Previous Stock
-        function getPreviousStok() {
+        // Show Detail Bahan Modal
+        function showDetailBahanModal() {
+            if (currentBahanIndex >= selectedBahan.length) {
+                // Semua bahan sudah diinput, update UI
+                updateSelectedBahanList();
+                return;
+            }
+
+            const bahan = selectedBahan[currentBahanIndex];
+
+            // Update counter
+            document.getElementById('detailBahanCounter').textContent =
+                `(${currentBahanIndex + 1} dari ${selectedBahan.length})`;
+
+            // Fetch previous stok data
             const tanggal = document.getElementById('tanggal').value;
             const shift = document.getElementById('shift').value;
-            const kodeBahan = document.getElementById('kode_bahan').value;
 
-            if (!tanggal || !shift || !kodeBahan) return;
+            // Build modal content
+            let modalContent = `
+        <div class="row">
+            <div class="col-md-12 mb-3">
+                <div class="alert alert-info">
+                    <h6 class="mb-2"><i class="fas fa-utensils me-2"></i>${bahan.nama_bahan}</h6>
+                    <small class="d-block">
+                        <span class="badge bg-secondary me-2">${bahan.kode_bahan}</span>
+                        <span class="me-2">Satuan: ${bahan.nama_satuan}</span>
+                        <span>Stok Min: ${bahan.stok_minimum}</span>
+                    </small>
+                </div>
+            </div>
+        </div>
+        
+        <form id="detailBahanForm">
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">
+                    Stok Awal <span class="text-danger">*</span>
+                    </label>
+                        <div class="input-group">
+                            <input type="number"
+                             step="0.01"
+                             class="form-control"
+                             id="detail_stok_awal"
+                             value="${bahan.stok_awal}"
+                             readonly
+                             required>
+                            <span class="input-group-text">${bahan.nama_satuan}</span>
+                        </div>
+                    <small class="text-muted" id="stokAwalSource"></small>
+                </div>
 
-            fetch(`/api/previous-stok-kitchen?tanggal=${tanggal}&kode_bahan=${kodeBahan}&shift=${shift}`)
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Stok Masuk</label>
+                    <div class="input-group">
+                        <input type="number" step="0.01" class="form-control" 
+                               id="detail_stok_masuk" value="${bahan.stok_masuk}">
+                        <span class="input-group-text">${bahan.nama_satuan}</span>
+                    </div>
+                    <small class="text-muted">Isi jika ada penambahan stok</small>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Stok Keluar</label>
+                    <div class="input-group">
+                        <input type="number" step="0.01" class="form-control" 
+                               id="detail_stok_keluar" value="${bahan.stok_keluar}">
+                        <span class="input-group-text">${bahan.nama_satuan}</span>
+                    </div>
+                    <small class="text-muted">Isi jika ada pengurangan stok</small>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Waste</label>
+                    <div class="input-group">
+                        <input type="number" step="0.01" class="form-control" 
+                               id="detail_waste" value="${bahan.waste}">
+                        <span class="input-group-text">${bahan.nama_satuan}</span>
+                    </div>
+                    <small class="text-muted">Isi jika ada waste/rusak</small>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-12 mb-3">
+                    <label class="form-label">Alasan Waste (Opsional)</label>
+                    <textarea class="form-control" id="detail_alasan_waste" rows="2">${bahan.alasan_waste || ''}</textarea>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="alert alert-light border">
+                        <small>
+                            <i class="fas fa-calculator me-2"></i>
+                            <strong>Perhitungan Stok Akhir:</strong>
+                            <span id="perhitunganText"></span>
+                        </small>
+                    </div>
+                </div>
+            </div>
+            
+            <input type="hidden" id="detail_kode_bahan" value="${bahan.kode_bahan}">
+            <input type="hidden" id="detail_nama_bahan" value="${bahan.nama_bahan}">
+            <input type="hidden" id="detail_nama_satuan" value="${bahan.nama_satuan}">
+        </form>
+    `;
+
+            document.getElementById('detailBahanModalBody').innerHTML = modalContent;
+
+            // Fetch previous stok data
+            fetchPreviousStok(bahan.kode_bahan, tanggal, shift);
+
+            // Add event listeners for real-time calculation
+            const inputs = ['detail_stok_awal', 'detail_stok_masuk', 'detail_stok_keluar', 'detail_waste'];
+            inputs.forEach(id => {
+                const input = document.getElementById(id);
+                if (input) {
+                    input.addEventListener('input', updatePerhitungan);
+                }
+            });
+
+            // Show modal
+            const modal = new bootstrap.Modal(document.getElementById('detailBahanModal'));
+            modal.show();
+            updatePerhitungan();
+        }
+
+        // Fetch Previous Stok Data
+        function fetchPreviousStok(kodeBahan, tanggal, shift) {
+            if (!tanggal || !shift) {
+                document.getElementById('stokAwalSource').innerHTML =
+                    '<span class="text-danger">Harap isi tanggal dan shift terlebih dahulu</span>';
+                return;
+            }
+
+            fetch(`/api/previous-stok-kitchen?kode_bahan=${kodeBahan}&tanggal=${tanggal}&shift=${shift}`)
                 .then(response => response.json())
                 .then(data => {
-                    const stokAwalInput = document.getElementById('stok_awal');
-                    const stokAwalInfo = document.getElementById('stok_awal_info');
+                    const stokAwalInput = document.getElementById('detail_stok_awal');
+                    const stokAwalSource = document.getElementById('stokAwalSource');
 
-                    if (data.source === 'previous_transaction') {
+                    if (data.stok_awal !== undefined) {
                         stokAwalInput.value = data.stok_awal;
-                        stokAwalInfo.innerHTML = `
-                        <i class="fas fa-check-circle me-1 text-success"></i>
-                        Stok awal diambil dari transaksi sebelumnya: ${data.stok_akhir}
-                    `;
-                        stokAwalInfo.className = 'text-success mt-1 d-block';
-                    } else if (data.source === 'master') {
-                        stokAwalInput.value = data.stok_awal;
-                        stokAwalInfo.innerHTML = `
-                        <i class="fas fa-database me-1 text-primary"></i>
-                        Stok awal diambil dari data master: ${data.stok_awal}
-                    `;
-                        stokAwalInfo.className = 'text-primary mt-1 d-block';
-                    } else {
-                        stokAwalInput.value = 0;
-                        stokAwalInfo.innerHTML = `
-                        <i class="fas fa-exclamation-triangle me-1 text-warning"></i>
-                        Tidak ada data sebelumnya. Silakan isi stok awal manual.
-                    `;
-                        stokAwalInfo.className = 'text-warning mt-1 d-block';
+
+                        let sourceText = '';
+                        switch (data.source) {
+                            case 'same_shift_transaction':
+                                sourceText =
+                                    `Diambil dari transaksi sebelumnya dalam shift yang sama (${data.tanggal_transaksi} Shift ${data.shift_transaksi} ${data.waktu_transaksi})`;
+                                break;
+                            case 'previous_shift_same_day':
+                                sourceText =
+                                    `Diambil dari shift sebelumnya (${data.tanggal_transaksi} Shift ${data.shift_transaksi} ${data.waktu_transaksi})`;
+                                break;
+                            case 'previous_day_shift_2':
+                                sourceText =
+                                    `Diambil dari Shift 2 hari sebelumnya (${data.tanggal_transaksi} Shift ${data.shift_transaksi} ${data.waktu_transaksi})`;
+                                break;
+                            case 'any_previous_transaction':
+                                sourceText =
+                                    `Diambil dari transaksi terakhir (${data.tanggal_transaksi} Shift ${data.shift_transaksi} ${data.waktu_transaksi})`;
+                                break;
+                            case 'master':
+                                sourceText = `Diambil dari data master (tidak ada transaksi sebelumnya)`;
+                                break;
+                            default:
+                                sourceText = `Diambil dari sistem`;
+                        }
+
+                        stokAwalSource.innerHTML = `<span class="text-success">${sourceText}</span>`;
                     }
 
-                    calculateStokAkhir();
+                    updatePerhitungan();
                 })
                 .catch(error => {
-                    console.error('Error loading previous stok:', error);
+                    console.error('Error fetching previous stok:', error);
+                    document.getElementById('stokAwalSource').innerHTML =
+                        '<span class="text-danger">Gagal mengambil data stok sebelumnya</span>';
                 });
         }
 
-        // Calculate Stock Akhir
-        function calculateStokAkhir() {
-            const stokAwal = parseFloat(document.getElementById('stok_awal').value) || 0;
-            const stokMasuk = parseFloat(document.getElementById('stok_masuk').value) || 0;
-            const stokKeluar = parseFloat(document.getElementById('stok_keluar').value) || 0;
-            const waste = parseFloat(document.getElementById('waste').value) || 0;
+        // Update Perhitungan Display
+        function updatePerhitungan() {
+            const stokAwalInput = document.getElementById('detail_stok_awal');
+            const stokMasukInput = document.getElementById('detail_stok_masuk');
+            const stokKeluarInput = document.getElementById('detail_stok_keluar');
+            const wasteInput = document.getElementById('detail_waste');
+
+            if (!stokAwalInput || !stokMasukInput || !stokKeluarInput || !wasteInput) return;
+
+            const stokAwal = parseFloat(stokAwalInput.value) || 0;
+            const stokMasuk = parseFloat(stokMasukInput.value) || 0;
+            const stokKeluar = parseFloat(stokKeluarInput.value) || 0;
+            const waste = parseFloat(wasteInput.value) || 0;
 
             const stokAkhir = stokAwal + stokMasuk - stokKeluar - waste;
-            document.getElementById('stok_akhir_preview').value = stokAkhir.toFixed(2);
 
-            if (stokAkhir < 0) {
-                document.getElementById('stok_akhir_preview').className = 'form-control fw-bold fs-5 text-danger';
-            } else {
-                document.getElementById('stok_akhir_preview').className = 'form-control fw-bold fs-5 text-primary';
+            const perhitunganText = document.getElementById('perhitunganText');
+            if (perhitunganText) {
+                perhitunganText.innerHTML = `
+            ${stokAwal.toFixed(2)} + ${stokMasuk.toFixed(2)} - ${stokKeluar.toFixed(2)} - ${waste.toFixed(2)} = 
+            <strong>${stokAkhir.toFixed(2)}</strong>
+        `;
+            }
+        }
+
+        // Save Bahan Detail
+        function saveBahanDetail() {
+            // Validate form
+            const form = document.getElementById('detailBahanForm');
+            if (!form.checkValidity()) {
+                form.reportValidity();
+                return;
+            }
+
+            // Get form values
+            const kode_bahan = document.getElementById('detail_kode_bahan').value;
+            const nama_bahan = document.getElementById('detail_nama_bahan').value;
+            const nama_satuan = document.getElementById('detail_nama_satuan').value;
+            const stok_awal = parseFloat(document.getElementById('detail_stok_awal').value) || 0;
+            const stok_masuk = parseFloat(document.getElementById('detail_stok_masuk').value) || 0;
+            const stok_keluar = parseFloat(document.getElementById('detail_stok_keluar').value) || 0;
+            const waste = parseFloat(document.getElementById('detail_waste').value) || 0;
+            const alasan_waste = document.getElementById('detail_alasan_waste').value;
+
+            // Calculate stok akhir
+            const stok_akhir = stok_awal + stok_masuk - stok_keluar - waste;
+
+            // Find and update in selectedBahan
+            const index = selectedBahan.findIndex(b => b.kode_bahan === kode_bahan);
+            if (index !== -1) {
+                selectedBahan[index] = {
+                    ...selectedBahan[index],
+                    stok_awal,
+                    stok_masuk,
+                    stok_keluar,
+                    waste,
+                    alasan_waste,
+                    stok_akhir
+                };
+
+                // Add to bahanDetailList if not already exists
+                const existsIndex = bahanDetailList.findIndex(b => b.kode_bahan === kode_bahan);
+                if (existsIndex === -1) {
+                    bahanDetailList.push(selectedBahan[index]);
+                } else {
+                    bahanDetailList[existsIndex] = selectedBahan[index];
+                }
+            }
+
+            // Close modal
+            const modal = bootstrap.Modal.getInstance(document.getElementById('detailBahanModal'));
+            modal.hide();
+
+            // Move to next bahan
+            currentBahanIndex++;
+            setTimeout(() => {
+                if (currentBahanIndex < selectedBahan.length) {
+                    showDetailBahanModal();
+                } else {
+                    updateSelectedBahanList();
+                }
+            }, 300);
+        }
+
+        // Update Selected Bahan List in Form
+        function updateSelectedBahanList() {
+            const selectedBahanListElement = document.getElementById('selectedBahanList');
+            const bahanCountElement = document.getElementById('bahanCount');
+            const bahanCountBtnElement = document.getElementById('bahanCountBtn');
+            const submitButton = document.getElementById('submitButton');
+
+            if (bahanDetailList.length === 0) {
+                selectedBahanListElement.innerHTML = `
+            <div class="empty-bahan">
+                <i class="fas fa-utensils"></i>
+                <p class="mb-0">Belum ada bahan dipilih</p>
+                <small class="text-muted">Klik "Tambah Bahan" untuk menambahkan</small>
+            </div>
+        `;
+                bahanCountElement.textContent = '0';
+                bahanCountBtnElement.textContent = '0';
+                submitButton.disabled = true;
+                return;
+            }
+
+            // Build selected bahan list
+            let html = '';
+            bahanDetailList.forEach((bahan, index) => {
+                const stokAkhir = bahan.stok_akhir || 0;
+
+                html += `
+            <div class="selected-bahan-item" id="bahan-item-${index}">
+                <div class="selected-bahan-info">
+                    <h6 class="mb-1">${bahan.nama_bahan}</h6>
+                    <small class="text-muted d-block">
+                        <span class="badge bg-secondary me-2">${bahan.kode_bahan}</span>
+                        <span class="me-2">Satuan: ${bahan.nama_satuan}</span>
+                        <span class="me-2">Awal: ${bahan.stok_awal.toFixed(2)}</span>
+                        <span class="me-2">Masuk: ${bahan.stok_masuk.toFixed(2)}</span>
+                        <span class="me-2">Keluar: ${bahan.stok_keluar.toFixed(2)}</span>
+                        <span class="me-2">Waste: ${bahan.waste.toFixed(2)}</span>
+                        <span class="badge bg-success">Akhir: ${stokAkhir.toFixed(2)}</span>
+                    </small>
+                    ${bahan.alasan_waste ? `<small class="text-muted d-block mt-1">Alasan Waste: ${bahan.alasan_waste}</small>` : ''}
+                </div>
+                <div class="selected-bahan-actions">
+                    <button type="button" class="btn btn-sm btn-warning" onclick="editBahanDetail(${index})" title="Edit">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <button type="button" class="btn btn-sm btn-danger" onclick="removeBahanDetail(${index})" title="Hapus">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            </div>
+        `;
+            });
+
+            selectedBahanListElement.innerHTML = html;
+            const count = bahanDetailList.length;
+            bahanCountElement.textContent = count;
+            bahanCountBtnElement.textContent = count;
+            submitButton.disabled = false;
+        }
+
+        // Edit Bahan Detail
+        function editBahanDetail(index) {
+            const bahan = bahanDetailList[index];
+
+            // Find index in selectedBahan
+            const selectedIndex = selectedBahan.findIndex(b => b.kode_bahan === bahan.kode_bahan);
+            if (selectedIndex !== -1) {
+                currentBahanIndex = selectedIndex;
+                showDetailBahanModal();
+            }
+        }
+
+        // Remove Bahan Detail
+        function removeBahanDetail(index) {
+            if (confirm('Apakah Anda yakin ingin menghapus bahan ini dari list?')) {
+                const bahan = bahanDetailList[index];
+
+                // Remove from all lists
+                bahanDetailList.splice(index, 1);
+
+                // Find and remove from selectedBahan
+                const selectedIndex = selectedBahan.findIndex(b => b.kode_bahan === bahan.kode_bahan);
+                if (selectedIndex !== -1) {
+                    selectedBahan.splice(selectedIndex, 1);
+                }
+
+                // Update UI
+                updateSelectedBahanList();
             }
         }
 
         // Clear Form
         function clearForm() {
-            document.getElementById('stokForm').reset();
-            document.getElementById('kode_bahan').value = '';
-            document.getElementById('nama_bahan').value = '';
-            document.getElementById('nama_satuan').value = '';
-            document.getElementById('searchBahan').value = '';
-            document.getElementById('stok_awal').value = '';
-            document.getElementById('stok_akhir_preview').value = '0.00';
+            selectedBahan = [];
+            bahanDetailList = [];
+            currentBahanIndex = 0;
 
-            document.getElementById('infoKodeBahan').textContent = '-';
-            document.getElementById('infoSatuan').textContent = '-';
-            document.getElementById('infoStokMinimum').textContent = '-';
+            // Set default tanggal ke hari ini
+            const tanggalInput = document.getElementById('tanggal');
+            if (tanggalInput) {
+                const today = new Date();
+                const year = today.getFullYear();
+                const month = String(today.getMonth() + 1).padStart(2, '0');
+                const day = String(today.getDate()).padStart(2, '0');
 
-            document.getElementById('stokAwalUnit').textContent = '-';
-            document.getElementById('stokMasukUnit').textContent = '-';
-            document.getElementById('stokKeluarUnit').textContent = '-';
-            document.getElementById('wasteUnit').textContent = '-';
-            document.getElementById('stokAkhirUnit').textContent = '-';
-        }
-
-        // Load Master Bahan for Edit
-        function loadMasterBahanEdit(kodeBahan, itemId) {
-            if (!kodeBahan) return;
-
-            fetch(`/api/master-kitchen/${kodeBahan}`)
-                .then(response => response.json())
-                .then(data => {
-                    document.getElementById(`edit_nama_bahan${itemId}`).value = data.nama_bahan;
-                    document.getElementById(`edit_nama_satuan${itemId}`).value = data.nama_satuan;
-                })
-                .catch(error => {
-                    console.error('Error loading master bahan:', error);
-                    alert('Gagal memuat data master bahan');
-                });
-        }
-
-        // Export Functions
-        function updateExportPreview() {
-            const startDate = document.getElementById('export_start_date').value;
-            const endDate = document.getElementById('export_end_date').value;
-            const namaBahan = document.getElementById('export_nama_bahan').value;
-            const shift = document.getElementById('export_shift').value;
-
-            // Format tanggal
-            const start = new Date(startDate).toLocaleDateString('id-ID', {
-                day: '2-digit',
-                month: '2-digit',
-                year: 'numeric'
-            });
-
-            const end = new Date(endDate).toLocaleDateString('id-ID', {
-                day: '2-digit',
-                month: '2-digit',
-                year: 'numeric'
-            });
-
-            // Update preview
-            if (startDate === endDate) {
-                document.getElementById('exportPeriod').textContent = start;
-            } else {
-                document.getElementById('exportPeriod').textContent = `${start} s/d ${end}`;
+                tanggalInput.value = `${year}-${month}-${day}`;
             }
 
-            document.getElementById('exportBahan').textContent = namaBahan || 'Semua Bahan';
+            // Reset shift dan PIC
+            const shiftSelect = document.getElementById('shift');
+            if (shiftSelect) {
+                shiftSelect.value = '';
+            }
 
-            if (shift === '1') {
-                document.getElementById('exportShift').textContent = 'Shift 1';
-            } else if (shift === '2') {
-                document.getElementById('exportShift').textContent = 'Shift 2';
-            } else {
-                document.getElementById('exportShift').textContent = 'Semua Shift';
+            const picInput = document.getElementById('pic');
+            if (picInput) {
+                picInput.value = '{{ auth()->user()->name }}';
+            }
+
+            // Clear bahan list
+            updateSelectedBahanList();
+
+            // Clear modal state
+            if (document.getElementById('searchBahanInput')) {
+                document.getElementById('searchBahanInput').value = '';
             }
         }
 
-        // Handle Export Button Click
-        document.getElementById('exportButton')?.addEventListener('click', function() {
-            const exportForm = document.getElementById('exportForm');
-            const startDate = document.getElementById('export_start_date').value;
-            const endDate = document.getElementById('export_end_date').value;
-
-            if (!startDate || !endDate) {
-                Swal.fire({
-                    icon: 'warning',
-                    title: 'Perhatian!',
-                    text: 'Mohon isi tanggal mulai dan tanggal akhir',
-                    confirmButtonColor: '#667eea'
-                });
-                return;
-            }
-
-            if (startDate > endDate) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Tanggal Tidak Valid!',
-                    text: 'Tanggal mulai tidak boleh lebih besar dari tanggal akhir',
-                    confirmButtonColor: '#667eea'
-                });
-                return;
-            }
-
-            // Show loading
-            const originalContent = this.innerHTML;
-            this.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> Memproses...';
-            this.disabled = true;
-
-            // Close modal first
-            const exportModal = bootstrap.Modal.getInstance(document.getElementById('exportModal'));
-            if (exportModal) {
-                exportModal.hide();
-            }
-
-            // Submit form after modal is hidden
-            setTimeout(() => {
-                exportForm.submit();
-
-                // Reset button after 3 seconds
-                setTimeout(() => {
-                    this.innerHTML = originalContent;
-                    this.disabled = false;
-                }, 3000);
-            }, 300);
-        });
-
-        // Event Listeners for real-time calculation
+        // Form Submission
         document.addEventListener('DOMContentLoaded', function() {
-            const stockFields = ['stok_awal', 'stok_masuk', 'stok_keluar', 'waste'];
-            stockFields.forEach(field => {
-                const element = document.getElementById(field);
-                if (element) {
-                    element.addEventListener('input', calculateStokAkhir);
-                }
-            });
-
             const stokForm = document.getElementById('stokForm');
             if (stokForm) {
                 stokForm.addEventListener('submit', function(e) {
-                    const stokAwal = parseFloat(document.getElementById('stok_awal').value) || 0;
-                    const stokMasuk = parseFloat(document.getElementById('stok_masuk').value) || 0;
-                    const stokKeluar = parseFloat(document.getElementById('stok_keluar').value) || 0;
-                    const waste = parseFloat(document.getElementById('waste').value) || 0;
-
-                    const stokAkhir = stokAwal + stokMasuk - stokKeluar - waste;
-
-                    if (stokAkhir < 0) {
+                    // Validasi client-side
+                    if (bahanDetailList.length === 0) {
                         e.preventDefault();
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Stok Akhir Negatif!',
-                            text: 'Stok akhir tidak boleh negatif. Periksa kembali input stok keluar dan waste.',
-                            confirmButtonColor: '#667eea'
-                        });
+                        alert('Silakan tambahkan minimal satu bahan');
                         return false;
                     }
 
-                    if (!document.getElementById('kode_bahan').value) {
+                    // Validate required fields
+                    const tanggal = document.getElementById('tanggal').value;
+                    const shift = document.getElementById('shift').value;
+                    const pic = document.getElementById('pic').value;
+
+                    if (!tanggal || !shift || !pic) {
                         e.preventDefault();
-                        Swal.fire({
-                            icon: 'warning',
-                            title: 'Pilih Bahan!',
-                            text: 'Silakan pilih bahan terlebih dahulu.',
-                            confirmButtonColor: '#667eea'
-                        });
+                        alert('Harap isi semua field yang wajib diisi (Tanggal, Shift, PIC)');
                         return false;
+                    }
+
+                    // Prepare bahan data for submission
+                    const bahanData = bahanDetailList.map(bahan => ({
+                        kode_bahan: bahan.kode_bahan,
+                        nama_bahan: bahan.nama_bahan,
+                        nama_satuan: bahan.nama_satuan,
+                        stok_awal: parseFloat(bahan.stok_awal) || 0,
+                        stok_masuk: parseFloat(bahan.stok_masuk) || 0,
+                        stok_keluar: parseFloat(bahan.stok_keluar) || 0,
+                        waste: parseFloat(bahan.waste) || 0,
+                        alasan_waste: bahan.alasan_waste || ''
+                    }));
+
+                    // Set hidden input value
+                    document.getElementById('bahanDataInput').value = JSON.stringify(bahanData);
+
+                    // Show loading state
+                    const submitButton = document.getElementById('submitButton');
+                    const originalText = submitButton.innerHTML;
+                    submitButton.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> Menyimpan...';
+                    submitButton.disabled = true;
+
+                    // Biarkan form submit secara normal
+                    // Browser akan redirect ke halaman index dengan data baru
+
+                    // Reset form state setelah submit
+                    setTimeout(() => {
+                        clearForm();
+                        toggleForm();
+                    }, 100);
+
+                    return true;
+                });
+            }
+        });
+
+        // Helper: Show Alert
+        function showAlert(type, message) {
+            const alertHtml = `
+        <div class="alert alert-${type} alert-dismissible fade show d-flex align-items-center" role="alert">
+            <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'} me-3" style="font-size: 1.5em;"></i>
+            <div class="flex-grow-1">${message}</div>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    `;
+
+            // Insert at the beginning of card body
+            const cardBody = document.querySelector('.card-body');
+            if (cardBody) {
+                // Remove existing alerts
+                const existingAlerts = cardBody.querySelectorAll('.alert');
+                existingAlerts.forEach(alert => alert.remove());
+
+                // Add new alert
+                cardBody.insertAdjacentHTML('afterbegin', alertHtml);
+
+                // Auto dismiss after 5 seconds
+                setTimeout(() => {
+                    const alert = document.querySelector('.alert');
+                    if (alert) {
+                        const bsAlert = new bootstrap.Alert(alert);
+                        bsAlert.close();
+                    }
+                }, 5000);
+            }
+        }
+
+        // Load Master Bahan for Edit Form
+        function loadMasterBahanEdit(kodeBahan, itemId) {
+            fetch(`/api/master-kitchen/${kodeBahan}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (!data.error) {
+                        document.getElementById(`edit_nama_bahan${itemId}`).value = data.nama_bahan;
+                        document.getElementById(`edit_nama_satuan${itemId}`).value = data.nama_satuan;
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+        }
+
+        // Export Form Validation
+        document.addEventListener('DOMContentLoaded', function() {
+            const exportForm = document.getElementById('exportForm');
+            if (exportForm) {
+                exportForm.addEventListener('submit', function(e) {
+                    const startDate = document.getElementById('export_start_date').value;
+                    const endDate = document.getElementById('export_end_date').value;
+
+                    if (!startDate || !endDate) {
+                        e.preventDefault();
+                        alert('Harap isi tanggal mulai dan tanggal akhir');
+                        return;
+                    }
+
+                    if (new Date(startDate) > new Date(endDate)) {
+                        e.preventDefault();
+                        alert('Tanggal mulai tidak boleh lebih besar dari tanggal akhir');
+                        return;
                     }
                 });
             }
 
-            // Set default dates for export
-            const today = new Date().toISOString().split('T')[0];
-            document.getElementById('export_start_date').value = today;
-            document.getElementById('export_end_date').value = today;
+            // Set default dates for export modal
+            const exportStartDate = document.getElementById('export_start_date');
+            const exportEndDate = document.getElementById('export_end_date');
 
-            // Update preview
-            updateExportPreview();
+            if (exportStartDate) {
+                exportStartDate.value = new Date().toISOString().split('T')[0];
+            }
+            if (exportEndDate) {
+                exportEndDate.value = new Date().toISOString().split('T')[0];
+            }
 
-            // Add event listeners for real-time preview update
-            const exportFields = ['export_start_date', 'export_end_date', 'export_nama_bahan', 'export_shift'];
-            exportFields.forEach(field => {
-                const element = document.getElementById(field);
-                if (element) {
-                    element.addEventListener('change', updateExportPreview);
-                    element.addEventListener('input', updateExportPreview);
+            // Set default tanggal untuk form input
+            const tanggalInput = document.getElementById('tanggal');
+            if (tanggalInput) {
+                const today = new Date();
+                const year = today.getFullYear();
+                const month = String(today.getMonth() + 1).padStart(2, '0');
+                const day = String(today.getDate()).padStart(2, '0');
+
+                tanggalInput.value = `${year}-${month}-${day}`;
+            }
+
+            // Auto-select shift based on current time
+            const currentHour = new Date().getHours();
+            const shiftSelect = document.getElementById('shift');
+            if (shiftSelect) {
+                if (currentHour >= 6 && currentHour < 18) {
+                    shiftSelect.value = '1';
+                } else {
+                    shiftSelect.value = '2';
                 }
-            });
-
-            // Copy current filter to export form
-            document.getElementById('exportModal')?.addEventListener('show.bs.modal', function() {
-                const currentStartDate = "{{ request('start_date', date('Y-m-d')) }}";
-                const currentEndDate = "{{ request('end_date', date('Y-m-d')) }}";
-                const currentNamaBahan = "{{ request('nama_bahan') }}";
-                const currentShift = "{{ request('shift') }}";
-
-                if (currentStartDate) {
-                    document.getElementById('export_start_date').value = currentStartDate;
-                }
-
-                if (currentEndDate) {
-                    document.getElementById('export_end_date').value = currentEndDate;
-                }
-
-                if (currentNamaBahan) {
-                    document.getElementById('export_nama_bahan').value = currentNamaBahan;
-                }
-
-                if (currentShift) {
-                    document.getElementById('export_shift').value = currentShift;
-                }
-
-                updateExportPreview();
-            });
-
-            // Auto-close alerts after 5 seconds
-            setTimeout(function() {
-                const alerts = document.querySelectorAll('.alert');
-                alerts.forEach(function(alert) {
-                    const bsAlert = new bootstrap.Alert(alert);
-                    bsAlert.close();
-                });
-            }, 5000);
+            }
 
             // Initialize tooltips
             const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
@@ -1638,5 +1986,82 @@
                 return new bootstrap.Tooltip(tooltipTriggerEl);
             });
         });
+
+        // Real-time filtering for edit modal bahan select
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.master-bahan-select').forEach(select => {
+                select.addEventListener('input', function() {
+                    const searchTerm = this.value.toLowerCase();
+                    const options = this.options;
+
+                    for (let option of options) {
+                        const text = option.text.toLowerCase();
+                        option.style.display = text.includes(searchTerm) ? '' : 'none';
+                    }
+                });
+            });
+        });
+
+        // Additional helper functions
+        function formatNumber(num) {
+            return parseFloat(num).toLocaleString('id-ID', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            });
+        }
+
+        function calculateStokAkhir(row) {
+            const stokAwal = parseFloat(row.stok_awal) || 0;
+            const stokMasuk = parseFloat(row.stok_masuk) || 0;
+            const stokKeluar = parseFloat(row.stok_keluar) || 0;
+            const waste = parseFloat(row.waste) || 0;
+            return stokAwal + stokMasuk - stokKeluar - waste;
+        }
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            // Ctrl + F to focus on search
+            if (e.ctrlKey && e.key === 'f') {
+                e.preventDefault();
+                const searchInput = document.querySelector('input[name="nama_bahan"]');
+                if (searchInput) {
+                    searchInput.focus();
+                }
+            }
+
+            // Ctrl + N to toggle form
+            if (e.ctrlKey && e.key === 'n') {
+                e.preventDefault();
+                toggleForm();
+            }
+        });
+
+        // Print functionality (optional)
+        function printTable() {
+            const printWindow = window.open('', '_blank');
+            printWindow.document.write(`
+        <html>
+            <head>
+                <title>Cetak Stok Kitchen - ${new Date().toLocaleDateString('id-ID')}</title>
+                <style>
+                    body { font-family: Arial, sans-serif; }
+                    table { width: 100%; border-collapse: collapse; }
+                    th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+                    th { background-color: #f2f2f2; }
+                    @media print {
+                        @page { size: landscape; }
+                    }
+                </style>
+            </head>
+            <body>
+                <h2>Laporan Stok Kitchen</h2>
+                <p>Tanggal Cetak: ${new Date().toLocaleString('id-ID')}</p>
+                ${document.querySelector('.table-container').innerHTML}
+            </body>
+        </html>
+    `);
+            printWindow.document.close();
+            printWindow.print();
+        }
     </script>
 @endpush

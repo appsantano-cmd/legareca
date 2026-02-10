@@ -8,7 +8,7 @@ use App\Models\SatuanStation;
 use Illuminate\Http\Request;
 use App\Exports\StokBarExport;
 use Maatwebsite\Excel\Facades\Excel;
-use Carbon\Carbon; // Tambahkan ini untuk format tanggal
+use Carbon\Carbon;
 
 class StokBarController extends Controller
 {
@@ -35,7 +35,7 @@ class StokBarController extends Controller
             $query->where('shift', $request->shift);
         }
 
-        // TAMBAHAN: Filter berdasarkan status
+        // Filter berdasarkan status
         if ($request->filled('status_stok')) {
             $query->where('status_stok', $request->status_stok);
         }
@@ -54,60 +54,88 @@ class StokBarController extends Controller
 
     public function store(Request $request)
     {
+        // Debug data yang diterima
+        \Log::info('Store Request Data:', $request->all());
+        
         $request->validate([
             'tanggal' => 'required|date',
             'shift' => 'required|in:1,2',
-            'kode_bahan' => 'required|string|max:50',
-            'nama_bahan' => 'required|string|max:100',
-            'nama_satuan' => 'required|string|max:50',
-            'stok_awal' => 'required|numeric|min:0',
-            'stok_masuk' => 'nullable|numeric|min:0',
-            'stok_keluar' => 'nullable|numeric|min:0',
-            'waste' => 'nullable|numeric|min:0',
-            'alasan_waste' => 'nullable|string',
-            'pic' => 'required|string|max:100'
+            'pic' => 'required|string|max:100',
+            'bahan' => 'required|string', // Ubah ke string karena dikirim sebagai JSON
         ]);
 
-        // Jika stok awal tidak diisi, ambil dari stok akhir transaksi sebelumnya
-        if (!$request->filled('stok_awal')) {
-            if ($request->shift == '2') {
-                // Jika shift 2, cari stok akhir dari shift 1 hari yang sama
-                $previousStok = StokBar::where('tanggal', $request->tanggal)
-                    ->where('shift', '1')
-                    ->where('kode_bahan', $request->kode_bahan)
-                    ->latest()
-                    ->first();
+        // Decode JSON bahan
+        $bahanArray = json_decode($request->bahan, true);
+        
+        // Validasi manual untuk array bahan
+        if (!is_array($bahanArray) || empty($bahanArray)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Data bahan harus berupa array dan tidak boleh kosong'
+            ], 422);
+        }
 
-                if ($previousStok) {
-                    $request->merge(['stok_awal' => $previousStok->stok_akhir]);
-                } else {
-                    // Jika tidak ada data sebelumnya, ambil dari master
-                    $master = StokStationMasterBar::where('kode_bahan', $request->kode_bahan)->first();
-                    $request->merge(['stok_awal' => $master ? $master->stok_awal : 0]);
-                }
-            } else {
-                // Jika shift 1, cari dari shift 2 hari sebelumnya
-                $previousDate = date('Y-m-d', strtotime($request->tanggal . ' -1 day'));
-                $previousStok = StokBar::where('tanggal', $previousDate)
-                    ->where('shift', '2')
-                    ->where('kode_bahan', $request->kode_bahan)
-                    ->latest()
-                    ->first();
+        $successCount = 0;
+        $failedCount = 0;
+        $errors = [];
 
-                if ($previousStok) {
-                    $request->merge(['stok_awal' => $previousStok->stok_akhir]);
-                } else {
-                    // Jika tidak ada data sebelumnya, ambil dari master
-                    $master = StokStationMasterBar::where('kode_bahan', $request->kode_bahan)->first();
-                    $request->merge(['stok_awal' => $master ? $master->stok_awal : 0]);
-                }
+        foreach ($bahanArray as $bahanData) {
+            try {
+                // Validasi untuk setiap bahan
+                $validatedBahan = validator($bahanData, [
+                    'kode_bahan' => 'required|string|max:50',
+                    'nama_bahan' => 'required|string|max:100',
+                    'nama_satuan' => 'required|string|max:50',
+                    'stok_awal' => 'required|numeric|min:0',
+                    'stok_masuk' => 'nullable|numeric|min:0',
+                    'stok_keluar' => 'nullable|numeric|min:0',
+                    'waste' => 'nullable|numeric|min:0',
+                    'alasan_waste' => 'nullable|string',
+                ])->validate();
+
+                StokBar::create([
+                    'tanggal' => $request->tanggal,
+                    'shift' => $request->shift,
+                    'pic' => $request->pic,
+                    'kode_bahan' => $bahanData['kode_bahan'],
+                    'nama_bahan' => $bahanData['nama_bahan'],
+                    'nama_satuan' => $bahanData['nama_satuan'],
+                    'stok_awal' => $bahanData['stok_awal'],
+                    'stok_masuk' => $bahanData['stok_masuk'] ?? 0,
+                    'stok_keluar' => $bahanData['stok_keluar'] ?? 0,
+                    'waste' => $bahanData['waste'] ?? 0,
+                    'alasan_waste' => $bahanData['alasan_waste'] ?? null,
+                ]);
+                $successCount++;
+            } catch (\Exception $e) {
+                $failedCount++;
+                $errors[] = $bahanData['nama_bahan'] . ': ' . $e->getMessage();
+                \Log::error('Gagal menyimpan stok bahan: ' . $bahanData['nama_bahan'], [
+                    'error' => $e->getMessage(),
+                    'data' => $bahanData
+                ]);
             }
         }
 
-        StokBar::create($request->all());
+        $message = $successCount . ' bahan berhasil ditambahkan.';
+        if ($failedCount > 0) {
+            $message .= ' ' . $failedCount . ' bahan gagal disimpan.';
+        }
+
+        // Jika request adalah AJAX
+        if ($request->wantsJson() || $request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => $message,
+                'success_count' => $successCount,
+                'failed_count' => $failedCount,
+                'errors' => $errors,
+                'redirect' => route('stok-bar.index')
+            ]);
+        }
 
         return redirect()->route('stok-bar.index')
-            ->with('success', 'Stok bar berhasil ditambahkan.');
+            ->with('success', $message);
     }
 
     public function update(Request $request, StokBar $stokBar)
@@ -126,6 +154,7 @@ class StokBarController extends Controller
             'pic' => 'required|string|max:100'
         ]);
 
+        // Update data (stok_akhir dan status_stok akan dihitung otomatis di model)
         $stokBar->update($request->all());
 
         return redirect()->route('stok-bar.index')
@@ -165,35 +194,98 @@ class StokBarController extends Controller
 
         $master = StokStationMasterBar::where('kode_bahan', $kode_bahan)->first();
 
-        if ($shift == '1') {
-            // Untuk shift 1, ambil shift 2 hari sebelumnya
-            $previousDate = date('Y-m-d', strtotime($tanggal . ' -1 day'));
-            $previousShift = '2';
-        } else {
-            // Untuk shift 2, ambil shift 1 hari yang sama
-            $previousDate = $tanggal;
-            $previousShift = '1';
-        }
+        $query = StokBar::where('kode_bahan', $kode_bahan);
 
-        $previousStok = StokBar::where('tanggal', $previousDate)
-            ->where('shift', $previousShift)
-            ->where('kode_bahan', $kode_bahan)
-            ->latest()
+        // 1. Hari yang sama, shift yang sama (untuk multiple transactions dalam shift yang sama)
+        $sameShiftTransaction = $query->clone()
+            ->whereDate('tanggal', $tanggal)
+            ->where('shift', $shift)
+            ->orderBy('created_at', 'desc')
             ->first();
 
-        if ($previousStok) {
+        if ($sameShiftTransaction) {
             return response()->json([
-                'stok_awal' => $previousStok->stok_akhir,
-                'stok_akhir' => $previousStok->stok_akhir,
-                'source' => 'previous_transaction'
+                'stok_awal' => $sameShiftTransaction->stok_akhir,
+                'stok_akhir' => $sameShiftTransaction->stok_akhir,
+                'source' => 'same_shift_transaction',
+                'tanggal_transaksi' => $sameShiftTransaction->tanggal->format('Y-m-d'),
+                'shift_transaksi' => $sameShiftTransaction->shift,
+                'waktu_transaksi' => $sameShiftTransaction->created_at->format('H:i'),
+                'previous_id' => $sameShiftTransaction->id
             ]);
         }
 
-        // fallback ke master
+        // 2. Jika shift 2, cari dari shift 1 hari yang sama
+        if ($shift == '2') {
+            $previousShiftSameDay = $query->clone()
+                ->whereDate('tanggal', $tanggal)
+                ->where('shift', '1')
+                ->orderBy('created_at', 'desc')
+                ->first();
+
+            if ($previousShiftSameDay) {
+                return response()->json([
+                    'stok_awal' => $previousShiftSameDay->stok_akhir,
+                    'stok_akhir' => $previousShiftSameDay->stok_akhir,
+                    'source' => 'previous_shift_same_day',
+                    'tanggal_transaksi' => $previousShiftSameDay->tanggal->format('Y-m-d'),
+                    'shift_transaksi' => $previousShiftSameDay->shift,
+                    'waktu_transaksi' => $previousShiftSameDay->created_at->format('H:i'),
+                    'previous_id' => $previousShiftSameDay->id
+                ]);
+            }
+        }
+
+        // 3. Jika shift 1, cari dari shift 2 hari sebelumnya
+        if ($shift == '1') {
+            $previousDate = Carbon::parse($tanggal)->subDay()->format('Y-m-d');
+            $previousDayShift2 = $query->clone()
+                ->whereDate('tanggal', $previousDate)
+                ->where('shift', '2')
+                ->orderBy('created_at', 'desc')
+                ->first();
+
+            if ($previousDayShift2) {
+                return response()->json([
+                    'stok_awal' => $previousDayShift2->stok_akhir,
+                    'stok_akhir' => $previousDayShift2->stok_akhir,
+                    'source' => 'previous_day_shift_2',
+                    'tanggal_transaksi' => $previousDayShift2->tanggal->format('Y-m-d'),
+                    'shift_transaksi' => $previousDayShift2->shift,
+                    'waktu_transaksi' => $previousDayShift2->created_at->format('H:i'),
+                    'previous_id' => $previousDayShift2->id
+                ]);
+            }
+        }
+
+        // 4. Cari transaksi terakhir apapun
+        $anyPreviousTransaction = $query->clone()
+            ->orderBy('tanggal', 'desc')
+            ->orderBy('shift', 'desc')
+            ->orderBy('created_at', 'desc')
+            ->first();
+
+        if ($anyPreviousTransaction) {
+            return response()->json([
+                'stok_awal' => $anyPreviousTransaction->stok_akhir,
+                'stok_akhir' => $anyPreviousTransaction->stok_akhir,
+                'source' => 'any_previous_transaction',
+                'tanggal_transaksi' => $anyPreviousTransaction->tanggal->format('Y-m-d'),
+                'shift_transaksi' => $anyPreviousTransaction->shift,
+                'waktu_transaksi' => $anyPreviousTransaction->created_at->format('H:i'),
+                'previous_id' => $anyPreviousTransaction->id
+            ]);
+        }
+
+        // 5. Fallback ke master
         return response()->json([
             'stok_awal' => $master?->stok_awal ?? 0,
             'stok_akhir' => $master?->stok_awal ?? 0,
-            'source' => 'master'
+            'source' => 'master',
+            'tanggal_transaksi' => null,
+            'shift_transaksi' => null,
+            'waktu_transaksi' => null,
+            'previous_id' => null
         ]);
     }
 
@@ -204,13 +296,11 @@ class StokBarController extends Controller
         $masterBahan = StokStationMasterBar::where('kode_bahan', 'like', "%{$search}%")
             ->orWhere('nama_bahan', 'like', "%{$search}%")
             ->orderBy('nama_bahan')
-            ->limit(20)
             ->get();
 
         return response()->json($masterBahan);
     }
 
-    // Fungsi baru untuk export Excel
     public function export(Request $request)
     {
         $request->validate([
@@ -221,7 +311,15 @@ class StokBarController extends Controller
         $startDate = $request->export_start_date;
         $endDate = $request->export_end_date;
 
-        $fileName = 'Stok Station Harian Bar - ' . date('j F Y') . '.xlsx';
+        // Format nama file
+        $startDateFormatted = Carbon::parse($request->export_start_date)->locale('id')->translatedFormat('d F Y');
+        $endDateFormatted = Carbon::parse($request->export_end_date)->locale('id')->translatedFormat('d F Y');
+
+        if ($startDate == $endDate) {
+            $fileName = "Stok Station Harian Bar - " . $startDateFormatted . ".xlsx";
+        } else {
+            $fileName = "Stok Station Harian Bar - " . $startDateFormatted . " - " . $endDateFormatted . ".xlsx";
+        }
 
         return Excel::download(new StokBarExport($startDate, $endDate), $fileName);
     }
