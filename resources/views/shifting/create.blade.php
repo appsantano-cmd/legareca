@@ -785,12 +785,6 @@
                             showError('tanggal_shift_asli', 'Tanggal shift asli harus minimal 1 hari dari sekarang');
                             isValid = false;
                         }
-                        
-                        const tujuanDate = new Date(tanggalTujuan.value);
-                        if (tujuanDate <= shiftAsliDate) {
-                            showError('tanggal_shift_tujuan', 'Tanggal shift tujuan harus setelah tanggal shift asli');
-                            isValid = false;
-                        }
                     }
                     break;
                     
@@ -799,8 +793,8 @@
                     if (!alasan.value.trim()) {
                         showError('alasan', 'Alasan pengajuan wajib diisi');
                         isValid = false;
-                    } else if (alasan.value.trim().length < 10) {
-                        showError('alasan', 'Alasan pengajuan minimal 10 karakter');
+                    } else if (alasan.value.trim().length < 5) {
+                        showError('alasan', 'Alasan pengajuan minimal 5 karakter');
                         isValid = false;
                     }
                     break;
@@ -942,35 +936,6 @@
         // INITIALIZATION
         // ===============================
         document.addEventListener('DOMContentLoaded', function() {
-            // Set min date for all date inputs
-            const today = new Date();
-            const tomorrow = new Date(today);
-            tomorrow.setDate(tomorrow.getDate() + 1);
-            const minDate = tomorrow.toISOString().split('T')[0];
-            
-            document.querySelectorAll('input[type="date"]').forEach(input => {
-                input.min = minDate;
-            });
-            
-            // Set up date validation between tanggal asli and tujuan
-            const tanggalAsliInput = document.getElementById('tanggal_shift_asli');
-            const tanggalTujuanInput = document.getElementById('tanggal_shift_tujuan');
-            
-            if (tanggalAsliInput && tanggalTujuanInput) {
-                tanggalAsliInput.addEventListener('change', function() {
-                    if (this.value) {
-                        const asliDate = new Date(this.value);
-                        const nextDay = new Date(asliDate);
-                        nextDay.setDate(nextDay.getDate() + 1);
-                        tanggalTujuanInput.min = nextDay.toISOString().split('T')[0];
-                        
-                        if (tanggalTujuanInput.value && new Date(tanggalTujuanInput.value) <= asliDate) {
-                            tanggalTujuanInput.value = '';
-                        }
-                    }
-                });
-            }
-            
             // Initialize pengganti toggle based on old data
             const sudahPengganti = "{{ old('sudah_pengganti') }}";
             if (sudahPengganti === 'ya') {
