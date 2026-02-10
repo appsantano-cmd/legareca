@@ -6,6 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - Sistem Management</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- TAMBAHKAN Alpine.js -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
@@ -39,25 +41,24 @@
             width: calc(100% - 70px);
         }
 
+        /* MODIFIKASI CSS UNTUK MOBILE */
         @media (max-width: 768px) {
+            /* Sidebar tetap disembunyikan default untuk mobile */
             .sidebar {
                 position: fixed;
                 left: -260px;
                 z-index: 50;
                 height: 100vh;
+                transition: left 0.3s ease;
             }
 
-            .sidebar-active {
+            /* Class untuk menampilkan sidebar di mobile */
+            .sidebar-mobile-active {
                 left: 0;
             }
 
-            .main-content-expanded,
-            .main-content-collapsed {
-                margin-left: 0;
-                width: 100%;
-            }
-
-            .overlay {
+            /* Overlay untuk mobile */
+            .mobile-overlay {
                 display: none;
                 position: fixed;
                 top: 0;
@@ -68,9 +69,38 @@
                 z-index: 40;
             }
 
-            .overlay-active {
+            .mobile-overlay-active {
                 display: block;
             }
+
+            /* Style untuk main content di mobile */
+            .main-content-expanded,
+            .main-content-collapsed {
+                margin-left: 0;
+                width: 100%;
+            }
+
+            /* TAMBAHAN: Style untuk hamburger menu button */
+            .mobile-menu-button {
+                display: block !important;
+            }
+
+            /* TAMBAHAN: Style untuk dropdown sidebar mobile */
+            .mobile-sidebar-container {
+                display: block;
+                position: relative;
+            }
+
+            /* TAMBAHAN: Style untuk konten dropdown mobile */
+            .mobile-dropdown-content {
+                max-height: 70vh;
+                overflow-y: auto;
+            }
+        }
+
+        /* TAMBAHAN: Style untuk tombol hamburger di mobile */
+        .mobile-menu-button {
+            display: none;
         }
 
         .card-hover {
@@ -230,15 +260,54 @@
         .developer-menu {
             border-left: 3px solid #8b5cf6;
         }
+
+        /* TAMBAHAN: Transition untuk dropdown mobile */
+        .mobile-dropdown-enter {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+
+        .mobile-dropdown-enter-active {
+            opacity: 1;
+            transform: translateY(0);
+            transition: opacity 300ms, transform 300ms;
+        }
+
+        .mobile-dropdown-leave {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .mobile-dropdown-leave-active {
+            opacity: 0;
+            transform: translateY(-10px);
+            transition: opacity 300ms, transform 300ms;
+        }
     </style>
 </head>
 
-<body class="bg-gray-50">
-    <!-- Overlay for mobile sidebar -->
-    <div id="overlay" class="overlay" onclick="closeMobileSidebar()"></div>
+<!-- TAMBAHKAN x-data dan x-on:resize untuk Alpine.js -->
+<body class="bg-gray-50" x-data="{ isMobileMenuOpen: false, isMobile: window.innerWidth <= 768 }" 
+      x-on:resize.window="isMobile = (window.innerWidth <= 768); if (!isMobile) isMobileMenuOpen = false;">
 
-    <!-- Sidebar -->
-    <div id="sidebar" class="sidebar sidebar-expanded bg-white h-screen fixed left-0 top-0 shadow-lg z-40">
+    <!-- TAMBAHKAN: Overlay untuk mobile sidebar (diperbarui) -->
+    <div class="mobile-overlay" 
+         x-show="isMobile && isMobileMenuOpen" 
+         x-transition.opacity 
+         @click="isMobileMenuOpen = false">
+    </div>
+
+    <!-- Sidebar - TAMBAHKAN: Alpine.js binding untuk mobile -->
+    <div id="sidebar" class="sidebar sidebar-expanded bg-white h-screen fixed left-0 top-0 shadow-lg z-40"
+         :class="{ 'sidebar-mobile-active': isMobile && isMobileMenuOpen }"
+         x-show="!isMobile || isMobileMenuOpen"
+         x-transition:enter="transition ease-out duration-300"
+         x-transition:enter-start="-translate-x-full"
+         x-transition:enter-end="translate-x-0"
+         x-transition:leave="transition ease-in duration-300"
+         x-transition:leave-start="translate-x-0"
+         x-transition:leave-end="-translate-x-full">
+        
         <!-- Sidebar Header -->
         <div class="p-6 border-b border-gray-200">
             <div class="flex items-center justify-between">
@@ -258,8 +327,10 @@
                         <p class="text-xs text-gray-500">Management System</p>
                     </div>
                 </div>
-                <button id="sidebar-close" class="text-gray-500 hover:text-gray-700 lg:hidden"
-                    onclick="closeMobileSidebar()">
+                <!-- TAMBAHKAN: Tombol close untuk mobile -->
+                <button class="text-gray-500 hover:text-gray-700 lg:hidden" 
+                        x-show="isMobile" 
+                        @click="isMobileMenuOpen = false">
                     <i class="fas fa-times text-lg"></i>
                 </button>
             </div>
@@ -271,7 +342,8 @@
                 <!-- Home/Dashboard -->
                 <li>
                     <a href="{{ route('dashboard') }}"
-                        class="flex items-center p-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition duration-200 {{ request()->routeIs('dashboard') ? 'active-menu' : '' }}">
+                        class="flex items-center p-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition duration-200 {{ request()->routeIs('dashboard') ? 'active-menu' : '' }}"
+                        @click="if (isMobile) isMobileMenuOpen = false">
                         <i class="fas fa-home text-lg w-6"></i>
                         <span class="ml-3 font-medium">Dashboard</span>
                     </a>
@@ -286,35 +358,40 @@
 
                         <!-- Form Cleaning Report -->
                         <a href="{{ route('cleaning-report.create') }}"
-                            class="flex items-center p-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition duration-200 {{ request()->routeIs('cleaning-report.create') ? 'active-menu' : '' }}">
+                            class="flex items-center p-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition duration-200 {{ request()->routeIs('cleaning-report.create') ? 'active-menu' : '' }}"
+                            @click="if (isMobile) isMobileMenuOpen = false">
                             <i class="fas fa-pen-to-square text-lg w-6"></i>
                             <span class="ml-3 font-medium">Form Cleaning Report</span>
                         </a>
 
                         <!-- Form Tukar Shift -->
                         <a href="{{ route('shifting.create') }}"
-                            class="flex items-center p-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition duration-200 {{ request()->routeIs('shifting.create') ? 'active-menu' : '' }}">
+                            class="flex items-center p-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition duration-200 {{ request()->routeIs('shifting.create') ? 'active-menu' : '' }}"
+                            @click="if (isMobile) isMobileMenuOpen = false">
                             <i class="fas fa-right-left text-lg w-6"></i>
                             <span class="ml-3 font-medium">Form Tukar Shift</span>
                         </a>
 
                         <!-- Form Pengajuan Izin -->
                         <a href="{{ route('izin.create') }}"
-                            class="flex items-center p-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition duration-200 {{ request()->routeIs('izin.create') ? 'active-menu' : '' }}">
+                            class="flex items-center p-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition duration-200 {{ request()->routeIs('izin.create') ? 'active-menu' : '' }}"
+                            @click="if (isMobile) isMobileMenuOpen = false">
                             <i class="fas fa-file-circle-plus text-lg w-6"></i>
                             <span class="ml-3 font-medium">Form Pengajuan Izin</span>
                         </a>
 
                         <!-- Stok Gudang (Transaction Create) -->
                         <a href="{{ route('transactions.create') }}"
-                            class="flex items-center p-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition duration-200 {{ request()->routeIs('transactions.create') ? 'active-menu' : '' }}">
+                            class="flex items-center p-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition duration-200 {{ request()->routeIs('transactions.create') ? 'active-menu' : '' }}"
+                            @click="if (isMobile) isMobileMenuOpen = false">
                             <i class="fas fa-boxes-stacked text-lg w-6"></i>
                             <span class="ml-3 font-medium">Stok Gudang</span>
                         </a>
 
                         <!-- Stok Station -->
                         <a href="{{ route('stok-kitchen.index') }}"
-                            class="flex items-center p-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition duration-200 {{ request()->routeIs('master-kitchen.index') ? 'active-menu' : '' }}">
+                            class="flex items-center p-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition duration-200 {{ request()->routeIs('master-kitchen.index') ? 'active-menu' : '' }}"
+                            @click="if (isMobile) isMobileMenuOpen = false">
                             <i class="fas fa-kitchen-set text-lg w-6"></i>
                             <span class="ml-3 font-medium">Stok Station</span>
                         </a>
@@ -331,14 +408,16 @@
 
                         <!-- Tambah User -->
                         <a href="{{ route('users.create') }}"
-                            class="flex items-center p-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition duration-200 {{ request()->routeIs('users.create') ? 'active-menu' : '' }}">
+                            class="flex items-center p-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition duration-200 {{ request()->routeIs('users.create') ? 'active-menu' : '' }}"
+                            @click="if (isMobile) isMobileMenuOpen = false">
                             <i class="fas fa-user-plus text-lg w-6"></i>
                             <span class="ml-3 font-medium">Tambah User</span>
                         </a>
 
                         <!-- Daftar User -->
                         <a href="{{ route('users.index') }}"
-                            class="flex items-center p-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition duration-200 {{ request()->routeIs('users.index') ? 'active-menu' : '' }}">
+                            class="flex items-center p-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition duration-200 {{ request()->routeIs('users.index') ? 'active-menu' : '' }}"
+                            @click="if (isMobile) isMobileMenuOpen = false">
                             <i class="fas fa-users text-lg w-6"></i>
                             <span class="ml-3 font-medium">Daftar User</span>
                         </a>
@@ -350,56 +429,64 @@
 
                         <!-- Form Screening -->
                         <a href="{{ route('screening.welcome') }}"
-                            class="flex items-center p-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition duration-200 {{ request()->routeIs('screening.welcome') ? 'active-menu' : '' }}">
+                            class="flex items-center p-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition duration-200 {{ request()->routeIs('screening.welcome') ? 'active-menu' : '' }}"
+                            @click="if (isMobile) isMobileMenuOpen = false">
                             <i class="fas fa-clipboard-list text-lg w-6"></i>
                             <span class="ml-3 font-medium">Form Screening</span>
                         </a>
 
                         <!-- Daftar Screening -->
                         <a href="{{ route('screening.index') }}"
-                            class="flex items-center p-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition duration-200 {{ request()->routeIs('screening.index') ? 'active-menu' : '' }}">
+                            class="flex items-center p-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition duration-200 {{ request()->routeIs('screening.index') ? 'active-menu' : '' }}"
+                            @click="if (isMobile) isMobileMenuOpen = false">
                             <i class="fas fa-list-check text-lg w-6"></i>
                             <span class="ml-3 font-medium">Daftar Screening</span>
                         </a>
 
                         <!-- Form Cleaning Report -->
                         <a href="{{ route('cleaning-report.create') }}"
-                            class="flex items-center p-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition duration-200 {{ request()->routeIs('cleaning-report.create') ? 'active-menu' : '' }}">
+                            class="flex items-center p-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition duration-200 {{ request()->routeIs('cleaning-report.create') ? 'active-menu' : '' }}"
+                            @click="if (isMobile) isMobileMenuOpen = false">
                             <i class="fas fa-pen-to-square text-lg w-6"></i>
                             <span class="ml-3 font-medium">Form Cleaning Report</span>
                         </a>
 
                         <!-- Daftar Cleaning Report -->
                         <a href="{{ route('cleaning-report.dashboard') }}"
-                            class="flex items-center p-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition duration-200 {{ request()->routeIs('cleaning-report.dashboard') ? 'active-menu' : '' }}">
+                            class="flex items-center p-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition duration-200 {{ request()->routeIs('cleaning-report.dashboard') ? 'active-menu' : '' }}"
+                            @click="if (isMobile) isMobileMenuOpen = false">
                             <i class="fas fa-broom text-lg w-6"></i>
                             <span class="ml-3 font-medium">Daftar Cleaning Report</span>
                         </a>
 
                         <!-- Form Tukar Shift -->
                         <a href="{{ route('shifting.create') }}"
-                            class="flex items-center p-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition duration-200 {{ request()->routeIs('shifting.create') ? 'active-menu' : '' }}">
+                            class="flex items-center p-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition duration-200 {{ request()->routeIs('shifting.create') ? 'active-menu' : '' }}"
+                            @click="if (isMobile) isMobileMenuOpen = false">
                             <i class="fas fa-right-left text-lg w-6"></i>
                             <span class="ml-3 font-medium">Form Tukar Shift</span>
                         </a>
 
                         <!-- Daftar Tukar Shift -->
                         <a href="{{ route('shifting.index') }}"
-                            class="flex items-center p-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition duration-200 {{ request()->routeIs('shifting.index') ? 'active-menu' : '' }}">
+                            class="flex items-center p-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition duration-200 {{ request()->routeIs('shifting.index') ? 'active-menu' : '' }}"
+                            @click="if (isMobile) isMobileMenuOpen = false">
                             <i class="fas fa-calendar-days text-lg w-6"></i>
                             <span class="ml-3 font-medium">Daftar Tukar Shift</span>
                         </a>
 
                         <!-- Form Pengajuan Izin -->
                         <a href="{{ route('izin.create') }}"
-                            class="flex items-center p-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition duration-200 {{ request()->routeIs('izin.create') ? 'active-menu' : '' }}">
+                            class="flex items-center p-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition duration-200 {{ request()->routeIs('izin.create') ? 'active-menu' : '' }}"
+                            @click="if (isMobile) isMobileMenuOpen = false">
                             <i class="fas fa-file-circle-plus text-lg w-6"></i>
                             <span class="ml-3 font-medium">Form Pengajuan Izin</span>
                         </a>
 
                         <!-- Daftar Pengajuan Izin -->
                         <a href="{{ route('izin.index') }}"
-                            class="flex items-center p-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition duration-200 {{ request()->routeIs('izin.index') ? 'active-menu' : '' }}">
+                            class="flex items-center p-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition duration-200 {{ request()->routeIs('izin.index') ? 'active-menu' : '' }}"
+                            @click="if (isMobile) isMobileMenuOpen = false">
                             <i class="fas fa-folder-open text-lg w-6"></i>
                             <span class="ml-3 font-medium">Daftar Pengajuan Izin</span>
                         </a>
@@ -411,14 +498,16 @@
 
                         <!-- Stok Gudang -->
                         <a href="{{ route('stok.index') }}"
-                            class="flex items-center p-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition duration-200 {{ request()->routeIs('stok.index') ? 'active-menu' : '' }}">
+                            class="flex items-center p-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition duration-200 {{ request()->routeIs('stok.index') ? 'active-menu' : '' }}"
+                            @click="if (isMobile) isMobileMenuOpen = false">
                             <i class="fas fa-warehouse text-lg w-6"></i>
                             <span class="ml-3 font-medium">Stok Gudang</span>
                         </a>
 
                         <!-- Stok Station -->
                         <a href="{{ route('master-kitchen.index') }}"
-                            class="flex items-center p-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition duration-200 {{ request()->routeIs('master-kitchen.index') ? 'active-menu' : '' }}">
+                            class="flex items-center p-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition duration-200 {{ request()->routeIs('master-kitchen.index') ? 'active-menu' : '' }}"
+                            @click="if (isMobile) isMobileMenuOpen = false">
                             <i class="fas fa-kitchen-set text-lg w-6"></i>
                             <span class="ml-3 font-medium">Stok Station</span>
                         </a>
@@ -430,7 +519,8 @@
 
                         <!-- Art Gallery Create -->
                         <a href="{{ route('gallery.create') }}"
-                            class="flex items-center p-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition duration-200 {{ request()->routeIs('gallery.create') ? 'active-menu' : '' }}">
+                            class="flex items-center p-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition duration-200 {{ request()->routeIs('gallery.create') ? 'active-menu' : '' }}"
+                            @click="if (isMobile) isMobileMenuOpen = false">
                             <i class="fas fa-paint-brush text-lg w-6"></i>
                             <span class="ml-3 font-medium">Art Gallery Create</span>
                         </a>
@@ -445,7 +535,8 @@
 
                             <!-- Activity Log -->
                             <a href="{{ route('admin.activity-log.index') }}"
-                                class="flex items-center p-3 text-gray-700 hover:bg-purple-50 hover:text-purple-600 rounded-lg transition duration-200 developer-menu {{ request()->is('admin/activity-log*') ? 'active-menu' : '' }} relative">
+                                class="flex items-center p-3 text-gray-700 hover:bg-purple-50 hover:text-purple-600 rounded-lg transition duration-200 developer-menu {{ request()->is('admin/activity-log*') ? 'active-menu' : '' }} relative"
+                                @click="if (isMobile) isMobileMenuOpen = false">
                                 <i class="fas fa-history text-lg w-6"></i>
                                 <span class="ml-3 font-medium">Activity Log</span>
                                 <!-- Live activity badge -->
@@ -456,7 +547,8 @@
 
                             <!-- Form Submissions (View only) -->
                             <a href="{{ route('admin.activity-log.forms') }}"
-                                class="flex items-center p-3 text-gray-700 hover:bg-purple-50 hover:text-purple-600 rounded-lg transition duration-200 developer-menu {{ request()->is('admin/activity-log/forms') ? 'active-menu' : '' }}">
+                                class="flex items-center p-3 text-gray-700 hover:bg-purple-50 hover:text-purple-600 rounded-lg transition duration-200 developer-menu {{ request()->is('admin/activity-log/forms') ? 'active-menu' : '' }}"
+                                @click="if (isMobile) isMobileMenuOpen = false">
                                 <i class="fas fa-file-edit text-lg w-6"></i>
                                 <span class="ml-3 font-medium">Form Submissions</span>
                             </a>
@@ -474,12 +566,14 @@
             <div class="flex items-center justify-between px-6 py-4">
                 <!-- Left side: Menu button and breadcrumb -->
                 <div class="flex items-center">
-                    <button id="mobile-menu-button" class="text-gray-600 hover:text-gray-900 mr-4 lg:hidden"
-                        onclick="openMobileSidebar()">
+                    <!-- TAMBAHKAN: Tombol hamburger untuk mobile (diperbarui dengan Alpine.js) -->
+                    <button class="mobile-menu-button text-gray-600 hover:text-gray-900 mr-4" 
+                            x-show="isMobile" 
+                            @click="isMobileMenuOpen = true">
                         <i class="fas fa-bars text-xl"></i>
                     </button>
 
-                    <!-- Desktop sidebar toggle -->
+                    <!-- Desktop sidebar toggle (tetap ada untuk PC) -->
                     <button id="desktop-sidebar-toggle" class="hidden lg:block text-gray-600 hover:text-gray-900 mr-4"
                         onclick="toggleDesktopSidebar()">
                         <i class="fas fa-bars text-xl"></i>
@@ -759,26 +853,22 @@
     </div>
 
     <script>
-        // Mobile sidebar functions
+        // Mobile sidebar functions (diperbarui untuk kompatibilitas)
         function openMobileSidebar() {
-            const sidebar = document.getElementById('sidebar');
-            const overlay = document.getElementById('overlay');
-
-            sidebar.classList.add('sidebar-active');
-            overlay.classList.add('overlay-active');
-            document.body.style.overflow = 'hidden';
+            // Fungsi ini masih ada untuk kompatibilitas dengan kode yang sudah ada
+            if (typeof Alpine !== 'undefined' && Alpine.$data) {
+                Alpine.$data.isMobileMenuOpen = true;
+            }
         }
 
         function closeMobileSidebar() {
-            const sidebar = document.getElementById('sidebar');
-            const overlay = document.getElementById('overlay');
-
-            sidebar.classList.remove('sidebar-active');
-            overlay.classList.remove('overlay-active');
-            document.body.style.overflow = 'auto';
+            // Fungsi ini masih ada untuk kompatibilitas dengan kode yang sudah ada
+            if (typeof Alpine !== 'undefined' && Alpine.$data) {
+                Alpine.$data.isMobileMenuOpen = false;
+            }
         }
 
-        // Desktop sidebar function
+        // Desktop sidebar function (TETAP SAMA UNTUK PC)
         function toggleDesktopSidebar() {
             const sidebar = document.getElementById('sidebar');
             const mainContent = document.getElementById('main-content');
@@ -829,37 +919,6 @@
 
         // Initialize page
         document.addEventListener('DOMContentLoaded', function() {
-            // Close mobile sidebar when clicking a link
-            const sidebarLinks = document.querySelectorAll('#sidebar a');
-            sidebarLinks.forEach(link => {
-                link.addEventListener('click', function() {
-                    if (window.innerWidth < 768) {
-                        closeMobileSidebar();
-                    }
-                });
-            });
-
-            // Handle window resize
-            window.addEventListener('resize', function() {
-                const sidebar = document.getElementById('sidebar');
-                const mainContent = document.getElementById('main-content');
-                const overlay = document.getElementById('overlay');
-
-                // Jika beralih dari mobile ke desktop, pastikan sidebar dalam keadaan normal
-                if (window.innerWidth >= 768) {
-                    closeMobileSidebar();
-
-                    // Pastikan kelas yang tepat diterapkan untuk desktop
-                    if (sidebar.classList.contains('sidebar-collapsed')) {
-                        mainContent.classList.remove('main-content-expanded');
-                        mainContent.classList.add('main-content-collapsed');
-                    } else {
-                        mainContent.classList.remove('main-content-collapsed');
-                        mainContent.classList.add('main-content-expanded');
-                    }
-                }
-            });
-
             // Update time every minute
             function updateTime() {
                 const timeElements = document.querySelectorAll('.time-display');
