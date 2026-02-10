@@ -26,6 +26,7 @@ use App\Http\Controllers\StokStationMasterBarController;
 use App\Http\Controllers\StokKitchenController;
 use App\Http\Controllers\StokBarController;
 use App\Http\Controllers\ActivityLogController;
+use App\Http\Controllers\HalamanVenueController;
 
 // ============================
 // PUBLIC ROUTES (NO AUTH)
@@ -67,6 +68,9 @@ Route::prefix('screening')->name('screening.')->controller(ScreeningController::
 
 });
 
+// Halaman informasi venue
+Route::get('/halamanvenue', [HalamanVenueController::class, 'index'])->name('halamanvenue.index');
+
 // Venue Booking
 Route::controller(VenueBookingController::class)->group(function () {
     Route::get('/venue', 'index')->name('venue.index');
@@ -98,6 +102,7 @@ Route::prefix('reservasi')->name('reservasi.')->controller(ReservasiController::
     Route::get('/inn', 'innIndex')->name('inn.index');
     Route::post('/inn/submit', 'innSubmit')->name('inn.submit');
 });
+
 
 // Static Pages
 Route::get('/layanan', function () {
