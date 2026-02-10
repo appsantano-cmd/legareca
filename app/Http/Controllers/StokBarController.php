@@ -296,7 +296,6 @@ class StokBarController extends Controller
         $masterBahan = StokStationMasterBar::where('kode_bahan', 'like', "%{$search}%")
             ->orWhere('nama_bahan', 'like', "%{$search}%")
             ->orderBy('nama_bahan')
-            ->limit(20)
             ->get();
 
         return response()->json($masterBahan);
