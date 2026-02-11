@@ -46,6 +46,16 @@
         .logo-container:hover {
             transform: scale(1.05);
         }
+        
+        .forgot-link {
+            transition: all 0.2s ease;
+            font-size: 0.85rem;
+        }
+        
+        .forgot-link:hover {
+            color: #1d4ed8;
+            text-decoration: underline;
+        }
     </style>
 </head>
 <body class="p-4">
@@ -102,7 +112,7 @@
                 </div>
                 
                 <!-- Password Input -->
-                <div class="mb-8">
+                <div class="mb-6">
                     <label for="password" class="block text-gray-700 text-sm font-medium mb-2">
                         <i class="fas fa-lock mr-2 text-blue-500"></i>Password
                     </label>
@@ -122,6 +132,13 @@
                             <i class="fas fa-eye text-gray-400 hover:text-blue-500"></i>
                         </button>
                     </div>
+                    
+                    <!-- Forgot Password Link - Pojok Kanan Bawah Password -->
+                    <div class="flex justify-end mt-2">
+                        <a href="/forgot-password" class="forgot-link text-blue-600 font-medium hover:text-blue-800 transition duration-200">
+                            <i class="fas fa-key mr-1 text-xs"></i>Forgot Password?
+                        </a>
+                    </div>
                 </div>
                 
                 <!-- Error Message -->
@@ -136,11 +153,10 @@
                 @enderror
             
                 <!-- Submit Button -->
-                <div class="mt-2">
+                <div class="mt-4">
                     <button type="submit" class="w-full btn-primary text-white font-medium py-4 px-4 rounded-lg text-lg shadow-lg hover:shadow-xl transition-all duration-300">
                         <i class="fas fa-sign-in-alt mr-3"></i>Sign In to Your Account
                     </button>
-                    
                 </div>
             </form>
         </div>
