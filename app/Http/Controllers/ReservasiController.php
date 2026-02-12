@@ -9,9 +9,9 @@ class ReservasiController extends Controller
     /**
      * Menampilkan halaman reservasi Legareca Inn
      */
-    public function innIndex()
+    public function home()
     {
-        return view('reservasi.inn.index');
+        return view('reservasi.inn.home');
     }
     
     /**

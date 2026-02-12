@@ -102,7 +102,7 @@
                 <div class="horizontal-card-content">
                     <h3 class="text-xl font-bold mb-2">Legareca Inn</h3>
                     <p class="text-gray-700 mb-4">Penginapan nyaman dengan fasilitas lengkap untuk liburan atau perjalanan bisnis.</p>
-                    <a href="{{ route('reservasi.inn.index') }}" class="inline-block text-red-500 font-semibold hover:text-red-600">Selengkapnya →</a>
+                    <a href="{{ route('reservasi.inn.home') }}" class="inline-block text-red-500 font-semibold hover:text-red-600">Selengkapnya →</a>
                 </div>
             </div>
 
@@ -301,12 +301,5 @@
         </div>
     </div>
 </section>
-
-<!-- Footer Bergerak -->
-<footer class="footer-moving">
-    <div class="moving-text">
-        C 2026 Santano • Legareca Space • Jl. Padokan Baru No.B789, Jogonalan Lor, Tirtonirmolo, Kec. Kasihan, Kabupaten Bantul, Daerah Istimewa Yogyakarta 55181 • Phone: 0812-2950-8183 • legareca.space@gmail.com • C 2026 Santano • Legareca Space • Jl. Padokan Baru No.B789, Jogonalan Lor, Tirtonirmolo, Kec. Kasihan, Kabupaten Bantul, Daerah Istimewa Yogyakarta 55181 • Phone: 0812-2950-8183 • legareca.space@gmail.com
-    </div>
-</footer>
 
 @endsection

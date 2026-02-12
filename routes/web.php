@@ -120,10 +120,10 @@ Route::controller(LegaPetCareController::class)->group(function () {
 // Reservasi
 Route::prefix('reservasi')->name('reservasi.')->controller(ReservasiController::class)->group(function () {
     Route::get('/', function () {
-        return redirect()->route('reservasi.inn.index');
+        return redirect()->route('reservasi.inn.home');
     })->name('index');
 
-    Route::get('/inn', 'innIndex')->name('inn.index');
+    Route::get('/inn', 'home')->name('inn.home');
     Route::post('/inn/submit', 'innSubmit')->name('inn.submit');
 });
 

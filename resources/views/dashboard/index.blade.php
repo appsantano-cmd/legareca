@@ -517,13 +517,87 @@
                                 Management</span>
                         </div>
 
+                        <!-- Cafe Resto Index -->
+                        <a href="#"
+                            class="flex items-center p-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition duration-200 {{ request()->routeIs('gallery.create') ? 'active-menu' : '' }}"
+                            @click="if (isMobile) isMobileMenuOpen = false">
+                            <i class="fas fa-paint-brush text-lg w-6"></i>
+                            <span class="ml-3 font-medium">Daftar Cafe Resto</span>
+                        </a>
+
+                        <!-- Venue Create -->
+                        <a href="{{ route(name: 'venue.index') }}"
+                            class="flex items-center p-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition duration-200 {{ request()->routeIs('venue.*') ? 'active-menu' : '' }}"
+                            @click="if (isMobile) isMobileMenuOpen = false">
+                            <i class="fas fa-paint-brush text-lg w-6"></i>
+                            <span class="ml-3 font-medium">Form Venue</span>
+                        </a>
+
+                        <!-- Venue Index -->
+                        <a href="#"
+                            class="flex items-center p-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition duration-200 {{ request()->routeIs('gallery.create') ? 'active-menu' : '' }}"
+                            @click="if (isMobile) isMobileMenuOpen = false">
+                            <i class="fas fa-paint-brush text-lg w-6"></i>
+                            <span class="ml-3 font-medium">Daftar Venue</span>
+                        </a>
+
+                        <!-- Kami Daur Create -->
+                        <a href="#"
+                            class="flex items-center p-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition duration-200 {{ request()->routeIs('gallery.create') ? 'active-menu' : '' }}"
+                            @click="if (isMobile) isMobileMenuOpen = false">
+                            <i class="fas fa-paint-brush text-lg w-6"></i>
+                            <span class="ml-3 font-medium">Form Kami Daur</span>
+                        </a>
+
+                        <!-- Kami Daur Index -->
+                        <a href="#"
+                            class="flex items-center p-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition duration-200 {{ request()->routeIs('gallery.create') ? 'active-menu' : '' }}"
+                            @click="if (isMobile) isMobileMenuOpen = false">
+                            <i class="fas fa-paint-brush text-lg w-6"></i>
+                            <span class="ml-3 font-medium">Daftar Kami Daur</span>
+                        </a>
+
+                        <!-- Legareca Inn Index -->
+                        <a href="#"
+                            class="flex items-center p-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition duration-200 {{ request()->routeIs('gallery.create') ? 'active-menu' : '' }}"
+                            @click="if (isMobile) isMobileMenuOpen = false">
+                            <i class="fas fa-paint-brush text-lg w-6"></i>
+                            <span class="ml-3 font-medium">Daftar Legareca Inn</span>
+                        </a>
+
                         <!-- Art Gallery Create -->
                         <a href="{{ route('gallery.create') }}"
                             class="flex items-center p-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition duration-200 {{ request()->routeIs('gallery.create') ? 'active-menu' : '' }}"
                             @click="if (isMobile) isMobileMenuOpen = false">
                             <i class="fas fa-paint-brush text-lg w-6"></i>
-                            <span class="ml-3 font-medium">Art Gallery Create</span>
+                            <span class="ml-3 font-medium">Form Art Gallery</span>
                         </a>
+
+                        <!-- Art Gallery Index -->
+                        <a href="#"
+                            class="flex items-center p-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition duration-200 {{ request()->routeIs('gallery.create') ? 'active-menu' : '' }}"
+                            @click="if (isMobile) isMobileMenuOpen = false">
+                            <i class="fas fa-paint-brush text-lg w-6"></i>
+                            <span class="ml-3 font-medium">Daftar Art Gallery</span>
+                        </a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
                         <!-- Developer Menu (Activity Log) -->
                         @if (auth()->user()->role === 'developer')
