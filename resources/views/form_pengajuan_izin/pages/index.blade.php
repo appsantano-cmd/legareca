@@ -261,7 +261,7 @@
                                     <td class="p-4">
                                         @if ($item->documen_pendukung)
                                             <button 
-                                                onclick="showDocumentModal('{{ Storage::url($item->documen_pendukung) }}')"
+                                                onclick="showDocumentModal('{{ asset($item->documen_pendukung) }}')"
                                                 class="inline-flex items-center gap-1 text-blue-600 hover:text-blue-800 text-sm font-medium">
                                                 <i class="fas fa-eye"></i>
                                                 Lihat
@@ -425,7 +425,7 @@
                                     <div>
                                         @if ($item->documen_pendukung)
                                             <button 
-                                                onclick="showDocumentModal('{{ Storage::url($item->documen_pendukung) }}')"
+                                                onclick="showDocumentModal('{{ asset($item->documen_pendukung) }}')"
                                                 class="inline-flex items-center gap-1 text-blue-600 text-sm hover:underline">
                                                 <i class="fas fa-eye"></i>
                                                 Lihat Dokumen

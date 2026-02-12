@@ -124,9 +124,22 @@ class PengajuanIzinController extends Controller
 
         // simpan file
         if ($request->hasFile('documen_pendukung')) {
-            $validated['documen_pendukung'] =
-                $request->file('documen_pendukung')
-                    ->store('izin_pendukung', 'public');
+            $file = $request->file('documen_pendukung');
+            $filename = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+
+            // ✅ SIMPAN LANGSUNG KE PUBLIC/STORAGE/IZIN_PENDUKUNG
+            $uploadPath = public_path('storage/izin_pendukung');
+
+            // Buat folder jika belum ada
+            if (!file_exists($uploadPath)) {
+                mkdir($uploadPath, 0777, true);
+            }
+
+            // Pindahkan file
+            $file->move($uploadPath, $filename);
+
+            // Simpan path ke database
+            $validated['documen_pendukung'] = 'storage/izin_pendukung/' . $filename;
         }
 
         DB::beginTransaction();
@@ -348,51 +361,45 @@ class PengajuanIzinController extends Controller
             ]);
 
             if ($izin->documen_pendukung) {
-                // Path relatif untuk disk public
-                $relativePath = $izin->documen_pendukung;
+                // ✅ PERBAIKAN: Cek file di public path
+                $relativePath = str_replace('storage/', '', $izin->documen_pendukung);
+                $publicPath = public_path('storage/izin_pendukung/' . basename($izin->documen_pendukung));
 
-                Log::info('📂 [EMAIL IZIN] Relative path', [
-                    'relative_path' => $relativePath
+                Log::info('📂 [EMAIL IZIN] Checking file', [
+                    'public_path' => $publicPath,
+                    'file_exists' => file_exists($publicPath)
                 ]);
 
-                // Cek via Storage disk public
-                $existsInDisk = Storage::disk('public')->exists($relativePath);
+                if (file_exists($publicPath)) {
+                    $fileAttached = true;
+                    $filePath = $publicPath;
+                    $fileName = basename($publicPath);
 
-                Log::info('🧪 [EMAIL IZIN] Storage::disk(public)->exists()', [
-                    'exists' => $existsInDisk
-                ]);
+                    // Tentukan mime type
+                    $extension = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
+                    $fileMime = $this->getMimeType($extension);
 
-                if ($existsInDisk) {
-                    $filePath = Storage::disk('public')->path($relativePath);
-
-                    Log::info('🧭 [EMAIL IZIN] Absolute file path', [
-                        'file_path' => $filePath,
-                        'file_exists' => file_exists($filePath),
-                        'file_size' => file_exists($filePath) ? filesize($filePath) : null
+                    Log::info('✅ [EMAIL IZIN] File siap dilampirkan', [
+                        'file_name' => $fileName,
+                        'file_mime' => $fileMime,
+                        'file_size_mb' => round(filesize($filePath) / 1024 / 1024, 2)
                     ]);
-
-                    if (file_exists($filePath)) {
+                } else {
+                    // Fallback: cek di storage lama untuk file lama
+                    $oldPath = storage_path('app/public/' . $izin->documen_pendukung);
+                    if (file_exists($oldPath)) {
                         $fileAttached = true;
-                        $fileName = basename($filePath);
-
-                        // Tentukan mime type berdasarkan ekstensi
+                        $filePath = $oldPath;
+                        $fileName = basename($oldPath);
                         $extension = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
                         $fileMime = $this->getMimeType($extension);
 
-                        Log::info('✅ [EMAIL IZIN] File siap dilampirkan', [
-                            'file_name' => $fileName,
-                            'file_mime' => $fileMime,
-                            'file_size_mb' => round(filesize($filePath) / 1024 / 1024, 2)
+                        Log::info('✅ [EMAIL IZIN] Using old storage file', [
+                            'file_path' => $oldPath
                         ]);
                     }
                 }
             }
-
-            Log::info('✅ [EMAIL IZIN] Final file status', [
-                'fileAttached' => $fileAttached,
-                'filePath' => $filePath,
-                'fileName' => $fileName
-            ]);
 
             // Data untuk email
             $mailData = [
@@ -420,7 +427,7 @@ class PengajuanIzinController extends Controller
                 Mail::to($adminEmail)->send(new PengajuanIzinNotification($mailData));
             }
 
-            Log::info('✅ Email notification sent to admin for izin ID: ' . $izin->id);
+            Log::info('✅ Email notification sent to admin for izin ID: ' . $izin->id . ' | File attached: ' . ($fileAttached ? 'Yes' : 'No'));
 
         } catch (\Exception $e) {
             Log::error('❌ Failed to send email to admin: ' . $e->getMessage());
@@ -573,7 +580,7 @@ class PengajuanIzinController extends Controller
                     'status' => $izin->status,
                     'catatan_admin' => $izin->catatan_admin,
                     'disetujui_oleh' => $izin->disetujui_oleh,
-                    'documen_pendukung' => $izin->documen_pendukung ? Storage::url($izin->documen_pendukung) : null,
+                    'documen_pendukung' => $izin->documen_pendukung ? asset($izin->documen_pendukung) : null,
                 ]
             ]);
         } catch (\Exception $e) {
