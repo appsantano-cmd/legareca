@@ -1,326 +1,748 @@
-@extends('layouts.layout_main')
-
-@section('title', $title ?? 'Butik Daur Ulang')
-
-@section('content')
-    <!-- Hero Section -->
-    <section class="kami-daur-hero">
-        <div class="container kami-daur-content">
-            <div class="row align-items-center">
-                <div class="col-lg-8">
-                    <h1 class="display-4 fw-bold">BUTIK BAJU DAUR ULANG</h1>
-                    <p class="lead">Fashion Berkelanjutan untuk Bumi yang Lebih Hijau</p>
-                    <p>Setiap pakaian yang kami buat adalah cerita tentang perubahan - dari limbah menjadi karya seni yang bermakna, dari sampah menjadi fashion yang stylish dan ramah lingkungan.</p>
-                    <a href="#produk" class="btn order-btn mt-3" style="max-width: 200px;">
-                        <i class="fas fa-shopping-bag me-2"></i> Lihat Koleksi
+{{-- resources/views/kami-daur/index.blade.php --}}
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manajemen Produk & Material - Kami Daur</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- SweetAlert2 -->
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
+    
+    <style>
+        body {
+            background-color: #f8f9fa;
+            padding: 20px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .container-fluid {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        .empty-state {
+            padding: 60px 20px;
+            text-align: center;
+            background: white;
+            border-radius: 8px;
+        }
+        .empty-state i {
+            color: #dee2e6;
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+        .btn-group .btn {
+            padding: 0.4rem 0.7rem;
+        }
+        .badge {
+            padding: 0.5rem 0.75rem;
+            font-weight: 500;
+        }
+        .card {
+            border-radius: 12px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+            border: none;
+            margin-bottom: 25px;
+        }
+        .card-header {
+            background: white;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+            padding: 1.25rem 1.5rem;
+            border-radius: 12px 12px 0 0 !important;
+        }
+        .table {
+            margin-bottom: 0;
+        }
+        .table td {
+            padding: 1.25rem 1rem;
+            vertical-align: middle;
+        }
+        .table thead th {
+            background-color: #f8f9fa;
+            border-bottom: 2px solid #e9ecef;
+            color: #495057;
+            font-weight: 600;
+            padding: 1rem;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .table tbody tr {
+            transition: all 0.2s;
+        }
+        .table tbody tr:hover {
+            background-color: rgba(40, 167, 69, 0.02);
+        }
+        .btn-success {
+            background: linear-gradient(135deg, #28a745, #218838);
+            border: none;
+            padding: 0.6rem 1.5rem;
+            border-radius: 8px;
+        }
+        .btn-success:hover {
+            background: linear-gradient(135deg, #218838, #1e7e34);
+            transform: translateY(-1px);
+            box-shadow: 0 5px 15px rgba(40,167,69,0.2);
+        }
+        .btn-info {
+            background: linear-gradient(135deg, #17a2b8, #138496);
+            border: none;
+        }
+        .btn-info:hover {
+            background: linear-gradient(135deg, #138496, #117a8b);
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #007bff, #0069d9);
+            border: none;
+        }
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #0069d9, #0056b3);
+        }
+        .pagination {
+            margin-bottom: 0;
+        }
+        .product-preview {
+            width: 60px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: 10px;
+            border: 2px solid #fff;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            transition: all 0.2s;
+        }
+        .product-preview:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        .product-preview-more {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 1.1rem;
+            border: 2px solid #fff;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .feature-tag {
+            background-color: #e8f5e9;
+            color: #2e7d32;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            display: inline-block;
+            margin-right: 4px;
+            margin-bottom: 4px;
+            border: 1px solid #c8e6c9;
+        }
+        .stats-card {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+        }
+        .nav-tabs {
+            border-bottom: none;
+            gap: 10px;
+        }
+        .nav-tabs .nav-link {
+            color: #6c757d;
+            font-weight: 500;
+            padding: 0.75rem 1.5rem;
+            border-radius: 30px;
+            border: none;
+            transition: all 0.2s;
+        }
+        .nav-tabs .nav-link:hover {
+            background-color: #e9ecef;
+            color: #28a745;
+        }
+        .nav-tabs .nav-link.active {
+            color: white;
+            background: linear-gradient(135deg, #28a745, #20c997);
+            border: none;
+        }
+        .badge-active {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 30px;
+            font-weight: 500;
+        }
+        .badge-inactive {
+            background: #6c757d;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 30px;
+            font-weight: 500;
+        }
+        .id-badge {
+            background: #e9ecef;
+            color: #495057;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.85rem;
+        }
+        .material-badge {
+            background: linear-gradient(135deg, #17a2b8, #138496);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            margin-right: 5px;
+            margin-bottom: 5px;
+            transition: all 0.2s;
+        }
+        .material-badge:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 3px 10px rgba(23,162,184,0.3);
+        }
+        .btn-action {
+            width: 36px;
+            height: 36px;
+            padding: 0;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+        .btn-action:hover {
+            transform: translateY(-2px);
+        }
+        .product-stats {
+            display: flex;
+            gap: 8px;
+            margin-top: 8px;
+        }
+        .stat-badge {
+            background: white;
+            border: 1px solid #dee2e6;
+            color: #495057;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .stat-badge i {
+            color: #28a745;
+        }
+        .date-info {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .date-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: #6c757d;
+            font-size: 0.8rem;
+        }
+        .alert {
+            border-radius: 12px;
+            border: none;
+            padding: 1rem 1.5rem;
+        }
+        .alert-success {
+            background: linear-gradient(135deg, #d4edda, #c3e6cb);
+            color: #155724;
+            border-left: 4px solid #28a745;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid py-4">
+        <!-- Header Section -->
+        <div class="row mb-4 align-items-center">
+            <div class="col-lg-8">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="bg-success bg-gradient rounded-circle p-3" style="width: 60px; height: 60px; display: flex; align-items: center; justify-content: center;">
+                        <i class="fas fa-box fa-2x text-white"></i>
+                    </div>
+                    <div>
+                        <h1 class="h2 fw-bold mb-1" style="color: #2c3e50;">
+                            Manajemen Produk & Material
+                        </h1>
+                        <p class="text-muted mb-0">
+                            <i class="fas fa-info-circle me-1"></i>
+                            Kelola produk unggulan dan bahan/material daur ulang untuk halaman Kami Daur
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4 text-lg-end mt-3 mt-lg-0">
+                <div class="d-flex justify-content-lg-end gap-2">
+                    <a href="{{ route('kami-daur.create') }}" class="btn btn-success btn-lg">
+                        <i class="fas fa-plus-circle me-2"></i> Tambah Konfigurasi Baru
                     </a>
                 </div>
-                <div class="col-lg-4 text-center">
-                    <i class="fas fa-leaf environment-icon"></i>
-                </div>
             </div>
         </div>
-    </section>
 
-    <!-- Produk Unggulan Section -->
-    <section id="produk" class="py-5">
-        <div class="container">
-            <h2 class="section-title">Koleksi Eksklusif Kami</h2>
-            <p class="text-center mb-5">Setiap potong pakaian dibuat dengan cinta dan komitmen terhadap lingkungan</p>
-            
-            <div class="row g-4">
-                @if(isset($products) && is_array($products))
-                    @foreach($products as $product)
-                    <div class="col-lg-4 col-md-6">
-                        <div class="card product-card">
-                            @if($product['is_new'] ?? false)
-                            <span class="product-badge">NEW</span>
-                            @endif
-                            @if($product['is_bestseller'] ?? false)
-                            <span class="product-badge" style="background: linear-gradient(135deg, #FF9800, #F57C00); top: 45px;">BESTSELLER</span>
-                            @endif
-                            <img src="{{ $product['image'] ?? 'https://images.unsplash.com/photo-1558769132-cb1cdeede' }}" 
-                                 class="product-image" alt="{{ $product['name'] }}">
-                            <div class="card-body">
-                                <h5 class="card-title">{{ $product['name'] ?? 'Produk Daur Ulang' }}</h5>
-                                <div class="product-price">Rp {{ number_format($product['price'] ?? 0, 0, ',', '.') }}</div>
-                                <p class="card-text">{{ $product['description'] ?? 'Deskripsi produk' }}</p>
-                                
-                                <ul class="product-features">
-                                    @foreach($product['features'] ?? [] as $feature)
-                                    <li><i class="fas fa-check"></i> {{ $feature }}</li>
-                                    @endforeach
-                                </ul>
-                                
-                                <a href="https://wa.me/{{ $contact['phone'] ?? '' }}?text=Halo%20Butik%20Daur%20Ulang,%20saya%20tertarik%20dengan%20produk%20{{ urlencode($product['name'] ?? '') }}%20dan%20ingin%20bertanya%20lebih%20lanjut." 
-                                   class="btn order-btn" target="_blank">
-                                    <i class="fab fa-whatsapp me-2"></i> Pesan Sekarang
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                    @endforeach
-                @else
-                    <!-- Fallback produk jika tidak ada data -->
-                    @php
-                        $defaultProducts = [
-                            [
-                                'name' => 'Jaket Denim Daur Ulang',
-                                'price' => 299000,
-                                'image' => 'https://images.unsplash.com/photo-1558769132-cb1cdeede',
-                                'description' => 'Jaket denim stylish dari bahan jeans bekas berkualitas tinggi',
-                                'features' => ['100% bahan daur ulang', 'Limited edition', 'Eco-friendly dye'],
-                                'is_new' => true
-                            ],
-                            [
-                                'name' => 'Dress Botol Plastik',
-                                'price' => 459000,
-                                'image' => 'https://images.unsplash.com/photo-1567401893414',
-                                'description' => 'Dress elegan terbuat dari botol plastik daur ulang',
-                                'features' => ['22 botol plastik', 'Anti-bacterial', 'Water resistant'],
-                                'is_bestseller' => true
-                            ],
-                            [
-                                'name' => 'Tas Ransel Kain Perca',
-                                'price' => 189000,
-                                'image' => 'https://images.unsplash.com/photo-1553062407',
-                                'description' => 'Tas unik dari sisa kain perca dengan desain modern',
-                                'features' => ['Handmade', 'Setiap tas unik', 'Waterproof lining']
-                            ]
-                        ];
-                    @endphp
-                    
-                    @foreach($defaultProducts as $product)
-                    <div class="col-lg-4 col-md-6">
-                        <div class="card product-card">
-                            @if($product['is_new'] ?? false)
-                            <span class="product-badge">NEW</span>
-                            @endif
-                            @if($product['is_bestseller'] ?? false)
-                            <span class="product-badge" style="background: linear-gradient(135deg, #FF9800, #F57C00); top: 45px;">BESTSELLER</span>
-                            @endif
-                            <img src="{{ $product['image'] }}?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80" 
-                                 class="product-image" alt="{{ $product['name'] }}">
-                            <div class="card-body">
-                                <h5 class="card-title">{{ $product['name'] }}</h5>
-                                <div class="product-price">Rp {{ number_format($product['price'], 0, ',', '.') }}</div>
-                                <p class="card-text">{{ $product['description'] }}</p>
-                                
-                                <ul class="product-features">
-                                    @foreach($product['features'] as $feature)
-                                    <li><i class="fas fa-check"></i> {{ $feature }}</li>
-                                    @endforeach
-                                </ul>
-                                
-                                <a href="https://wa.me/{{ $contact['phone'] ?? '6281234567890' }}?text=Halo%20Butik%20Daur%20Ulang,%20saya%20tertarik%20dengan%20produk%20{{ urlencode($product['name']) }}%20dan%20ingin%20bertanya%20lebih%20lanjut." 
-                                   class="btn order-btn" target="_blank">
-                                    <i class="fab fa-whatsapp me-2"></i> Pesan Sekarang
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                    @endforeach
-                @endif
-            </div>
-        </div>
-    </section>
-
-    <!-- Bahan & Proses Section -->
-    <section id="proses" class="py-5 bg-light">
-        <div class="container">
-            <h2 class="section-title">Proses & Bahan Kami</h2>
-            <p class="text-center mb-5">Dari limbah menjadi fashion bernilai tinggi</p>
-            
-            <div class="row g-4">
-                <div class="col-lg-4 col-md-6">
-                    <div class="material-card">
-                        <img src="https://images.unsplash.com/photo-1542601906990-b4dceb0d8e63?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80" 
-                             class="material-image" alt="Botol Plastik">
-                        <div class="card-body">
-                            <h5 class="material-name">Botol Plastik</h5>
-                            <p class="card-text">Botol plastik PET didaur ulang menjadi benang polyester untuk bahan pakaian berkualitas.</p>
-                            <div class="info-box mt-3 p-3">
-                                <small><i class="fas fa-recycle me-2"></i> 10 botol = 1 kaos</small>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="col-lg-4 col-md-6">
-                    <div class="material-card">
-                        <img src="https://images.unsplash.com/photo-1562077981-1e3eab3c8c7a?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80" 
-                             class="material-image" alt="Kain Perca">
-                        <div class="card-body">
-                            <h5 class="material-name">Kain Perca</h5>
-                            <p class="card-text">Sisa kain dari industri garmen diolah menjadi produk baru dengan desain unik dan kreatif.</p>
-                            <div class="info-box mt-3 p-3">
-                                <small><i class="fas fa-heart me-2"></i> Zero waste production</small>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="col-lg-4 col-md-6">
-                    <div class="material-card">
-                        <img src="https://images.unsplash.com/photo-1578551124695-5c2c6c6c6c6c?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80" 
-                             class="material-image" alt="Denim Bekas">
-                        <div class="card-body">
-                            <h5 class="material-name">Denim Bekas</h5>
-                            <p class="card-text">Jeans bekas diproses menjadi serat baru untuk koleksi denim sustainable kami.</p>
-                            <div class="info-box mt-3 p-3">
-                                <small><i class="fas fa-tint me-2"></i> Natural indigo dye</small>
-                            </div>
-                        </div>
-                    </div>
+        <!-- Alert Success -->
+        @if(session('success'))
+        <div class="alert alert-success alert-dismissible fade show shadow-sm" role="alert">
+            <div class="d-flex align-items-center">
+                <i class="fas fa-check-circle fa-2x me-3"></i>
+                <div>
+                    <strong>Berhasil!</strong> {{ session('success') }}
                 </div>
             </div>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
-    </section>
+        @endif
 
-    <!-- Tentang Kami Section -->
-    <section id="tentang" class="py-5">
-        <div class="container">
-            <div class="row mb-5">
-                <div class="col-lg-8 mx-auto text-center">
-                    <h2 class="section-title">Filosofi Kami</h2>
-                    <p class="fs-5">{{ $description ?? 'Butik Daur Ulang hadir sebagai jawaban atas masalah limbah tekstil yang semakin meningkat. Kami percaya bahwa fashion bisa menjadi gaya hidup sekaligus kontribusi positif bagi lingkungan.' }}</p>
+        <!-- Main Card -->
+        <div class="card">
+            <div class="card-header bg-white py-3">
+                <div class="row align-items-center">
+                    <div class="col-lg-4 text-lg-end mt-3 mt-lg-0">
+                        <div class="d-flex justify-content-lg-end gap-2">
+                            <span class="text-muted">
+                                <i class="fas fa-sync-alt me-1"></i> Diperbarui: {{ now()->format('d/m/Y H:i') }}
+                            </span>
+                        </div>
+                    </div>
                 </div>
             </div>
             
-            <div class="row">
-                <div class="col-lg-6 mb-4">
-                    <h3 class="mb-4">Nilai Kami</h3>
-                    @foreach($mission ?? [
-                        'Setiap produk menyelamatkan 1kg limbah',
-                        'Menggunakan pewarna alami ramah lingkungan',
-                        'Mendukung pengrajin lokal',
-                        'Transparansi proses produksi'
-                    ] as $item)
-                    <div class="mission-item">
-                        <i class="fas fa-leaf me-2 text-success"></i>
-                        {{ $item }}
-                    </div>
-                    @endforeach
-                </div>
-                
-                <div class="col-lg-6 mb-4">
-                    <h3 class="mb-4">Impact Kami</h3>
-                    <div class="info-box">
-                        <div class="row text-center">
-                            <div class="col-4">
-                                <div class="contact-icon" style="width: 50px; height: 50px; margin: 0 auto 10px;">
-                                    <i class="fas fa-recycle"></i>
-                                </div>
-                                <h4>5,000+</h4>
-                                <small>Botol Plastik</small>
-                            </div>
-                            <div class="col-4">
-                                <div class="contact-icon" style="width: 50px; height: 50px; margin: 0 auto 10px;">
-                                    <i class="fas fa-tshirt"></i>
-                                </div>
-                                <h4>2,500+</h4>
-                                <small>Pakaian Terjual</small>
-                            </div>
-                            <div class="col-4">
-                                <div class="contact-icon" style="width: 50px; height: 50px; margin: 0 auto 10px;">
-                                    <i class="fas fa-users"></i>
-                                </div>
-                                <h4>50+</h4>
-                                <small>Pengrajin</small>
-                            </div>
+            <div class="card-body p-0">
+                <div class="tab-content" id="configTabsContent">
+                    <!-- Tab Semua Konfigurasi -->
+                    <div class="tab-pane fade show active" id="all" role="tabpanel">
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0">
+                                <thead>
+                                    <tr>
+                                        <th width="80">ID</th>
+                                        <th>Produk Unggulan</th>
+                                        <th>Bahan & Material</th>
+                                        <th width="140">Dibuat</th>
+                                        <th width="140">Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @forelse($kamiDaurs as $config)
+                                    <tr>
+                                        <td>
+                                            <span class="id-badge">
+                                                <i class="fas fa-hashtag me-1"></i>{{ $config->id }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            @if(isset($config->products) && count($config->products) > 0)
+                                                <div class="d-flex align-items-start gap-2 mb-2">
+                                                    @foreach(array_slice($config->products, 0, 3) as $product)
+                                                    <div class="position-relative">
+                                                        <img src="{{ $product['image'] ?? 'https://via.placeholder.com/60x60?text=No+Image' }}" 
+                                                             class="product-preview" 
+                                                             alt="{{ $product['name'] ?? 'Produk' }}"
+                                                             title="{{ $product['name'] ?? 'Produk' }}">
+                                                        @if(($product['is_new'] ?? false) || ($product['is_bestseller'] ?? false))
+                                                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.6rem;">
+                                                            @if($product['is_new'] ?? false) NEW @endif
+                                                            @if(($product['is_new'] ?? false) && ($product['is_bestseller'] ?? false)) & @endif
+                                                            @if($product['is_bestseller'] ?? false) HOT @endif
+                                                        </span>
+                                                        @endif
+                                                    </div>
+                                                    @endforeach
+                                                    @if(count($config->products) > 3)
+                                                    <div class="product-preview-more">
+                                                        +{{ count($config->products) - 3 }}
+                                                    </div>
+                                                    @endif
+                                                </div>
+                                                <div class="product-stats">
+                                                    <span class="stat-badge">
+                                                        <i class="fas fa-cube"></i>
+                                                        {{ count($config->products) }} Produk
+                                                    </span>
+                                                    @php
+                                                        $newCount = collect($config->products)->where('is_new', true)->count();
+                                                        $bestsellerCount = collect($config->products)->where('is_bestseller', true)->count();
+                                                    @endphp
+                                                    @if($newCount > 0)
+                                                    <span class="stat-badge" style="background: #fff5f5; border-color: #feb2b2;">
+                                                        <i class="fas fa-star text-danger"></i>
+                                                        {{ $newCount }} New
+                                                    </span>
+                                                    @endif
+                                                    @if($bestsellerCount > 0)
+                                                    <span class="stat-badge" style="background: #fff3e0; border-color: #ffb74d;">
+                                                        <i class="fas fa-crown text-warning"></i>
+                                                        {{ $bestsellerCount }} Bestseller
+                                                    </span>
+                                                    @endif
+                                                </div>
+                                                <div class="mt-2">
+                                                    @foreach(array_slice($config->products, 0, 2) as $product)
+                                                        @if(!empty($product['features']))
+                                                            @foreach(array_slice($product['features'], 0, 2) as $feature)
+                                                            <span class="feature-tag">
+                                                                <i class="fas fa-check-circle me-1" style="font-size: 0.7rem;"></i>
+                                                                {{ Str::limit($feature, 20) }}
+                                                            </span>
+                                                            @endforeach
+                                                        @endif
+                                                    @endforeach
+                                                </div>
+                                            @else
+                                                <span class="text-muted">
+                                                    <i class="fas fa-box-open me-1"></i> Tidak ada produk
+                                                </span>
+                                            @endif
+                                        </td>
+                                        <td>
+                                            @if(isset($config->materials) && count($config->materials) > 0)
+                                                <div class="d-flex flex-wrap gap-1" style="max-width: 250px;">
+                                                    @foreach($config->materials as $material)
+                                                    <span class="material-badge">
+                                                        <i class="fas fa-cube me-1"></i>
+                                                        {{ Str::limit($material['name'] ?? '', 15) }}
+                                                        @if(!empty($material['info']))
+                                                        <span class="ms-1" title="{{ $material['info'] }}">
+                                                            <i class="fas fa-info-circle"></i>
+                                                        </span>
+                                                        @endif
+                                                    </span>
+                                                    @endforeach
+                                                </div>
+                                                <small class="text-muted mt-2 d-block">
+                                                    <i class="fas fa-recycle me-1"></i>
+                                                    Total {{ count($config->materials) }} material
+                                                </small>
+                                            @else
+                                                <span class="text-muted">
+                                                    <i class="fas fa-cubes me-1"></i> Tidak ada material
+                                                </span>
+                                            @endif
+                                        </td>
+                                        <td>
+                                            <div class="date-info">
+                                                <span class="date-item">
+                                                    <i class="fas fa-calendar-alt text-primary"></i>
+                                                    {{ $config->created_at->format('d/m/Y') }}
+                                                </span>
+                                                <span class="date-item">
+                                                    <i class="fas fa-clock text-info"></i>
+                                                    {{ $config->created_at->format('H:i') }} WIB
+                                                </span>
+                                                @if($config->created_at != $config->updated_at)
+                                                <span class="date-item text-muted" style="font-size: 0.7rem;">
+                                                    <i class="fas fa-edit"></i>
+                                                    Diupdate {{ $config->updated_at->diffForHumans() }}
+                                                </span>
+                                                @endif
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="d-flex gap-1">
+                                                <a href="{{ route('kami-daur.show', $config) }}" 
+                                                   class="btn btn-sm btn-info text-white btn-action" 
+                                                   title="Detail">
+                                                    <i class="fas fa-eye"></i>
+                                                </a>
+                                                <a href="{{ route('kami-daur.edit', $config) }}" 
+                                                   class="btn btn-sm btn-primary btn-action" 
+                                                   title="Edit">
+                                                    <i class="fas fa-edit"></i>
+                                                </a>
+                                                <button type="button" 
+                                                        class="btn btn-sm btn-danger btn-action" 
+                                                        title="Hapus"
+                                                        onclick="confirmDelete({{ $config->id }}, '{{ $config->created_at->format('d/m/Y') }}')">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </div>
+                                            <div class="mt-2">
+                                                <a href="{{ route('kami-daur.home') }}?preview={{ $config->id }}" 
+                                                   class="text-decoration-none small" 
+                                                   target="_blank"
+                                                   title="Preview Halaman">
+                                                    <i class="fas fa-external-link-alt me-1"></i> Preview
+                                                </a>
+                                            </div>
+                                            <form id="delete-form-{{ $config->id }}" 
+                                                  action="{{ route('kami-daur.destroy', $config) }}" 
+                                                  method="POST" 
+                                                  style="display: none;">
+                                                @csrf
+                                                @method('DELETE')
+                                            </form>
+                                        </td>
+                                    </tr>
+                                    @empty
+                                    <tr>
+                                        <td colspan="7" class="text-center py-5">
+                                            <div class="empty-state">
+                                                <div class="mb-4">
+                                                    <i class="fas fa-box-open fa-5x mb-3" style="color: #dee2e6;"></i>
+                                                    <h3 class="fw-normal text-muted">Belum Ada Konfigurasi</h3>
+                                                    <p class="text-muted mb-4">Mulai dengan menambahkan produk dan material pertama Anda</p>
+                                                </div>
+                                                <a href="{{ route('kami-daur.create') }}" class="btn btn-success btn-lg px-5 py-3">
+                                                    <i class="fas fa-plus-circle me-2"></i> Tambah Konfigurasi Baru
+                                                </a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    @endforelse
+                                </tbody>
+                            </table>
                         </div>
                     </div>
-                    
-                    <div class="alert alert-info mt-4">
-                        <i class="fas fa-info-circle me-2"></i>
-                        <strong>Transparansi:</strong> Setiap produk dilengkapi dengan informasi dampak lingkungan yang ditimbulkan dan diselamatkan.
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
 
-    <!-- Hubungi Kami Section -->
-    <section id="kontak" class="py-5 bg-light">
-        <div class="container">
-            <h2 class="section-title">Konsultasi & Pemesanan</h2>
-            <p class="text-center mb-5">Siap membantu Anda menemukan fashion berkelanjutan yang tepat</p>
-            
-            <div class="row">
-                <div class="col-lg-8 mb-4">
-                    <div class="contact-card">
-                        <h3 class="mb-4">Butik Kami</h3>
-                        
-                        <div class="row">
-                            <div class="col-md-6 mb-4">
-                                <div class="contact-icon">
-                                    <i class="fas fa-phone"></i>
-                                </div>
-                                <h5>Telepon/WhatsApp</h5>
-                                <p>{{ $contact['phone'] ?? '+62 812-3456-7890' }}</p>
-                            </div>
-                            
-                            <div class="col-md-6 mb-4">
-                                <div class="contact-icon">
-                                    <i class="fas fa-envelope"></i>
-                                </div>
-                                <h5>Email</h5>
-                                <p>{{ $contact['email'] ?? 'butik@daurulang.com' }}</p>
-                            </div>
-                            
-                            <div class="col-12 mb-4">
-                                <div class="contact-icon">
-                                    <i class="fas fa-map-marker-alt"></i>
-                                </div>
-                                <h5>Alamat Butik</h5>
-                                <p>{{ $contact['address'] ?? 'Jl. Sustainable Fashion No. 123, Kota Hijau' }}</p>
-                                <small class="text-muted"><i class="fas fa-clock me-1"></i> Buka: Senin-Sabtu 10:00-20:00</small>
-                            </div>
-                        </div>
-                        
-                        <!-- WhatsApp Button -->
-                        <div class="text-center mt-4">
-                            <a href="https://wa.me/{{ $contact['phone'] ?? '6281234567890' }}?text=Halo%20Butik%20Daur%20Ulang,%20saya%20ingin%20konsultasi%20tentang%20produk%20fashion%20berkelanjutan%20dan%20ingin%20melakukan%20pemesanan." 
-                               class="btn btn-whatsapp" 
-                               target="_blank">
-                                <i class="fab fa-whatsapp whatsapp-icon"></i> Konsultasi via WhatsApp
-                            </a>
-                            <p class="mt-2 text-muted">Dapatkan rekomendasi produk terbaik dari tim fashion consultant kami</p>
+                    <!-- Tab Aktif -->
+                    <div class="tab-pane fade" id="active" role="tabpanel">
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0">
+                                <thead>
+                                    <tr>
+                                        <th width="80">ID</th>
+                                        <th>Produk Unggulan</th>
+                                        <th>Bahan & Material</th>
+                                        <th width="160">Kontak</th>
+                                        <th width="140">Dibuat</th>
+                                        <th width="140">Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @forelse($kamiDaurs->where('is_active', true) as $config)
+                                    <tr>
+                                        <td>
+                                            <span class="id-badge">
+                                                <i class="fas fa-hashtag me-1"></i>{{ $config->id }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            @if(isset($config->products) && count($config->products) > 0)
+                                                <div class="d-flex align-items-start gap-2 mb-2">
+                                                    @foreach(array_slice($config->products, 0, 2) as $product)
+                                                    <img src="{{ $product['image'] ?? 'https://via.placeholder.com/50' }}" 
+                                                         class="product-preview" 
+                                                         alt="{{ $product['name'] ?? '' }}"
+                                                         style="width: 50px; height: 50px;">
+                                                    @endforeach
+                                                </div>
+                                                <span class="stat-badge">
+                                                    <i class="fas fa-cube"></i> {{ count($config->products) }} Produk
+                                                </span>
+                                            @else
+                                                <span class="text-muted">Tidak ada produk</span>
+                                            @endif
+                                        </td>
+                                        <td>
+                                            @if(isset($config->materials) && count($config->materials) > 0)
+                                                <div class="d-flex flex-wrap gap-1">
+                                                    @foreach($config->materials as $material)
+                                                    <span class="material-badge" style="font-size: 0.75rem;">
+                                                        {{ Str::limit($material['name'] ?? '', 12) }}
+                                                    </span>
+                                                    @endforeach
+                                                </div>
+                                            @else
+                                                <span class="text-muted">Tidak ada material</span>
+                                            @endif
+                                        </td>
+                                        <td>
+                                            <small>
+                                                <i class="fas fa-phone"></i> {{ $config->contact_phone ?? '-' }}<br>
+                                                <i class="fas fa-envelope"></i> {{ Str::limit($config->contact_email ?? '-', 15) }}
+                                            </small>
+                                        </td>
+                                        <td>
+                                            <div class="date-info">
+                                                <span class="date-item">
+                                                    <i class="fas fa-calendar-alt"></i>
+                                                    {{ $config->created_at->format('d/m/Y') }}
+                                                </span>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="d-flex gap-1">
+                                                <a href="{{ route('kami-daur.show', $config) }}" class="btn btn-sm btn-info text-white btn-action">
+                                                    <i class="fas fa-eye"></i>
+                                                </a>
+                                                <a href="{{ route('kami-daur.edit', $config) }}" class="btn btn-sm btn-primary btn-action">
+                                                    <i class="fas fa-edit"></i>
+                                                </a>
+                                                <button type="button" class="btn btn-sm btn-danger btn-action" onclick="confirmDelete({{ $config->id }})">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    @empty
+                                    <tr>
+                                        <td colspan="6" class="text-center py-5">
+                                            <div class="empty-state">
+                                                <i class="fas fa-toggle-off fa-4x mb-3" style="color: #dee2e6;"></i>
+                                                <h4 class="fw-normal">Tidak Ada Konfigurasi Aktif</h4>
+                                                <p class="text-muted">Tidak ada konfigurasi yang sedang aktif saat ini</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    @endforelse
+                                </tbody>
+                            </table>
                         </div>
                     </div>
-                </div>
-                
-                <div class="col-lg-4">
-                    <div class="contact-card">
-                        <h4 class="mb-3">Layanan Kami</h4>
-                        
-                        <div class="alert alert-info">
-                            <h6><i class="fas fa-ruler me-2"></i> Custom Size</h6>
-                            <p class="mb-2">Kami menerima pemesanan ukuran custom untuk kenyamanan maksimal.</p>
-                        </div>
-                        
-                        <div class="alert alert-info">
-                            <h6><i class="fas fa-palette me-2"></i> Custom Design</h6>
-                            <p class="mb-2">Ingin desain khusus? Konsultasikan ide Anda dengan desainer kami.</p>
-                        </div>
-                        
-                        <div class="alert alert-info">
-                            <h6><i class="fas fa-truck me-2"></i> Free Delivery</h6>
-                            <p class="mb-2">Gratis pengiriman untuk pembelian di atas Rp 500.000.</p>
-                        </div>
-                        
-                        <div class="mt-4">
-                            <h5>Metode Pembayaran</h5>
-                            <div class="d-flex flex-wrap gap-2 mt-3">
-                                <span class="badge bg-success">Transfer Bank</span>
-                                <span class="badge bg-primary">E-Wallet</span>
-                                <span class="badge bg-warning">COD</span>
-                                <span class="badge bg-info">Kredit</span>
-                            </div>
+
+                    <!-- Tab Tidak Aktif -->
+                    <div class="tab-pane fade" id="inactive" role="tabpanel">
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0">
+                                <thead>
+                                    <tr>
+                                        <th width="80">ID</th>
+                                        <th>Produk Unggulan</th>
+                                        <th>Bahan & Material</th>
+                                        <th width="140">Dibuat</th>
+                                        <th width="140">Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @forelse($kamiDaurs->where('is_active', false) as $config)
+                                    <tr>
+                                        <td>
+                                            <span class="id-badge">
+                                                <i class="fas fa-hashtag me-1"></i>{{ $config->id }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            @if(isset($config->products) && count($config->products) > 0)
+                                                <span class="stat-badge">
+                                                    <i class="fas fa-cube"></i> {{ count($config->products) }} Produk
+                                                </span>
+                                            @else
+                                                <span class="text-muted">Tidak ada produk</span>
+                                            @endif
+                                        </td>
+                                        <td>
+                                            @if(isset($config->materials) && count($config->materials) > 0)
+                                                <span class="badge bg-info">
+                                                    {{ count($config->materials) }} Material
+                                                </span>
+                                            @else
+                                                <span class="text-muted">Tidak ada material</span>
+                                            @endif
+                                        </td>
+                                        <td>
+                                            <small>
+                                                {{ $config->created_at->format('d/m/Y') }}
+                                            </small>
+                                        </td>
+                                        <td>
+                                            <div class="d-flex gap-1">
+                                                <a href="{{ route('kami-daur.show', $config) }}" class="btn btn-sm btn-info text-white btn-action">
+                                                    <i class="fas fa-eye"></i>
+                                                </a>
+                                                <a href="{{ route('kami-daur.edit', $config) }}" class="btn btn-sm btn-primary btn-action">
+                                                    <i class="fas fa-edit"></i>
+                                                </a>
+                                                <button type="button" class="btn btn-sm btn-danger btn-action" onclick="confirmDelete({{ $config->id }})">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    @empty
+                                    <tr>
+                                        <td colspan="5" class="text-center py-5">
+                                            <div class="empty-state">
+                                                <i class="fas fa-check-circle fa-4x mb-3" style="color: #dee2e6;"></i>
+                                                <h4 class="fw-normal">Semua Konfigurasi Aktif</h4>
+                                                <p class="text-muted">Tidak ada konfigurasi yang tidak aktif</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    @endforelse
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </div>
             </div>
+            
+            @if($kamiDaurs->hasPages())
+            <div class="card-footer bg-white py-3">
+                <div class="d-flex flex-column flex-md-row justify-content-between align-items-center">
+                    <div class="mb-2 mb-md-0">
+                        <small class="text-muted">
+                            <i class="fas fa-database me-1"></i>
+                            Menampilkan {{ $kamiDaurs->firstItem() ?? 0 }} - {{ $kamiDaurs->lastItem() ?? 0 }} 
+                            dari {{ $kamiDaurs->total() }} konfigurasi
+                        </small>
+                    </div>
+                    <div>
+                        {{ $kamiDaurs->links() }}
+                    </div>
+                </div>
+            </div>
+            @endif
         </div>
-    </section>
-@endsection
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
+    <script>
+        function confirmDelete(id, date = '') {
+            Swal.fire({
+                title: 'Hapus Konfigurasi?',
+                html: `
+                    <div style="text-align: left;">
+                        <p>Anda akan menghapus konfigurasi <strong>#${id}</strong>${date ? ' (' + date + ')' : ''}</p>
+                        <p class="text-danger mb-0"><i class="fas fa-exclamation-triangle me-1"></i> Semua produk dan material dalam konfigurasi ini akan ikut terhapus!</p>
+                    </div>
+                `,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Ya, hapus!',
+                cancelButtonText: 'Batal',
+                reverseButtons: true,
+                showLoaderOnConfirm: true,
+                preConfirm: () => {
+                    document.getElementById('delete-form-' + id).submit();
+                }
+            });
+        }
+
+        // Auto hide alert after 5 seconds
+        setTimeout(function() {
+            let alert = document.querySelector('.alert');
+            if (alert) {
+                alert.style.transition = 'opacity 0.5s';
+                alert.style.opacity = '0';
+                setTimeout(() => alert.remove(), 500);
+            }
+        }, 5000);
+
+        // Tooltip initialization
+        document.addEventListener('DOMContentLoaded', function() {
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            var tooltipList = tooltipTriggerList.map(function(tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl);
+            });
+        });
+    </script>
+</body>
+</html>
