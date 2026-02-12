@@ -108,9 +108,21 @@ Route::controller(CafeRestoController::class)->group(function () {
     Route::post('/cafe-resto/reservation', 'store')->name('cafe-resto.reservation.store');
 });
 
-// Business Units
-Route::controller(KamiDaurController::class)->group(function () {
-    Route::get('/kami-daur', 'index')->name('kami-daur.index');
+// Business Units - Kami Daur (Full CRUD)
+Route::prefix('kami-daur')->name('kami-daur.')->group(function () {
+    // Public route (frontend)
+    Route::get('/', [KamiDaurController::class, 'home'])->name('home');
+
+    // Admin/Management routes (should be protected with middleware)
+    Route::middleware(['web'])->group(function () {
+        Route::get('/admin', [KamiDaurController::class, 'index'])->name('index');
+        Route::get('/admin/create', [KamiDaurController::class, 'create'])->name('create');
+        Route::post('/admin', [KamiDaurController::class, 'store'])->name('store');
+        Route::get('/admin/{kamiDaur}', [KamiDaurController::class, 'show'])->name('show');
+        Route::get('/admin/{kamiDaur}/edit', [KamiDaurController::class, 'edit'])->name('edit');
+        Route::put('/admin/{kamiDaur}', [KamiDaurController::class, 'update'])->name('update');
+        Route::delete('/admin/{kamiDaur}', [KamiDaurController::class, 'destroy'])->name('destroy');
+    });
 });
 
 Route::controller(LegaPetCareController::class)->group(function () {
