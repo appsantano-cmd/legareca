@@ -179,7 +179,7 @@ class ScreeningController extends Controller
             \Log::info('Checking for cancelled conditions...');
             foreach ($request->pets as $petIndex => $petData) {
                 \Log::info("Pet {$petIndex} data:", $petData);
-                
+
                 $petCancelled = false;
                 $reason = '';
 
@@ -189,7 +189,7 @@ class ScreeningController extends Controller
                         $kutuPositifNeedsAction[] = $petIndex;
                         continue; // Skip validasi lainnya untuk pet ini
                     }
-                    
+
                     // Jika sudah memilih action, cek pilihannya
                     if (isset($petData['kutu_action']) && $petData['kutu_action'] === 'tidak_periksa') {
                         $petCancelled = true;
@@ -198,21 +198,21 @@ class ScreeningController extends Controller
                     }
                     // Jika memilih lanjut_obat, tidak cancelled (status completed)
                 }
-                
+
                 // Aturan 2: Kutu Positif 2 atau Positif 3 -> cancelled
                 if (isset($petData['kutu']) && in_array($petData['kutu'], ['Positif 2', 'Positif 3'])) {
                     $petCancelled = true;
                     $hasCancelledPet = true;
                     $reason = 'Kutu ' . $petData['kutu'];
                 }
-                
+
                 // Aturan 3: Birahi Positif -> cancelled
                 if (isset($petData['birahi']) && $petData['birahi'] === 'Positif') {
                     $petCancelled = true;
                     $hasCancelledPet = true;
                     $reason = 'Birahi positif';
                 }
-                
+
                 // Aturan 3a: Birahi Positif dengan pilihan tidak_periksa -> cancelled
                 if (isset($petData['birahi_action']) && $petData['birahi_action'] === 'tidak_periksa') {
                     $petCancelled = true;
@@ -233,13 +233,13 @@ class ScreeningController extends Controller
         // Validasi tambahan untuk kutu positif yang belum pilih action
         if (!empty($kutuPositifNeedsAction)) {
             \Log::warning('Kutu positif needs action:', $kutuPositifNeedsAction);
-            
+
             $errorMessages = [];
             foreach ($kutuPositifNeedsAction as $petIndex) {
                 $petName = session('pets')[$petIndex]['name'] ?? 'Anabul ' . ($petIndex + 1);
                 $errorMessages["pets.{$petIndex}.kutu_action"] = "Silakan pilih tindakan untuk kutu positif pada {$petName}";
             }
-            
+
             return back()
                 ->withErrors($errorMessages)
                 ->withInput();
@@ -402,36 +402,36 @@ class ScreeningController extends Controller
 
             // Ambil restricted pets langsung dari database
             $restrictedPets = [];
-            
+
             foreach ($screening->pets as $index => $pet) {
                 // Tentukan apakah pet ini tidak boleh masuk berdasarkan data di database
                 $isRestricted = false;
                 $restrictionReasons = [];
-                
+
                 // Aturan 1: Kutu Positif dengan action tidak_periksa
                 if ($pet->kutu === 'Positif' && $pet->kutu_action === 'tidak_periksa') {
                     $isRestricted = true;
                     $restrictionReasons[] = 'Kutu positif (tidak jadi periksa)';
                 }
-                
+
                 // Aturan 2: Kutu Positif 2 atau Positif 3
                 if (in_array($pet->kutu, ['Positif 2', 'Positif 3'])) {
                     $isRestricted = true;
                     $restrictionReasons[] = 'Kutu ' . $pet->kutu;
                 }
-                
+
                 // Aturan 3: Birahi Positif
                 if ($pet->birahi === 'Positif') {
                     $isRestricted = true;
                     $restrictionReasons[] = 'Birahi positif';
                 }
-                
+
                 // Aturan 4: Birahi Positif dengan action tidak_periksa
                 if ($pet->birahi === 'Positif' && $pet->birahi_action === 'tidak_periksa') {
                     $isRestricted = true;
                     $restrictionReasons[] = 'Birahi positif (tidak jadi periksa)';
                 }
-                
+
                 if ($isRestricted) {
                     $restrictedPets[] = [
                         'pet_index' => $index,
@@ -618,8 +618,11 @@ class ScreeningController extends Controller
     private function sendEmailNotification($screening)
     {
         try {
-            // Email Santano
-            $santanoEmail = "appsantano@gmail.com";
+            // Email penerima
+            $recipients = [
+                "appsantano@gmail.com",
+                "basiliusarilla06@gmail.com"
+            ];
 
             // Subject berdasarkan status
             $subject = $screening->status == 'completed'
@@ -666,26 +669,25 @@ class ScreeningController extends Controller
                     } elseif ($pet->birahi == 'Positif' && $pet->birahi_action == 'tidak_periksa') {
                         $reasons[] = "Birahi positif (tidak periksa)";
                     }
-                    
+
                     if (!empty($reasons)) {
                         $body .= "  Alasan: " . implode(', ', $reasons) . "\n";
                     }
                 }
-                
+
                 $body .= "  ------------------------\n\n";
             }
 
-            $body .= "Data ini telah tersimpan di database dan Google Sheets.\n\n";
             $body .= "Terima kasih.\n\n";
-            $body .= "-- © Santano 2026 | Sistem Screening Le Gareca Space --";
+            $body .= "© Santano 2026 | Sistem Screening Le Gareca Space";
 
-            // Kirim email plain text sederhana
-            Mail::raw($body, function ($message) use ($santanoEmail, $subject) {
-                $message->to($santanoEmail)
+            // Kirim email ke semua penerima
+            Mail::raw($body, function ($message) use ($recipients, $subject) {
+                $message->to($recipients)
                     ->subject($subject);
             });
 
-            Log::info('Email notification sent to Santano for screening ID: ' . $screening->id);
+            Log::info('Email notification sent to multiple recipients for screening ID: ' . $screening->id . '. Recipients: ' . implode(', ', $recipients));
 
         } catch (\Exception $e) {
             Log::error('Failed to send email notification: ' . $e->getMessage());

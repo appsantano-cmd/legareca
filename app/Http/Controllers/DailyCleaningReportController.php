@@ -303,7 +303,7 @@ class DailyCleaningReportController extends Controller
 
             // Generate filename dengan range tanggal jika ada
             $filename = 'Data Cleaning Report';
-            
+
             if ($startDate && $endDate) {
                 $filename .= ' - ' . date('d-m-Y', strtotime($startDate)) . ' sampai ' . date('d-m-Y', strtotime($endDate));
             } elseif ($startDate) {
@@ -313,7 +313,7 @@ class DailyCleaningReportController extends Controller
             } else {
                 $filename .= ' - ' . date('d F Y');
             }
-            
+
             $filename .= '.xlsx';
 
             // Pass filter parameters to export class
@@ -380,36 +380,43 @@ class DailyCleaningReportController extends Controller
             // Handle file upload
             $file = $request->file('foto');
 
+            // ✅ AMBIL INFORMASI FILE SEBELUM DIPINDAHKAN
+            $originalName = $file->getClientOriginalName();
+            $fileSize = $file->getSize();
+            $fileSizeMb = round($fileSize / 1024 / 1024, 2);
+            $fileMime = $file->getMimeType();
+            $fileExtension = $file->getClientOriginalExtension();
+
             // Log informasi file
             Log::info('File upload attempt', [
-                'name' => $file->getClientOriginalName(),
-                'size' => $file->getSize(),
-                'size_mb' => round($file->getSize() / 1024 / 1024, 2) . 'MB',
-                'type' => $file->getMimeType()
+                'name' => $originalName,
+                'size' => $fileSize,
+                'size_mb' => $fileSizeMb . 'MB',
+                'type' => $fileMime
             ]);
 
-            // Generate nama file
-            $filename = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
-            $storagePath = 'foto-toilet/' . date('Y/m/d');
-            $fullStoragePath = $storagePath . '/' . $filename;
+            // ✅ GENERATE FILENAME
+            $filename = time() . '_' . uniqid() . '.' . $fileExtension;
 
-            // Simpan file ke storage
-            $path = Storage::disk('public')->putFileAs(
-                $storagePath,
-                $file,
-                $filename
-            );
+            // Buat path folder berdasarkan tanggal
+            $datePath = date('Y/m/d');
+            $uploadPath = public_path('storage/foto-toilet/' . $datePath);
 
-            if (!$path) {
-                throw new \Exception('Failed to save file to storage.');
+            // Buat folder jika belum ada
+            if (!file_exists($uploadPath)) {
+                mkdir($uploadPath, 0777, true);
             }
 
-            // Path untuk akses publik
-            $publicFotoPath = 'storage/' . $path;
+            // ✅ PINDAHKAN FILE (HANYA DISINI, JANGAN DIPANGGIL LAGI)
+            $file->move($uploadPath, $filename);
 
-            // Kompresi gambar jika diperlukan
-            if ($file->getSize() > 5 * 1024 * 1024) {
-                $this->compressImageInBackground($path);
+            // Path untuk akses publik dan database
+            $publicFotoPath = 'storage/foto-toilet/' . $datePath . '/' . $filename;
+
+            // ✅ KOMPRESI GAMBAR - GUNAKAN PATH LENGKAP
+            $fullFilePath = $uploadPath . '/' . $filename;
+            if ($fileSize > 5 * 1024 * 1024) {
+                $this->compressImageInPublic($fullFilePath);
             }
 
             // Simpan ke MySQL
@@ -420,11 +427,12 @@ class DailyCleaningReportController extends Controller
                 'foto_path' => $publicFotoPath,
                 'membership_datetime' => now(),
                 'status' => 'completed',
-                'file_size' => $file->getSize(),
-                'file_type' => $file->getMimeType()
+                'file_size' => $fileSize, // ✅ PAKAI VARIABLE YANG SUDAH DISIMPAN
+                'file_type' => $fileMime   // ✅ PAKAI VARIABLE YANG SUDAH DISIMPAN
             ]);
 
             Log::info('✅ Data saved to MySQL: ID ' . $report->id);
+            Log::info('📸 File saved to: ' . $fullFilePath);
 
             // Kirim email notifikasi dengan gambar embedded
             $this->sendEmailNotification($report);
@@ -436,7 +444,7 @@ class DailyCleaningReportController extends Controller
             ];
 
             // Only try Google Sheets for smaller files
-            if ($file->getSize() < 2 * 1024 * 1024) {
+            if ($fileSize < 2 * 1024 * 1024) {
                 $googleSheetsResult = $this->saveToGoogleSheets($report);
             }
 
@@ -460,6 +468,44 @@ class DailyCleaningReportController extends Controller
             return redirect()->back()
                 ->with('error', 'Failed to save data: ' . $e->getMessage())
                 ->withInput();
+        }
+    }
+
+    /**
+     * Helper untuk compress image di public folder
+     */
+    private function compressImageInPublic($fullPath)
+    {
+        try {
+            if (!file_exists($fullPath)) {
+                Log::warning('File not found for compression: ' . $fullPath);
+                return;
+            }
+
+            // Skip if not an image
+            $mime = mime_content_type($fullPath);
+            if (!str_starts_with($mime, 'image/')) {
+                return;
+            }
+
+            $manager = new ImageManager(new Driver());
+            $image = $manager->read($fullPath);
+
+            // Resize jika terlalu besar
+            $maxWidth = 1920;
+            if ($image->width() > $maxWidth) {
+                $image->scale(width: $maxWidth);
+            }
+
+            // Save dengan kompresi
+            $image->save($fullPath, quality: 80);
+
+            // ✅ LOG UKURAN SETELAH KOMPRESI
+            $newSize = filesize($fullPath);
+            Log::info('✅ Image compressed (public): ' . $fullPath . ' - New size: ' . round($newSize / 1024 / 1024, 2) . 'MB');
+
+        } catch (\Exception $e) {
+            Log::warning('Image compression failed: ' . $e->getMessage());
         }
     }
 
@@ -789,7 +835,7 @@ class DailyCleaningReportController extends Controller
             // Subject untuk cleaning report
             $subject = "🧹 Cleaning Report Baru - " . $report->nama . " - Le Gareca Space";
 
-            // Cek apakah file gambar tersedia dan bisa diakses
+            // ✅ PERBAIKAN: CEK FILE DI PUBLIC PATH
             $imageEmbedded = false;
             $imagePath = null;
 
@@ -798,41 +844,36 @@ class DailyCleaningReportController extends Controller
             ]);
 
             if ($report->foto_path) {
+                // Path lengkap ke file di public
+                $publicPath = public_path($report->foto_path);
 
-                // Path relatif untuk disk public
-                $relativePath = str_replace('storage/', '', $report->foto_path);
-
-                Log::info('📂 [EMAIL] Relative path (public disk)', [
-                    'relative_path' => $relativePath
+                Log::info('📂 [EMAIL] Checking public path', [
+                    'public_path' => $publicPath,
+                    'file_exists' => file_exists($publicPath)
                 ]);
 
-                // Cek via Storage disk public
-                $existsInDisk = Storage::disk('public')->exists($relativePath);
+                if (file_exists($publicPath)) {
+                    $imageEmbedded = true;
+                    $imagePath = $publicPath;
 
-                Log::info('🧪 [EMAIL] Storage::disk(public)->exists()', [
-                    'exists' => $existsInDisk
-                ]);
-
-                if ($existsInDisk) {
-
-                    $imagePath = Storage::disk('public')->path($relativePath);
-
-                    Log::info('🧭 [EMAIL] Absolute image path', [
+                    Log::info('✅ [EMAIL] File found at public path', [
                         'image_path' => $imagePath,
-                        'file_exists' => file_exists($imagePath),
-                        'file_size' => file_exists($imagePath) ? filesize($imagePath) : null
+                        'file_size' => filesize($imagePath)
                     ]);
+                } else {
+                    // Fallback: cek di storage lama untuk file lama
+                    $relativePath = str_replace('storage/', '', $report->foto_path);
+                    $oldPath = storage_path('app/public/' . $relativePath);
 
-                    if (file_exists($imagePath)) {
+                    if (file_exists($oldPath)) {
                         $imageEmbedded = true;
+                        $imagePath = $oldPath;
+                        Log::info('✅ [EMAIL] Using fallback: file found in old storage', [
+                            'old_path' => $oldPath
+                        ]);
                     }
                 }
             }
-
-            Log::info('✅ [EMAIL] Final image status', [
-                'imageEmbedded' => $imageEmbedded,
-                'imagePath' => $imagePath
-            ]);
 
             // Versi pertama: Menggunakan Mail::raw() sederhana (tanpa gambar)
             $plainTextBody = "🧹 CLEANING REPORT — Le Gareca Space 🧹\n\n";
@@ -843,24 +884,25 @@ class DailyCleaningReportController extends Controller
             $plainTextBody .= "⏰ Waktu Input: " . $report->membership_datetime->setTimezone('Asia/Jakarta')->translatedFormat('j F Y H:i:s') . "\n";
             $plainTextBody .= "📊 Status: " . ucfirst($report->status) . "\n";
             $plainTextBody .= "📸 Foto: " . ($imageEmbedded ? "Tersedia" : "Tidak tersedia") . "\n\n";
-            $plainTextBody .= "Data ini telah tersimpan di database dan Google Sheets.\n\n";
             $plainTextBody .= "Terima kasih.\n\n";
-            $plainTextBody .= "-- © Santano 2026 | Sistem Cleaning Report Le Gareca Space --";
+            $plainTextBody .= "© Santano 2026 | Sistem Cleaning Report Le Gareca Space";
 
             Mail::raw($plainTextBody, function ($message) use ($santanoEmail, $subject, $imageEmbedded, $imagePath) {
                 $message->to($santanoEmail)
                     ->subject($subject);
 
                 // Tambahkan gambar sebagai attachment jika tersedia
-                if ($imageEmbedded && $imagePath) {
+                if ($imageEmbedded && $imagePath && file_exists($imagePath)) {
                     $message->attach($imagePath, [
-                        'as' => 'cleaning-photo.jpg',
+                        'as' => 'cleaning-photo-' . time() . '.jpg',
                         'mime' => 'image/jpeg',
                     ]);
+
+                    Log::info('✅ [EMAIL] Attachment added: ' . $imagePath);
                 }
             });
 
-            Log::info('✅ Email notification sent to Santano for cleaning report ID: ' . $report->id);
+            Log::info('✅ Email notification sent to Santano for cleaning report ID: ' . $report->id . ' | File attached: ' . ($imageEmbedded ? 'Yes' : 'No'));
 
         } catch (\Exception $e) {
             Log::error('❌ Failed to send email notification: ' . $e->getMessage());
