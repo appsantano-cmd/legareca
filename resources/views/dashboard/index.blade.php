@@ -518,7 +518,7 @@
                         </div>
 
                         <!-- Cafe Resto Index -->
-                        <a href="#"
+                        <a href="{{ route(name: 'caferesto.dashboard') }}"
                             class="flex items-center p-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition duration-200 {{ request()->routeIs('gallery.create') ? 'active-menu' : '' }}"
                             @click="if (isMobile) isMobileMenuOpen = false">
                             <i class="fas fa-paint-brush text-lg w-6"></i>
@@ -534,7 +534,7 @@
                         </a>
 
                         <!-- Venue Index -->
-                        <a href="#"
+                        <a href="{{ route(name: 'venue.data') }}"
                             class="flex items-center p-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition duration-200 {{ request()->routeIs('gallery.create') ? 'active-menu' : '' }}"
                             @click="if (isMobile) isMobileMenuOpen = false">
                             <i class="fas fa-paint-brush text-lg w-6"></i>

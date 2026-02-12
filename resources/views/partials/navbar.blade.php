@@ -18,7 +18,7 @@
             <a href="/kami-daur" class="nav-item">KAMI DAUR</a>
             <a href="/reservasi" class="nav-item">Le Gareca Inn</a>
             <a href="/art-gallery" class="nav-item">Art Gallery</a>
-            <a href="/lega-pet-care" class="nav-item">Lega Pet Care</a>
+            <a href="/lega-pet-care" class="nav-item">Lega Pet Hotel</a>
 
             <button class="nav-button">
                 Hubungi Kami

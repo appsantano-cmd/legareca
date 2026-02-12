@@ -65,7 +65,7 @@ Route::get('/reset-password', [ForgotPasswordController::class, 'showResetForm']
 Route::post('/reset-password', [ForgotPasswordController::class, 'resetPassword'])
     ->middleware('guest')
     ->name('password.update');
-    
+
 // Art Gallery (Public)
 Route::controller(ArtGalleryController::class)->group(function () {
     Route::get('/art-gallery', 'index')->name('gallery.index');
@@ -227,136 +227,174 @@ Route::middleware(['auth', 'role:developer,admin,marcom,staff'])->group(function
         Route::get('/art-gallery/pages/create', 'create')->name('gallery.create');
         Route::post('/art-gallery', 'store')->name('gallery.store');
     });
-});
 
-// ============================
-// ADMIN/DEVELOPER ROUTES
-// ============================
-Route::middleware(['auth', 'role:developer,admin'])->group(function () {
+    Route::prefix('caferesto')->name('caferesto.')->group(function () {
 
-    // User Management
-    Route::resource('users', UserController::class)->only(['index', 'create', 'store']);
+        // Dashboard Utama
+        Route::get('/data', [CafeRestoController::class, 'adminDashboard'])->name('dashboard');
 
-    // Data Screening
-    Route::prefix('screening')->name('screening.')->controller(ScreeningController::class)->group(function () {
-        Route::get('/data', 'index')->name('index');
-        Route::get('/data/{id}', 'show')->name('show');
-        Route::delete('/data/{id}', 'destroy')->name('destroy');
+        // API Endpoints - PASTIKAN NAMA ROUTE SESUAI DENGAN VIEW
+        Route::get('/dashboard/stats', [CafeRestoController::class, 'getDashboardStats'])->name('dashboard.stats');
+        Route::get('/dashboard/charts', [CafeRestoController::class, 'getDashboardChartData'])->name('dashboard.charts');
+        Route::get('/dashboard/recent', [CafeRestoController::class, 'getRecentReservations'])->name('dashboard.recent');
+        Route::get('/dashboard/upcoming', [CafeRestoController::class, 'getUpcomingReservations'])->name('dashboard.upcoming');
+        Route::get('/dashboard/top-customers', [CafeRestoController::class, 'getTopCustomers'])->name('dashboard.top-customers');
+
+        // Manajemen Reservasi
+        Route::get('/reservations', [CafeRestoController::class, 'adminIndex'])->name('reservations.index');
+        Route::get('/reservations/data', [CafeRestoController::class, 'getReservations'])->name('reservations.data');
+        Route::patch('/reservations/{id}/status', [CafeRestoController::class, 'updateStatus'])->name('reservations.status');
+        Route::delete('/reservations/{id}', [CafeRestoController::class, 'destroy'])->name('reservations.destroy');
+        Route::get('/reservations/export', [CafeRestoController::class, 'export'])->name('reservations.export');
+    });
+    // VENUE DASH
+    Route::prefix('venue')->name('venue.')->group(function () {
+
+        // HALAMAN DATA VENUE (ADMIN) - URL: /venue/data
+        Route::get('/data', [VenueBookingController::class, 'adminData'])->name('data');
+
+        // API ENDPOINTS
+        Route::get('/stats', [VenueBookingController::class, 'getStats'])->name('stats');
+        Route::get('/distribution', [VenueBookingController::class, 'getVenueDistribution'])->name('distribution');
+        Route::get('/bookings', [VenueBookingController::class, 'getBookings'])->name('bookings');
+        Route::get('/venues-list', [VenueBookingController::class, 'getVenueList'])->name('venues-list');
+        Route::get('/export', [VenueBookingController::class, 'export'])->name('export');
+        Route::get('/{id}', [VenueBookingController::class, 'show'])->name('show');
+
+        // UPDATE & DELETE
+        Route::patch('/{id}/status', [VenueBookingController::class, 'updateStatus'])->name('status');
+        Route::delete('/{id}', [VenueBookingController::class, 'destroy'])->name('destroy');
     });
 
-    // Stok Gudang
-    Route::prefix('stok-gudang')->name('stok.')->controller(StokGudangController::class)->group(function () {
-        Route::get('/', 'index')->name('index');
-        Route::get('/create', 'create')->name('create');
-        Route::post('/', 'store')->name('store');
-        Route::get('/{id}/edit', 'edit')->name('edit');
-        Route::put('/{id}', 'update')->name('update');
-        Route::delete('/{id}', 'destroy')->name('destroy');
-        Route::post('/rollover', 'rollover')->name('rollover');
-        Route::get('/rollover-history', 'showRolloverHistory')->name('rollover.history');
-        Route::get('/export', 'exportExcel')->name('export');
-    });
+    // ============================
+    // ADMIN/DEVELOPER ROUTES
+    // ============================
+    Route::middleware(['auth', 'role:developer,admin'])->group(function () {
 
-    // Stok Gudang Transactions
-    Route::prefix('transactions')->name('transactions.')->controller(StokTransactionController::class)->group(function () {
-        Route::get('/', 'index')->name('index');
-        Route::get('/{transaction}/edit', 'edit')->name('edit');
-        Route::put('/{transaction}', 'update')->name('update');
-        Route::delete('/{transaction}', 'destroy')->name('destroy');
-        Route::get('/{id}', 'show')->where('id', '[0-9]+')->name('show');
-        Route::get('/export', 'showExportForm')->name('export.form');
-        Route::post('/export', 'export')->name('export');
-    });
+        // User Management
+        Route::resource('users', UserController::class)->only(['index', 'create', 'store']);
 
-    // Stok Gudang Master Data
-    Route::resource('departemen', DepartemenController::class)->parameters(['departemen' => 'departemen']);
-    Route::get('/api/departemen', [DepartemenController::class, 'indexApi'])->name('api.departemen.index');
-
-    Route::resource('satuan', SatuanController::class);
-    Route::get('/api/satuan', [SatuanController::class, 'indexApi'])->name('api.satuan.index');
-
-    // Supplier
-    Route::prefix('supplier')->name('supplier.')->controller(SupplierController::class)->group(function () {
-        Route::get('/', 'index')->name('index');
-        Route::get('/create', 'create')->name('create');
-        Route::post('/', 'store')->name('store');
-        Route::get('/{supplier}/edit', 'edit')->name('edit');
-        Route::put('/{supplier}', 'update')->name('update');
-        Route::delete('/{supplier}', 'destroy')->name('destroy');
-        Route::put('/{id}/restore', 'restore')->name('restore');
-        Route::get('/api/supplier', 'indexApi')->name('api.supplier.index');
-    });
-
-    // Stok Station Master Data
-    Route::resource('master-kitchen', StokStationMasterKitchenController::class)->except(['show', 'create', 'edit']);
-    Route::post('/master-kitchen/export', [StokStationMasterKitchenController::class, 'export'])
-        ->name('master-kitchen.export');
-
-    Route::resource('satuan-station', SatuanStationController::class)->except(['show']);
-    Route::resource('master-bar', StokStationMasterBarController::class)->except(['show', 'create', 'edit']);
-    Route::post('/master-bar/export', [StokStationMasterBarController::class, 'export'])
-        ->name('master-bar.export');
-
-    // Izin Management
-    Route::prefix('izin')->name('izin.')->controller(PengajuanIzinController::class)->group(function () {
-        Route::get('/', 'index')->name('index');
-        Route::post('/{id}/update-status', 'updateStatus')->name('update-status');
-        Route::get('/export', 'export')->name('export');
-        Route::get('/email-action/{id}', 'actionFromEmail')->name('email-action');
-        Route::get('/{id}/detail', 'detail')->name('detail');
-    });
-
-    // Shifting Management
-    Route::prefix('shifting')->name('shifting.')->controller(ShiftingController::class)->group(function () {
-        Route::get('/', 'index')->name('index');
-        Route::get('/export', 'export')->name('export');
-        Route::get('/{id}/detail', 'detail')->name('detail');
-        Route::post('/{id}/update-status', 'updateStatus')->name('update-status');
-        Route::get('/{id}/update-status', function ($id) {
-            return redirect()->route('shifting.index')
-                ->with('error', 'Akses tidak valid. Silakan gunakan tombol di tabel.');
-        });
-        Route::get('/email-action/{id}', 'actionFromEmail')->name('email-action');
-    });
-
-    // Cleaning Report Management
-    Route::prefix('cleaning-report')->name('cleaning-report.')->controller(DailyCleaningReportController::class)->group(function () {
-        Route::get('/', 'index')->name('index');
-        Route::get('/dashboard', 'dashboard')->name('dashboard');
-
-        // Cleaning Report Data Management
-        Route::prefix('data')->name('data.')->group(function () {  // <-- Tambah titik di sini
-            Route::get('/', 'getData')->name('get');
-            Route::post('/update', 'updateData')->name('update');
-            Route::post('/clean', 'cleanData')->name('clean');
-            Route::post('/delete', 'deleteData')->name('delete');
-            Route::get('/export', 'exportData')->name('export');  // <-- Sekarang namanya: cleaning-report.data.export
-            Route::get('/stats', 'getStats')->name('stats');
+        // Data Screening
+        Route::prefix('screening')->name('screening.')->controller(ScreeningController::class)->group(function () {
+            Route::get('/data', 'index')->name('index');
+            Route::get('/data/{id}', 'show')->name('show');
+            Route::delete('/data/{id}', 'destroy')->name('destroy');
         });
 
-        // ===== GOOGLE SHEETS INTEGRATION =====
-        Route::get('/export/google-sheets', 'exportAllToGoogleSheets')->name('export.google-sheets');
-        Route::get('/test-google-sheets', 'testGoogleSheetsConnection')->name('test.google-sheets');
-        Route::get('/check-config', 'checkGoogleSheetsConfig')->name('check.config');
+        // Stok Gudang
+        Route::prefix('stok-gudang')->name('stok.')->controller(StokGudangController::class)->group(function () {
+            Route::get('/', 'index')->name('index');
+            Route::get('/create', 'create')->name('create');
+            Route::post('/', 'store')->name('store');
+            Route::get('/{id}/edit', 'edit')->name('edit');
+            Route::put('/{id}', 'update')->name('update');
+            Route::delete('/{id}', 'destroy')->name('destroy');
+            Route::post('/rollover', 'rollover')->name('rollover');
+            Route::get('/rollover-history', 'showRolloverHistory')->name('rollover.history');
+            Route::get('/export', 'exportExcel')->name('export');
+        });
+
+        // Stok Gudang Transactions
+        Route::prefix('transactions')->name('transactions.')->controller(StokTransactionController::class)->group(function () {
+            Route::get('/', 'index')->name('index');
+            Route::get('/{transaction}/edit', 'edit')->name('edit');
+            Route::put('/{transaction}', 'update')->name('update');
+            Route::delete('/{transaction}', 'destroy')->name('destroy');
+            Route::get('/{id}', 'show')->where('id', '[0-9]+')->name('show');
+            Route::get('/export', 'showExportForm')->name('export.form');
+            Route::post('/export', 'export')->name('export');
+        });
+
+        // Stok Gudang Master Data
+        Route::resource('departemen', DepartemenController::class)->parameters(['departemen' => 'departemen']);
+        Route::get('/api/departemen', [DepartemenController::class, 'indexApi'])->name('api.departemen.index');
+
+        Route::resource('satuan', SatuanController::class);
+        Route::get('/api/satuan', [SatuanController::class, 'indexApi'])->name('api.satuan.index');
+
+        // Supplier
+        Route::prefix('supplier')->name('supplier.')->controller(SupplierController::class)->group(function () {
+            Route::get('/', 'index')->name('index');
+            Route::get('/create', 'create')->name('create');
+            Route::post('/', 'store')->name('store');
+            Route::get('/{supplier}/edit', 'edit')->name('edit');
+            Route::put('/{supplier}', 'update')->name('update');
+            Route::delete('/{supplier}', 'destroy')->name('destroy');
+            Route::put('/{id}/restore', 'restore')->name('restore');
+            Route::get('/api/supplier', 'indexApi')->name('api.supplier.index');
+        });
+
+        // Stok Station Master Data
+        Route::resource('master-kitchen', StokStationMasterKitchenController::class)->except(['show', 'create', 'edit']);
+        Route::post('/master-kitchen/export', [StokStationMasterKitchenController::class, 'export'])
+            ->name('master-kitchen.export');
+
+        Route::resource('satuan-station', SatuanStationController::class)->except(['show']);
+        Route::resource('master-bar', StokStationMasterBarController::class)->except(['show', 'create', 'edit']);
+        Route::post('/master-bar/export', [StokStationMasterBarController::class, 'export'])
+            ->name('master-bar.export');
+
+        // Izin Management
+        Route::prefix('izin')->name('izin.')->controller(PengajuanIzinController::class)->group(function () {
+            Route::get('/', 'index')->name('index');
+            Route::post('/{id}/update-status', 'updateStatus')->name('update-status');
+            Route::get('/export', 'export')->name('export');
+            Route::get('/email-action/{id}', 'actionFromEmail')->name('email-action');
+            Route::get('/{id}/detail', 'detail')->name('detail');
+        });
+
+        // Shifting Management
+        Route::prefix('shifting')->name('shifting.')->controller(ShiftingController::class)->group(function () {
+            Route::get('/', 'index')->name('index');
+            Route::get('/export', 'export')->name('export');
+            Route::get('/{id}/detail', 'detail')->name('detail');
+            Route::post('/{id}/update-status', 'updateStatus')->name('update-status');
+            Route::get('/{id}/update-status', function ($id) {
+                return redirect()->route('shifting.index')
+                    ->with('error', 'Akses tidak valid. Silakan gunakan tombol di tabel.');
+            });
+            Route::get('/email-action/{id}', 'actionFromEmail')->name('email-action');
+        });
+
+        // Cleaning Report Management
+        Route::prefix('cleaning-report')->name('cleaning-report.')->controller(DailyCleaningReportController::class)->group(function () {
+            Route::get('/', 'index')->name('index');
+            Route::get('/dashboard', 'dashboard')->name('dashboard');
+
+            // Cleaning Report Data Management
+            Route::prefix('data')->name('data.')->group(function () {  // <-- Tambah titik di sini
+                Route::get('/', 'getData')->name('get');
+                Route::post('/update', 'updateData')->name('update');
+                Route::post('/clean', 'cleanData')->name('clean');
+                Route::post('/delete', 'deleteData')->name('delete');
+                Route::get('/export', 'exportData')->name('export');  // <-- Sekarang namanya: cleaning-report.data.export
+                Route::get('/stats', 'getStats')->name('stats');
+            });
+
+            // ===== GOOGLE SHEETS INTEGRATION =====
+            Route::get('/export/google-sheets', 'exportAllToGoogleSheets')->name('export.google-sheets');
+            Route::get('/test-google-sheets', 'testGoogleSheetsConnection')->name('test.google-sheets');
+            Route::get('/check-config', 'checkGoogleSheetsConfig')->name('check.config');
+        });
     });
-});
 
-// routes/web.php (tambahkan di dalam group developer)
+    // routes/web.php (tambahkan di dalam group developer)
 
-Route::middleware(['auth', 'role:developer'])->prefix('admin')->name('admin.')->group(function () {
-    // Activity Log Routes (Developer Only)
-    Route::prefix('activity-log')->name('activity-log.')->group(function () {
-        Route::get('/', [ActivityLogController::class, 'index'])->name('index');
-        Route::get('/forms', [ActivityLogController::class, 'formSubmissions'])->name('forms');
-        Route::get('/export', [ActivityLogController::class, 'export'])->name('export');
-        Route::get('/user/{user}', [ActivityLogController::class, 'userActivities'])->name('user');
-        Route::get('/{id}', [ActivityLogController::class, 'show'])->name('show');
-        Route::get('/{id}/form-data', [ActivityLogController::class, 'getFormData'])->name('form-data');
-        Route::delete('/clear-old', [ActivityLogController::class, 'clearOldLogs'])->name('clear-old');
+    Route::middleware(['auth', 'role:developer'])->prefix('admin')->name('admin.')->group(function () {
+        // Activity Log Routes (Developer Only)
+        Route::prefix('activity-log')->name('activity-log.')->group(function () {
+            Route::get('/', [ActivityLogController::class, 'index'])->name('index');
+            Route::get('/forms', [ActivityLogController::class, 'formSubmissions'])->name('forms');
+            Route::get('/export', [ActivityLogController::class, 'export'])->name('export');
+            Route::get('/user/{user}', [ActivityLogController::class, 'userActivities'])->name('user');
+            Route::get('/{id}', [ActivityLogController::class, 'show'])->name('show');
+            Route::get('/{id}/form-data', [ActivityLogController::class, 'getFormData'])->name('form-data');
+            Route::delete('/clear-old', [ActivityLogController::class, 'clearOldLogs'])->name('clear-old');
 
-        // API untuk dashboard (tambahkan ini)
-        Route::get('/quick-stats', [ActivityLogController::class, 'quickStats'])->name('quick-stats');
-        Route::get('/recent', [ActivityLogController::class, 'recentActivities'])->name('recent');
-        Route::get('/check-new', [ActivityLogController::class, 'checkNewActivities'])->name('check-new');
+            // API untuk dashboard (tambahkan ini)
+            Route::get('/quick-stats', [ActivityLogController::class, 'quickStats'])->name('quick-stats');
+            Route::get('/recent', [ActivityLogController::class, 'recentActivities'])->name('recent');
+            Route::get('/check-new', [ActivityLogController::class, 'checkNewActivities'])->name('check-new');
+        });
     });
 });
