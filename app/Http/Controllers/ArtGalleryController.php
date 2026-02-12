@@ -42,54 +42,26 @@ class ArtGalleryController extends Controller
     {
         $validated = $request->validate([
             'title' => 'required|string|max:255',
+            'artist' => 'required|string|max:255',
+            'location' => 'required|string|max:255',
+            'start_date' => 'required|date',
+            'end_date' => 'required|date|after_or_equal:start_date',
             'short_description' => 'required|string|max:500',
             'description' => 'required|string',
-            'artist' => 'required|string|max:255',
-            'creation_date' => 'required|date',
-            'image_path' => 'required|image|mimes:jpeg,png,jpg,gif,svg,webp|max:20971520',
+            'image_path' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:20480', // 20MB
         ]);
 
-        try {
-            if ($request->hasFile('image_path')) {
-                $file = $request->file('image_path');
-                
-                // Validasi file
-                if (!$file->isValid()) {
-                    return back()->withErrors(['image_path' => 'File tidak valid.']);
-                }
-
-                // Buat folder jika belum ada
-                $folderPath = 'art_gallery';
-                $storagePath = storage_path("app/public/{$folderPath}");
-                
-                if (!file_exists($storagePath)) {
-                    mkdir($storagePath, 0755, true);
-                }
-
-                // Generate filename: timestamp_nama-file_artist.ext
-                $originalName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
-                $extension = $file->getClientOriginalExtension();
-                $filename = date('Ymd_His') . '_' . str()->slug($originalName) . '_' . str()->slug($validated['artist']) . '.' . $extension;
-                
-                // Simpan file
-                $path = $file->storeAs($folderPath, $filename, 'public');
-                
-                $validated['image_path'] = $path;
-                
-                // Debug: cek path
-                \Log::info('Image saved to: ' . $path);
-                \Log::info('Full path: ' . storage_path('app/public/' . $path));
-            }
-
-            ArtGallery::create($validated);
-
-            return redirect()->route('dashboard')
-                ->with('success', 'Karya seni berhasil ditambahkan!');
-
-        } catch (\Exception $e) {
-            \Log::error('Upload error: ' . $e->getMessage());
-            return back()->withErrors(['image_path' => 'Gagal mengunggah gambar: ' . $e->getMessage()]);
+        // Upload image
+        if ($request->hasFile('image_path')) {
+            $validated['image_path'] = $request->file('image_path')
+                ->store('art-galleries', 'public');
         }
+
+        ArtGallery::create($validated);
+
+        return redirect()
+            ->route('gallery.create')
+            ->with('success', 'Karya seni berhasil ditambahkan!');
     }
 
     public function show(ArtGallery $art)

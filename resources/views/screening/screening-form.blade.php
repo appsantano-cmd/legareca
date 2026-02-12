@@ -367,14 +367,14 @@
                                     </div>
 
                                     <!-- Restriction Note untuk kutu Positif 2/3 -->
-                                    <div id="kutu-restriction-{{ $i }}" class="restriction-note hidden">
+                                    <div id="kutu-restriction-{{ $i }}" class="info-note hidden">
                                         <div class="flex items-start">
-                                            <i class="fas fa-exclamation-triangle text-red-500 mt-0.5 mr-2"></i>
+                                            <i class="fas fa-info-circle text-blue-500 mt-0.5 mr-2"></i>
                                             <div>
-                                                <p class="text-sm font-medium text-red-800">Anabul tidak diperbolehkan
-                                                    masuk area Le Gareca Space</p>
-                                                <p class="text-xs text-red-600 mt-1">Data akan dicatat dan ditandai di
-                                                    halaman review</p>
+                                                <p class="text-sm font-medium text-gray-800">Anabul tetap dapat
+                                                    melanjutkan screening</p>
+                                                <p class="text-xs text-gray-600 mt-1">Data akan dicatat sebagai
+                                                    "tidak boleh masuk" dan dapat dilihat di halaman review</p>
                                             </div>
                                         </div>
                                     </div>

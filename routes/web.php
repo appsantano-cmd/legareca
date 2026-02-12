@@ -27,6 +27,7 @@ use App\Http\Controllers\StokKitchenController;
 use App\Http\Controllers\StokBarController;
 use App\Http\Controllers\ActivityLogController;
 use App\Http\Controllers\HalamanVenueController;
+use App\Http\Controllers\Auth\ForgotPasswordController;
 
 // ============================
 // PUBLIC ROUTES (NO AUTH)
@@ -42,6 +43,29 @@ Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [LoginController::class, 'login']);
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
+// ==================================================
+// FORGOT PASSWORD - TANPA EMAIL, LANGSUNG RESET!
+// ==================================================
+// Halaman input email
+Route::get('/forgot-password', [ForgotPasswordController::class, 'showLinkRequestForm'])
+    ->middleware('guest')
+    ->name('password.request');
+
+// Proses verifikasi email (POST ke route yang sama)
+Route::post('/forgot-password', [ForgotPasswordController::class, 'sendResetLinkEmail'])
+    ->middleware('guest')
+    ->name('password.email');
+
+// Halaman reset password
+Route::get('/reset-password', [ForgotPasswordController::class, 'showResetForm'])
+    ->middleware('guest')
+    ->name('password.reset');
+
+// Proses update password
+Route::post('/reset-password', [ForgotPasswordController::class, 'resetPassword'])
+    ->middleware('guest')
+    ->name('password.update');
+    
 // Art Gallery (Public)
 Route::controller(ArtGalleryController::class)->group(function () {
     Route::get('/art-gallery', 'index')->name('gallery.index');
@@ -98,10 +122,10 @@ Route::controller(LegaPetCareController::class)->group(function () {
 // Reservasi
 Route::prefix('reservasi')->name('reservasi.')->controller(ReservasiController::class)->group(function () {
     Route::get('/', function () {
-        return redirect()->route('reservasi.inn.index');
+        return redirect()->route('reservasi.inn.home');
     })->name('index');
 
-    Route::get('/inn', 'innIndex')->name('inn.index');
+    Route::get('/inn', 'home')->name('inn.home');
     Route::post('/inn/submit', 'innSubmit')->name('inn.submit');
 });
 

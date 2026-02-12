@@ -63,10 +63,6 @@
         </div>
     </div>
 
-    <div class="info-box">
-        <p><strong>Perhatian:</strong> Pengajuan harus dilakukan minimal 1 hari sebelum shift asli berlangsung.</p>
-    </div>
-
     <div class="nav-buttons">
         <button type="button" class="btn-prev">← Kembali</button>
         <button type="button" class="btn-next">Lanjut →</button>

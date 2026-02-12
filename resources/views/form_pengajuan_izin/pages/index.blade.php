@@ -260,11 +260,12 @@
 
                                     <td class="p-4">
                                         @if ($item->documen_pendukung)
-                                            <a href="{{ Storage::url($item->documen_pendukung) }}" target="_blank"
+                                            <button 
+                                                onclick="showDocumentModal('{{ asset($item->documen_pendukung) }}')"
                                                 class="inline-flex items-center gap-1 text-blue-600 hover:text-blue-800 text-sm font-medium">
                                                 <i class="fas fa-eye"></i>
                                                 Lihat
-                                            </a>
+                                            </button>
                                         @else
                                             <span class="text-sm text-gray-400 italic">-</span>
                                         @endif
@@ -423,11 +424,12 @@
                                 <div class="pt-3 border-t flex justify-between items-center">
                                     <div>
                                         @if ($item->documen_pendukung)
-                                            <a href="{{ Storage::url($item->documen_pendukung) }}" target="_blank"
+                                            <button 
+                                                onclick="showDocumentModal('{{ asset($item->documen_pendukung) }}')"
                                                 class="inline-flex items-center gap-1 text-blue-600 text-sm hover:underline">
                                                 <i class="fas fa-eye"></i>
                                                 Lihat Dokumen
-                                            </a>
+                                            </button>
                                         @else
                                             <span class="text-sm text-gray-400 italic">Tidak ada dokumen</span>
                                         @endif
@@ -668,6 +670,32 @@
         </div>
     </div>
 
+    {{-- Document Preview Modal --}}
+    <div id="documentModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl w-full max-w-4xl h-[85vh] overflow-hidden flex flex-col">
+
+            <!-- Header -->
+            <div class="p-4 border-b flex justify-between items-center">
+                <h3 class="text-lg font-semibold text-gray-800 flex items-center gap-2">
+                    <i class="fas fa-file-alt text-blue-600"></i> Preview Dokumen
+                </h3>
+                <button onclick="closeDocumentModal()"
+                    class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+
+            <!-- Content -->
+            <div class="flex-1">
+                <iframe id="documentFrame"
+                    class="w-full h-full"
+                    frameborder="0">
+                </iframe>
+            </div>
+
+        </div>
+    </div>
+
     <script>
         // Export Modal Functions
         function showExportModal() {
@@ -834,11 +862,11 @@
                         ${data.documen_pendukung ? `
                             <div class="bg-gray-50 p-4 rounded-lg">
                                 <p class="text-sm text-gray-500 mb-2"><i class="fas fa-file-pdf mr-2"></i>Dokumen Pendukung</p>
-                                <a href="${data.documen_pendukung}" 
-                                   target="_blank"
-                                   class="inline-flex items-center gap-2 text-blue-600 hover:text-blue-800 font-medium">
+                                <button 
+                                    onclick="showDocumentModal('${data.documen_pendukung}')"
+                                    class="inline-flex items-center gap-2 text-blue-600 hover:text-blue-800 font-medium">
                                     <i class="fas fa-external-link-alt"></i> Buka Dokumen
-                                </a>
+                                </button>
                             </div>
                             ` : ''}
                     </div>
@@ -948,6 +976,23 @@
                 }
             });
         });
+        function showDocumentModal(url) {
+            const frame = document.getElementById('documentFrame');
+            frame.src = url;
+            document.getElementById('documentModal').classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeDocumentModal() {
+            const frame = document.getElementById('documentFrame');
+            frame.src = '';
+            document.getElementById('documentModal').classList.add('hidden');
+            document.body.style.overflow = 'auto';
+        }
+        document.getElementById('documentModal').addEventListener('click', function(e) {
+            if (e.target === this) closeDocumentModal();
+        });
+
     </script>
 
     <style>

@@ -44,158 +44,140 @@
                 </p>
             </div>
 
-            <form action="{{ route('gallery.store') }}" method="POST" enctype="multipart/form-data" class="p-6">
+            <form action="{{ route('gallery.store') }}" 
+                method="POST" 
+                enctype="multipart/form-data" 
+                class="p-6 space-y-6">
                 @csrf
 
                 {{-- Title --}}
-                <div class="mb-6">
-                    <label for="title" class="block text-sm font-medium text-gray-700 mb-2">
-                        <i class="fas fa-heading text-gray-500 mr-1"></i> Judul Karya
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        Judul
                     </label>
                     <input type="text"
-                           id="title"
-                           name="title"
-                           value="{{ old('title') }}"
-                           required
-                           class="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition"
-                           placeholder="Masukkan judul karya seni">
+                        name="title"
+                        value="{{ old('title') }}"
+                        required
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg">
                     @error('title')
                         <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                     @enderror
                 </div>
 
                 {{-- Artist --}}
-                <div class="mb-6">
-                    <label for="artist" class="block text-sm font-medium text-gray-700 mb-2">
-                        <i class="fas fa-user text-gray-500 mr-1"></i> Nama Seniman
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        Nama Seniman
                     </label>
                     <input type="text"
-                           id="artist"
-                           name="artist"
-                           value="{{ old('artist') }}"
-                           required
-                           class="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition"
-                           placeholder="Masukkan nama seniman">
+                        name="artist"
+                        value="{{ old('artist') }}"
+                        required
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg">
                     @error('artist')
                         <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                     @enderror
                 </div>
 
-                {{-- Creation Date --}}
-                <div class="mb-6">
-                    <label for="creation_date" class="block text-sm font-medium text-gray-700 mb-2">
-                        <i class="fas fa-calendar text-gray-500 mr-1"></i> Tanggal Pembuatan
+                {{-- Location --}}
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        Lokasi Pameran
+                    </label>
+                    <input type="text"
+                        name="location"
+                        value="{{ old('location') }}"
+                        required
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg">
+                    @error('location')
+                        <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                {{-- Start Date --}}
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        Tanggal Mulai
                     </label>
                     <input type="date"
-                           id="creation_date"
-                           name="creation_date"
-                           value="{{ old('creation_date') }}"
-                           required
-                           class="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition">
-                    @error('creation_date')
+                        name="start_date"
+                        value="{{ old('start_date') }}"
+                        required
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg">
+                    @error('start_date')
+                        <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                {{-- End Date --}}
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        Tanggal Selesai
+                    </label>
+                    <input type="date"
+                        name="end_date"
+                        value="{{ old('end_date') }}"
+                        required
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg">
+                    @error('end_date')
                         <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                     @enderror
                 </div>
 
                 {{-- Short Description --}}
-                <div class="mb-6">
-                    <label for="short_description" class="block text-sm font-medium text-gray-700 mb-2">
-                        <i class="fas fa-align-left text-gray-500 mr-1"></i> Deskripsi Singkat
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        Deskripsi Singkat (Max 500 karakter)
                     </label>
-                    <textarea id="short_description"
-                              name="short_description"
-                              rows="3"
-                              required
-                              class="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition resize-none"
-                              placeholder="Masukkan deskripsi singkat (maksimal 500 karakter)">{{ old('short_description') }}</textarea>
-                    <div class="text-xs text-gray-500 mt-1">
-                        <span id="short_desc_counter">0</span>/500 karakter
-                    </div>
+                    <textarea name="short_description"
+                            rows="3"
+                            maxlength="500"
+                            required
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg resize-none">{{ old('short_description') }}</textarea>
                     @error('short_description')
                         <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                     @enderror
                 </div>
 
-                {{-- Full Description --}}
-                <div class="mb-6">
-                    <label for="description" class="block text-sm font-medium text-gray-700 mb-2">
-                        <i class="fas fa-file-alt text-gray-500 mr-1"></i> Deskripsi Lengkap
+                {{-- Description --}}
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        Deskripsi Lengkap
                     </label>
-                    <textarea id="description"
-                              name="description"
-                              rows="6"
-                              required
-                              class="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition resize-none"
-                              placeholder="Masukkan deskripsi lengkap tentang karya seni ini">{{ old('description') }}</textarea>
+                    <textarea name="description"
+                            rows="6"
+                            required
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg resize-none">{{ old('description') }}</textarea>
                     @error('description')
                         <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                     @enderror
                 </div>
 
-                {{-- Image Upload --}}
-                <div class="mb-8">
+                {{-- Image --}}
+                <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">
-                        <i class="fas fa-image text-gray-500 mr-1"></i> Gambar Karya Seni
+                        Gambar Karya
                     </label>
-                    
-                    {{-- Image Preview --}}
-                    <div id="imagePreview" class="mb-4 hidden">
-                        <div class="relative w-full max-w-md mx-auto">
-                            <img id="previewImage" 
-                                 src="" 
-                                 alt="Preview" 
-                                 class="w-full h-64 object-cover rounded-lg border-2 border-dashed border-gray-300">
-                            <button type="button" 
-                                    onclick="removeImage()"
-                                    class="absolute top-2 right-2 bg-red-500 text-white p-2 rounded-full hover:bg-red-600 transition">
-                                <i class="fas fa-times"></i>
-                            </button>
-                        </div>
-                    </div>
-
-                    {{-- Upload Area --}}
-                    <div id="uploadArea" 
-                         class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-purple-400 transition cursor-pointer bg-gray-50">
-                        <input type="file" 
-                               id="image_path" 
-                               name="image_path" 
-                               accept="image/*"
-                               required
-                               class="hidden"
-                               onchange="previewFile()">
-                        <div class="flex flex-col items-center">
-                            <div class="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mb-4">
-                                <i class="fas fa-cloud-upload-alt text-purple-600 text-2xl"></i>
-                            </div>
-                            <p class="text-gray-600 font-medium mb-1">
-                                Klik untuk mengunggah gambar
-                            </p>
-                            <p class="text-gray-400 text-sm">
-                                Ukuran maksimal: 20MB. Format: JPG, PNG, GIF, SVG
-                            </p>
-                            <button type="button" 
-                                    onclick="document.getElementById('image_path').click()"
-                                    class="mt-4 px-5 py-2 bg-purple-100 text-purple-700 rounded-lg font-medium hover:bg-purple-200 transition">
-                                <i class="fas fa-upload mr-2"></i> Pilih File
-                            </button>
-                        </div>
-                    </div>
+                    <input type="file"
+                        name="image_path"
+                        accept="image/jpeg,image/png,image/jpg,image/gif,image/svg+xml"
+                        required
+                        class="w-full border border-gray-300 rounded-lg p-2">
                     @error('image_path')
                         <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                     @enderror
                 </div>
 
-                {{-- Action Buttons --}}
-                <div class="flex flex-col sm:flex-row gap-4 pt-6 border-t border-gray-200">
+                {{-- Submit --}}
+                <div class="flex gap-4 pt-4">
                     <button type="submit"
-                            class="flex-1 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white px-6 py-3.5 rounded-lg font-semibold transition shadow-md hover:shadow-lg flex items-center justify-center gap-2">
-                        <i class="fas fa-save"></i>
-                        Simpan Karya Seni
+                            class="flex-1 bg-purple-600 hover:bg-purple-700 text-white py-3 rounded-lg font-semibold">
+                        Simpan
                     </button>
-                    
-                    <a href="{{ route('dashboard') }}"
-                       class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 px-6 py-3.5 rounded-lg font-semibold transition flex items-center justify-center gap-2">
-                        <i class="fas fa-times"></i>
+
+                    <a href="{{ route('gallery.index') }}"
+                    class="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-700 py-3 rounded-lg text-center font-semibold">
                         Batal
                     </a>
                 </div>
@@ -233,11 +215,11 @@
             <h3 class="text-xl font-semibold text-gray-800 mb-2">Berhasil!</h3>
             <p class="text-gray-600 mb-6">{{ session('success') }}</p>
             <div class="flex gap-3">
-                <a href="{{ route('art-galleries.create') }}"
+                <a href="{{ route('gallery.create') }}"
                    class="flex-1 bg-green-600 hover:bg-green-700 text-white py-2.5 rounded-lg font-semibold transition">
                     Tambah Lagi
                 </a>
-                <a href="{{ route('art-galleries.index') }}"
+                <a href="{{ route('gallery.index') }}"
                    class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 py-2.5 rounded-lg font-semibold transition">
                     Lihat Galeri
                 </a>
