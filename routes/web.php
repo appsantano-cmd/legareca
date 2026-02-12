@@ -65,7 +65,7 @@ Route::get('/reset-password', [ForgotPasswordController::class, 'showResetForm']
 Route::post('/reset-password', [ForgotPasswordController::class, 'resetPassword'])
     ->middleware('guest')
     ->name('password.update');
-    
+
 // Art Gallery (Public)
 Route::controller(ArtGalleryController::class)->group(function () {
     Route::get('/art-gallery', 'index')->name('gallery.index');
@@ -119,10 +119,9 @@ Route::controller(LegaPetCareController::class)->group(function () {
 
 // Reservasi
 Route::prefix('reservasi')->name('reservasi.')->controller(ReservasiController::class)->group(function () {
-    Route::get('/', function () {
-        return redirect()->route('reservasi.inn.home');
-    })->name('index');
+    Route::redirect('/', '/reservasi/inn')->name('index');
 
+    // Halaman utama inn
     Route::get('/inn', 'home')->name('inn.home');
     Route::post('/inn/submit', 'innSubmit')->name('inn.submit');
 });
@@ -241,7 +240,7 @@ Route::middleware(['auth', 'role:developer,admin'])->group(function () {
         Route::get('/data/{id}', 'show')->name('show');
         Route::delete('/data/{id}', 'destroy')->name('destroy');
     });
-    
+
     // Stok Gudang
     Route::prefix('stok-gudang')->name('stok.')->controller(StokGudangController::class)->group(function () {
         Route::get('/', 'index')->name('index');
@@ -336,6 +335,18 @@ Route::middleware(['auth', 'role:developer,admin'])->group(function () {
         Route::get('/export/google-sheets', 'exportAllToGoogleSheets')->name('export.google-sheets');
         Route::get('/test-google-sheets', 'testGoogleSheetsConnection')->name('test.google-sheets');
         Route::get('/check-config', 'checkGoogleSheetsConfig')->name('check.config');
+    });
+
+    Route::prefix('reservasi')->name('reservasi.')->controller(ReservasiController::class)->group(function () {
+        // CRUD Reservations - Perhatikan penempatan route
+        Route::prefix('inn/reservations')->name('inn.reservations.')->group(function () {
+            Route::get('/', 'index')->name('index');
+            Route::get('/{id}', 'show')->name('show');
+            Route::get('/{id}/edit', 'edit')->name('edit');
+            Route::put('/{id}', 'update')->name('update');
+            Route::delete('/{id}', 'destroy')->name('destroy');
+            Route::put('/{id}/status', 'updateStatus')->name('status');
+        });
     });
 });
 
