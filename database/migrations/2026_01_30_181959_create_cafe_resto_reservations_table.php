@@ -10,6 +10,7 @@ return new class extends Migration
     {
         Schema::create('cafe_resto_reservations', function (Blueprint $table) {
             $table->id();
+            $table->string('reservation_code')->unique();
             $table->string('name');
             $table->string('phone');
             $table->string('email');

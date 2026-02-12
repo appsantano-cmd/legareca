@@ -65,7 +65,6 @@ Route::prefix('screening')->name('screening.')->controller(ScreeningController::
     Route::get('/review-data', 'reviewData')->name('review-data');
     Route::get('/export-sheets', 'exportToSheets')->name('export-sheets');
     Route::get('/export', 'export')->name('export');
-
 });
 
 // Halaman informasi venue
@@ -81,7 +80,10 @@ Route::controller(VenueBookingController::class)->group(function () {
 // Cafe & Resto
 Route::controller(CafeRestoController::class)->group(function () {
     Route::get('/cafe-resto', 'index')->name('cafe-resto');
-    Route::post('/cafe-resto/reservation', 'store')->name('cafe-resto.reservation.store');
+    Route::post(
+        '/cafe-resto/reservation',
+        [CafeRestoController::class, 'store']
+    )->name('cafe-resto.store');
 });
 
 // Business Units
@@ -217,7 +219,7 @@ Route::middleware(['auth', 'role:developer,admin'])->group(function () {
         Route::get('/data/{id}', 'show')->name('show');
         Route::delete('/data/{id}', 'destroy')->name('destroy');
     });
-    
+
     // Stok Gudang
     Route::prefix('stok-gudang')->name('stok.')->controller(StokGudangController::class)->group(function () {
         Route::get('/', 'index')->name('index');
@@ -334,5 +336,3 @@ Route::middleware(['auth', 'role:developer'])->prefix('admin')->name('admin.')->
         Route::get('/check-new', [ActivityLogController::class, 'checkNewActivities'])->name('check-new');
     });
 });
-
-

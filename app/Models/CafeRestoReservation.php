@@ -19,7 +19,8 @@ class CafeRestoReservation extends Model
         'guests',
         'table_type',
         'special_request',
-        'status'
+        'status', 
+        'reservation_code'
     ];
 
     protected $casts = [
@@ -30,4 +31,16 @@ class CafeRestoReservation extends Model
     protected $attributes = [
         'status' => 'pending'
     ];
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($model) {
+            if (empty($model->reservation_code)) {
+                $count = CafeRestoReservation::whereDate('created_at', today())->count();
+                $model->reservation_code = 'CR' . date('Ymd') . str_pad($count + 1, 4, '0', STR_PAD_LEFT);
+            }
+        });
+    }
 }

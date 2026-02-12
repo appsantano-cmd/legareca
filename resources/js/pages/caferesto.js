@@ -1,32 +1,59 @@
-//<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>;
-document.addEventListener("DOMContentLoaded", function () {
-    console.log("Cafe Resto page loaded");
+/**
+ * Cafe Resto Reservation System
+ * File: public/js/cafe-resto.js
+ */
 
-    // Table Selection from Cards
-    const tableButtons = document.querySelectorAll("[data-table-type]");
-    const tableTypeSelect = document.getElementById("tableType");
+class CafeRestoReservation {
+    constructor() {
+        this.init();
+    }
 
-    if (tableButtons.length > 0 && tableTypeSelect) {
-        tableButtons.forEach((button) => {
-            button.addEventListener("click", function () {
-                const tableType = this.getAttribute("data-table-type");
-                console.log("Selected table:", tableType);
-                tableTypeSelect.value = tableType;
-
-                const modal = new bootstrap.Modal(
-                    document.getElementById("reservationModal"),
-                );
-                modal.show();
-
-                setTimeout(() => {
-                    tableTypeSelect.focus();
-                }, 500);
-            });
+    init() {
+        console.log("Cafe Resto Reservation System Initialized");
+        
+        // Initialize when DOM is loaded
+        document.addEventListener("DOMContentLoaded", () => {
+            this.setupEventListeners();
+            this.setDefaultFormValues();
+            this.debugInfo();
         });
     }
 
-    // Set default values for form
-    function setDefaultFormValues() {
+    setupEventListeners() {
+        // Table selection from cards
+        this.setupTableSelection();
+        
+        // Form submission
+        this.setupFormSubmission();
+        
+        // Modal events
+        this.setupModalEvents();
+        
+        // Real-time validation
+        this.setupRealTimeValidation();
+    }
+
+    setupTableSelection() {
+        const tableButtons = document.querySelectorAll("[data-table-type]");
+        const tableTypeSelect = document.getElementById("tableType");
+
+        if (tableButtons.length > 0 && tableTypeSelect) {
+            tableButtons.forEach((button) => {
+                button.addEventListener("click", () => {
+                    const tableType = button.getAttribute("data-table-type");
+                    console.log("Selected table:", tableType);
+                    tableTypeSelect.value = tableType;
+
+                    const modal = new bootstrap.Modal(
+                        document.getElementById("reservationModal")
+                    );
+                    modal.show();
+                });
+            });
+        }
+    }
+
+    setDefaultFormValues() {
         // Set default date to tomorrow
         const dateInput = document.getElementById("date");
         if (dateInput) {
@@ -35,24 +62,44 @@ document.addEventListener("DOMContentLoaded", function () {
             tomorrow.setDate(tomorrow.getDate() + 1);
             const tomorrowFormatted = tomorrow.toISOString().split("T")[0];
             dateInput.min = today.toISOString().split("T")[0];
-            dateInput.value = tomorrowFormatted;
+            if (!dateInput.value) {
+                dateInput.value = tomorrowFormatted;
+            }
         }
 
-        // Set default time to 18:00
+        // Set default time to 18:00 if not set
         const timeSelect = document.getElementById("time");
-        if (timeSelect) {
+        if (timeSelect && !timeSelect.value) {
             timeSelect.value = "18:00";
         }
 
-        // Set default guests to 2
+        // Set default guests to 2 if not set
         const guestsSelect = document.getElementById("guests");
-        if (guestsSelect) {
+        if (guestsSelect && !guestsSelect.value) {
             guestsSelect.value = "2";
         }
     }
 
-    // Form Validation
-    function validateForm() {
+    formatPhoneNumber(phone) {
+        if (!phone) return '';
+        
+        // Remove all non-numeric characters
+        phone = phone.replace(/\D/g, '');
+        
+        // If starts with 0, replace with 62
+        if (phone.startsWith('0')) {
+            phone = '62' + phone.substring(1);
+        }
+        
+        // Ensure starts with 62
+        if (!phone.startsWith('62')) {
+            phone = '62' + phone;
+        }
+        
+        return phone.substring(0, 15); // Max 15 digits
+    }
+
+    validateForm() {
         let isValid = true;
         let firstInvalidElement = null;
 
@@ -62,49 +109,60 @@ document.addEventListener("DOMContentLoaded", function () {
         });
 
         // Check required fields
-        document
-            .querySelectorAll("#reservationForm [required]")
-            .forEach((input) => {
-                if (!input.value.trim()) {
+        document.querySelectorAll("#reservationForm [required]").forEach((input) => {
+            if (!input.value.trim()) {
+                isValid = false;
+                input.classList.add("is-invalid");
+                if (!firstInvalidElement) firstInvalidElement = input;
+            }
+
+            // Email validation
+            if (input.type === "email" && input.value.trim()) {
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailRegex.test(input.value.trim())) {
                     isValid = false;
                     input.classList.add("is-invalid");
+                    const errorDiv = input.nextElementSibling;
+                    if (errorDiv && errorDiv.classList.contains('invalid-feedback')) {
+                        errorDiv.textContent = "Format email tidak valid";
+                    }
                     if (!firstInvalidElement) firstInvalidElement = input;
                 }
+            }
 
-                // Email validation
-                if (input.type === "email" && input.value.trim()) {
-                    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-                    if (!emailRegex.test(input.value.trim())) {
-                        isValid = false;
-                        input.classList.add("is-invalid");
-                        if (!firstInvalidElement) firstInvalidElement = input;
+            // Phone validation
+            if (input.name === "phone" && input.value.trim()) {
+                const phoneValue = input.value.trim();
+                const numericPhone = phoneValue.replace(/\D/g, '');
+                
+                if (numericPhone.length < 10 || numericPhone.length > 15) {
+                    isValid = false;
+                    input.classList.add("is-invalid");
+                    const errorDiv = input.nextElementSibling;
+                    if (errorDiv && errorDiv.classList.contains('invalid-feedback')) {
+                        errorDiv.textContent = "Nomor WhatsApp harus 10-15 digit";
                     }
+                    if (!firstInvalidElement) firstInvalidElement = input;
                 }
+            }
 
-                // Phone validation
-                if (input.name === "phone" && input.value.trim()) {
-                    const phoneRegex = /^[0-9]{10,15}$/;
-                    const phoneValue = input.value.trim().replace(/\D/g, "");
-                    if (!phoneRegex.test(phoneValue)) {
-                        isValid = false;
-                        input.classList.add("is-invalid");
-                        if (!firstInvalidElement) firstInvalidElement = input;
+            // Date validation
+            if (input.type === "date" && input.value) {
+                const selectedDate = new Date(input.value);
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+
+                if (selectedDate < today) {
+                    isValid = false;
+                    input.classList.add("is-invalid");
+                    const errorDiv = input.nextElementSibling;
+                    if (errorDiv && errorDiv.classList.contains('invalid-feedback')) {
+                        errorDiv.textContent = "Tanggal tidak boleh hari kemarin";
                     }
+                    if (!firstInvalidElement) firstInvalidElement = input;
                 }
-
-                // Date validation (cannot be past date)
-                if (input.type === "date" && input.value) {
-                    const selectedDate = new Date(input.value);
-                    const today = new Date();
-                    today.setHours(0, 0, 0, 0);
-
-                    if (selectedDate < today) {
-                        isValid = false;
-                        input.classList.add("is-invalid");
-                        if (!firstInvalidElement) firstInvalidElement = input;
-                    }
-                }
-            });
+            }
+        });
 
         // Scroll to first invalid element
         if (firstInvalidElement) {
@@ -118,276 +176,276 @@ document.addEventListener("DOMContentLoaded", function () {
         return isValid;
     }
 
-    // Submit button click handler
-    const submitBtn = document.getElementById("submitReservationBtn");
-    const reservationForm = document.getElementById("reservationForm");
+    async submitForm(event) {
+        event.preventDefault();
+        console.log("Submit button clicked");
 
-    if (submitBtn && reservationForm) {
-        submitBtn.addEventListener("click", async function (e) {
-            e.preventDefault();
-            console.log("Submit button clicked");
-
-            // Collect form data for debugging
-            const formData = new FormData(reservationForm);
-            const formDataObj = {};
-            formData.forEach((value, key) => {
-                formDataObj[key] = value;
-            });
-            console.log("Form data to be submitted:", formDataObj);
-
-            // Validate form
-            if (!validateForm()) {
-                Swal.fire({
-                    icon: "error",
-                    title: "Data Tidak Valid",
-                    text: "Mohon periksa kembali data yang Anda masukkan.",
-                    confirmButtonColor: "#e17055",
-                    confirmButtonText: "Mengerti",
-                });
-                return false;
-            }
-
-            const loadingIndicator = document.getElementById("loading");
-            const successMessage = document.getElementById("successMessage");
-            const errorMessage = document.getElementById("errorMessage");
-
-            // Show loading, hide messages
-            this.disabled = true;
-            this.innerHTML =
-                '<i class="fas fa-spinner fa-spin me-2"></i>Mengirim...';
-            loadingIndicator.classList.remove("d-none");
-            successMessage.classList.add("d-none");
-            errorMessage.classList.add("d-none");
-
-            // Get CSRF token
-            const csrfToken = document.querySelector(
-                'meta[name="csrf-token"]',
-            )?.content;
-            console.log("CSRF Token:", csrfToken);
-
-            if (!csrfToken) {
-                console.error("CSRF token not found!");
-                alert("CSRF token tidak ditemukan. Silakan refresh halaman.");
-                return false;
-            }
-
-            // Prepare data for submission
-            const data = {
-                _token: csrfToken,
-                name: document.getElementById("name").value,
-                phone: document.getElementById("phone").value,
-                email: document.getElementById("email").value,
-                date: document.getElementById("date").value,
-                time: document.getElementById("time").value,
-                guests: document.getElementById("guests").value,
-                table_type: document.getElementById("tableType").value,
-                special_request:
-                    document.getElementById("special_request").value,
-            };
-
-            console.log("Data to send:", data);
-
-            try {
-                const postUrl = "/cafe-resto/reservation";
-                console.log("Sending POST request to:", postUrl);
-
-                const response = await fetch(postUrl, {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                        Accept: "application/json",
-                        "X-Requested-With": "XMLHttpRequest",
-                        "X-CSRF-TOKEN": csrfToken,
-                    },
-                    body: JSON.stringify(data),
-                });
-
-                console.log("Response status:", response.status);
-
-                let responseData;
-                try {
-                    responseData = await response.json();
-                    console.log("Response data:", responseData);
-                } catch (jsonError) {
-                    console.error("JSON parse error:", jsonError);
-                    const text = await response.text();
-                    console.error("Response text:", text);
-                    throw new Error("Invalid JSON response from server");
-                }
-
-                // Hide loading indicator
-                loadingIndicator.classList.add("d-none");
-                this.disabled = false;
-                this.innerHTML =
-                    '<i class="fas fa-paper-plane me-2"></i>Kirim Reservasi Sekarang';
-
-                if (responseData.success) {
-                    // Show success message
-                    document.getElementById("successText").textContent =
-                        responseData.message;
-                    successMessage.classList.remove("d-none");
-
-                    // Scroll to success message
-                    successMessage.scrollIntoView({ behavior: "smooth" });
-
-                    // Reset form
-                    reservationForm.reset();
-                    setDefaultFormValues();
-
-                    // Redirect to WhatsApp after 2 seconds
-                    setTimeout(() => {
-                        if (responseData.whatsapp_url) {
-                            console.log(
-                                "Opening WhatsApp URL:",
-                                responseData.whatsapp_url,
-                            );
-                            window.open(responseData.whatsapp_url, "_blank");
-                        }
-
-                        // Close modal after 3 seconds
-                        setTimeout(() => {
-                            const modal = bootstrap.Modal.getInstance(
-                                document.getElementById("reservationModal"),
-                            );
-                            if (modal) {
-                                modal.hide();
-                            }
-                        }, 3000);
-                    }, 2000);
-                } else {
-                    // Show error message
-                    let errorText =
-                        responseData.message ||
-                        "Terjadi kesalahan. Silakan coba lagi.";
-                    if (responseData.errors) {
-                        errorText = "Periksa kesalahan berikut: \n";
-                        for (const [key, messages] of Object.entries(
-                            responseData.errors,
-                        )) {
-                            errorText += `• ${messages.join(", ")}\n`;
-                        }
-                    }
-                    document.getElementById("errorText").textContent =
-                        errorText;
-                    errorMessage.classList.remove("d-none");
-
-                    // Scroll to error message
-                    errorMessage.scrollIntoView({ behavior: "smooth" });
-                }
-            } catch (error) {
-                console.error("Fetch error:", error);
-                loadingIndicator.classList.add("d-none");
-                this.disabled = false;
-                this.innerHTML =
-                    '<i class="fas fa-paper-plane me-2"></i>Kirim Reservasi Sekarang';
-
-                document.getElementById("errorText").textContent =
-                    "Terjadi kesalahan jaringan. Silakan coba lagi atau hubungi kami via WhatsApp.";
-                errorMessage.classList.remove("d-none");
-                errorMessage.scrollIntoView({ behavior: "smooth" });
-            }
-
+        // Validate form
+        if (!this.validateForm()) {
+            this.showSweetAlert("error", "Data Tidak Valid", "Mohon periksa kembali data yang Anda masukkan.");
             return false;
-        });
-    }
+        }
 
-    // Real-time validation for form fields
-    if (reservationForm) {
-        reservationForm
-            .querySelectorAll("input, select, textarea")
-            .forEach((input) => {
-                input.addEventListener("blur", function () {
-                    if (this.hasAttribute("required") && !this.value.trim()) {
-                        this.classList.add("is-invalid");
-                    } else {
-                        this.classList.remove("is-invalid");
-                    }
+        // Format phone number
+        const phoneInput = document.getElementById("phone");
+        if (phoneInput) {
+            phoneInput.value = this.formatPhoneNumber(phoneInput.value);
+        }
 
-                    // Email validation
-                    if (this.type === "email" && this.value.trim()) {
-                        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-                        if (!emailRegex.test(this.value.trim())) {
-                            this.classList.add("is-invalid");
-                        } else {
-                            this.classList.remove("is-invalid");
-                        }
-                    }
+        // Collect form data
+        const formData = new FormData(document.getElementById("reservationForm"));
+        const data = Object.fromEntries(formData.entries());
+        
+        // Log data for debugging
+        console.log("Form data:", data);
 
-                    // Phone validation and formatting
-                    if (this.name === "phone" && this.value.trim()) {
-                        // Format phone number
-                        let value = this.value.replace(/\D/g, "");
-                        if (value.startsWith("0")) {
-                            value = "62" + value.substring(1);
-                        }
-                        if (value.length > 0 && !value.startsWith("62")) {
-                            value = "62" + value;
-                        }
-                        value = value.substring(0, 15);
-                        this.value = value;
+        const submitBtn = document.getElementById("submitReservationBtn");
+        const loadingIndicator = document.getElementById("loading");
+        const successMessage = document.getElementById("successMessage");
+        const errorMessage = document.getElementById("errorMessage");
 
-                        const phoneRegex = /^[0-9]{10,15}$/;
-                        if (!phoneRegex.test(value)) {
-                            this.classList.add("is-invalid");
-                        } else {
-                            this.classList.remove("is-invalid");
-                        }
-                    }
-                });
+        // Show loading
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Mengirim...';
+        loadingIndicator.classList.remove("d-none");
+        successMessage.classList.add("d-none");
+        errorMessage.classList.add("d-none");
+
+        try {
+            // Get CSRF token
+            const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content;
+            
+            if (!csrfToken) {
+                throw new Error("CSRF token tidak ditemukan");
+            }
+
+            // Send to server
+            const response = await fetch(this.getFormActionUrl(), {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Accept": "application/json",
+                    "X-CSRF-TOKEN": csrfToken,
+                    "X-Requested-With": "XMLHttpRequest"
+                },
+                body: JSON.stringify(data)
             });
+
+            const result = await response.json();
+            console.log("Server response:", result);
+
+            // Hide loading
+            loadingIndicator.classList.add("d-none");
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = '<i class="fas fa-paper-plane me-2"></i>Kirim Reservasi Sekarang';
+
+            if (result.success) {
+                this.handleSuccessResponse(result);
+            } else {
+                this.handleErrorResponse(result);
+            }
+
+        } catch (error) {
+            console.error("Error:", error);
+            this.handleNetworkError(error);
+        }
     }
 
-    // Modal events
-    const reservationModal = document.getElementById("reservationModal");
-    if (reservationModal) {
-        // When modal is shown
-        reservationModal.addEventListener("shown.bs.modal", function () {
-            console.log("Modal shown");
-            setDefaultFormValues();
+    getFormActionUrl() {
+        // Try to get from form action attribute
+        const form = document.getElementById("reservationForm");
+        if (form && form.action) {
+            return form.action;
+        }
+        
+        // Default URL based on common Laravel routes
+        return '/cafe-resto/reservation';
+    }
 
-            // Auto-focus on first input
+    handleSuccessResponse(result) {
+        // Show success message
+        const successMessage = document.getElementById("successMessage");
+        const successText = document.getElementById("successText");
+        
+        if (successText) {
+            successText.textContent = result.message;
+        }
+        
+        if (successMessage) {
+            successMessage.classList.remove("d-none");
+            successMessage.scrollIntoView({ behavior: "smooth" });
+        }
+
+        // Reset form
+        const reservationForm = document.getElementById("reservationForm");
+        if (reservationForm) {
+            reservationForm.reset();
+            this.setDefaultFormValues();
+        }
+
+        // Open WhatsApp in new tab after 1 second
+        if (result.whatsapp_url) {
             setTimeout(() => {
-                const firstInput = document.querySelector("#tableType");
-                if (firstInput) {
-                    firstInput.focus();
-                }
-            }, 300);
+                window.open(result.whatsapp_url, '_blank', 'noopener,noreferrer');
+            }, 1000);
+        }
+
+        // Close modal after 4 seconds
+        setTimeout(() => {
+            const modal = bootstrap.Modal.getInstance(
+                document.getElementById("reservationModal")
+            );
+            if (modal) {
+                modal.hide();
+            }
+        }, 4000);
+    }
+
+    handleErrorResponse(result) {
+        const errorMessage = document.getElementById("errorMessage");
+        const errorText = document.getElementById("errorText");
+        
+        if (!errorMessage || !errorText) return;
+
+        let errorMessageText = result.message || "Terjadi kesalahan. Silakan coba lagi.";
+        
+        if (result.errors) {
+            errorMessageText = "Periksa kesalahan berikut:<br>";
+            for (const [field, messages] of Object.entries(result.errors)) {
+                errorMessageText += `• ${messages.join(', ')}<br>`;
+            }
+        }
+        
+        errorText.innerHTML = errorMessageText;
+        errorMessage.classList.remove("d-none");
+        errorMessage.scrollIntoView({ behavior: "smooth" });
+    }
+
+    handleNetworkError(error) {
+        const submitBtn = document.getElementById("submitReservationBtn");
+        const loadingIndicator = document.getElementById("loading");
+        const errorMessage = document.getElementById("errorMessage");
+        const errorText = document.getElementById("errorText");
+        
+        loadingIndicator.classList.add("d-none");
+        
+        if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = '<i class="fas fa-paper-plane me-2"></i>Kirim Reservasi Sekarang';
+        }
+        
+        if (errorText && errorMessage) {
+            errorText.textContent = 
+                "Terjadi kesalahan jaringan. Silakan coba lagi atau hubungi kami langsung.";
+            errorMessage.classList.remove("d-none");
+            errorMessage.scrollIntoView({ behavior: "smooth" });
+        }
+    }
+
+    showSweetAlert(icon, title, text) {
+        if (typeof Swal !== 'undefined') {
+            Swal.fire({
+                icon: icon,
+                title: title,
+                text: text,
+                confirmButtonColor: "#e17055",
+                confirmButtonText: "Mengerti",
+            });
+        } else {
+            alert(`${title}: ${text}`);
+        }
+    }
+
+    setupFormSubmission() {
+        const submitBtn = document.getElementById("submitReservationBtn");
+        if (submitBtn) {
+            submitBtn.addEventListener("click", (e) => this.submitForm(e));
+        }
+    }
+
+    setupModalEvents() {
+        const reservationModal = document.getElementById("reservationModal");
+        if (!reservationModal) return;
+
+        // When modal is shown
+        reservationModal.addEventListener("shown.bs.modal", () => {
+            console.log("Reservation modal shown");
+            this.setDefaultFormValues();
         });
 
         // When modal is hidden
-        reservationModal.addEventListener("hidden.bs.modal", function () {
-            console.log("Modal closed, resetting form");
-
-            // Reset form
-            if (reservationForm) {
-                reservationForm.reset();
-                setDefaultFormValues();
-            }
-
-            // Reset all states
-            document.getElementById("loading").classList.add("d-none");
-            document.getElementById("successMessage").classList.add("d-none");
-            document.getElementById("errorMessage").classList.add("d-none");
-
-            // Reset submit button
-            if (submitBtn) {
-                submitBtn.disabled = false;
-                submitBtn.innerHTML =
-                    '<i class="fas fa-paper-plane me-2"></i>Kirim Reservasi Sekarang';
-            }
-
-            // Remove invalid classes
-            document.querySelectorAll(".is-invalid").forEach((el) => {
-                el.classList.remove("is-invalid");
-            });
+        reservationModal.addEventListener("hidden.bs.modal", () => {
+            console.log("Reservation modal closed");
+            this.resetModalState();
         });
     }
 
-    // Initialize form values
-    setDefaultFormValues();
+    resetModalState() {
+        // Reset all states
+        const loadingIndicator = document.getElementById("loading");
+        const successMessage = document.getElementById("successMessage");
+        const errorMessage = document.getElementById("errorMessage");
+        const submitBtn = document.getElementById("submitReservationBtn");
+        
+        if (loadingIndicator) loadingIndicator.classList.add("d-none");
+        if (successMessage) successMessage.classList.add("d-none");
+        if (errorMessage) errorMessage.classList.add("d-none");
+        
+        if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = '<i class="fas fa-paper-plane me-2"></i>Kirim Reservasi Sekarang';
+        }
+        
+        // Remove invalid classes
+        document.querySelectorAll(".is-invalid").forEach((el) => {
+            el.classList.remove("is-invalid");
+        });
+    }
 
-    // Debug info
-    console.log("Submit button ID:", submitBtn ? "found" : "not found");
-    console.log("Form ID:", reservationForm ? "found" : "not found");
-    console.log("POST URL should be: /cafe-resto/reservation");
-});
+    setupRealTimeValidation() {
+        const reservationForm = document.getElementById("reservationForm");
+        if (!reservationForm) return;
+
+        reservationForm.querySelectorAll("input, select, textarea").forEach((input) => {
+            input.addEventListener("blur", () => {
+                if (input.hasAttribute("required") && !input.value.trim()) {
+                    input.classList.add("is-invalid");
+                } else {
+                    input.classList.remove("is-invalid");
+                }
+
+                // Email validation
+                if (input.type === "email" && input.value.trim()) {
+                    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                    if (!emailRegex.test(input.value.trim())) {
+                        input.classList.add("is-invalid");
+                    } else {
+                        input.classList.remove("is-invalid");
+                    }
+                }
+            });
+
+            // Format phone number on input
+            if (input.name === "phone") {
+                input.addEventListener("input", () => {
+                    // Allow only numbers and +
+                    input.value = input.value.replace(/[^\d+]/g, '');
+                });
+            }
+        });
+    }
+
+    debugInfo() {
+        console.log("Cafe Resto Debug Info:");
+        console.log("- Form Element:", document.getElementById("reservationForm") ? "Found" : "Not Found");
+        console.log("- Submit Button:", document.getElementById("submitReservationBtn") ? "Found" : "Not Found");
+        console.log("- Modal Element:", document.getElementById("reservationModal") ? "Found" : "Not Found");
+        console.log("- CSRF Token:", document.querySelector('meta[name="csrf-token"]')?.content ? "Exists" : "Missing");
+    }
+}
+
+// Initialize the reservation system
+const cafeRestoReservation = new CafeRestoReservation();
+
+// Make available globally if needed
+window.CafeRestoReservation = cafeRestoReservation;

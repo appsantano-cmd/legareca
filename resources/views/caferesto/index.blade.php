@@ -6,7 +6,7 @@
 
 <!-- NAVBAR - Menggunakan Partial -->
 @include('partials.navbar', [
-    'active_page' => 'cafe-resto'  // Kirim parameter untuk halaman aktif
+'active_page' => 'cafe-resto' // Kirim parameter untuk halaman aktif
 ])
 
 <!-- Hero Section -->
@@ -17,13 +17,13 @@
                 Legareca Cafe & Resto
             </h1>
             <p class="lead mb-4 animate__animated animate__fadeInUp" style="color: rgba(255,255,255,0.9);">
-                Pengalaman kuliner tak terlupakan di jantung Yogyakarta. 
+                Pengalaman kuliner tak terlupakan di jantung Yogyakarta.
                 Menyajikan berbagai hidangan lokal dan internasional dengan bahan-bahan terbaik.
             </p>
-            <button type="button" 
-                    class="btn btn-light btn-lg px-5 py-3 rounded-pill fw-bold shadow animate__animated animate__fadeInUp reserve-btn"
-                    data-bs-toggle="modal" 
-                    data-bs-target="#reservationModal">
+            <button type="button"
+                class="btn btn-light btn-lg px-5 py-3 rounded-pill fw-bold shadow animate__animated animate__fadeInUp reserve-btn"
+                data-bs-toggle="modal"
+                data-bs-target="#reservationModal">
                 <i class="fas fa-calendar-alt me-2"></i>Reservasi Meja Sekarang
             </button>
         </div>
@@ -53,19 +53,19 @@
                         <h3 class="h5 mb-3 fw-bold">Meja Indoor Regular</h3>
                         <div class="table-price">Rp 0</div>
                         <p class="text-muted small mb-3">Meja standar dengan suasana cozy di dalam ruangan ber-AC.</p>
-                        
+
                         <ul class="table-features mb-4">
                             <li><i class="fas fa-check"></i> Maksimal 4 orang</li>
                             <li><i class="fas fa-check"></i> Area ber-AC</li>
                             <li><i class="fas fa-check"></i> Dekat dengan live music</li>
                             <li><i class="fas fa-check"></i> Free WiFi</li>
                         </ul>
-                        
-                        <button type="button" 
-                                class="reserve-btn"
-                                data-bs-toggle="modal" 
-                                data-bs-target="#reservationModal"
-                                data-table-type="Indoor Regular">
+
+                        <button type="button"
+                            class="reserve-btn"
+                            data-bs-toggle="modal"
+                            data-bs-target="#reservationModal"
+                            data-table-type="Indoor Regular">
                             <i class="fas fa-chair me-2"></i>Pilih Meja Ini
                         </button>
                     </div>
@@ -84,7 +84,7 @@
                         <h3 class="h5 mb-3 fw-bold">Meja Indoor Premium</h3>
                         <div class="table-price">Rp 50.000</div>
                         <p class="text-muted small mb-3">Meja lebih luas dengan privasi tinggi dan view ke dapur terbuka.</p>
-                        
+
                         <ul class="table-features mb-4">
                             <li><i class="fas fa-check"></i> Maksimal 6 orang</li>
                             <li><i class="fas fa-check"></i> View ke dapur terbuka</li>
@@ -92,12 +92,12 @@
                             <li><i class="fas fa-check"></i> Dedicated waiter</li>
                             <li><i class="fas fa-check"></i> Complimentary appetizer</li>
                         </ul>
-                        
-                        <button type="button" 
-                                class="reserve-btn"
-                                data-bs-toggle="modal" 
-                                data-bs-target="#reservationModal"
-                                data-table-type="Indoor Premium">
+
+                        <button type="button"
+                            class="reserve-btn"
+                            data-bs-toggle="modal"
+                            data-bs-target="#reservationModal"
+                            data-table-type="Indoor Premium">
                             <i class="fas fa-chair me-2"></i>Pilih Meja Ini
                         </button>
                     </div>
@@ -116,7 +116,7 @@
                         <h3 class="h5 mb-3 fw-bold">Outdoor Garden</h3>
                         <div class="table-price">Rp 30.000</div>
                         <p class="text-muted small mb-3">Meja di taman dengan suasana alam dan udara segar.</p>
-                        
+
                         <ul class="table-features mb-4">
                             <li><i class="fas fa-check"></i> Maksimal 8 orang</li>
                             <li><i class="fas fa-check"></i> View taman</li>
@@ -124,12 +124,12 @@
                             <li><i class="fas fa-check"></i> Natural lighting</li>
                             <li><i class="fas fa-check"></i> Evening live acoustic</li>
                         </ul>
-                        
-                        <button type="button" 
-                                class="reserve-btn"
-                                data-bs-toggle="modal" 
-                                data-bs-target="#reservationModal"
-                                data-table-type="Outdoor Garden">
+
+                        <button type="button"
+                            class="reserve-btn"
+                            data-bs-toggle="modal"
+                            data-bs-target="#reservationModal"
+                            data-table-type="Outdoor Garden">
                             <i class="fas fa-chair me-2"></i>Pilih Meja Ini
                         </button>
                     </div>
@@ -148,7 +148,7 @@
                         <h3 class="h5 mb-3 fw-bold">Private Room</h3>
                         <div class="table-price">Rp 150.000</div>
                         <p class="text-muted small mb-3">Ruang privat untuk meeting, keluarga besar, atau acara khusus.</p>
-                        
+
                         <ul class="table-features mb-4">
                             <li><i class="fas fa-check"></i> Maksimal 20 orang</li>
                             <li><i class="fas fa-check"></i> Private sound system</li>
@@ -156,12 +156,12 @@
                             <li><i class="fas fa-check"></i> Dedicated chef service</li>
                             <li><i class="fas fa-check"></i> Minimum spending Rp 1.5jt</li>
                         </ul>
-                        
-                        <button type="button" 
-                                class="reserve-btn"
-                                data-bs-toggle="modal" 
-                                data-bs-target="#reservationModal"
-                                data-table-type="Private Room">
+
+                        <button type="button"
+                            class="reserve-btn"
+                            data-bs-toggle="modal"
+                            data-bs-target="#reservationModal"
+                            data-table-type="Private Room">
                             <i class="fas fa-chair me-2"></i>Pilih Meja Ini
                         </button>
                     </div>
@@ -183,10 +183,10 @@
 
         <div class="row">
             @foreach([
-                ['img' => 'https://images.unsplash.com/photo-1565958011703-44f9829ba187?ixlib=rb-4.0.3&auto=format&fit=crop&w=2065&q=80', 'name' => 'Legareca Signature Steak', 'desc' => 'Daging sapi premium dengan saus spesial', 'price' => '125.000'],
-                ['img' => 'https://images.unsplash.com/photo-1563379091339-03246963d9d6?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80', 'name' => 'Seafood Platter', 'desc' => 'Berbagai seafood segar dengan bumbu rempah', 'price' => '185.000'],
-                ['img' => 'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?ixlib=rb-4.0.3&auto=format&fit=crop&w=2067&q=80', 'name' => 'Grilled Chicken', 'desc' => 'Ayam panggang dengan sayuran organik', 'price' => '85.000'],
-                ['img' => 'https://images.unsplash.com/photo-1572802419224-296b0aeee0d9?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80', 'name' => 'Vegetarian Delight', 'desc' => 'Salad organik dengan dressing spesial', 'price' => '65.000']
+            ['img' => 'https://images.unsplash.com/photo-1565958011703-44f9829ba187?ixlib=rb-4.0.3&auto=format&fit=crop&w=2065&q=80', 'name' => 'Legareca Signature Steak', 'desc' => 'Daging sapi premium dengan saus spesial', 'price' => '125.000'],
+            ['img' => 'https://images.unsplash.com/photo-1563379091339-03246963d9d6?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80', 'name' => 'Seafood Platter', 'desc' => 'Berbagai seafood segar dengan bumbu rempah', 'price' => '185.000'],
+            ['img' => 'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?ixlib=rb-4.0.3&auto=format&fit=crop&w=2067&q=80', 'name' => 'Grilled Chicken', 'desc' => 'Ayam panggang dengan sayuran organik', 'price' => '85.000'],
+            ['img' => 'https://images.unsplash.com/photo-1572802419224-296b0aeee0d9?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80', 'name' => 'Vegetarian Delight', 'desc' => 'Salad organik dengan dressing spesial', 'price' => '65.000']
             ] as $item)
             <div class="col-lg-3 col-md-6 mb-4">
                 <div class="menu-card">
@@ -217,9 +217,9 @@
                     <h3 class="fw-bold mb-4">Jam Operasional</h3>
                     <div class="row">
                         @foreach([
-                            ['days' => 'Senin - Kamis', 'hours' => '10:00 - 22:00'],
-                            ['days' => 'Jumat - Sabtu', 'hours' => '10:00 - 23:00'],
-                            ['days' => 'Minggu & Hari Libur', 'hours' => '10:00 - 21:00']
+                        ['days' => 'Senin - Kamis', 'hours' => '10:00 - 22:00'],
+                        ['days' => 'Jumat - Sabtu', 'hours' => '10:00 - 23:00'],
+                        ['days' => 'Minggu & Hari Libur', 'hours' => '10:00 - 21:00']
                         ] as $schedule)
                         <div class="col-md-4 mb-3">
                             <div class="bg-white p-3 rounded text-center">
@@ -229,7 +229,7 @@
                         </div>
                         @endforeach
                     </div>
-                    
+
                     <div class="mt-4">
                         <div class="info-box-icon">
                             <i class="fas fa-phone-alt"></i>
@@ -244,7 +244,7 @@
                     </div>
                 </div>
             </div>
-            
+
             <div class="col-lg-4">
                 <div class="info-box" style="background: linear-gradient(135deg, #74b9ff, #0984e3);">
                     <div class="info-box-icon">
@@ -259,11 +259,11 @@
                         <li>Live music setiap Jumat & Sabtu</li>
                     </ul>
                 </div>
-                
+
                 <div class="text-center mt-4">
-                    <a href="https://wa.me/6281234567890" 
-                       target="_blank" 
-                       class="btn btn-success btn-lg w-100 py-3 fw-bold">
+                    <a href="https://wa.me/6281234567890"
+                        target="_blank"
+                        class="btn btn-success btn-lg w-100 py-3 fw-bold">
                         <i class="fab fa-whatsapp me-2"></i>Chat via WhatsApp
                     </a>
                 </div>
@@ -284,9 +284,11 @@
             </div>
             <div class="modal-body p-4">
                 <!-- FORM -->
-                <form id="reservationForm">
+                <form id="reservationForm"
+                    action="{{ route('cafe-resto.store') }}"
+                    method="POST">
                     @csrf
-                    
+
                     <!-- Table Selection -->
                     <div class="mb-4">
                         <label for="tableType" class="form-label fw-bold">Pilih Tipe Meja</label>
@@ -299,7 +301,7 @@
                         </select>
                         <div class="invalid-feedback">Silakan pilih tipe meja.</div>
                     </div>
-                    
+
                     <!-- Date & Time -->
                     <div class="row mb-4">
                         <div class="col-md-6 mb-3">
@@ -308,8 +310,8 @@
                                 <span class="input-group-text bg-primary text-white">
                                     <i class="fas fa-calendar-alt"></i>
                                 </span>
-                                <input type="date" class="form-control" id="date" name="date" required 
-                                       min="{{ date('Y-m-d') }}">
+                                <input type="date" class="form-control" id="date" name="date" required
+                                    min="{{ date('Y-m-d') }}">
                             </div>
                             <div class="invalid-feedback">Silakan pilih tanggal.</div>
                         </div>
@@ -324,15 +326,15 @@
                                     @for($i = 10; $i <= 21; $i++)
                                         <option value="{{ sprintf('%02d:00', $i) }}">{{ sprintf('%02d:00', $i) }} WIB</option>
                                         @if($i < 21)
-                                        <option value="{{ sprintf('%02d:30', $i) }}">{{ sprintf('%02d:30', $i) }} WIB</option>
-                                        @endif
-                                    @endfor
+                                            <option value="{{ sprintf('%02d:30', $i) }}">{{ sprintf('%02d:30', $i) }} WIB</option>
+                                            @endif
+                                            @endfor
                                 </select>
                             </div>
                             <div class="invalid-feedback">Silakan pilih waktu.</div>
                         </div>
                     </div>
-                    
+
                     <!-- Guests -->
                     <div class="row mb-4">
                         <div class="col-md-6">
@@ -341,7 +343,7 @@
                                 <option value="">-- Pilih Jumlah Tamu --</option>
                                 @for($i = 1; $i <= 20; $i++)
                                     <option value="{{ $i }}" {{ $i == 2 ? 'selected' : '' }}>{{ $i }} orang</option>
-                                @endfor
+                                    @endfor
                             </select>
                             <div class="invalid-feedback">Silakan pilih jumlah tamu.</div>
                         </div>
@@ -352,10 +354,10 @@
                             </div>
                         </div>
                     </div>
-                    
+
                     <!-- Personal Information -->
                     <h5 class="fw-bold mb-3 border-bottom pb-2">Data Diri</h5>
-                    
+
                     <div class="row mb-4">
                         <div class="col-md-6 mb-3">
                             <label for="name" class="form-label fw-bold">Nama Lengkap</label>
@@ -363,8 +365,8 @@
                                 <span class="input-group-text bg-primary text-white">
                                     <i class="fas fa-user"></i>
                                 </span>
-                                <input type="text" class="form-control" id="name" name="name" required 
-                                       placeholder="Nama sesuai KTP">
+                                <input type="text" class="form-control" id="name" name="name" required
+                                    placeholder="Nama sesuai KTP">
                             </div>
                             <div class="invalid-feedback">Silakan isi nama lengkap.</div>
                         </div>
@@ -374,33 +376,33 @@
                                 <span class="input-group-text bg-success text-white">
                                     <i class="fab fa-whatsapp"></i>
                                 </span>
-                                <input type="tel" class="form-control" id="phone" name="phone" required 
-                                       placeholder="628xxxxxxxxxx">
+                                <input type="tel" class="form-control" id="phone" name="phone" required
+                                    placeholder="628xxxxxxxxxx">
                             </div>
                             <div class="invalid-feedback">Silakan isi nomor WhatsApp yang valid.</div>
                         </div>
                     </div>
-                    
+
                     <div class="mb-4">
                         <label for="email" class="form-label fw-bold">Email</label>
                         <div class="input-group">
                             <span class="input-group-text bg-primary text-white">
                                 <i class="fas fa-envelope"></i>
                             </span>
-                            <input type="email" class="form-control" id="email" name="email" required 
-                                   placeholder="email@anda.com">
+                            <input type="email" class="form-control" id="email" name="email" required
+                                placeholder="email@anda.com">
                         </div>
                         <div class="invalid-feedback">Silakan isi email yang valid.</div>
                     </div>
-                    
+
                     <!-- Special Request -->
                     <div class="mb-4">
                         <label for="special_request" class="form-label fw-bold">Permintaan Khusus (Opsional)</label>
-                        <textarea class="form-control" id="special_request" name="special_request" 
-                                  rows="3" 
-                                  placeholder="Contoh: Perayaan ulang tahun, alergi makanan tertentu, kursi bayi, dll."></textarea>
+                        <textarea class="form-control" id="special_request" name="special_request"
+                            rows="3"
+                            placeholder="Contoh: Perayaan ulang tahun, alergi makanan tertentu, kursi bayi, dll."></textarea>
                     </div>
-                    
+
                     <!-- Terms & Info -->
                     <div class="alert alert-warning mb-4">
                         <i class="fas fa-exclamation-triangle me-2"></i>
@@ -412,15 +414,15 @@
                             <li>Untuk pembatalan, harap hubungi kami minimal 2 jam sebelumnya</li>
                         </ul>
                     </div>
-                    
+
                     <!-- Submit Button -->
-                    <div class="text-center">
-                        <button type="button" id="submitReservationBtn" class="btn btn-success btn-lg px-5 py-3 w-100">
-                            <i class="fas fa-paper-plane me-2"></i>Kirim Reservasi Sekarang
-                        </button>
-                    </div>
+                    <button type="submit" id="submitReservationBtn"
+                        class="btn btn-success btn-lg px-5 py-3 w-100">
+                        <i class="fas fa-paper-plane me-2"></i>
+                        Kirim Reservasi Sekarang
+                    </button>
                 </form>
-                
+
                 <!-- Loading Indicator -->
                 <div id="loading" class="text-center d-none mt-4">
                     <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
@@ -428,7 +430,7 @@
                     </div>
                     <p class="mt-3 text-muted">Mengirim reservasi...</p>
                 </div>
-                
+
                 <!-- Success Message -->
                 <div id="successMessage" class="alert alert-success d-none mt-4">
                     <div class="d-flex align-items-center">
@@ -440,7 +442,7 @@
                         </div>
                     </div>
                 </div>
-                
+
                 <!-- Error Message -->
                 <div id="errorMessage" class="alert alert-danger d-none mt-4">
                     <div class="d-flex align-items-center">
