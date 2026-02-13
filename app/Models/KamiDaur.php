@@ -19,21 +19,24 @@ class KamiDaur extends Model
     ];
 
     protected $casts = [
-        'mission_items' => 'array',
         'products' => 'array',
         'materials' => 'array',
-        'impact_stats' => 'array',
-        'services' => 'array',
-        'payment_methods' => 'array',
-        'is_active' => 'boolean',
-        'free_shipping_minimum' => 'integer'
+        'is_active' => 'boolean'
     ];
 
     /**
-     * Get active configuration
+     * Get active configurations
      */
-    public static function getActive()
+    public static function getActiveConfigs()
     {
-        return self::where('is_active', true)->latest()->first();
+        return self::where('is_active', true)->orderBy('created_at', 'desc')->get();
+    }
+    
+    /**
+     * Boot the model.
+     */
+    protected static function boot()
+    {
+        parent::boot();
     }
 }
