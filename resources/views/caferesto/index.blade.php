@@ -6,7 +6,7 @@
 
 <!-- NAVBAR - Menggunakan Partial -->
 @include('partials.navbar', [
-'active_page' => 'cafe-resto' // Kirim parameter untuk halaman aktif
+'active_page' => 'cafe-resto'
 ])
 
 <!-- Hero Section -->
@@ -41,132 +41,58 @@
         </div>
 
         <div class="row">
-            <!-- Table Type 1: Indoor Regular -->
+            @foreach([
+                ['type' => 'Indoor Regular', 'price' => 0, 'img' => 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0', 'desc' => 'Meja standar dengan suasana cozy di dalam ruangan ber-AC.', 'badge' => 'bg-success', 'badge_text' => 'Tersedia', 'max_guests' => 4],
+                ['type' => 'Indoor Premium', 'price' => 50000, 'img' => 'https://images.unsplash.com/photo-1514933651103-005eec06c04b', 'desc' => 'Meja lebih luas dengan privasi tinggi dan view ke dapur terbuka.', 'badge' => 'bg-success', 'badge_text' => 'Tersedia', 'max_guests' => 6],
+                ['type' => 'Outdoor Garden', 'price' => 30000, 'img' => 'https://images.unsplash.com/photo-1590846406792-0adc7f938f1d', 'desc' => 'Meja di taman dengan suasana alam dan udara segar.', 'badge' => 'bg-warning', 'badge_text' => 'Terbatas', 'max_guests' => 8],
+                ['type' => 'Private Room', 'price' => 150000, 'img' => 'https://images.unsplash.com/photo-1559925393-8be0ec4767c8', 'desc' => 'Ruang privat untuk meeting, keluarga besar, atau acara khusus.', 'badge' => 'bg-info', 'badge_text' => 'Minimal 10 orang', 'max_guests' => 20]
+            ] as $table)
             <div class="col-lg-3 col-md-6">
                 <div class="table-card">
                     <div class="position-relative overflow-hidden">
-                        <img src="https://images.unsplash.com/photo-1414235077428-338989a2e8c0?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80"
-                            alt="Indoor Regular" class="table-image">
-                        <span class="table-badge bg-success text-white">Tersedia</span>
+                        <img src="{{ $table['img'] }}?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80"
+                            alt="{{ $table['type'] }}" class="table-image">
+                        <span class="table-badge {{ $table['badge'] }} text-white">{{ $table['badge_text'] }}</span>
                     </div>
                     <div class="p-4">
-                        <h3 class="h5 mb-3 fw-bold">Meja Indoor Regular</h3>
-                        <div class="table-price">Rp 0</div>
-                        <p class="text-muted small mb-3">Meja standar dengan suasana cozy di dalam ruangan ber-AC.</p>
+                        <h3 class="h5 mb-3 fw-bold">{{ $table['type'] }}</h3>
+                        <div class="table-price">Rp {{ number_format($table['price'], 0, ',', '.') }}</div>
+                        <p class="text-muted small mb-3">{{ $table['desc'] }}</p>
 
                         <ul class="table-features mb-4">
-                            <li><i class="fas fa-check"></i> Maksimal 4 orang</li>
+                            <li><i class="fas fa-check"></i> Maksimal {{ $table['max_guests'] }} orang</li>
+                            @if($table['type'] == 'Indoor Regular')
                             <li><i class="fas fa-check"></i> Area ber-AC</li>
                             <li><i class="fas fa-check"></i> Dekat dengan live music</li>
                             <li><i class="fas fa-check"></i> Free WiFi</li>
-                        </ul>
-
-                        <button type="button"
-                            class="reserve-btn"
-                            data-bs-toggle="modal"
-                            data-bs-target="#reservationModal"
-                            data-table-type="Indoor Regular">
-                            <i class="fas fa-chair me-2"></i>Pilih Meja Ini
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Table Type 2: Indoor Premium -->
-            <div class="col-lg-3 col-md-6">
-                <div class="table-card">
-                    <div class="position-relative overflow-hidden">
-                        <img src="https://images.unsplash.com/photo-1514933651103-005eec06c04b?ixlib=rb-4.0.3&auto=format&fit=crop&w=2074&q=80"
-                            alt="Indoor Premium" class="table-image">
-                        <span class="table-badge bg-success text-white">Tersedia</span>
-                    </div>
-                    <div class="p-4">
-                        <h3 class="h5 mb-3 fw-bold">Meja Indoor Premium</h3>
-                        <div class="table-price">Rp 50.000</div>
-                        <p class="text-muted small mb-3">Meja lebih luas dengan privasi tinggi dan view ke dapur terbuka.</p>
-
-                        <ul class="table-features mb-4">
-                            <li><i class="fas fa-check"></i> Maksimal 6 orang</li>
+                            @elseif($table['type'] == 'Indoor Premium')
                             <li><i class="fas fa-check"></i> View ke dapur terbuka</li>
                             <li><i class="fas fa-check"></i> Privacy screen</li>
                             <li><i class="fas fa-check"></i> Dedicated waiter</li>
-                            <li><i class="fas fa-check"></i> Complimentary appetizer</li>
-                        </ul>
-
-                        <button type="button"
-                            class="reserve-btn"
-                            data-bs-toggle="modal"
-                            data-bs-target="#reservationModal"
-                            data-table-type="Indoor Premium">
-                            <i class="fas fa-chair me-2"></i>Pilih Meja Ini
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Table Type 3: Outdoor Garden -->
-            <div class="col-lg-3 col-md-6">
-                <div class="table-card">
-                    <div class="position-relative overflow-hidden">
-                        <img src="https://images.unsplash.com/photo-1590846406792-0adc7f938f1d?ixlib=rb-4.0.3&auto=format&fit=crop&w=2080&q=80"
-                            alt="Outdoor Garden" class="table-image">
-                        <span class="table-badge bg-warning text-dark">Terbatas</span>
-                    </div>
-                    <div class="p-4">
-                        <h3 class="h5 mb-3 fw-bold">Outdoor Garden</h3>
-                        <div class="table-price">Rp 30.000</div>
-                        <p class="text-muted small mb-3">Meja di taman dengan suasana alam dan udara segar.</p>
-
-                        <ul class="table-features mb-4">
-                            <li><i class="fas fa-check"></i> Maksimal 8 orang</li>
+                            @elseif($table['type'] == 'Outdoor Garden')
                             <li><i class="fas fa-check"></i> View taman</li>
                             <li><i class="fas fa-check"></i> Smoking area terpisah</li>
-                            <li><i class="fas fa-check"></i> Natural lighting</li>
                             <li><i class="fas fa-check"></i> Evening live acoustic</li>
-                        </ul>
-
-                        <button type="button"
-                            class="reserve-btn"
-                            data-bs-toggle="modal"
-                            data-bs-target="#reservationModal"
-                            data-table-type="Outdoor Garden">
-                            <i class="fas fa-chair me-2"></i>Pilih Meja Ini
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Table Type 4: Private Room -->
-            <div class="col-lg-3 col-md-6">
-                <div class="table-card">
-                    <div class="position-relative overflow-hidden">
-                        <img src="https://images.unsplash.com/photo-1559925393-8be0ec4767c8?ixlib=rb-4.0.3&auto=format&fit=crop&w=2071&q=80"
-                            alt="Private Room" class="table-image">
-                        <span class="table-badge bg-info text-white">Minimal 10 orang</span>
-                    </div>
-                    <div class="p-4">
-                        <h3 class="h5 mb-3 fw-bold">Private Room</h3>
-                        <div class="table-price">Rp 150.000</div>
-                        <p class="text-muted small mb-3">Ruang privat untuk meeting, keluarga besar, atau acara khusus.</p>
-
-                        <ul class="table-features mb-4">
-                            <li><i class="fas fa-check"></i> Maksimal 20 orang</li>
+                            @else
                             <li><i class="fas fa-check"></i> Private sound system</li>
                             <li><i class="fas fa-check"></i> Projector screen</li>
                             <li><i class="fas fa-check"></i> Dedicated chef service</li>
-                            <li><i class="fas fa-check"></i> Minimum spending Rp 1.5jt</li>
+                            @endif
                         </ul>
 
                         <button type="button"
                             class="reserve-btn"
                             data-bs-toggle="modal"
                             data-bs-target="#reservationModal"
-                            data-table-type="Private Room">
+                            data-table-type="{{ $table['type'] }}"
+                            data-table-price="{{ $table['price'] }}"
+                            data-max-guests="{{ $table['max_guests'] }}">
                             <i class="fas fa-chair me-2"></i>Pilih Meja Ini
                         </button>
                     </div>
                 </div>
             </div>
+            @endforeach
         </div>
     </div>
 </section>
@@ -183,14 +109,14 @@
 
         <div class="row">
             @foreach([
-            ['img' => 'https://images.unsplash.com/photo-1565958011703-44f9829ba187?ixlib=rb-4.0.3&auto=format&fit=crop&w=2065&q=80', 'name' => 'Legareca Signature Steak', 'desc' => 'Daging sapi premium dengan saus spesial', 'price' => '125.000'],
-            ['img' => 'https://images.unsplash.com/photo-1563379091339-03246963d9d6?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80', 'name' => 'Seafood Platter', 'desc' => 'Berbagai seafood segar dengan bumbu rempah', 'price' => '185.000'],
-            ['img' => 'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?ixlib=rb-4.0.3&auto=format&fit=crop&w=2067&q=80', 'name' => 'Grilled Chicken', 'desc' => 'Ayam panggang dengan sayuran organik', 'price' => '85.000'],
-            ['img' => 'https://images.unsplash.com/photo-1572802419224-296b0aeee0d9?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80', 'name' => 'Vegetarian Delight', 'desc' => 'Salad organik dengan dressing spesial', 'price' => '65.000']
+            ['img' => 'https://images.unsplash.com/photo-1565958011703-44f9829ba187', 'name' => 'Legareca Signature Steak', 'desc' => 'Daging sapi premium dengan saus spesial', 'price' => '125.000'],
+            ['img' => 'https://images.unsplash.com/photo-1563379091339-03246963d9d6', 'name' => 'Seafood Platter', 'desc' => 'Berbagai seafood segar dengan bumbu rempah', 'price' => '185.000'],
+            ['img' => 'https://images.unsplash.com/photo-1555939594-58d7cb561ad1', 'name' => 'Grilled Chicken', 'desc' => 'Ayam panggang dengan sayuran organik', 'price' => '85.000'],
+            ['img' => 'https://images.unsplash.com/photo-1572802419224-296b0aeee0d9', 'name' => 'Vegetarian Delight', 'desc' => 'Salad organik dengan dressing spesial', 'price' => '65.000']
             ] as $item)
             <div class="col-lg-3 col-md-6 mb-4">
                 <div class="menu-card">
-                    <img src="{{ $item['img'] }}" alt="{{ $item['name'] }}" class="menu-image">
+                    <img src="{{ $item['img'] }}?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80" alt="{{ $item['name'] }}" class="menu-image">
                     <div class="p-3">
                         <h5 class="fw-bold mb-2">{{ $item['name'] }}</h5>
                         <p class="text-muted small mb-2">{{ $item['desc'] }}</p>
@@ -276,22 +202,21 @@
             </div>
             <div class="modal-body p-4">
                 <!-- FORM -->
-                <form id="reservationForm"
-                    action="{{ route('cafe-resto.store') }}"
-                    method="POST">
+                <form id="reservationForm">
                     @csrf
+
+                    <!-- Hidden inputs -->
+                    <input type="hidden" id="selectedTableType" name="table_type">
+                    <input type="hidden" id="selectedTablePrice" name="table_price">
+                    <input type="hidden" id="selectedMaxGuests" name="max_guests">
 
                     <!-- Table Selection -->
                     <div class="mb-4">
-                        <label for="tableType" class="form-label fw-bold">Pilih Tipe Meja</label>
-                        <select class="form-select form-select-lg" id="tableType" name="table_type" required>
-                            <option value="">-- Pilih Tipe Meja --</option>
-                            <option value="Indoor Regular">Meja Indoor Regular</option>
-                            <option value="Indoor Premium">Meja Indoor Premium (Rp 50.000)</option>
-                            <option value="Outdoor Garden">Outdoor Garden (Rp 30.000)</option>
-                            <option value="Private Room">Private Room (Rp 150.000)</option>
-                        </select>
-                        <div class="invalid-feedback">Silakan pilih tipe meja.</div>
+                        <label class="form-label fw-bold">Tipe Meja</label>
+                        <div class="form-control form-control-lg" id="tableTypeDisplay"
+                            style="background: #f8f9fa; font-weight: 600; min-height: 48px; display: flex; align-items: center;">
+                            <span class="text-muted">Pilih meja terlebih dahulu</span>
+                        </div>
                     </div>
 
                     <!-- Date & Time -->
@@ -319,8 +244,8 @@
                                         <option value="{{ sprintf('%02d:00', $i) }}">{{ sprintf('%02d:00', $i) }} WIB</option>
                                         @if($i < 21)
                                             <option value="{{ sprintf('%02d:30', $i) }}">{{ sprintf('%02d:30', $i) }} WIB</option>
-                                            @endif
-                                            @endfor
+                                        @endif
+                                    @endfor
                                 </select>
                             </div>
                             <div class="invalid-feedback">Silakan pilih waktu.</div>
@@ -334,15 +259,15 @@
                             <select class="form-select" id="guests" name="guests" required>
                                 <option value="">-- Pilih Jumlah Tamu --</option>
                                 @for($i = 1; $i <= 20; $i++)
-                                    <option value="{{ $i }}" {{ $i == 2 ? 'selected' : '' }}>{{ $i }} orang</option>
-                                    @endfor
+                                    <option value="{{ $i }}">{{ $i }} orang</option>
+                                @endfor
                             </select>
                             <div class="invalid-feedback">Silakan pilih jumlah tamu.</div>
                         </div>
                         <div class="col-md-6">
                             <div class="alert alert-info mb-0 h-100 d-flex align-items-center">
                                 <i class="fas fa-info-circle me-2"></i>
-                                Harga meja akan ditambahkan ke total pembayaran.
+                                Harga meja: <span id="displayPrice">Rp 0</span>
                             </div>
                         </div>
                     </div>
@@ -363,15 +288,24 @@
                             <div class="invalid-feedback">Silakan isi nama lengkap.</div>
                         </div>
                         <div class="col-md-6 mb-3">
-                            <label for="phone" class="form-label fw-bold">Nomor Telepon</label>
+                            <label for="phone" class="form-label fw-bold">Nomor WhatsApp</label>
                             <div class="input-group">
-                                <span class="input-group-text bg-primary text-white">
-                                    <i class="fas fa-phone"></i>
+                                <span class="input-group-text bg-success text-white">
+                                    <i class="fab fa-whatsapp"></i>
+                                </span>
+                                <span class="input-group-text bg-light border"
+                                    style="background: #e9ecef; font-weight: 600; color: #264653; border-right: none;">
+                                    +62
                                 </span>
                                 <input type="tel" class="form-control" id="phone" name="phone" required
-                                    placeholder="08xxxxxxxxxx">
+                                    placeholder="81234567890" pattern="[0-9]{9,15}"
+                                    title="Masukkan nomor setelah kode negara +62 (contoh: 81234567890)"
+                                    style="border-left: none;" autocomplete="off">
                             </div>
-                            <div class="invalid-feedback">Silakan isi nomor telepon yang valid.</div>
+                            <small class="text-muted d-block mt-1">
+                                <i class="fas fa-info-circle me-1"></i>
+                                Format: +62 diisi otomatis, masukkan nomor setelah +62
+                            </small>
                         </div>
                     </div>
 
@@ -395,16 +329,15 @@
                             placeholder="Contoh: Perayaan ulang tahun, alergi makanan tertentu, kursi bayi, dll."></textarea>
                     </div>
 
-                    <!-- Terms & Info -->
-                    <div class="alert alert-warning mb-4">
-                        <i class="fas fa-exclamation-triangle me-2"></i>
-                        <strong>Informasi Penting:</strong>
-                        <ul class="mb-0 mt-2">
-                            <li>Pastikan data yang Anda masukkan benar</li>
-                            <li>Reservasi akan dikonfirmasi melalui email/telepon</li>
-                            <li>Meja hanya ditahan selama 15 menit</li>
-                            <li>Untuk pembatalan, harap hubungi kami minimal 2 jam sebelumnya</li>
-                        </ul>
+                    <!-- Alert Info -->
+                    <div class="alert alert-info border-info">
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-info-circle fa-2x text-info me-3"></i>
+                            <div>
+                                <h6 class="alert-heading mb-2">Informasi Penting</h6>
+                                <p class="mb-0">Setelah mengirim reservasi, Anda akan diarahkan ke WhatsApp untuk konfirmasi. Pastikan nomor WhatsApp yang Anda masukkan aktif.</p>
+                            </div>
+                        </div>
                     </div>
 
                     <!-- Submit Button -->
@@ -420,102 +353,28 @@
                     <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
                         <span class="visually-hidden">Loading...</span>
                     </div>
-                    <p class="mt-3 text-muted">Mengirim reservasi...</p>
+                    <p class="mt-3 text-muted">Memproses reservasi...</p>
                 </div>
 
-                <!-- Success Message with Detailed Confirmation -->
+                <!-- Success Message -->
                 <div id="successMessage" class="d-none mt-4">
-                    <div class="card border-0 shadow-sm">
-                        <div class="card-body p-4 text-center">
-                            <div class="success-animation mb-4">
-                                <div class="checkmark-circle">
-                                    <div class="checkmark"></div>
-                                </div>
-                            </div>
-                            
-                            <h3 class="fw-bold text-success mb-2">Reservasi Berhasil!</h3>
-                            <p class="text-muted mb-4">Terima kasih telah melakukan reservasi di Legareca Cafe & Resto</p>
-                            
-                            <!-- Reservation Details Card -->
-                            <div id="reservationDetails" class="bg-light rounded-4 p-4 mb-4 text-start">
-                                <h5 class="fw-bold mb-3 border-bottom pb-2">
-                                    <i class="fas fa-receipt me-2"></i>Detail Reservasi
-                                </h5>
-                                <div class="row">
-                                    <div class="col-6 mb-2">
-                                        <span class="text-muted">Kode Reservasi</span>
-                                    </div>
-                                    <div class="col-6 mb-2">
-                                        <span id="reservationCode" class="fw-bold text-primary"></span>
-                                    </div>
-                                    
-                                    <div class="col-6 mb-2">
-                                        <span class="text-muted">Nama Pemesan</span>
-                                    </div>
-                                    <div class="col-6 mb-2">
-                                        <span id="detailName" class="fw-bold"></span>
-                                    </div>
-                                    
-                                    <div class="col-6 mb-2">
-                                        <span class="text-muted">Tipe Meja</span>
-                                    </div>
-                                    <div class="col-6 mb-2">
-                                        <span id="detailTable" class="fw-bold"></span>
-                                    </div>
-                                    
-                                    <div class="col-6 mb-2">
-                                        <span class="text-muted">Tanggal & Waktu</span>
-                                    </div>
-                                    <div class="col-6 mb-2">
-                                        <span id="detailDateTime" class="fw-bold"></span>
-                                    </div>
-                                    
-                                    <div class="col-6 mb-2">
-                                        <span class="text-muted">Jumlah Tamu</span>
-                                    </div>
-                                    <div class="col-6 mb-2">
-                                        <span id="detailGuests" class="fw-bold"></span>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <!-- Action Buttons -->
-                            <div class="d-flex justify-content-center">
-                                <button type="button" 
-                                    class="btn btn-primary px-5" 
-                                    data-bs-dismiss="modal">
-                                    <i class="fas fa-check me-2"></i>
-                                    Tutup
-                                </button>
-                            </div>
-                            <p class="text-muted small mt-3 mb-0">
-                                <i class="fas fa-clock me-1"></i>
-                                Meja akan ditahan selama 15 menit dari waktu reservasi
-                            </p>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Simple Success Message (Alternative for non-JSON response) -->
-                <div id="simpleSuccessMessage" class="d-none mt-4">
                     <div class="alert alert-success border-0 shadow-sm">
-                        <div class="d-flex">
+                        <div class="d-flex align-items-center">
                             <div class="flex-shrink-0">
                                 <i class="fas fa-check-circle fa-3x text-success"></i>
                             </div>
                             <div class="flex-grow-1 ms-3">
-                                <h4 class="alert-heading mb-2">Reservasi Terkirim!</h4>
-                                <p class="mb-2">Terima kasih, data reservasi Anda telah kami terima.</p>
-                                <p class="mb-1 fw-bold" id="simpleReservationCode"></p>
+                                <h4 class="alert-heading mb-2">Reservasi Berhasil!</h4>
+                                <p class="mb-2" id="successMessageText"></p>
                                 <hr>
                                 <p class="mb-0 small">
                                     <i class="fas fa-info-circle me-1"></i>
-                                    Konfirmasi akan dikirim melalui email/telepon.
+                                    Anda akan diarahkan ke WhatsApp dalam 3 detik...
                                 </p>
                             </div>
                         </div>
                         <div class="mt-3 text-end">
-                            <button type="button" class="btn btn-sm btn-success" data-bs-dismiss="modal">
+                            <button type="button" class="btn btn-sm btn-success" onclick="window.location.reload()">
                                 <i class="fas fa-check me-1"></i> Tutup
                             </button>
                         </div>
@@ -542,247 +401,610 @@
     </div>
 </div>
 
-<!-- Custom CSS untuk Animasi Success -->
+<!-- Custom CSS -->
 <style>
-    .success-animation {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-    }
-    
-    .checkmark-circle {
-        width: 80px;
-        height: 80px;
+    /* Hero Section */
+    .cafe-hero {
+        background: linear-gradient(135deg, #FF6B6B 0%, #C92A2A 100%);
+        padding: 120px 0;
+        margin-top: 76px;
         position: relative;
-        display: inline-block;
-        vertical-align: top;
-        background-color: #28a745;
-        border-radius: 50%;
-        animation: pulse 1.5s ease-in-out infinite;
+        overflow: hidden;
     }
-    
-    .checkmark {
-        border-radius: 5px;
-    }
-    
-    .checkmark-circle:after {
+
+    .cafe-hero::before {
         content: '';
         position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="40" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="2"/></svg>') repeat;
+        opacity: 0.1;
+    }
+
+    .cafe-hero-content {
+        max-width: 800px;
+        margin: 0 auto;
+        position: relative;
+        z-index: 2;
+        color: white;
+    }
+
+    .cafe-hero h1 {
+        color: white;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+    }
+
+    /* Table Cards */
+    .table-card {
+        background: white;
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+        transition: all 0.3s ease;
+        height: 100%;
+        border: 1px solid #f0f0f0;
+        margin-bottom: 25px;
+    }
+
+    .table-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 15px 35px rgba(255, 107, 107, 0.15);
+        border-color: #FF6B6B;
+    }
+
+    .table-image {
+        width: 100%;
+        height: 200px;
+        object-fit: cover;
+        transition: transform 0.5s ease;
+    }
+
+    .table-card:hover .table-image {
+        transform: scale(1.1);
+    }
+
+    .table-badge {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        padding: 6px 15px;
+        border-radius: 30px;
+        font-size: 12px;
+        font-weight: 600;
+        z-index: 2;
+        box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+    }
+
+    .table-price {
+        font-size: 20px;
+        font-weight: 700;
+        color: #C92A2A;
+        margin-bottom: 10px;
+    }
+
+    .table-features {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .table-features li {
+        padding: 5px 0;
+        font-size: 13px;
+        color: #666;
+        display: flex;
+        align-items: center;
+    }
+
+    .table-features li i {
+        color: #FF6B6B;
+        margin-right: 8px;
+        font-size: 12px;
+    }
+
+    .reserve-btn {
+        background: linear-gradient(135deg, #FF6B6B, #C92A2A);
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 14px;
+        width: 100%;
+        transition: all 0.3s ease;
+    }
+
+    .reserve-btn:hover {
+        background: linear-gradient(135deg, #C92A2A, #FF6B6B);
+        transform: scale(0.98);
+        color: white;
+    }
+
+    /* Menu Cards */
+    .menu-card {
+        background: white;
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+        transition: all 0.3s ease;
+        height: 100%;
+    }
+
+    .menu-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    }
+
+    .menu-image {
+        width: 100%;
+        height: 180px;
+        object-fit: cover;
+    }
+
+    .menu-price {
+        font-weight: 700;
+        color: #C92A2A;
+        font-size: 16px;
+    }
+
+    /* Info Box */
+    .info-box {
+        background: white;
+        padding: 35px;
+        border-radius: 24px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        height: 100%;
+    }
+
+    .info-box-icon {
+        width: 60px;
+        height: 60px;
+        background: linear-gradient(135deg, #FF6B6B, #C92A2A);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 20px;
+    }
+
+    .info-box-icon i {
+        font-size: 24px;
+        color: white;
+    }
+
+    .section-title {
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 20px;
+        position: relative;
+        padding-bottom: 15px;
+    }
+
+    .section-title:after {
+        content: '';
+        position: absolute;
+        bottom: 0;
         left: 50%;
-        top: 50%;
-        transform: translate(-50%, -50%);
-        width: 40px;
-        height: 20px;
-        border-left: 5px solid white;
-        border-bottom: 5px solid white;
-        transform: translate(-50%, -60%) rotate(-45deg);
-        animation: drawCheck 0.5s ease-out;
+        transform: translateX(-50%);
+        width: 80px;
+        height: 3px;
+        background: linear-gradient(90deg, #FF6B6B, #C92A2A);
+        border-radius: 2px;
     }
-    
-    @keyframes pulse {
-        0% {
-            transform: scale(0.95);
-            box-shadow: 0 0 0 0 rgba(40, 167, 69, 0.7);
-        }
-        70% {
-            transform: scale(1);
-            box-shadow: 0 0 0 15px rgba(40, 167, 69, 0);
-        }
-        100% {
-            transform: scale(0.95);
-            box-shadow: 0 0 0 0 rgba(40, 167, 69, 0);
-        }
+
+    /* Modal */
+    .cafe-modal .modal-content {
+        border: none;
+        border-radius: 20px;
+        overflow: hidden;
     }
-    
-    @keyframes drawCheck {
-        0% {
-            width: 0;
-            height: 0;
-            opacity: 0;
-        }
-        100% {
-            width: 40px;
-            height: 20px;
-            opacity: 1;
-        }
+
+    .cafe-modal .modal-header {
+        background: linear-gradient(135deg, #FF6B6B, #C92A2A);
+        color: white;
+        border: none;
+        padding: 20px 25px;
     }
-    
-    .bg-gradient-success {
-        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+
+    .cafe-modal .modal-title {
+        font-weight: 700;
     }
-    
-    #reservationDetails {
-        border-left: 4px solid #28a745;
+
+    .cafe-modal .btn-close {
+        background: white;
+        opacity: 1;
+        border-radius: 50%;
+        padding: 8px;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .cafe-hero {
+            padding: 80px 0;
+        }
+        
+        .cafe-hero h1 {
+            font-size: 2rem;
+        }
+        
+        .table-card {
+            margin-bottom: 20px;
+        }
     }
 </style>
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Handle pre-fill table type from button data attribute
-        const reserveButtons = document.querySelectorAll('[data-table-type]');
-        reserveButtons.forEach(button => {
+        // ============= KONFIGURASI =============
+        const ADMIN_PHONE = '6281328897679'; // Nomor WhatsApp admin
+        const ADMIN_MESSAGE = 'Halo Admin Legareca Cafe & Resto, ada reservasi baru:';
+
+        // ============= ELEMEN FORM =============
+        const reservationForm = document.getElementById('reservationForm');
+        const submitBtn = document.getElementById('submitReservationBtn');
+
+        // Display elements
+        const tableTypeDisplay = document.getElementById('tableTypeDisplay');
+        const displayPrice = document.getElementById('displayPrice');
+
+        // Hidden inputs
+        const selectedTableType = document.getElementById('selectedTableType');
+        const selectedTablePrice = document.getElementById('selectedTablePrice');
+        const selectedMaxGuests = document.getElementById('selectedMaxGuests');
+
+        // Form inputs
+        const dateInput = document.getElementById('date');
+        const timeInput = document.getElementById('time');
+        const guestsSelect = document.getElementById('guests');
+        const nameInput = document.getElementById('name');
+        const phoneInput = document.getElementById('phone');
+        const emailInput = document.getElementById('email');
+        const specialRequest = document.getElementById('special_request');
+
+        // ============= FUNGSI FORMAT =============
+        function formatRupiah(angka) {
+            return 'Rp ' + angka.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+        }
+
+        function formatWhatsAppNumber(phoneNumber) {
+            let cleaned = phoneNumber.replace(/\D/g, '');
+            if (cleaned.startsWith('0')) {
+                cleaned = '62' + cleaned.substring(1);
+            } else if (!cleaned.startsWith('62')) {
+                cleaned = '62' + cleaned;
+            }
+            return cleaned;
+        }
+
+        function formatDateToDisplay(dateString) {
+            if (!dateString) return '-';
+            let date = new Date(dateString + 'T00:00:00');
+            let day = date.getDate().toString().padStart(2, '0');
+            let month = (date.getMonth() + 1).toString().padStart(2, '0');
+            let year = date.getFullYear();
+            return `${day}/${month}/${year}`;
+        }
+
+        // ============= FUNGSI UPDATE DISPLAY =============
+        function updateTableDisplay(tableType, tablePrice, maxGuests) {
+            if (tableTypeDisplay) {
+                tableTypeDisplay.innerHTML = tableType ?
+                    `<span style="color: #C92A2A; font-weight: 700;">${tableType}</span>` :
+                    '<span class="text-muted">Pilih meja terlebih dahulu</span>';
+            }
+
+            if (displayPrice) {
+                displayPrice.innerHTML = tablePrice ? 
+                    `<strong style="color: #C92A2A;">${formatRupiah(parseInt(tablePrice))}</strong>` : 
+                    '<strong style="color: #C92A2A;">Rp 0</strong>';
+            }
+
+            if (selectedTableType) selectedTableType.value = tableType || '';
+            if (selectedTablePrice) selectedTablePrice.value = tablePrice || '';
+            if (selectedMaxGuests) selectedMaxGuests.value = maxGuests || '';
+        }
+
+        // ============= FUNGSI SELECT TABLE =============
+        function selectTable(tableType, tablePrice, maxGuests) {
+            updateTableDisplay(tableType, tablePrice, maxGuests);
+            
+            // Update guests select max
+            if (guestsSelect && maxGuests) {
+                // Clear current options
+                guestsSelect.innerHTML = '<option value="">-- Pilih Jumlah Tamu --</option>';
+                
+                // Add options based on max guests
+                for (let i = 1; i <= maxGuests; i++) {
+                    let option = document.createElement('option');
+                    option.value = i;
+                    option.textContent = i + ' orang';
+                    guestsSelect.appendChild(option);
+                }
+            }
+        }
+
+        // ============= FUNGSI GENERATE PESAN WHATSAPP =============
+        function generateWhatsAppMessage(formData) {
+            let message = ADMIN_MESSAGE + '\n\n';
+            message += '━━━━━━━━━━━━━━━━━━━━━\n';
+            message += '*📋 DETAIL RESERVASI*\n';
+            message += '━━━━━━━━━━━━━━━━━━━━━\n\n';
+            
+            message += '*🪑 Tipe Meja:*\n';
+            message += `  ${formData.table_type || '-'}\n\n`;
+            
+            message += '*📅 Tanggal & Waktu:*\n';
+            message += `  ${formatDateToDisplay(formData.date)} | ${formData.time || '-'} WIB\n\n`;
+            
+            message += '*👥 Jumlah Tamu:*\n';
+            message += `  ${formData.guests || '-'} orang\n\n`;
+            
+            message += '*💰 Harga Meja:*\n';
+            message += `  ${formatRupiah(parseInt(formData.table_price || 0))}\n\n`;
+            
+            message += '━━━━━━━━━━━━━━━━━━━━━\n';
+            message += '*👤 DATA PEMESAN*\n';
+            message += '━━━━━━━━━━━━━━━━━━━━━\n\n';
+            
+            message += '*📛 Nama:*\n';
+            message += `  ${formData.name || '-'}\n\n`;
+            
+            message += '*📱 WhatsApp:*\n';
+            message += `  +62${formData.phone || '-'}\n\n`;
+            
+            message += '*📧 Email:*\n';
+            message += `  ${formData.email || '-'}\n\n`;
+            
+            if (formData.special_request) {
+                message += '━━━━━━━━━━━━━━━━━━━━━\n';
+                message += '*📝 PERMINTAAN KHUSUS*\n';
+                message += '━━━━━━━━━━━━━━━━━━━━━\n\n';
+                message += `  ${formData.special_request}\n\n`;
+            }
+            
+            message += '━━━━━━━━━━━━━━━━━━━━━\n';
+            message += 'Terima kasih telah melakukan reservasi di Legareca Cafe & Resto!\n';
+            message += '━━━━━━━━━━━━━━━━━━━━━';
+            
+            return encodeURIComponent(message);
+        }
+
+        // ============= FUNGSI SUBMIT FORM =============
+        function submitReservation(formData) {
+            // Show loading
+            document.getElementById('loading').classList.remove('d-none');
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Memproses...';
+
+            // Send to server via AJAX
+            fetch('{{ route("cafe-resto.store") }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('input[name="_token"]').value,
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify(formData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Hide loading
+                document.getElementById('loading').classList.add('d-none');
+                
+                if (data.success) {
+                    // Hide form
+                    document.getElementById('reservationForm').style.display = 'none';
+                    
+                    // Show success message
+                    const successMsg = document.getElementById('successMessage');
+                    const successText = document.getElementById('successMessageText');
+                    successText.textContent = `Reservasi dengan kode ${data.reservation_code} berhasil dikirim.`;
+                    successMsg.classList.remove('d-none');
+                    
+                    // Generate WhatsApp message
+                    const waMessage = generateWhatsAppMessage(formData);
+                    
+                    // Redirect to WhatsApp after 3 seconds
+                    setTimeout(() => {
+                        window.open(`https://wa.me/${ADMIN_PHONE}?text=${waMessage}`, '_blank');
+                    }, 3000);
+                    
+                    // Reset form
+                    reservationForm.reset();
+                    updateTableDisplay('', '', '');
+                    
+                } else {
+                    // Show error
+                    document.getElementById('errorMessage').classList.remove('d-none');
+                    document.getElementById('errorText').textContent = data.message || 'Terjadi kesalahan. Silakan coba lagi.';
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                
+                // Hide loading
+                document.getElementById('loading').classList.add('d-none');
+                
+                // Show error
+                document.getElementById('errorMessage').classList.remove('d-none');
+                document.getElementById('errorText').textContent = 'Terjadi kesalahan jaringan. Silakan coba lagi.';
+            })
+            .finally(() => {
+                // Re-enable submit button
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fas fa-paper-plane me-2"></i>Kirim Reservasi Sekarang';
+            });
+        }
+
+        // ============= EVENT LISTENERS =============
+
+        // 1. Event untuk tombol pilih meja
+        document.querySelectorAll('[data-table-type]').forEach(button => {
             button.addEventListener('click', function() {
                 const tableType = this.dataset.tableType;
-                const tableSelect = document.getElementById('tableType');
-                if (tableSelect) {
-                    tableSelect.value = tableType;
-                }
+                const tablePrice = this.dataset.tablePrice;
+                const maxGuests = this.dataset.maxGuests;
+                selectTable(tableType, tablePrice, maxGuests);
             });
         });
 
-        // Handle form submission with AJAX
-        const form = document.getElementById('reservationForm');
-        if (form) {
-            form.addEventListener('submit', function(e) {
-                e.preventDefault();
-                
-                // Hide any previous messages
-                document.getElementById('successMessage')?.classList.add('d-none');
-                document.getElementById('simpleSuccessMessage')?.classList.add('d-none');
-                document.getElementById('errorMessage')?.classList.add('d-none');
-                
-                // Show loading
-                document.getElementById('loading')?.classList.remove('d-none');
-                
-                // Disable submit button
-                const submitBtn = document.getElementById('submitReservationBtn');
-                if (submitBtn) {
-                    submitBtn.disabled = true;
-                    submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Mengirim...';
+        // 2. Event untuk nomor WhatsApp
+        if (phoneInput) {
+            phoneInput.addEventListener('keydown', function(e) {
+                if (this.value.length === 0 && e.key === '0') {
+                    e.preventDefault();
+                    this.value = '';
                 }
-                
-                // Get form data
-                const formData = new FormData(this);
-                
-                // Send AJAX request
-                fetch(this.action, {
-                    method: 'POST',
-                    body: formData,
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest',
-                        'Accept': 'application/json'
-                    }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    // Hide loading
-                    document.getElementById('loading')?.classList.add('d-none');
-                    
-                    if (data.success) {
-                        // Show success message with details
-                        showSuccessMessage(data);
-                        
-                        // Reset form
-                        this.reset();
-                    } else {
-                        // Show error message
-                        showErrorMessage(data.message || 'Terjadi kesalahan. Silakan coba lagi.');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    
-                    // Hide loading
-                    document.getElementById('loading')?.classList.add('d-none');
-                    
-                    // Show error message
-                    showErrorMessage('Terjadi kesalahan jaringan. Silakan coba lagi.');
-                })
-                .finally(() => {
-                    // Re-enable submit button
-                    if (submitBtn) {
-                        submitBtn.disabled = false;
-                        submitBtn.innerHTML = '<i class="fas fa-paper-plane me-2"></i>Kirim Reservasi Sekarang';
-                    }
-                });
+                if (!/^[0-9]$/.test(e.key) && e.key !== 'Backspace' && e.key !== 'Delete' && 
+                    e.key !== 'Tab' && e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') {
+                    e.preventDefault();
+                }
+            });
+
+            phoneInput.addEventListener('input', function(e) {
+                let value = this.value.replace(/\D/g, '');
+                if (value.length > 15) value = value.slice(0, 15);
+                this.value = value;
+            });
+
+            phoneInput.addEventListener('blur', function(e) {
+                let value = this.value.trim();
+                if (value && value.length < 9) {
+                    alert('Nomor WhatsApp minimal 9 digit setelah kode negara 62');
+                    this.focus();
+                }
             });
         }
-        
-        // Function to show detailed success message
-        function showSuccessMessage(data) {
-            // Hide form
-            const form = document.getElementById('reservationForm');
-            if (form) form.style.display = 'none';
-            
-            // Hide simple success message
-            document.getElementById('simpleSuccessMessage')?.classList.add('d-none');
-            
-            // Show detailed success message
-            const successMsg = document.getElementById('successMessage');
-            if (successMsg) {
-                successMsg.classList.remove('d-none');
+
+        // 3. Validasi jumlah tamu
+        if (guestsSelect) {
+            guestsSelect.addEventListener('change', function() {
+                const maxGuests = parseInt(selectedMaxGuests?.value || 0);
+                const guestCount = parseInt(this.value);
                 
-                // Fill in reservation details
-                if (data.data) {
-                    document.getElementById('reservationCode').textContent = data.data.reservation_code || '-';
-                    document.getElementById('detailName').textContent = data.data.name || '-';
-                    document.getElementById('detailTable').textContent = data.data.table_type || '-';
-                    
-                    const date = data.data.date ? new Date(data.data.date).toLocaleDateString('id-ID', {
-                        day: 'numeric',
-                        month: 'long',
-                        year: 'numeric'
-                    }) : '-';
-                    const time = data.data.time || '-';
-                    document.getElementById('detailDateTime').textContent = `${date}, ${time} WIB`;
-                    
-                    document.getElementById('detailGuests').textContent = `${data.data.guests || 0} orang`;
+                if (maxGuests > 0 && guestCount > maxGuests) {
+                    alert(`Jumlah tamu melebihi kapasitas maksimal meja (maksimal ${maxGuests} orang)`);
+                    this.value = '';
                 }
-            }
+            });
         }
-        
-        // Function to show simple success message (fallback)
-        function showSimpleSuccess(message) {
-            // Hide form
-            const form = document.getElementById('reservationForm');
-            if (form) form.style.display = 'none';
-            
-            // Hide detailed success message
-            document.getElementById('successMessage')?.classList.add('d-none');
-            
-            // Show simple success message
-            const simpleMsg = document.getElementById('simpleSuccessMessage');
-            if (simpleMsg) {
-                simpleMsg.classList.remove('d-none');
-                const codeElement = document.getElementById('simpleReservationCode');
-                if (codeElement) {
-                    codeElement.innerHTML = `<i class="fas fa-ticket-alt me-2"></i>Kode Reservasi: ${message || '#'}`;
+
+        // 4. Set minimum date untuk tanggal
+        if (dateInput) {
+            const today = new Date().toISOString().split('T')[0];
+            dateInput.min = today;
+        }
+
+        // 5. Event submit form
+        if (reservationForm) {
+            reservationForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+
+                // Validasi meja
+                if (!selectedTableType?.value) {
+                    alert('Silakan pilih tipe meja terlebih dahulu!');
+                    return;
                 }
-            }
+
+                // Validasi tanggal
+                if (!dateInput?.value) {
+                    alert('Silakan pilih tanggal reservasi!');
+                    dateInput.focus();
+                    return;
+                }
+
+                // Validasi waktu
+                if (!timeInput?.value) {
+                    alert('Silakan pilih waktu reservasi!');
+                    timeInput.focus();
+                    return;
+                }
+
+                // Validasi jumlah tamu
+                if (!guestsSelect?.value) {
+                    alert('Silakan pilih jumlah tamu!');
+                    guestsSelect.focus();
+                    return;
+                }
+
+                // Validasi nama
+                if (!nameInput?.value.trim()) {
+                    alert('Silakan isi nama lengkap!');
+                    nameInput.focus();
+                    return;
+                }
+
+                // Validasi nomor WhatsApp
+                if (!phoneInput?.value.trim()) {
+                    alert('Silakan isi nomor WhatsApp!');
+                    phoneInput.focus();
+                    return;
+                }
+
+                let phoneValue = phoneInput.value.trim().replace(/\D/g, '');
+                if (phoneValue.length < 9) {
+                    alert('Nomor WhatsApp minimal 9 digit setelah kode negara 62!');
+                    phoneInput.focus();
+                    return;
+                }
+
+                // Validasi email
+                if (!emailInput?.value.trim()) {
+                    alert('Silakan isi alamat email!');
+                    emailInput.focus();
+                    return;
+                }
+
+                const emailValue = emailInput.value.trim();
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailRegex.test(emailValue)) {
+                    alert('Format email tidak valid!');
+                    emailInput.focus();
+                    return;
+                }
+
+                // Format nomor WhatsApp
+                let formattedPhone = formatWhatsAppNumber(phoneValue);
+
+                // Siapkan data form
+                const formData = {
+                    table_type: selectedTableType.value,
+                    table_price: selectedTablePrice.value,
+                    date: dateInput.value,
+                    time: timeInput.value,
+                    guests: guestsSelect.value,
+                    name: nameInput.value.trim(),
+                    phone: formattedPhone,
+                    email: emailInput.value.trim(),
+                    special_request: specialRequest?.value.trim() || ''
+                };
+
+                // Submit ke server dan WhatsApp
+                submitReservation(formData);
+            });
         }
-        
-        // Function to show error message
-        function showErrorMessage(message) {
-            const errorMsg = document.getElementById('errorMessage');
-            if (errorMsg) {
-                errorMsg.classList.remove('d-none');
-                document.getElementById('errorText').textContent = message || 'Terjadi kesalahan. Silakan coba lagi.';
-            }
-        }
-        
-        // Reset modal when closed
+
+        // 6. Reset modal saat ditutup
         const modal = document.getElementById('reservationModal');
         if (modal) {
             modal.addEventListener('hidden.bs.modal', function() {
-                // Show form again
-                const form = document.getElementById('reservationForm');
-                if (form) {
-                    form.style.display = 'block';
-                    form.reset();
-                }
+                // Reset form
+                reservationForm.reset();
+                reservationForm.style.display = 'block';
                 
-                // Hide all messages
-                document.getElementById('successMessage')?.classList.add('d-none');
-                document.getElementById('simpleSuccessMessage')?.classList.add('d-none');
-                document.getElementById('errorMessage')?.classList.add('d-none');
-                document.getElementById('loading')?.classList.add('d-none');
+                // Reset display
+                updateTableDisplay('', '', '');
                 
-                // Re-enable submit button
-                const submitBtn = document.getElementById('submitReservationBtn');
-                if (submitBtn) {
-                    submitBtn.disabled = false;
-                    submitBtn.innerHTML = '<i class="fas fa-paper-plane me-2"></i>Kirim Reservasi Sekarang';
-                }
+                // Hide messages
+                document.getElementById('successMessage').classList.add('d-none');
+                document.getElementById('errorMessage').classList.add('d-none');
+                document.getElementById('loading').classList.add('d-none');
+                
+                // Reset submit button
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fas fa-paper-plane me-2"></i>Kirim Reservasi Sekarang';
             });
         }
     });
