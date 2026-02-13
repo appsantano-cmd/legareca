@@ -178,28 +178,6 @@
     </div>
 
     <div class="container-custom">
-        <!-- 3 Statistik Utama -->
-        <div class="row mb-4" id="statsContainer">
-            <div class="col-md-4">
-                <div class="card text-center py-3">
-                    <h5 class="text-muted mb-2">Total Booking</h5>
-                    <h2 class="fw-bold" id="totalBooking">0</h2>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card text-center py-3">
-                    <h5 class="text-muted mb-2">Pending</h5>
-                    <h2 class="fw-bold text-warning" id="totalPending">0</h2>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card text-center py-3">
-                    <h5 class="text-muted mb-2">Confirmed</h5>
-                    <h2 class="fw-bold text-success" id="totalConfirmed">0</h2>
-                </div>
-            </div>
-        </div>
-
         <!-- Filter Sederhana -->
         <div class="filter-box">
             <div class="row g-2 align-items-end">
@@ -211,15 +189,6 @@
                             <i class="fas fa-search"></i>
                         </button>
                     </div>
-                </div>
-                <div class="col-md-2">
-                    <label class="form-label fw-semibold">Status</label>
-                    <select class="form-select" id="filterStatus">
-                        <option value="all">Semua</option>
-                        <option value="pending">Pending</option>
-                        <option value="confirmed">Confirmed</option>
-                        <option value="cancelled">Cancelled</option>
-                    </select>
                 </div>
                 <div class="col-md-2">
                     <label class="form-label fw-semibold">Venue</label>
@@ -277,9 +246,6 @@
                     <a href="{{ route('dashboard') }}" class="btn btn-sm btn-outline-secondary d-md-none">
                         <i class="fas fa-arrow-left"></i>
                     </a>
-                    <button class="btn btn-sm btn-outline-primary" onclick="exportData()">
-                        <i class="fas fa-file-export me-1"></i> Export
-                    </button>
                 </div>
             </div>
 
@@ -296,12 +262,11 @@
                             <th>Jam</th>
                             <th>Durasi</th>
                             <th>Peserta</th>
-                            <th>Status</th>
                         </tr>
                     </thead>
                     <tbody id="bookingsTableBody">
                         <tr>
-                            <td colspan="10" class="text-center py-4">
+                            <td colspan="9" class="text-center py-4">
                                 <i class="fas fa-circle-notch fa-spin fa-2x text-muted mb-2"></i>
                                 <p class="text-muted">Memuat data...</p>
                             </td>
@@ -327,7 +292,6 @@
         let currentPage = 1;
 
         $(document).ready(function() {
-            loadStats();
             loadBookingsData();
 
             // Event listeners
@@ -337,7 +301,6 @@
 
             $('#resetFilterBtn').click(function() {
                 $('#searchInput').val('');
-                $('#filterStatus').val('all');
                 $('#filterVenue').val('all');
                 $('#filterStartDate').val('');
                 $('#filterEndDate').val('');
@@ -349,34 +312,18 @@
             });
         });
 
-        // Load statistik
-        function loadStats() {
-            $.ajax({
-                url: '{{ route("venue.stats") }}',
-                type: 'GET',
-                success: function(response) {
-                    if (response.success) {
-                        $('#totalBooking').text(response.data.total || 0);
-                        $('#totalPending').text(response.data.pending || 0);
-                        $('#totalConfirmed').text(response.data.confirmed || 0);
-                    }
-                }
-            });
-        }
-
         // Load data bookings
         function loadBookingsData(page = 1) {
             currentPage = page;
 
             const search = $('#searchInput').val();
-            const status = $('#filterStatus').val();
             const venue = $('#filterVenue').val();
             const startDate = $('#filterStartDate').val();
             const endDate = $('#filterEndDate').val();
 
             $('#bookingsTableBody').html(`
                 <tr>
-                    <td colspan="10" class="text-center py-4">
+                    <td colspan="9" class="text-center py-4">
                         <i class="fas fa-circle-notch fa-spin fa-2x text-muted mb-2"></i>
                         <p class="text-muted">Memuat data...</p>
                     </td>
@@ -389,7 +336,6 @@
                 data: {
                     page: page,
                     search: search,
-                    status: status === 'all' ? null : status,
                     venue: venue === 'all' ? null : venue,
                     start_date: startDate,
                     end_date: endDate,
@@ -404,7 +350,7 @@
                 error: function() {
                     $('#bookingsTableBody').html(`
                         <tr>
-                            <td colspan="10" class="text-center py-4 text-danger">
+                            <td colspan="9" class="text-center py-4 text-danger">
                                 <i class="fas fa-exclamation-triangle fa-2x mb-2"></i>
                                 <p>Gagal memuat data</p>
                             </td>
@@ -422,7 +368,7 @@
             if (!data || data.length === 0) {
                 tbody.append(`
                     <tr>
-                        <td colspan="10" class="text-center py-5">
+                        <td colspan="9" class="text-center py-5">
                             <i class="fas fa-calendar-times fa-3x text-muted mb-3"></i>
                             <p class="text-muted">Tidak ada data booking</p>
                         </td>
@@ -432,18 +378,6 @@
             }
 
             data.forEach((item, index) => {
-                let statusClass = {
-                    'pending': 'badge-pending',
-                    'confirmed': 'badge-confirmed',
-                    'cancelled': 'badge-cancelled'
-                } [item.status] || 'badge-pending';
-
-                let statusText = {
-                    'pending': 'Pending',
-                    'confirmed': 'Confirmed',
-                    'cancelled': 'Cancelled'
-                } [item.status] || item.status;
-
                 // Format durasi
                 let durasiText = '';
                 if (item.durasi_type === 'jam' && item.durasi_jam) {
@@ -476,7 +410,6 @@
                         <td>${formatTime(item.jam_acara)}</td>
                         <td><span class="duration-badge">${durasiText}</span></td>
                         <td><span class="badge bg-light text-dark">${item.perkiraan_peserta} org</span></td>
-                        <td><span class="${statusClass}">${statusText}</span></td>
                     </tr>
                 `;
                 tbody.append(row);
@@ -564,27 +497,9 @@
             return timeString.substring(0, 5);
         }
 
-        function exportData() {
-            const search = $('#searchInput').val();
-            const status = $('#filterStatus').val();
-            const venue = $('#filterVenue').val();
-            const startDate = $('#filterStartDate').val();
-            const endDate = $('#filterEndDate').val();
-
-            let params = new URLSearchParams();
-            if (search) params.append('search', search);
-            if (status && status !== 'all') params.append('status', status);
-            if (venue && venue !== 'all') params.append('venue', venue);
-            if (startDate) params.append('start_date', startDate);
-            if (endDate) params.append('end_date', endDate);
-
-            window.open('{{ route("venue.export") }}?' + params.toString(), '_blank');
-        }
-
         // Auto refresh setiap 30 detik
         setInterval(function() {
             if (!document.hidden) {
-                loadStats();
                 loadBookingsData(currentPage);
             }
         }, 30000);

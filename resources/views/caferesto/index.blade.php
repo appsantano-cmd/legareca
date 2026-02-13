@@ -259,14 +259,6 @@
                         <li>Live music setiap Jumat & Sabtu</li>
                     </ul>
                 </div>
-
-                <div class="text-center mt-4">
-                    <a href="https://wa.me/6281234567890"
-                        target="_blank"
-                        class="btn btn-success btn-lg w-100 py-3 fw-bold">
-                        <i class="fab fa-whatsapp me-2"></i>Chat via WhatsApp
-                    </a>
-                </div>
             </div>
         </div>
     </div>
@@ -371,15 +363,15 @@
                             <div class="invalid-feedback">Silakan isi nama lengkap.</div>
                         </div>
                         <div class="col-md-6 mb-3">
-                            <label for="phone" class="form-label fw-bold">Nomor WhatsApp</label>
+                            <label for="phone" class="form-label fw-bold">Nomor Telepon</label>
                             <div class="input-group">
-                                <span class="input-group-text bg-success text-white">
-                                    <i class="fab fa-whatsapp"></i>
+                                <span class="input-group-text bg-primary text-white">
+                                    <i class="fas fa-phone"></i>
                                 </span>
                                 <input type="tel" class="form-control" id="phone" name="phone" required
-                                    placeholder="628xxxxxxxxxx">
+                                    placeholder="08xxxxxxxxxx">
                             </div>
-                            <div class="invalid-feedback">Silakan isi nomor WhatsApp yang valid.</div>
+                            <div class="invalid-feedback">Silakan isi nomor telepon yang valid.</div>
                         </div>
                     </div>
 
@@ -409,7 +401,7 @@
                         <strong>Informasi Penting:</strong>
                         <ul class="mb-0 mt-2">
                             <li>Pastikan data yang Anda masukkan benar</li>
-                            <li>Reservasi akan dikonfirmasi via WhatsApp</li>
+                            <li>Reservasi akan dikonfirmasi melalui email/telepon</li>
                             <li>Meja hanya ditahan selama 15 menit</li>
                             <li>Untuk pembatalan, harap hubungi kami minimal 2 jam sebelumnya</li>
                         </ul>
@@ -431,14 +423,101 @@
                     <p class="mt-3 text-muted">Mengirim reservasi...</p>
                 </div>
 
-                <!-- Success Message -->
-                <div id="successMessage" class="alert alert-success d-none mt-4">
-                    <div class="d-flex align-items-center">
-                        <i class="fas fa-check-circle fa-2x me-3"></i>
-                        <div>
-                            <h5 class="alert-heading mb-2">Reservasi Berhasil!</h5>
-                            <p class="mb-1" id="successText"></p>
-                            <p class="mb-0">Anda akan diarahkan ke WhatsApp untuk konfirmasi.</p>
+                <!-- Success Message with Detailed Confirmation -->
+                <div id="successMessage" class="d-none mt-4">
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-body p-4 text-center">
+                            <div class="success-animation mb-4">
+                                <div class="checkmark-circle">
+                                    <div class="checkmark"></div>
+                                </div>
+                            </div>
+                            
+                            <h3 class="fw-bold text-success mb-2">Reservasi Berhasil!</h3>
+                            <p class="text-muted mb-4">Terima kasih telah melakukan reservasi di Legareca Cafe & Resto</p>
+                            
+                            <!-- Reservation Details Card -->
+                            <div id="reservationDetails" class="bg-light rounded-4 p-4 mb-4 text-start">
+                                <h5 class="fw-bold mb-3 border-bottom pb-2">
+                                    <i class="fas fa-receipt me-2"></i>Detail Reservasi
+                                </h5>
+                                <div class="row">
+                                    <div class="col-6 mb-2">
+                                        <span class="text-muted">Kode Reservasi</span>
+                                    </div>
+                                    <div class="col-6 mb-2">
+                                        <span id="reservationCode" class="fw-bold text-primary"></span>
+                                    </div>
+                                    
+                                    <div class="col-6 mb-2">
+                                        <span class="text-muted">Nama Pemesan</span>
+                                    </div>
+                                    <div class="col-6 mb-2">
+                                        <span id="detailName" class="fw-bold"></span>
+                                    </div>
+                                    
+                                    <div class="col-6 mb-2">
+                                        <span class="text-muted">Tipe Meja</span>
+                                    </div>
+                                    <div class="col-6 mb-2">
+                                        <span id="detailTable" class="fw-bold"></span>
+                                    </div>
+                                    
+                                    <div class="col-6 mb-2">
+                                        <span class="text-muted">Tanggal & Waktu</span>
+                                    </div>
+                                    <div class="col-6 mb-2">
+                                        <span id="detailDateTime" class="fw-bold"></span>
+                                    </div>
+                                    
+                                    <div class="col-6 mb-2">
+                                        <span class="text-muted">Jumlah Tamu</span>
+                                    </div>
+                                    <div class="col-6 mb-2">
+                                        <span id="detailGuests" class="fw-bold"></span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Action Buttons -->
+                            <div class="d-flex justify-content-center">
+                                <button type="button" 
+                                    class="btn btn-primary px-5" 
+                                    data-bs-dismiss="modal">
+                                    <i class="fas fa-check me-2"></i>
+                                    Tutup
+                                </button>
+                            </div>
+                            <p class="text-muted small mt-3 mb-0">
+                                <i class="fas fa-clock me-1"></i>
+                                Meja akan ditahan selama 15 menit dari waktu reservasi
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Simple Success Message (Alternative for non-JSON response) -->
+                <div id="simpleSuccessMessage" class="d-none mt-4">
+                    <div class="alert alert-success border-0 shadow-sm">
+                        <div class="d-flex">
+                            <div class="flex-shrink-0">
+                                <i class="fas fa-check-circle fa-3x text-success"></i>
+                            </div>
+                            <div class="flex-grow-1 ms-3">
+                                <h4 class="alert-heading mb-2">Reservasi Terkirim!</h4>
+                                <p class="mb-2">Terima kasih, data reservasi Anda telah kami terima.</p>
+                                <p class="mb-1 fw-bold" id="simpleReservationCode"></p>
+                                <hr>
+                                <p class="mb-0 small">
+                                    <i class="fas fa-info-circle me-1"></i>
+                                    Konfirmasi akan dikirim melalui email/telepon.
+                                </p>
+                            </div>
+                        </div>
+                        <div class="mt-3 text-end">
+                            <button type="button" class="btn btn-sm btn-success" data-bs-dismiss="modal">
+                                <i class="fas fa-check me-1"></i> Tutup
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -452,9 +531,261 @@
                             <p class="mb-0" id="errorText"></p>
                         </div>
                     </div>
+                    <div class="mt-3 text-end">
+                        <button type="button" class="btn btn-sm btn-danger" onclick="location.reload()">
+                            <i class="fas fa-redo me-1"></i> Coba Lagi
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<!-- Custom CSS untuk Animasi Success -->
+<style>
+    .success-animation {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    
+    .checkmark-circle {
+        width: 80px;
+        height: 80px;
+        position: relative;
+        display: inline-block;
+        vertical-align: top;
+        background-color: #28a745;
+        border-radius: 50%;
+        animation: pulse 1.5s ease-in-out infinite;
+    }
+    
+    .checkmark {
+        border-radius: 5px;
+    }
+    
+    .checkmark-circle:after {
+        content: '';
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        width: 40px;
+        height: 20px;
+        border-left: 5px solid white;
+        border-bottom: 5px solid white;
+        transform: translate(-50%, -60%) rotate(-45deg);
+        animation: drawCheck 0.5s ease-out;
+    }
+    
+    @keyframes pulse {
+        0% {
+            transform: scale(0.95);
+            box-shadow: 0 0 0 0 rgba(40, 167, 69, 0.7);
+        }
+        70% {
+            transform: scale(1);
+            box-shadow: 0 0 0 15px rgba(40, 167, 69, 0);
+        }
+        100% {
+            transform: scale(0.95);
+            box-shadow: 0 0 0 0 rgba(40, 167, 69, 0);
+        }
+    }
+    
+    @keyframes drawCheck {
+        0% {
+            width: 0;
+            height: 0;
+            opacity: 0;
+        }
+        100% {
+            width: 40px;
+            height: 20px;
+            opacity: 1;
+        }
+    }
+    
+    .bg-gradient-success {
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    }
+    
+    #reservationDetails {
+        border-left: 4px solid #28a745;
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Handle pre-fill table type from button data attribute
+        const reserveButtons = document.querySelectorAll('[data-table-type]');
+        reserveButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const tableType = this.dataset.tableType;
+                const tableSelect = document.getElementById('tableType');
+                if (tableSelect) {
+                    tableSelect.value = tableType;
+                }
+            });
+        });
+
+        // Handle form submission with AJAX
+        const form = document.getElementById('reservationForm');
+        if (form) {
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                // Hide any previous messages
+                document.getElementById('successMessage')?.classList.add('d-none');
+                document.getElementById('simpleSuccessMessage')?.classList.add('d-none');
+                document.getElementById('errorMessage')?.classList.add('d-none');
+                
+                // Show loading
+                document.getElementById('loading')?.classList.remove('d-none');
+                
+                // Disable submit button
+                const submitBtn = document.getElementById('submitReservationBtn');
+                if (submitBtn) {
+                    submitBtn.disabled = true;
+                    submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Mengirim...';
+                }
+                
+                // Get form data
+                const formData = new FormData(this);
+                
+                // Send AJAX request
+                fetch(this.action, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    // Hide loading
+                    document.getElementById('loading')?.classList.add('d-none');
+                    
+                    if (data.success) {
+                        // Show success message with details
+                        showSuccessMessage(data);
+                        
+                        // Reset form
+                        this.reset();
+                    } else {
+                        // Show error message
+                        showErrorMessage(data.message || 'Terjadi kesalahan. Silakan coba lagi.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    
+                    // Hide loading
+                    document.getElementById('loading')?.classList.add('d-none');
+                    
+                    // Show error message
+                    showErrorMessage('Terjadi kesalahan jaringan. Silakan coba lagi.');
+                })
+                .finally(() => {
+                    // Re-enable submit button
+                    if (submitBtn) {
+                        submitBtn.disabled = false;
+                        submitBtn.innerHTML = '<i class="fas fa-paper-plane me-2"></i>Kirim Reservasi Sekarang';
+                    }
+                });
+            });
+        }
+        
+        // Function to show detailed success message
+        function showSuccessMessage(data) {
+            // Hide form
+            const form = document.getElementById('reservationForm');
+            if (form) form.style.display = 'none';
+            
+            // Hide simple success message
+            document.getElementById('simpleSuccessMessage')?.classList.add('d-none');
+            
+            // Show detailed success message
+            const successMsg = document.getElementById('successMessage');
+            if (successMsg) {
+                successMsg.classList.remove('d-none');
+                
+                // Fill in reservation details
+                if (data.data) {
+                    document.getElementById('reservationCode').textContent = data.data.reservation_code || '-';
+                    document.getElementById('detailName').textContent = data.data.name || '-';
+                    document.getElementById('detailTable').textContent = data.data.table_type || '-';
+                    
+                    const date = data.data.date ? new Date(data.data.date).toLocaleDateString('id-ID', {
+                        day: 'numeric',
+                        month: 'long',
+                        year: 'numeric'
+                    }) : '-';
+                    const time = data.data.time || '-';
+                    document.getElementById('detailDateTime').textContent = `${date}, ${time} WIB`;
+                    
+                    document.getElementById('detailGuests').textContent = `${data.data.guests || 0} orang`;
+                }
+            }
+        }
+        
+        // Function to show simple success message (fallback)
+        function showSimpleSuccess(message) {
+            // Hide form
+            const form = document.getElementById('reservationForm');
+            if (form) form.style.display = 'none';
+            
+            // Hide detailed success message
+            document.getElementById('successMessage')?.classList.add('d-none');
+            
+            // Show simple success message
+            const simpleMsg = document.getElementById('simpleSuccessMessage');
+            if (simpleMsg) {
+                simpleMsg.classList.remove('d-none');
+                const codeElement = document.getElementById('simpleReservationCode');
+                if (codeElement) {
+                    codeElement.innerHTML = `<i class="fas fa-ticket-alt me-2"></i>Kode Reservasi: ${message || '#'}`;
+                }
+            }
+        }
+        
+        // Function to show error message
+        function showErrorMessage(message) {
+            const errorMsg = document.getElementById('errorMessage');
+            if (errorMsg) {
+                errorMsg.classList.remove('d-none');
+                document.getElementById('errorText').textContent = message || 'Terjadi kesalahan. Silakan coba lagi.';
+            }
+        }
+        
+        // Reset modal when closed
+        const modal = document.getElementById('reservationModal');
+        if (modal) {
+            modal.addEventListener('hidden.bs.modal', function() {
+                // Show form again
+                const form = document.getElementById('reservationForm');
+                if (form) {
+                    form.style.display = 'block';
+                    form.reset();
+                }
+                
+                // Hide all messages
+                document.getElementById('successMessage')?.classList.add('d-none');
+                document.getElementById('simpleSuccessMessage')?.classList.add('d-none');
+                document.getElementById('errorMessage')?.classList.add('d-none');
+                document.getElementById('loading')?.classList.add('d-none');
+                
+                // Re-enable submit button
+                const submitBtn = document.getElementById('submitReservationBtn');
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = '<i class="fas fa-paper-plane me-2"></i>Kirim Reservasi Sekarang';
+                }
+            });
+        }
+    });
+</script>
+
 @endsection
