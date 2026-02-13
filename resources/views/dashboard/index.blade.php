@@ -43,6 +43,7 @@
 
         /* MODIFIKASI CSS UNTUK MOBILE */
         @media (max-width: 768px) {
+
             /* Sidebar tetap disembunyikan default untuk mobile */
             .sidebar {
                 position: fixed;
@@ -287,27 +288,22 @@
 </head>
 
 <!-- TAMBAHKAN x-data dan x-on:resize untuk Alpine.js -->
-<body class="bg-gray-50" x-data="{ isMobileMenuOpen: false, isMobile: window.innerWidth <= 768 }" 
-      x-on:resize.window="isMobile = (window.innerWidth <= 768); if (!isMobile) isMobileMenuOpen = false;">
+
+<body class="bg-gray-50" x-data="{ isMobileMenuOpen: false, isMobile: window.innerWidth <= 768 }"
+    x-on:resize.window="isMobile = (window.innerWidth <= 768); if (!isMobile) isMobileMenuOpen = false;">
 
     <!-- TAMBAHKAN: Overlay untuk mobile sidebar (diperbarui) -->
-    <div class="mobile-overlay" 
-         x-show="isMobile && isMobileMenuOpen" 
-         x-transition.opacity 
-         @click="isMobileMenuOpen = false">
+    <div class="mobile-overlay" x-show="isMobile && isMobileMenuOpen" x-transition.opacity
+        @click="isMobileMenuOpen = false">
     </div>
 
     <!-- Sidebar - TAMBAHKAN: Alpine.js binding untuk mobile -->
     <div id="sidebar" class="sidebar sidebar-expanded bg-white h-screen fixed left-0 top-0 shadow-lg z-40"
-         :class="{ 'sidebar-mobile-active': isMobile && isMobileMenuOpen }"
-         x-show="!isMobile || isMobileMenuOpen"
-         x-transition:enter="transition ease-out duration-300"
-         x-transition:enter-start="-translate-x-full"
-         x-transition:enter-end="translate-x-0"
-         x-transition:leave="transition ease-in duration-300"
-         x-transition:leave-start="translate-x-0"
-         x-transition:leave-end="-translate-x-full">
-        
+        :class="{ 'sidebar-mobile-active': isMobile && isMobileMenuOpen }" x-show="!isMobile || isMobileMenuOpen"
+        x-transition:enter="transition ease-out duration-300" x-transition:enter-start="-translate-x-full"
+        x-transition:enter-end="translate-x-0" x-transition:leave="transition ease-in duration-300"
+        x-transition:leave-start="translate-x-0" x-transition:leave-end="-translate-x-full">
+
         <!-- Sidebar Header -->
         <div class="p-6 border-b border-gray-200">
             <div class="flex items-center justify-between">
@@ -328,9 +324,8 @@
                     </div>
                 </div>
                 <!-- TAMBAHKAN: Tombol close untuk mobile -->
-                <button class="text-gray-500 hover:text-gray-700 lg:hidden" 
-                        x-show="isMobile" 
-                        @click="isMobileMenuOpen = false">
+                <button class="text-gray-500 hover:text-gray-700 lg:hidden" x-show="isMobile"
+                    @click="isMobileMenuOpen = false">
                     <i class="fas fa-times text-lg"></i>
                 </button>
             </div>
@@ -540,29 +535,28 @@
                             <i class="fas fa-paint-brush text-lg w-6"></i>
                             <span class="ml-3 font-medium">Daftar Venue</span>
                         </a>
+                        
+<!-- Kami Daur Create -->
+<a href="{{ route('kami-daur.create') }}"
+    class="flex items-center p-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition duration-200 {{ request()->routeIs('kami-daur.create') ? 'active-menu bg-blue-50 text-blue-600' : '' }}"
+    @click="if (isMobile) isMobileMenuOpen = false">
+    <i class="fas fa-plus-circle text-lg w-6"></i>
+    <span class="ml-3 font-medium">Tambah Kami Daur</span>
+</a>
 
-                        <!-- Kami Daur Create -->
-                        <a href="#"
-                            class="flex items-center p-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition duration-200 {{ request()->routeIs('gallery.create') ? 'active-menu' : '' }}"
-                            @click="if (isMobile) isMobileMenuOpen = false">
-                            <i class="fas fa-paint-brush text-lg w-6"></i>
-                            <span class="ml-3 font-medium">Form Kami Daur</span>
-                        </a>
-
-                        <!-- Kami Daur Index -->
-                        <a href="#"
-                            class="flex items-center p-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition duration-200 {{ request()->routeIs('gallery.create') ? 'active-menu' : '' }}"
-                            @click="if (isMobile) isMobileMenuOpen = false">
-                            <i class="fas fa-paint-brush text-lg w-6"></i>
-                            <span class="ml-3 font-medium">Daftar Kami Daur</span>
-                        </a>
-
+<!-- Kami Daur Index -->
+<a href="{{ route('kami-daur.index') }}"
+    class="flex items-center p-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition duration-200 {{ request()->routeIs('kami-daur.index') ? 'active-menu bg-blue-50 text-blue-600' : '' }}"
+    @click="if (isMobile) isMobileMenuOpen = false">
+    <i class="fas fa-list-ul text-lg w-6"></i>
+    <span class="ml-3 font-medium">Daftar Kami Daur</span>
+</a>
                         <!-- Legareca Inn Index -->
-                        <a href="#"
-                            class="flex items-center p-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition duration-200 {{ request()->routeIs('gallery.create') ? 'active-menu' : '' }}"
+                        <a href="{{ route('reservasi.inn.reservations.index') }}"
+                            class="flex items-center p-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition duration-200 {{ request()->routeIs('reservasi.inn.reservations*') ? 'active-menu' : '' }}"
                             @click="if (isMobile) isMobileMenuOpen = false">
-                            <i class="fas fa-paint-brush text-lg w-6"></i>
-                            <span class="ml-3 font-medium">Daftar Legareca Inn</span>
+                            <i class="fas fa-hotel text-lg w-6"></i>
+                            <span class="ml-3 font-medium">Daftar Reservasi Inn</span>
                         </a>
 
                         <!-- Art Gallery Create -->
@@ -641,9 +635,8 @@
                 <!-- Left side: Menu button and breadcrumb -->
                 <div class="flex items-center">
                     <!-- TAMBAHKAN: Tombol hamburger untuk mobile (diperbarui dengan Alpine.js) -->
-                    <button class="mobile-menu-button text-gray-600 hover:text-gray-900 mr-4" 
-                            x-show="isMobile" 
-                            @click="isMobileMenuOpen = true">
+                    <button class="mobile-menu-button text-gray-600 hover:text-gray-900 mr-4" x-show="isMobile"
+                        @click="isMobileMenuOpen = true">
                         <i class="fas fa-bars text-xl"></i>
                     </button>
 
