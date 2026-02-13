@@ -535,23 +535,22 @@
                             <i class="fas fa-paint-brush text-lg w-6"></i>
                             <span class="ml-3 font-medium">Daftar Venue</span>
                         </a>
+                        
+<!-- Kami Daur Create -->
+<a href="{{ route('kami-daur.create') }}"
+    class="flex items-center p-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition duration-200 {{ request()->routeIs('kami-daur.create') ? 'active-menu bg-blue-50 text-blue-600' : '' }}"
+    @click="if (isMobile) isMobileMenuOpen = false">
+    <i class="fas fa-plus-circle text-lg w-6"></i>
+    <span class="ml-3 font-medium">Tambah Kami Daur</span>
+</a>
 
-                        <!-- Kami Daur Create -->
-                        <a href="#"
-                            class="flex items-center p-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition duration-200 {{ request()->routeIs('gallery.create') ? 'active-menu' : '' }}"
-                            @click="if (isMobile) isMobileMenuOpen = false">
-                            <i class="fas fa-paint-brush text-lg w-6"></i>
-                            <span class="ml-3 font-medium">Form Kami Daur</span>
-                        </a>
-
-                        <!-- Kami Daur Index -->
-                        <a href="#"
-                            class="flex items-center p-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition duration-200 {{ request()->routeIs('gallery.create') ? 'active-menu' : '' }}"
-                            @click="if (isMobile) isMobileMenuOpen = false">
-                            <i class="fas fa-paint-brush text-lg w-6"></i>
-                            <span class="ml-3 font-medium">Daftar Kami Daur</span>
-                        </a>
-
+<!-- Kami Daur Index -->
+<a href="{{ route('kami-daur.index') }}"
+    class="flex items-center p-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition duration-200 {{ request()->routeIs('kami-daur.index') ? 'active-menu bg-blue-50 text-blue-600' : '' }}"
+    @click="if (isMobile) isMobileMenuOpen = false">
+    <i class="fas fa-list-ul text-lg w-6"></i>
+    <span class="ml-3 font-medium">Daftar Kami Daur</span>
+</a>
                         <!-- Legareca Inn Index -->
                         <a href="{{ route('reservasi.inn.reservations.index') }}"
                             class="flex items-center p-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition duration-200 {{ request()->routeIs('reservasi.inn.reservations*') ? 'active-menu' : '' }}"
