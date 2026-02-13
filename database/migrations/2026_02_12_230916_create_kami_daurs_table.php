@@ -15,16 +15,18 @@ return new class extends Migration
         Schema::create('kami_daurs', function (Blueprint $table) {
             $table->id();
             
-            // Features / Products
+            // HANYA PRODUK DAN MATERIAL
             $table->json('products')->nullable();
-            
-            // Materials / Process
             $table->json('materials')->nullable();
             
             // Status
-            $table->boolean('is_active')->default(true);
+            $table->boolean('is_active')->default(false);
             
             $table->timestamps();
+            
+            // Index for faster queries
+            $table->index('is_active');
+            $table->index('created_at');
         });
     }
 
