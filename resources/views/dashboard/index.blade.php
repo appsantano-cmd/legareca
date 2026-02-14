@@ -19,10 +19,6 @@
             transition: all 0.3s ease;
         }
 
-        .sidebar-collapsed {
-            width: 70px;
-        }
-
         .sidebar-expanded {
             width: 260px;
         }
@@ -36,13 +32,8 @@
             width: calc(100% - 260px);
         }
 
-        .main-content-collapsed {
-            margin-left: 70px;
-            width: calc(100% - 70px);
-        }
-
         /* MODIFIKASI CSS UNTUK MOBILE */
-        @media (max-width: 768px) {
+        @media (max-width: 1023px) {
 
             /* Sidebar tetap disembunyikan default untuk mobile */
             .sidebar {
@@ -74,9 +65,8 @@
                 display: block;
             }
 
-            /* Style untuk main content di mobile */
-            .main-content-expanded,
-            .main-content-collapsed {
+            /* Style untuk main content di mobile - selalu full width */
+            .main-content-expanded {
                 margin-left: 0;
                 width: 100%;
             }
@@ -96,6 +86,20 @@
             .mobile-dropdown-content {
                 max-height: 70vh;
                 overflow-y: auto;
+            }
+        }
+
+        /* DESKTOP - Ensure sidebar is always visible and expanded */
+        @media (min-width: 1024px) {
+            .sidebar {
+                left: 0 !important;
+                display: block !important;
+                width: 260px !important;
+            }
+            
+            .main-content {
+                margin-left: 260px !important;
+                width: calc(100% - 260px) !important;
             }
         }
 
@@ -289,8 +293,8 @@
 
 <!-- TAMBAHKAN x-data dan x-on:resize untuk Alpine.js -->
 
-<body class="bg-gray-50" x-data="{ isMobileMenuOpen: false, isMobile: window.innerWidth <= 768 }"
-    x-on:resize.window="isMobile = (window.innerWidth <= 768); if (!isMobile) isMobileMenuOpen = false;">
+<body class="bg-gray-50" x-data="{ isMobileMenuOpen: false, isMobile: window.innerWidth < 1024 }"
+    x-on:resize.window="isMobile = (window.innerWidth < 1024); if (!isMobile) isMobileMenuOpen = false;">
 
     <!-- TAMBAHKAN: Overlay untuk mobile sidebar (diperbarui) -->
     <div class="mobile-overlay" x-show="isMobile && isMobileMenuOpen" x-transition.opacity
@@ -298,8 +302,9 @@
     </div>
 
     <!-- Sidebar - TAMBAHKAN: Alpine.js binding untuk mobile -->
-    <div id="sidebar" class="sidebar sidebar-expanded bg-white h-screen fixed left-0 top-0 shadow-lg z-40"
-        :class="{ 'sidebar-mobile-active': isMobile && isMobileMenuOpen }" x-show="!isMobile || isMobileMenuOpen"
+    <div id="sidebar" class="sidebar sidebar-expanded bg-white h-screen fixed left-0 top-0 shadow-lg"
+        :class="{ 'sidebar-mobile-active': isMobile && isMobileMenuOpen, 'z-40': isMobile, 'z-30': !isMobile }" 
+        x-show="!isMobile || isMobileMenuOpen"
         x-transition:enter="transition ease-out duration-300" x-transition:enter-start="-translate-x-full"
         x-transition:enter-end="translate-x-0" x-transition:leave="transition ease-in duration-300"
         x-transition:leave-start="translate-x-0" x-transition:leave-end="-translate-x-full">
@@ -512,45 +517,45 @@
                                 Management</span>
                         </div>
 
-                        <!-- Cafe Resto Index -->
+                        <!-- Daftar Cafe Resto - ICON DIUBAH -->
                         <a href="{{ route(name: 'caferesto.dashboard') }}"
-                            class="flex items-center p-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition duration-200 {{ request()->routeIs('gallery.create') ? 'active-menu' : '' }}"
+                            class="flex items-center p-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition duration-200 {{ request()->routeIs('caferesto.dashboard') ? 'active-menu' : '' }}"
                             @click="if (isMobile) isMobileMenuOpen = false">
-                            <i class="fas fa-paint-brush text-lg w-6"></i>
+                            <i class="fas fa-utensils text-lg w-6"></i>
                             <span class="ml-3 font-medium">Daftar Cafe Resto</span>
                         </a>
 
-                        <!-- Venue Create -->
+                        <!-- Form Venue - ICON DIUBAH -->
                         <a href="{{ route(name: 'venue.index') }}"
                             class="flex items-center p-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition duration-200 {{ request()->routeIs('venue.*') ? 'active-menu' : '' }}"
                             @click="if (isMobile) isMobileMenuOpen = false">
-                            <i class="fas fa-paint-brush text-lg w-6"></i>
+                            <i class="fas fa-building text-lg w-6"></i>
                             <span class="ml-3 font-medium">Form Venue</span>
                         </a>
 
-                        <!-- Venue Index -->
+                        <!-- Daftar Venue - ICON DIUBAH -->
                         <a href="{{ route(name: 'venue.data') }}"
-                            class="flex items-center p-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition duration-200 {{ request()->routeIs('gallery.create') ? 'active-menu' : '' }}"
+                            class="flex items-center p-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition duration-200 {{ request()->routeIs('venue.data') ? 'active-menu' : '' }}"
                             @click="if (isMobile) isMobileMenuOpen = false">
-                            <i class="fas fa-paint-brush text-lg w-6"></i>
+                            <i class="fas fa-map-marked-alt text-lg w-6"></i>
                             <span class="ml-3 font-medium">Daftar Venue</span>
                         </a>
-                        
-<!-- Kami Daur Create -->
-<a href="{{ route('kami-daur.create') }}"
-    class="flex items-center p-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition duration-200 {{ request()->routeIs('kami-daur.create') ? 'active-menu bg-blue-50 text-blue-600' : '' }}"
-    @click="if (isMobile) isMobileMenuOpen = false">
-    <i class="fas fa-plus-circle text-lg w-6"></i>
-    <span class="ml-3 font-medium">Tambah Kami Daur</span>
-</a>
 
-<!-- Kami Daur Index -->
-<a href="{{ route('kami-daur.index') }}"
-    class="flex items-center p-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition duration-200 {{ request()->routeIs('kami-daur.index') ? 'active-menu bg-blue-50 text-blue-600' : '' }}"
-    @click="if (isMobile) isMobileMenuOpen = false">
-    <i class="fas fa-list-ul text-lg w-6"></i>
-    <span class="ml-3 font-medium">Daftar Kami Daur</span>
-</a>
+                        <!-- Kami Daur Create -->
+                        <a href="{{ route('kami-daur.create') }}"
+                            class="flex items-center p-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition duration-200 {{ request()->routeIs('kami-daur.create') ? 'active-menu bg-blue-50 text-blue-600' : '' }}"
+                            @click="if (isMobile) isMobileMenuOpen = false">
+                            <i class="fas fa-plus-circle text-lg w-6"></i>
+                            <span class="ml-3 font-medium">Tambah Kami Daur</span>
+                        </a>
+
+                        <!-- Kami Daur Index -->
+                        <a href="{{ route('kami-daur.index') }}"
+                            class="flex items-center p-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition duration-200 {{ request()->routeIs('kami-daur.index') ? 'active-menu bg-blue-50 text-blue-600' : '' }}"
+                            @click="if (isMobile) isMobileMenuOpen = false">
+                            <i class="fas fa-list-ul text-lg w-6"></i>
+                            <span class="ml-3 font-medium">Daftar Kami Daur</span>
+                        </a>
                         <!-- Legareca Inn Index -->
                         <a href="{{ route('reservasi.inn.reservations.index') }}"
                             class="flex items-center p-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition duration-200 {{ request()->routeIs('reservasi.inn.reservations*') ? 'active-menu' : '' }}"
@@ -566,32 +571,6 @@
                             <i class="fas fa-paint-brush text-lg w-6"></i>
                             <span class="ml-3 font-medium">Form Art Gallery</span>
                         </a>
-
-                        <!-- Art Gallery Index -->
-                        <a href="#"
-                            class="flex items-center p-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition duration-200 {{ request()->routeIs('gallery.create') ? 'active-menu' : '' }}"
-                            @click="if (isMobile) isMobileMenuOpen = false">
-                            <i class="fas fa-paint-brush text-lg w-6"></i>
-                            <span class="ml-3 font-medium">Daftar Art Gallery</span>
-                        </a>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
                         <!-- Developer Menu (Activity Log) -->
                         @if (auth()->user()->role === 'developer')
@@ -637,12 +616,6 @@
                     <!-- TAMBAHKAN: Tombol hamburger untuk mobile (diperbarui dengan Alpine.js) -->
                     <button class="mobile-menu-button text-gray-600 hover:text-gray-900 mr-4" x-show="isMobile"
                         @click="isMobileMenuOpen = true">
-                        <i class="fas fa-bars text-xl"></i>
-                    </button>
-
-                    <!-- Desktop sidebar toggle (tetap ada untuk PC) -->
-                    <button id="desktop-sidebar-toggle" class="hidden lg:block text-gray-600 hover:text-gray-900 mr-4"
-                        onclick="toggleDesktopSidebar()">
                         <i class="fas fa-bars text-xl"></i>
                     </button>
 
@@ -844,29 +817,6 @@
             }
         }
 
-        // Desktop sidebar function (TETAP SAMA UNTUK PC)
-        function toggleDesktopSidebar() {
-            const sidebar = document.getElementById('sidebar');
-            const mainContent = document.getElementById('main-content');
-
-            // Hanya toggle jika bukan di mobile
-            if (window.innerWidth >= 768) {
-                if (sidebar.classList.contains('sidebar-expanded')) {
-                    // Collapse sidebar
-                    sidebar.classList.remove('sidebar-expanded');
-                    sidebar.classList.add('sidebar-collapsed');
-                    mainContent.classList.remove('main-content-expanded');
-                    mainContent.classList.add('main-content-collapsed');
-                } else {
-                    // Expand sidebar
-                    sidebar.classList.remove('sidebar-collapsed');
-                    sidebar.classList.add('sidebar-expanded');
-                    mainContent.classList.remove('main-content-collapsed');
-                    mainContent.classList.add('main-content-expanded');
-                }
-            }
-        }
-
         // Toggle dropdown menus
         function toggleDropdown(dropdownId) {
             const dropdown = document.getElementById(dropdownId);
@@ -1019,9 +969,12 @@
         setInterval(fetchNotifications, 30000);
 
         // Saat dropdown dibuka, ambil data terbaru
-        document.getElementById('notification-button').addEventListener('click', function() {
-            setTimeout(fetchNotifications, 100);
-        });
+        const notifButton = document.getElementById('notification-button');
+        if (notifButton) {
+            notifButton.addEventListener('click', function() {
+                setTimeout(fetchNotifications, 100);
+            });
+        }
 
         // Mark as read ketika diklik
         document.addEventListener('click', function(e) {
@@ -1065,10 +1018,15 @@
 
                 if (data.success) {
                     // Update stats cards
-                    document.getElementById('todayActivitiesCount').textContent = data.today_activities || 0;
-                    document.getElementById('formSubmissionsCount').textContent = data.form_submissions || 0;
-                    document.getElementById('userLoginsCount').textContent = data.user_logins || 0;
-                    document.getElementById('activeUsersCount').textContent = data.active_users || 0;
+                    const todayCount = document.getElementById('todayActivitiesCount');
+                    const formCount = document.getElementById('formSubmissionsCount');
+                    const loginCount = document.getElementById('userLoginsCount');
+                    const activeCount = document.getElementById('activeUsersCount');
+
+                    if (todayCount) todayCount.textContent = data.today_activities || 0;
+                    if (formCount) formCount.textContent = data.form_submissions || 0;
+                    if (loginCount) loginCount.textContent = data.user_logins || 0;
+                    if (activeCount) activeCount.textContent = data.active_users || 0;
 
                     // Update welcome message stats
                     const recentStats = document.getElementById('recentActivityStats');
@@ -1079,11 +1037,13 @@
                         // Update badge if there are recent activities
                         const badge = document.getElementById('activityLogBadge');
                         const badgeCount = document.getElementById('recentActivitiesCount');
-                        if (recentCount > 0) {
-                            badge.style.display = 'block';
-                            badgeCount.textContent = recentCount > 9 ? '9+' : recentCount;
-                        } else {
-                            badge.style.display = 'none';
+                        if (badge && badgeCount) {
+                            if (recentCount > 0) {
+                                badge.style.display = 'block';
+                                badgeCount.textContent = recentCount > 9 ? '9+' : recentCount;
+                            } else {
+                                badge.style.display = 'none';
+                            }
                         }
                     }
                 }
@@ -1104,6 +1064,8 @@
 
                 const data = await response.json();
                 const container = document.getElementById('recentActivitiesList');
+
+                if (!container) return;
 
                 if (data.success && data.activities.length > 0) {
                     let html = '';
@@ -1157,8 +1119,10 @@
                 }
             } catch (error) {
                 console.error('Error loading recent activities:', error);
-                document.getElementById('recentActivitiesList').innerHTML =
-                    '<p class="text-gray-500">Error loading activities</p>';
+                const container = document.getElementById('recentActivitiesList');
+                if (container) {
+                    container.innerHTML = '<p class="text-gray-500">Error loading activities</p>';
+                }
             }
         }
 
