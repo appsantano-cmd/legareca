@@ -35,7 +35,7 @@
                     </li>
 
                     <!-- Menu Master Bahan Kitchen -->
-                    @if (in_array(auth()->user()->role, ['admin', 'developer']))
+                    @if (in_array(auth()->user()->role, ['admin', 'developer', 'staff']))
                         <li class="nav-item">
                             <a class="nav-link {{ request()->is('master-kitchen*') ? 'active' : '' }}"
                                 href="{{ route('master-kitchen.index') }}">
@@ -45,7 +45,7 @@
                     @endif
 
                     <!-- Menu Master Bahan Bar -->
-                    @if (in_array(auth()->user()->role, ['admin', 'developer']))
+                    @if (in_array(auth()->user()->role, ['admin', 'developer', 'staff']))
                         <li class="nav-item">
                             <a class="nav-link {{ request()->is('master-bar*') ? 'active' : '' }}"
                                 href="{{ route('master-bar.index') }}">

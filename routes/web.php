@@ -199,6 +199,15 @@ Route::middleware(['auth', 'role:developer,admin,marcom,staff'])->group(function
     Route::resource('stok-kitchen', StokKitchenController::class)->except(['create', 'edit', 'show']);
     Route::resource('stok-bar', StokBarController::class)->except(['create', 'edit', 'show']);
 
+    Route::resource('master-kitchen', StokStationMasterKitchenController::class)->except(['show', 'create', 'edit']);
+    Route::post('/master-kitchen/export', [StokStationMasterKitchenController::class, 'export'])
+        ->name('master-kitchen.export');
+
+    Route::resource('satuan-station', SatuanStationController::class)->except(['show']);
+    Route::resource('master-bar', StokStationMasterBarController::class)->except(['show', 'create', 'edit']);
+    Route::post('/master-bar/export', [StokStationMasterBarController::class, 'export'])
+        ->name('master-bar.export');
+
     // Stok Station APIs
     Route::get('/api/master-kitchen/{kode_bahan}', [StokKitchenController::class, 'getMasterBahan']);
     Route::get('/api/master-bar/{kode_bahan}', [StokBarController::class, 'getMasterBahan']);
@@ -274,25 +283,25 @@ Route::middleware(['auth', 'role:developer,admin,marcom,staff'])->group(function
         // User Management
         Route::resource('users', UserController::class)->only(['index', 'create', 'store']);
 
-    // Data Screening
-    Route::prefix('screening')->name('screening.')->controller(ScreeningController::class)->group(function () {
-        Route::get('/data', 'index')->name('index');
-        Route::get('/data/{id}', 'show')->name('show');
-        Route::delete('/data/{id}', 'destroy')->name('destroy');
-    });
+        // Data Screening
+        Route::prefix('screening')->name('screening.')->controller(ScreeningController::class)->group(function () {
+            Route::get('/data', 'index')->name('index');
+            Route::get('/data/{id}', 'show')->name('show');
+            Route::delete('/data/{id}', 'destroy')->name('destroy');
+        });
 
-    // Stok Gudang
-    Route::prefix('stok-gudang')->name('stok.')->controller(StokGudangController::class)->group(function () {
-        Route::get('/', 'index')->name('index');
-        Route::get('/create', 'create')->name('create');
-        Route::post('/', 'store')->name('store');
-        Route::get('/{id}/edit', 'edit')->name('edit');
-        Route::put('/{id}', 'update')->name('update');
-        Route::delete('/{id}', 'destroy')->name('destroy');
-        Route::post('/rollover', 'rollover')->name('rollover');
-        Route::get('/rollover-history', 'showRolloverHistory')->name('rollover.history');
-        Route::get('/export', 'exportExcel')->name('export');
-    });
+        // Stok Gudang
+        Route::prefix('stok-gudang')->name('stok.')->controller(StokGudangController::class)->group(function () {
+            Route::get('/', 'index')->name('index');
+            Route::get('/create', 'create')->name('create');
+            Route::post('/', 'store')->name('store');
+            Route::get('/{id}/edit', 'edit')->name('edit');
+            Route::put('/{id}', 'update')->name('update');
+            Route::delete('/{id}', 'destroy')->name('destroy');
+            Route::post('/rollover', 'rollover')->name('rollover');
+            Route::get('/rollover-history', 'showRolloverHistory')->name('rollover.history');
+            Route::get('/export', 'exportExcel')->name('export');
+        });
 
         // Stok Gudang Transactions
         Route::prefix('transactions')->name('transactions.')->controller(StokTransactionController::class)->group(function () {
@@ -323,16 +332,6 @@ Route::middleware(['auth', 'role:developer,admin,marcom,staff'])->group(function
             Route::put('/{id}/restore', 'restore')->name('restore');
             Route::get('/api/supplier', 'indexApi')->name('api.supplier.index');
         });
-
-        // Stok Station Master Data
-        Route::resource('master-kitchen', StokStationMasterKitchenController::class)->except(['show', 'create', 'edit']);
-        Route::post('/master-kitchen/export', [StokStationMasterKitchenController::class, 'export'])
-            ->name('master-kitchen.export');
-
-        Route::resource('satuan-station', SatuanStationController::class)->except(['show']);
-        Route::resource('master-bar', StokStationMasterBarController::class)->except(['show', 'create', 'edit']);
-        Route::post('/master-bar/export', [StokStationMasterBarController::class, 'export'])
-            ->name('master-bar.export');
 
         // Izin Management
         Route::prefix('izin')->name('izin.')->controller(PengajuanIzinController::class)->group(function () {
@@ -371,37 +370,37 @@ Route::middleware(['auth', 'role:developer,admin,marcom,staff'])->group(function
                 Route::get('/stats', 'getStats')->name('stats');
             });
 
-        // ===== GOOGLE SHEETS INTEGRATION =====
-        Route::get('/export/google-sheets', 'exportAllToGoogleSheets')->name('export.google-sheets');
-        Route::get('/test-google-sheets', 'testGoogleSheetsConnection')->name('test.google-sheets');
-        Route::get('/check-config', 'checkGoogleSheetsConfig')->name('check.config');
-    });
+            // ===== GOOGLE SHEETS INTEGRATION =====
+            Route::get('/export/google-sheets', 'exportAllToGoogleSheets')->name('export.google-sheets');
+            Route::get('/test-google-sheets', 'testGoogleSheetsConnection')->name('test.google-sheets');
+            Route::get('/check-config', 'checkGoogleSheetsConfig')->name('check.config');
+        });
 
-    Route::prefix('reservasi')->name('reservasi.')->controller(ReservasiController::class)->group(function () {
-        // CRUD Reservations - Perhatikan penempatan route
-        Route::prefix('inn/reservations')->name('inn.reservations.')->group(function () {
-            Route::get('/', 'index')->name('index');
-            Route::get('/{id}', 'show')->name('show');
-            Route::get('/{id}/edit', 'edit')->name('edit');
-            Route::put('/{id}', 'update')->name('update');
-            Route::delete('/{id}', 'destroy')->name('destroy');
-            Route::put('/{id}/status', 'updateStatus')->name('status');
+        Route::prefix('reservasi')->name('reservasi.')->controller(ReservasiController::class)->group(function () {
+            // CRUD Reservations - Perhatikan penempatan route
+            Route::prefix('inn/reservations')->name('inn.reservations.')->group(function () {
+                Route::get('/', 'index')->name('index');
+                Route::get('/{id}', 'show')->name('show');
+                Route::get('/{id}/edit', 'edit')->name('edit');
+                Route::put('/{id}', 'update')->name('update');
+                Route::delete('/{id}', 'destroy')->name('destroy');
+                Route::put('/{id}/status', 'updateStatus')->name('status');
+            });
+        });
+
+        // Admin/Management routes (should be protected with middleware)
+        Route::prefix('kami-daur')->name('kami-daur.')->group(function () {
+            Route::middleware(['web'])->group(function () {
+                Route::get('/admin', [KamiDaurController::class, 'index'])->name('index');
+                Route::get('/admin/create', [KamiDaurController::class, 'create'])->name('create');
+                Route::post('/admin', [KamiDaurController::class, 'store'])->name('store');
+                Route::get('/admin/{kamiDaur}', [KamiDaurController::class, 'show'])->name('show');
+                Route::get('/admin/{kamiDaur}/edit', [KamiDaurController::class, 'edit'])->name('edit');
+                Route::put('/admin/{kamiDaur}', [KamiDaurController::class, 'update'])->name('update');
+                Route::delete('/admin/{kamiDaur}', [KamiDaurController::class, 'destroy'])->name('destroy');
+            });
         });
     });
-
-    // Admin/Management routes (should be protected with middleware)
-    Route::prefix('kami-daur')->name('kami-daur.')->group(function () {
-        Route::middleware(['web'])->group(function () {
-            Route::get('/admin', [KamiDaurController::class, 'index'])->name('index');
-            Route::get('/admin/create', [KamiDaurController::class, 'create'])->name('create');
-            Route::post('/admin', [KamiDaurController::class, 'store'])->name('store');
-            Route::get('/admin/{kamiDaur}', [KamiDaurController::class, 'show'])->name('show');
-            Route::get('/admin/{kamiDaur}/edit', [KamiDaurController::class, 'edit'])->name('edit');
-            Route::put('/admin/{kamiDaur}', [KamiDaurController::class, 'update'])->name('update');
-            Route::delete('/admin/{kamiDaur}', [KamiDaurController::class, 'destroy'])->name('destroy');
-        });
-    });
-});
 
     // routes/web.php (tambahkan di dalam group developer)
 

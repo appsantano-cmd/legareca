@@ -41,9 +41,9 @@ class StokBarController extends Controller
         }
 
         // Urutkan dari yang lama ke baru berdasarkan tanggal, shift, dan waktu
-        $stokBar = $query->orderBy('tanggal', 'asc')
-            ->orderBy('shift', 'asc')
-            ->orderBy('created_at', 'asc')
+        $stokBar = $query->orderBy('tanggal', 'desc')
+            ->orderBy('shift', 'desc')
+            ->orderBy('created_at', 'desc')
             ->get();
 
         $masterBar = StokStationMasterBar::all();

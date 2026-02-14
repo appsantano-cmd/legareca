@@ -699,13 +699,15 @@
                     </div>
                 </div>
                 <div class="header-actions">
-                    <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#exportModal">
-                        <i class="fas fa-file-export me-1"></i> Export Data
-                    </button>
+                    @if(auth()->check() && in_array(auth()->user()->role, ['admin','developer']))
+                        <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#exportModal">
+                            <i class="fas fa-file-export me-1"></i> Export Data
+                        </button>
 
-                    <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#createModal">
-                        <i class="fas fa-plus me-1"></i> Tambah Bahan
-                    </button>
+                        <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#createModal">
+                            <i class="fas fa-plus me-1"></i> Tambah Bahan
+                        </button>
+                    @endif
                 </div>
             </div>
 
@@ -731,9 +733,13 @@
                         <i class="fas fa-cocktail"></i>
                         <h4>Belum ada data master bahan bar</h4>
                         <p>Mulai dengan menambahkan bahan baru untuk mengelola stok bar Anda</p>
-                        <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#createModal">
-                            <i class="fas fa-plus"></i> Tambah Bahan Pertama
-                        </button>
+                        @if(auth()->check() && in_array(auth()->user()->role, ['admin','developer']))
+                            <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#createModal">
+                                <i class="fas fa-plus"></i> Tambah Bahan Pertama
+                            </button>
+                        @else
+                            <p class="text-muted">Hubungi admin untuk menambahkan data</p>
+                        @endif
                     </div>
                 @else
                     <div class="table-responsive">
@@ -747,7 +753,9 @@
                                     <th>Satuan</th>
                                     <th>Stok Awal</th>
                                     <th>Stok Minimum</th>
-                                    <th style="text-align: center;">Aksi</th>
+                                    @if(auth()->check() && in_array(auth()->user()->role, ['admin','developer']))
+                                        <th style="text-align: center;">Aksi</th>
+                                    @endif
                                 </tr>
                             </thead>
                             <tbody>
@@ -769,20 +777,23 @@
                                         <td style="text-align: right; font-weight: 600;">
                                             {{ number_format($item->stok_awal, 2) }}</td>
                                         <td style="text-align: right;">{{ number_format($item->stok_minimum, 2) }}</td>
-                                        <td>
-                                            <div class="action-buttons">
-                                                <button type="button" class="btn-action btn-edit" data-bs-toggle="modal"
-                                                    data-bs-target="#editModal{{ $item->id }}">
-                                                    <i class="fas fa-edit"></i>
-                                                    <span class="tooltip-text">Edit Data</span>
-                                                </button>
-                                                <button type="button" class="btn-action btn-delete" data-bs-toggle="modal"
-                                                    data-bs-target="#deleteModal{{ $item->id }}">
-                                                    <i class="fas fa-trash"></i>
-                                                    <span class="tooltip-text">Hapus Data</span>
-                                                </button>
-                                            </div>
-                                        </td>
+                                        @if(auth()->check() && in_array(auth()->user()->role, ['admin','developer']))
+                                            <td>
+                                                <div class="action-buttons">
+                                                    <button type="button" class="btn-action btn-edit" data-bs-toggle="modal"
+                                                        data-bs-target="#editModal{{ $item->id }}">
+                                                        <i class="fas fa-edit"></i>
+                                                        <span class="tooltip-text">Edit Data</span>
+                                                    </button>
+
+                                                    <button type="button" class="btn-action btn-delete" data-bs-toggle="modal"
+                                                        data-bs-target="#deleteModal{{ $item->id }}">
+                                                        <i class="fas fa-trash"></i>
+                                                        <span class="tooltip-text">Hapus Data</span>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        @endif
                                     </tr>
                                 @endforeach
                             </tbody>
@@ -794,6 +805,7 @@
     </div>
 
     <!-- Create Modal -->
+    @if(auth()->check() && in_array(auth()->user()->role, ['admin','developer']))
     <div class="modal fade" id="createModal" tabindex="-1" aria-labelledby="createModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
@@ -894,128 +906,133 @@
             </div>
         </div>
     </div>
+    @endif
 
     <!-- Edit Modals -->
-    @foreach ($masterBar as $item)
-        <div class="modal fade" id="editModal{{ $item->id }}" tabindex="-1"
-            aria-labelledby="editModalLabel{{ $item->id }}" aria-hidden="true">
-            <div class="modal-dialog modal-lg">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title"><i class="fas fa-edit"></i> Edit Master Bahan Bar</h5>
-                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
-                            aria-label="Close"></button>
-                    </div>
-                    <form action="{{ route('master-bar.update', $item->id) }}" method="POST">
-                        @csrf
-                        @method('PUT')
-                        <div class="modal-body">
-                            <div class="form-grid">
-                                <div class="form-group">
-                                    <label>Tanggal <span class="text-danger">*</span></label>
-                                    <input type="date" class="form-control" name="tanggal"
-                                        value="{{ $item->tanggal->format('Y-m-d') }}" required>
-                                </div>
-
-                                <div class="form-group">
-                                    <label>Kode Bahan</label>
-                                    <div class="form-control" style="background: #f5f5f5; color: #666;">
-                                        {{ $item->kode_bahan }}
+    @if(auth()->check() && in_array(auth()->user()->role, ['admin','developer']))
+        @foreach ($masterBar as $item)
+            <div class="modal fade" id="editModal{{ $item->id }}" tabindex="-1"
+                aria-labelledby="editModalLabel{{ $item->id }}" aria-hidden="true">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title"><i class="fas fa-edit"></i> Edit Master Bahan Bar</h5>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                                aria-label="Close"></button>
+                        </div>
+                        <form action="{{ route('master-bar.update', $item->id) }}" method="POST">
+                            @csrf
+                            @method('PUT')
+                            <div class="modal-body">
+                                <div class="form-grid">
+                                    <div class="form-group">
+                                        <label>Tanggal <span class="text-danger">*</span></label>
+                                        <input type="date" class="form-control" name="tanggal"
+                                            value="{{ $item->tanggal->format('Y-m-d') }}" required>
                                     </div>
-                                    <input type="hidden" name="kode_bahan" value="{{ $item->kode_bahan }}">
-                                </div>
 
-                                <div class="form-group">
-                                    <label>Nama Bahan <span class="text-danger">*</span></label>
-                                    <input type="text" class="form-control" name="nama_bahan"
-                                        value="{{ $item->nama_bahan }}" required>
-                                </div>
-
-                                <div class="form-group">
-                                    <label>Satuan <span class="text-danger">*</span></label>
-                                    <div class="satuan-input-group">
-                                        <input type="text" class="form-control"
-                                            id="satuanInputEditBar{{ $item->id }}" value="{{ $item->nama_satuan }}"
-                                            readonly required onclick="showSatuanModalBar('edit', {{ $item->id }})">
-                                        <button type="button" class="btn-select"
-                                            onclick="showSatuanModalBar('edit', {{ $item->id }})">
-                                            <i class="fas fa-search"></i>
-                                        </button>
-                                        <input type="hidden" name="nama_satuan"
-                                            id="selectedSatuanEditBar{{ $item->id }}"
-                                            value="{{ $item->nama_satuan }}">
+                                    <div class="form-group">
+                                        <label>Kode Bahan</label>
+                                        <div class="form-control" style="background: #f5f5f5; color: #666;">
+                                            {{ $item->kode_bahan }}
+                                        </div>
+                                        <input type="hidden" name="kode_bahan" value="{{ $item->kode_bahan }}">
                                     </div>
-                                </div>
 
-                                <div class="form-group">
-                                    <label>Stok Awal <span class="text-danger">*</span></label>
-                                    <input type="number" step="0.01" class="form-control" name="stok_awal"
-                                        value="{{ $item->stok_awal }}" required min="0">
-                                </div>
+                                    <div class="form-group">
+                                        <label>Nama Bahan <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" name="nama_bahan"
+                                            value="{{ $item->nama_bahan }}" required>
+                                    </div>
 
-                                <div class="form-group">
-                                    <label>Stok Minimum <span class="text-danger">*</span></label>
-                                    <input type="number" step="0.01" class="form-control" name="stok_minimum"
-                                        value="{{ $item->stok_minimum }}" required min="0">
+                                    <div class="form-group">
+                                        <label>Satuan <span class="text-danger">*</span></label>
+                                        <div class="satuan-input-group">
+                                            <input type="text" class="form-control"
+                                                id="satuanInputEditBar{{ $item->id }}" value="{{ $item->nama_satuan }}"
+                                                readonly required onclick="showSatuanModalBar('edit', {{ $item->id }})">
+                                            <button type="button" class="btn-select"
+                                                onclick="showSatuanModalBar('edit', {{ $item->id }})">
+                                                <i class="fas fa-search"></i>
+                                            </button>
+                                            <input type="hidden" name="nama_satuan"
+                                                id="selectedSatuanEditBar{{ $item->id }}"
+                                                value="{{ $item->nama_satuan }}">
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label>Stok Awal <span class="text-danger">*</span></label>
+                                        <input type="number" step="0.01" class="form-control" name="stok_awal"
+                                            value="{{ $item->stok_awal }}" required min="0">
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label>Stok Minimum <span class="text-danger">*</span></label>
+                                        <input type="number" step="0.01" class="form-control" name="stok_minimum"
+                                            value="{{ $item->stok_minimum }}" required min="0">
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                                <i class="fas fa-times"></i> Batal
-                            </button>
-                            <button type="submit" class="btn btn-primary">
-                                <i class="fas fa-save"></i> Simpan Perubahan
-                            </button>
-                        </div>
-                    </form>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                                    <i class="fas fa-times"></i> Batal
+                                </button>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save"></i> Simpan Perubahan
+                                </button>
+                            </div>
+                        </form>
+                    </div>
                 </div>
             </div>
-        </div>
-    @endforeach
+        @endforeach
+    @endif
 
     <!-- Delete Modals -->
-    @foreach ($masterBar as $item)
-        <div class="modal fade" id="deleteModal{{ $item->id }}" tabindex="-1"
-            aria-labelledby="deleteModalLabel{{ $item->id }}" aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header" style="background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);">
-                        <h5 class="modal-title"><i class="fas fa-trash"></i> Konfirmasi Hapus</h5>
-                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
-                            aria-label="Close"></button>
-                    </div>
-                    <form action="{{ route('master-bar.destroy', $item->id) }}" method="POST">
-                        @csrf
-                        @method('DELETE')
-                        <div class="modal-body text-center">
-                            <div class="mb-4">
-                                <i class="fas fa-exclamation-triangle fa-3x text-danger"></i>
-                            </div>
-                            <h5 class="mb-3">Hapus Data Bahan?</h5>
-                            <p>Data yang dihapus tidak dapat dikembalikan.</p>
+    @if(auth()->check() && in_array(auth()->user()->role, ['admin','developer']))
+        @foreach ($masterBar as $item)
+            <div class="modal fade" id="deleteModal{{ $item->id }}" tabindex="-1"
+                aria-labelledby="deleteModalLabel{{ $item->id }}" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header" style="background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);">
+                            <h5 class="modal-title"><i class="fas fa-trash"></i> Konfirmasi Hapus</h5>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                                aria-label="Close"></button>
+                        </div>
+                        <form action="{{ route('master-bar.destroy', $item->id) }}" method="POST">
+                            @csrf
+                            @method('DELETE')
+                            <div class="modal-body text-center">
+                                <div class="mb-4">
+                                    <i class="fas fa-exclamation-triangle fa-3x text-danger"></i>
+                                </div>
+                                <h5 class="mb-3">Hapus Data Bahan?</h5>
+                                <p>Data yang dihapus tidak dapat dikembalikan.</p>
 
-                            <div
-                                style="background: #ffebee; border: 1px solid #ffcdd2; border-radius: 8px; padding: 15px; margin: 20px 0;">
-                                <strong>{{ $item->nama_bahan }}</strong><br>
-                                <small>Kode: {{ $item->kode_bahan }}</small>
+                                <div
+                                    style="background: #ffebee; border: 1px solid #ffcdd2; border-radius: 8px; padding: 15px; margin: 20px 0;">
+                                    <strong>{{ $item->nama_bahan }}</strong><br>
+                                    <small>Kode: {{ $item->kode_bahan }}</small>
+                                </div>
                             </div>
-                        </div>
-                        <div class="modal-footer justify-content-center">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                                <i class="fas fa-times"></i> Batalkan
-                            </button>
-                            <button type="submit" class="btn btn-danger">
-                                <i class="fas fa-trash"></i> Ya, Hapus
-                            </button>
-                        </div>
-                    </form>
+                            <div class="modal-footer justify-content-center">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                                    <i class="fas fa-times"></i> Batalkan
+                                </button>
+                                <button type="submit" class="btn btn-danger">
+                                    <i class="fas fa-trash"></i> Ya, Hapus
+                                </button>
+                            </div>
+                        </form>
+                    </div>
                 </div>
             </div>
-        </div>
-    @endforeach
+        @endforeach
+    @endif
 
-    <!-- Satuan Modal -->
+    <!-- Satuan Modal (Tetap bisa diakses untuk semua role karena digunakan untuk input) -->
     <div class="modal fade modal-satuan" id="satuanModalBar" tabindex="-1" aria-labelledby="satuanModalLabelBar"
         aria-hidden="true">
         <div class="modal-dialog modal-md">
@@ -1049,6 +1066,7 @@
     </div>
     
     <!-- Export Modal -->
+    @if(auth()->check() && in_array(auth()->user()->role, ['admin','developer']))
     <div class="modal fade" id="exportModal" tabindex="-1" aria-labelledby="exportModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-md">
             <div class="modal-content">
@@ -1104,6 +1122,7 @@
             </div>
         </div>
     </div>
+    @endif
 @endsection
 
 @push('scripts')

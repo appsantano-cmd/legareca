@@ -41,9 +41,9 @@ class StokKitchenController extends Controller
         }
 
         // Urutkan dari yang lama ke baru berdasarkan tanggal, shift, dan waktu
-        $stokKitchen = $query->orderBy('tanggal', 'asc')
-            ->orderBy('shift', 'asc')
-            ->orderBy('created_at', 'asc')
+        $stokKitchen = $query->orderBy('tanggal', 'desc')
+            ->orderBy('shift', 'desc')
+            ->orderBy('created_at', 'desc')
             ->get();
 
         $masterKitchen = StokStationMasterKitchen::all();
